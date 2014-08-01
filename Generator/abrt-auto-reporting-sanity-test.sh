@@ -124,7 +124,7 @@ rlJournalStart
 
             OLD=$CONF_VALUE
         done
-    rpPhaseEnd
+    rlPhaseEnd
 
     #@ clean after test
     rlPhaseStartCleanup
