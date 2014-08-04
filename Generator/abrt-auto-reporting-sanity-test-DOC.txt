@@ -1,10 +1,17 @@
 Description:  does sanity on abrt-auto-reporting
-Author:  Jakub Filak <jfilak@redhat.com>
+Author: Janosik Karel,  Jakub Filak <jfilak@redhat.com>
 Keywords: doc help, auto-reporting,
 
 Phases: 
+	Outside Phase:
+		Somenthing in start of the test
+		Could be anything
+
 	rlPhaseStartSetup
 		Make temporary directory and saves work in it
+
+	Outside Phase:
+		Additional info
 
 	rlPhaseStartTest "--help"
 		Print help informations
@@ -33,6 +40,10 @@ Phases:
 	rlPhaseStartCleanup
 		clean after test
 			action: Disable auto reporting
+
+	Outside Phase:
+		Something on the end of the test
+		could be anything
 
 Expected result: 
 

@@ -140,6 +140,7 @@ class NewTextDoc:
 	func = []
 	loop = []
 	cond = []
+	outsidePhase = []
 	pom_list = []
 	parseInfo = ""
 	def __init__(self,parseInfoo):
@@ -154,44 +155,87 @@ class NewTextDoc:
 		STARTF = False
 		STARTL = False
 		SWAP = False
+		STARTB = False
 		
 		for doc in self.parseInfo.comments:
 
 			for line in doc:
-				print("LAJNA "+ line)
+				
 				if ('phasestart' in line.lower()):
 					self.pom_list.insert(0,'\t' + line.strip() + "\n")
+
 					STARTP = True
+					STARTB = True
 
-				elif ('@author' in line[0:len('@author')]):
-					self.author = line[len('@author') + 1: len(line)]
+					if (len(self.outsidePhase) != 0):
+							self.phases.append(self.outsidePhase)
+							self.outsidePhase = []
 
-				elif (('@key' == line[0:4].lower()) or ('@keywords' == line[0:9].lower()) ):
-					if (('@keywords' == line[0:9].lower())):
-						self.keywords += line[9:len(line)].strip() + ", "
+				elif ('@author' in line.lower()):
+					pom_aut_str = line[1:len(line)].strip()
+					if (self.author != ""):
+						self.author += ", " + pom_aut_str[len('@author'): len(line)].strip()
+					else: 
+						self.author = pom_aut_str[len('@author'): len(line)].strip()
+
+				elif (('@keywords' in line.lower()) or ('@key' in line.lower()) ):
+					pom_key = line[1:len(line)].split()
+					pom_key_str = line[1:len(line)].strip()
+					if (('@keywords' == pom_key[0].lower())):
+						self.keywords += pom_key_str[9:len(line)].strip() + ", "
 
 					else:
-						self.keywords += line[4:len(line)].strip() + ", "
+						self.keywords += pom_key_str[4:len(line)].strip() + ", "
+
+				elif ((('@' == line[0:1]) or ('&' == line[0:1]) )):
+					
+
+					if ('@action' == line[1:len('@action') + 1].strip()):
+						if (STARTL == True):
+							self.pom_list.append('\t\t\t' + "loop, action: " + line[len('@action') + 1:len(line)].strip() + "\n" )
+							self.loop.append('\t\t\t' + line[len('@action') + 1:len(line)].strip() + "\n" )
+
+						elif(STARTC == True):
+							self.pom_list.append('\t\t\t' + "condition, action: " + line[len('@action') + 1:len(line)].strip() + "\n" )
+							self.cond.append('\t\t\t' + line[len('@action') + 1:len(line)].strip() + "\n" )
 
 
+					elif('@' in line[1:2].strip()):
+						#TODO !!!!!!!!!!!!!!!!!! 
+						#Predelat aby to bylo s ifem nadtim :D ...
+						pom_str = line.split()
+						self.additionalInfo.append("\t" + (pom_str[0])[1:len(pom_str[0])] + "\n")
+						self.additionalInfo.append("\t\t" + line[len(pom_str[0]):len(line)] + "\n" )
 
-				elif ((('@ ' == line[0:2]) or ('@	' == line[0:2]) or ('&' == line[0:1]) )):
-					if (STARTP == True):
-						self.pom_list.append('\t\t' + line[1:len(line)].strip() + "\n")
 
-					elif(STARTL == True):
-						self.pom_list.append('\t\t\t' + "loop: " + line[1:len(line)].strip() + "\n" )
-						self.loop.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+					elif (STARTP == True):
 
-					elif(STARTC == True):
-						self.pom_list.append('\t\t\t' + "condition: " + line[1:len(line)].strip() + "\n" )
-						self.cond.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+						if(STARTL == True):
+							self.pom_list.append('\t\t\t' + "loop: " + line[1:len(line)].strip() + "\n" )
+							self.loop.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+
+						elif(STARTC == True):
+							self.pom_list.append('\t\t\t' + "condition: " + line[1:len(line)].strip() + "\n" )
+							self.cond.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+
+						elif(STARTB == False):
+							self.pom_list.append('\t\t\t' + "action: " + line[1:len(line)].strip() + "\n")
+
+						else:
+							self.pom_list.append('\t\t' + line[1:len(line)].strip() + "\n")
+
+				
 
 					elif(STARTF == True):
 						self.func.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
 
-					else:
-						self.pom_list.append('\t\t\t' + "action: " + line[1:len(line)].strip() + "\n")
+					elif(STARTP == False):
+						if (len(self.outsidePhase) != 0):
+							self.outsidePhase.append('\t\t' + line[1:len(line)].strip() + "\n")
+						else:
+							self.outsidePhase.append('\t' + 'Outside Phase:\n')
+							self.outsidePhase.append('\t\t' + line[1:len(line)].strip() + "\n")
+
 
 				elif(('for' == line[0:3]) or ('ENDLOOP' == line[0:len('ENDLOOP')]) ):
 					if (('ENDLOOP' == line[0:len('ENDLOOP')])):
@@ -230,33 +274,22 @@ class NewTextDoc:
 				elif ('END' in  line[0:3]):
 					self.phases.append(self.pom_list)
 					self.pom_list = []
+					STARTP = False
 
 				elif ('#@' == line[len(line)-2:len(line)]):
 					self.pom_list.append('\t\t\tcode: ' + line[0:len(line)-2] + '\n')
 
-				else:
-					if ('@action' == line[0:len('@action')]):
-						if (STARTL == True):
-							self.pom_list.append('\t\t\t' + "loop, action: " + line[len('@action'):len(line)].strip() + "\n" )
-							self.loop.append('\t\t\t' + line[len('@action'):len(line)].strip() + "\n" )
+			STARTB = False
 
-						elif(STARTC == True):
-							self.pom_list.append('\t\t\t' + "condition, action: " + line[len('@action'):len(line)].strip() + "\n" )
-							self.cond.append('\t\t\t' + line[len('@action'):len(line)].strip() + "\n" )
+		if (len(self.outsidePhase) != 0):
+			self.phases.append(self.outsidePhase)
+			self.outsidePhase = []
 
-					elif('@' in line[0:1]):
-						#TODO !!!!!!!!!!!!!!!!!! 
-						#Predelat aby to bylo s ifem nadtim :D ...
-						pom_str = line.split()
-						self.additionalInfo.append("\t" + (pom_str[0])[1:len(pom_str[0])] + "\n")
-						self.additionalInfo.append("\t\t" + line[len(pom_str[0]):len(line)] + "\n" )
-
-
-
-			STARTP = False
-		
 		if (self.parseInfo.author != "None"):
-			self.author += self.parseInfo.author
+			if (self.author != ""):
+				self.author += ", " + self.parseInfo.author
+			else:
+				self.author += self.parseInfo.author
 		
 		if(self.parseInfo.description != "None"):
 			self.description += self.parseInfo.description

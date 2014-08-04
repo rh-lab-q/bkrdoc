@@ -1,8 +1,8 @@
- #@author Red Hat (c)
+ #@@author Red Hat (c)
 
 
  #@ On client, prepare squid for caching yum repositories [setup]
- #@key squid, yum repositories
+ #@@key squid, yum repositories
  rlPhaseStartSetup "Client setup"
      #@ Enable SELinux boolean, allow to connect from any host [setup]
      rlRun "setsebool squid_connect_any on" 0 "Enable squid SELinux boolean"
@@ -14,7 +14,7 @@
      rlRun "rlServiceStart squid"
 
      #@ Fetch CA certificate, add to CA bundle [setup]
-     #@key Ca certificate
+     #@@key Ca certificate
      rlRun "rhts-sync-block -s READY $SERVERS" 0 "Waiting for the server"     
      rlRun "wget http://$SERVERS/repo/ca.crt" 0 "Fetching CA certificate"
      rlRun "cat ca.crt >> $CaBundle" \
@@ -25,7 +25,7 @@
              0 "Backing up yum repositories"
      
      #@ Set ftp, http, https protocol for yum repository.
-     #@key ftp, http, https
+     #@@key ftp, http, https
      for protocol in "ftp" "http" "https" ; do
          cat > /etc/yum.repos.d/$protocol-test.repo <<-EOF
              [$protocol-repo]
