@@ -17,6 +17,7 @@ Phases:
 		Print help informations
 		Using of block comment
 		This could be usefull
+			networking: sfsdf sdf sdfsd f
 
 	rlPhaseStartTest "no args"
 		Runs script with no arguments
@@ -32,10 +33,12 @@ Phases:
 
 	rlPhaseStartTest "various argument types"
 		Various types of arguments will start this part
-			loop: for every argument in selected word will do...
 			code: rlRun "abrt-auto-reporting $arg"  
 			code: get_configured_value 
+			code: rlFail "Mangles the configuration value" 
+			loop: for every argument in selected word will do...
 			condition, action: Test if actualy value in arg is not "enabled" and "disabled"
+			condition: wee will seee
 
 	rlPhaseStartCleanup
 		clean after test
@@ -60,3 +63,4 @@ Additional information:
 	 Conditions: 
 		if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
 			Test if actualy value in arg is not "enabled" and "disabled"
+			wee will seee
