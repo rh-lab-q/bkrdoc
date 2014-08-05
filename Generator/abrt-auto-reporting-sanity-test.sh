@@ -51,7 +51,8 @@ function get_configured_value
             ;;
     esac
 }
-#@ @author Janosik Karel
+#@ @author Janosik Karel 
+
 
 rlJournalStart
     #@ Somenthing in start of the test
@@ -66,7 +67,8 @@ rlJournalStart
     #@ Additional info 
 
     # @ Print help informations
-    # @    @keywords doc help
+    # @keywords doc help 
+    # @networking sfsdf sdf sdfsd f
     # Using of block comment
     # This could be usefull 
     rlPhaseStartTest "--help"
@@ -120,9 +122,10 @@ rlJournalStart
             get_configured_value #@
             rlAssertNotEquals "Changed the configuration" "_$OLD" "_$CONF_VALUE"
 
-            #@@action Test if actualy value in arg is not "enabled" and "disabled"
+            #@       @action Test if actualy value in arg is not "enabled" and "disabled"
             if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
-                rlFail "Mangles the configuration value"
+                #@ wee will seee
+                rlFail "Mangles the configuration value" #@
             fi
 
             OLD=$CONF_VALUE
