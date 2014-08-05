@@ -56,13 +56,15 @@ class gener(object):
 
 		for line in self.fileString.split('\n'):
 			line = line.strip()
+			#print("............." + line)
+			#print( self.BlockComm)
+			#print( self.NextLine)
 			if((len(line) >= 2) and (line[0] == "#")):
-				self.parseLine(line[1:len(line)])
+				self.parseLine(line[1:len(line)].strip())
 
 
 			elif(self.NextLine == True):
 				if (('phasestart' in line.lower()) or (line[0:2].lower() == 'if') or (line[0:3].lower() == 'for') ):
-
 					self.block.insert(0,line)
 
 				elif((line[0:len('function')].lower() == 'function')):
@@ -75,11 +77,10 @@ class gener(object):
 				self.comments.append(self.block)
 				self.block = []
 				self.NextLine = False
-
-			elif(self.BlockComm == True):
 				self.BlockComm = False
 
 			else:
+				self.BlockComm = False
 				if (line[len(line)-2:len(line)] == "#@"):
 					POM.append(line)
 					self.comments.append(POM)
@@ -109,11 +110,10 @@ class gener(object):
 	def parseLine(self,Line):
 		Line = Line.strip()
 		POM = []
-		if(Line[0] == '@'):
+		if((Line[0] == '@') and (self.BlockComm == False)):
 			self.BlockComm = True
 			self.NextLine = True
 			self.block.append(Line)
-			
 
 		elif(self.BlockComm == True):
 			self.block.append("&" + Line)
@@ -142,6 +142,7 @@ class NewTextDoc:
 	cond = []
 	outsidePhase = []
 	pom_list = []
+	action_list = []
 	parseInfo = ""
 	def __init__(self,parseInfoo):
 		self.filename = parseInfoo.filename
@@ -160,7 +161,8 @@ class NewTextDoc:
 		for doc in self.parseInfo.comments:
 
 			for line in doc:
-				
+				#print(line)
+				#print(STARTC)
 				if ('phasestart' in line.lower()):
 					self.pom_list.insert(0,'\t' + line.strip() + "\n")
 
@@ -181,45 +183,48 @@ class NewTextDoc:
 				elif (('@keywords' in line.lower()) or ('@key' in line.lower()) ):
 					pom_key = line[1:len(line)].split()
 					pom_key_str = line[1:len(line)].strip()
-					if (('@keywords' == pom_key[0].lower())):
-						self.keywords += pom_key_str[9:len(line)].strip() + ", "
+					
+					if (len(pom_key[0]) == 1):
+						del pom_key[0]
+						pom_key_str = pom_key_str[1:len(pom_key_str)].strip()
 
-					else:
-						self.keywords += pom_key_str[4:len(line)].strip() + ", "
+					self.keywords += pom_key_str[len(pom_key[0]):len(line)].strip() + ", "
 
 				elif ((('@' == line[0:1]) or ('&' == line[0:1]) )):
-					
+					pom_list = line[1:len(line)].split()
+					pom_str = line[1:len(line)].strip()
 
-					if ('@action' == line[1:len('@action') + 1].strip()):
+					if (len(pom_list[0]) == 1):
+						del pom_list[0]
+						pom_str = pom_str[1:len(pom_str)].strip()
+
+
+					if ('@' == pom_str[0][0:1]):
+						#print("mmmmmm" + line)
 						if (STARTL == True):
-							self.pom_list.append('\t\t\t' + "loop, action: " + line[len('@action') + 1:len(line)].strip() + "\n" )
-							self.loop.append('\t\t\t' + line[len('@action') + 1:len(line)].strip() + "\n" )
+							self.action_list.append('\t\t\t' + "loop, "+ pom_list[0][1:len(pom_list[0])] + ": " + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
+							self.loop.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTC == True):
-							self.pom_list.append('\t\t\t' + "condition, action: " + line[len('@action') + 1:len(line)].strip() + "\n" )
-							self.cond.append('\t\t\t' + line[len('@action') + 1:len(line)].strip() + "\n" )
+							self.action_list.append('\t\t\t' + "condition, " + pom_list[0][1:len(pom_list[0])]+ ": " + pom_str[len(pom_list[0]):len(pom_str)].strip() + "\n" )
+							self.cond.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
-
-					elif('@' in line[1:2].strip()):
-						#TODO !!!!!!!!!!!!!!!!!! 
-						#Predelat aby to bylo s ifem nadtim :D ...
-						pom_str = line.split()
-						self.additionalInfo.append("\t" + (pom_str[0])[1:len(pom_str[0])] + "\n")
-						self.additionalInfo.append("\t\t" + line[len(pom_str[0]):len(line)] + "\n" )
+						elif(STARTP == True):
+							self.action_list.append('\t\t\t' + pom_list[0][1:len(pom_list[0])]+ ": " + pom_str[len(pom_list[0]):len(pom_str)].strip() + "\n" )
 
 
 					elif (STARTP == True):
 
 						if(STARTL == True):
-							self.pom_list.append('\t\t\t' + "loop: " + line[1:len(line)].strip() + "\n" )
+							self.action_list.append('\t\t\t' + "loop: " + line[1:len(line)].strip() + "\n" )
 							self.loop.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
 
 						elif(STARTC == True):
-							self.pom_list.append('\t\t\t' + "condition: " + line[1:len(line)].strip() + "\n" )
+							self.action_list.append('\t\t\t' + "condition: " + line[1:len(line)].strip() + "\n" )
 							self.cond.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
 
 						elif(STARTB == False):
-							self.pom_list.append('\t\t\t' + "action: " + line[1:len(line)].strip() + "\n")
+							self.action_list.append('\t\t\t' + "action: " + line[1:len(line)].strip() + "\n")
 
 						else:
 							self.pom_list.append('\t\t' + line[1:len(line)].strip() + "\n")
@@ -227,7 +232,7 @@ class NewTextDoc:
 				
 
 					elif(STARTF == True):
-						self.func.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+						self.func.append('\t\t\t' + pom_str + "\n" )
 
 					elif(STARTP == False):
 						if (len(self.outsidePhase) != 0):
@@ -272,8 +277,10 @@ class NewTextDoc:
 						self.func.append('\t\t' + line + "\n")
 
 				elif ('END' in  line[0:3]):
+					self.pom_list = self.pom_list + self.action_list
 					self.phases.append(self.pom_list)
 					self.pom_list = []
+					self.action_list =[]
 					STARTP = False
 
 				elif ('#@' == line[len(line)-2:len(line)]):
@@ -377,6 +384,8 @@ for part in parts:
 	foo.loop = []
 	foo.cond = []
 	foo.pom_list = []
+	foo.action_list = []
+	foo.outsidePhase = []
 	foo.parseData()
 	foo.textOutput()
 
