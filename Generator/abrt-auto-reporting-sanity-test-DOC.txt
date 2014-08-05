@@ -36,9 +36,11 @@ Phases:
 			code: rlRun "abrt-auto-reporting $arg"  
 			code: get_configured_value 
 			code: rlFail "Mangles the configuration value" 
+			code: OLD=$CONF_VALUE 
 			loop: for every argument in selected word will do...
 			condition, action: Test if actualy value in arg is not "enabled" and "disabled"
 			condition: wee will seee
+			loop: something which is connected to this loop
 
 	rlPhaseStartCleanup
 		clean after test
@@ -54,6 +56,7 @@ Additional information:
 	 Loops: 
 		for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
 			for every argument in selected word will do...
+			something which is connected to this loop
 
 	 Functions: 
 		function get_configured_value
