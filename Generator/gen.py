@@ -143,6 +143,8 @@ class NewTextDoc:
 	outsidePhase = []
 	pom_list = []
 	action_list = []
+	listAdd = []
+	listPomAdd = []
 	parseInfo = ""
 	def __init__(self,parseInfoo):
 		self.filename = parseInfoo.filename
@@ -161,7 +163,12 @@ class NewTextDoc:
 		for doc in self.parseInfo.comments:
 
 			for line in doc:
+				#print(self.listPomAdd)
+				#print(self.listAdd)
 				#print(line)
+				#print(STARTC)
+				#print(STARTL)
+				#print("---------------------------------------------")
 				#print(STARTC)
 				if ('phasestart' in line.lower()):
 					self.pom_list.insert(0,'\t' + line.strip() + "\n")
@@ -203,11 +210,11 @@ class NewTextDoc:
 						#print("mmmmmm" + line)
 						if (STARTL == True):
 							self.action_list.append('\t\t\t' + "loop, "+ pom_list[0][1:len(pom_list[0])] + ": " + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
-							self.loop.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
+							self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTC == True):
 							self.action_list.append('\t\t\t' + "condition, " + pom_list[0][1:len(pom_list[0])]+ ": " + pom_str[len(pom_list[0]):len(pom_str)].strip() + "\n" )
-							self.cond.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
+							self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTP == True):
 							self.action_list.append('\t\t\t' + pom_list[0][1:len(pom_list[0])]+ ": " + pom_str[len(pom_list[0]):len(pom_str)].strip() + "\n" )
@@ -217,11 +224,11 @@ class NewTextDoc:
 
 						if(STARTL == True):
 							self.action_list.append('\t\t\t' + "loop: " + line[1:len(line)].strip() + "\n" )
-							self.loop.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+							self.listPomAdd.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
 
 						elif(STARTC == True):
 							self.action_list.append('\t\t\t' + "condition: " + line[1:len(line)].strip() + "\n" )
-							self.cond.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+							self.listPomAdd.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
 
 						elif(STARTB == False):
 							self.action_list.append('\t\t\t' + "action: " + line[1:len(line)].strip() + "\n")
@@ -243,31 +250,56 @@ class NewTextDoc:
 
 
 				elif(('for' == line[0:3]) or ('ENDLOOP' == line[0:len('ENDLOOP')]) ):
+
 					if (('ENDLOOP' == line[0:len('ENDLOOP')])):
-						STARTL = False
-						if (SWAP == True):
-							SWAP = False
-							STARTC = True
+						self.loop += self.listPomAdd
+						self.listPomAdd = []
+						if (len(self.listAdd) != 0):
+							self.listPomAdd = self.listAdd[-1]
+							del self.listAdd[-1]
+							if (self.listPomAdd[0][0:5].strip() == 'for'):
+								STARTL = True
+								STARTC = False
+							else:
+								STARTL = False
+								STARTC = True
+						else:
+							STARTL = False
+
 					else:
 						STARTL = True
-						self.loop.append('\t\t' + line + "\n")
-						if (STARTC == True):
-							SWAP = True
-							STARTC = False
+						STARTC = False
+						if (len(self.listPomAdd) != 0 ):
+							self.listAdd.append(self.listPomAdd)
+							self.listPomAdd = []
+						self.listPomAdd.append('\t\t' + line + "\n")
+
+
 
 				elif(('if' == line[0:2]) or ('ENDCOND' == line)):
-					if ('ENDCOND' == line):
-						STARTC = False
-						if (SWAP == True):
-							SWAP = False
-							STARTL = True
+					if ('ENDCOND' in line):
+						self.cond += self.listPomAdd
+						self.listPomAdd = []
+						if (len(self.listAdd) != 0):
+							self.listPomAdd = self.listAdd[-1]
+							del self.listAdd[-1]
+							if (self.listPomAdd[0][0:5].strip() == 'for'):
+								STARTL = True
+								STARTC = False
+							else:
+								STARTL = False
+								STARTC = True
+						else:
+							STARTC = False
+
 					
 					else:
 						STARTC = True
-						self.cond.append('\t\t' + line + "\n")
-						if (STARTL == True):
-							SWAP = True
-							STARTL = False
+						STARTL = False
+						if (len(self.listPomAdd) != 0 ):
+							self.listAdd.append(self.listPomAdd)
+							self.listPomAdd = []
+						self.listPomAdd.append('\t\t' + line + "\n") 
 
 				elif(('function' == line[0:len('function')].lower()) or ('ENDFUNC' == line)):
 					if ('ENDFUNC' == line):
@@ -386,6 +418,8 @@ for part in parts:
 	foo.pom_list = []
 	foo.action_list = []
 	foo.outsidePhase = []
+	foo.listAdd = []
+	foo.listPomAdd = []
 	foo.parseData()
 	foo.textOutput()
 
