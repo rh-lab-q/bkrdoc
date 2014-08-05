@@ -128,7 +128,8 @@ rlJournalStart
                 rlFail "Mangles the configuration value" #@
             fi
 
-            OLD=$CONF_VALUE
+            #@ something which is connected to this loop
+            OLD=$CONF_VALUE #@
         done
     rlPhaseEnd
 
