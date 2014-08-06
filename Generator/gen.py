@@ -157,7 +157,6 @@ class NewTextDoc:
 		STARTC = False
 		STARTF = False
 		STARTL = False
-		SWAP = False
 		STARTB = False
 		
 		for doc in self.parseInfo.comments:
@@ -180,6 +179,7 @@ class NewTextDoc:
 							self.phases.append(self.outsidePhase)
 							self.outsidePhase = []
 
+				#test of authors in test
 				elif ('@author' in line.lower()):
 					pom_aut_str = line[1:len(line)].strip()
 					if (self.author != ""):
@@ -187,6 +187,7 @@ class NewTextDoc:
 					else: 
 						self.author = pom_aut_str[len('@author'): len(line)].strip()
 
+				#Test of keywords in test
 				elif (('@keywords' in line.lower()) or ('@key' in line.lower()) ):
 					pom_key = line[1:len(line)].split()
 					pom_key_str = line[1:len(line)].strip()
@@ -197,6 +198,7 @@ class NewTextDoc:
 
 					self.keywords += pom_key_str[len(pom_key[0]):len(line)].strip() + ", "
 
+				#test of coments and block comments
 				elif ((('@' == line[0:1]) or ('&' == line[0:1]) )):
 					pom_list = line[1:len(line)].split()
 					pom_str = line[1:len(line)].strip()
@@ -205,21 +207,20 @@ class NewTextDoc:
 						del pom_list[0]
 						pom_str = pom_str[1:len(pom_str)].strip()
 
-
+					#geting multiple of tags
 					if ('@' == pom_str[0][0:1]):
-						#print("mmmmmm" + line)
 						if (STARTL == True):
-							self.action_list.append('\t\t\t' + "loop, "+ pom_list[0][1:len(pom_list[0])] + ": " + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
-							self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
+							self.parseMultipleTags(pom_list,False,True)
+							#self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTC == True):
-							self.action_list.append('\t\t\t' + "condition, " + pom_list[0][1:len(pom_list[0])]+ ": " + pom_str[len(pom_list[0]):len(pom_str)].strip() + "\n" )
-							self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
+							self.parseMultipleTags(pom_list,True,False)
+							#self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTP == True):
-							self.action_list.append('\t\t\t' + pom_list[0][1:len(pom_list[0])]+ ": " + pom_str[len(pom_list[0]):len(pom_str)].strip() + "\n" )
+							self.parseMultipleTags(pom_list,False,False)
 
-
+					#When STARTP(Phase) is activated, then saves according to cond etc... data
 					elif (STARTP == True):
 
 						if(STARTL == True):
@@ -237,10 +238,11 @@ class NewTextDoc:
 							self.pom_list.append('\t\t' + line[1:len(line)].strip() + "\n")
 
 				
-
+					#saves data of function to func list
 					elif(STARTF == True):
 						self.func.append('\t\t\t' + pom_str + "\n" )
 
+					#saving out of phase data
 					elif(STARTP == False):
 						if (len(self.outsidePhase) != 0):
 							self.outsidePhase.append('\t\t' + line[1:len(line)].strip() + "\n")
@@ -248,7 +250,7 @@ class NewTextDoc:
 							self.outsidePhase.append('\t' + 'Outside Phase:\n')
 							self.outsidePhase.append('\t\t' + line[1:len(line)].strip() + "\n")
 
-
+				#Test of loops and end of loops and multiple cond or loops
 				elif(('for' == line[0:3]) or ('ENDLOOP' == line[0:len('ENDLOOP')]) ):
 
 					if (('ENDLOOP' == line[0:len('ENDLOOP')])):
@@ -275,7 +277,7 @@ class NewTextDoc:
 						self.listPomAdd.append('\t\t' + line + "\n")
 
 
-
+				#Test of condition and end of condition and multiple cond or loops
 				elif(('if' == line[0:2]) or ('ENDCOND' == line)):
 					if ('ENDCOND' in line):
 						self.cond += self.listPomAdd
@@ -301,13 +303,15 @@ class NewTextDoc:
 							self.listPomAdd = []
 						self.listPomAdd.append('\t\t' + line + "\n") 
 
+				#Test of function and end of function
 				elif(('function' == line[0:len('function')].lower()) or ('ENDFUNC' == line)):
 					if ('ENDFUNC' == line):
 						STARTF = False
 					else:
 						STARTF = True
 						self.func.append('\t\t' + line + "\n")
-
+				
+				#Test of END phase
 				elif ('END' in  line[0:3]):
 					self.pom_list = self.pom_list + self.action_list
 					self.phases.append(self.pom_list)
@@ -315,28 +319,68 @@ class NewTextDoc:
 					self.action_list =[]
 					STARTP = False
 
+				#Adding to phases code: It's a test when #@ is on the end of line
 				elif ('#@' == line[len(line)-2:len(line)]):
 					self.pom_list.append('\t\t\tcode: ' + line[0:len(line)-2] + '\n')
 
 			STARTB = False
 
+		#appedn to list outside Phases in the back of phases
 		if (len(self.outsidePhase) != 0):
 			self.phases.append(self.outsidePhase)
 			self.outsidePhase = []
 
+		#adding authors from head
 		if (self.parseInfo.author != "None"):
 			if (self.author != ""):
 				self.author += ", " + self.parseInfo.author
 			else:
 				self.author += self.parseInfo.author
-		
+		#adding description from head
 		if(self.parseInfo.description != "None"):
 			self.description += self.parseInfo.description
 
+		#adding keywords from head
 		if(self.parseInfo.keywords != ""):
 			self.keywords += self.parseInfo.keywords
 
 
+	def parseMultipleTags(self,listOfWords,COND,LOOP):
+		outStr = ""
+		secStr = "\t\t\t"
+		if ((COND == False) and (LOOP == False)):
+			outStr += "\t\t\t"
+		elif((COND == True) and (LOOP == False)):
+			outStr += "\t\t\tcondition"
+		else:
+			outStr += "\t\t\tloop"
+
+		LAST = True
+		for word in listOfWords:
+			if (word[0:1] == '@'):
+				if (len(outStr.strip()) == 0):
+					outStr += word[1:len(word)]
+				else:
+					outStr += ', ' + word[1:len(word)]
+
+			else:
+				if (LAST == True ):
+					outStr += ': '
+					LAST = False
+
+				secStr += word + ' '	
+				outStr += word + ' '
+
+		outStr += "\n"
+		secStr += "\n"
+		self.action_list.append(outStr)
+		if (((COND == False) and (LOOP == True)) or ((COND == True) and (LOOP == False)) ):
+			self.listPomAdd.append(secStr)
+
+		outStr = ""
+		secStr = ""
+
+	"""Method that tranfer file data to .txt documentattion """
 	def textOutput(self):
 		fileOut = open(self.filename[0:len(self.filename) - 3] + "-DOC.txt", "w")
 		fileOut.write("Description: " + self.description + "\n")
@@ -398,12 +442,12 @@ for arguments in sys.argv[1:sys.argv.__len__()]:
 		myGener = gener(arguments)
 		parts.append(myGener)
 
-
+#Test of formats. It could be different
 if ((TXT == True and PDF == True) or (TXT == True and LATEX == True) or (PDF == True and LATEX == True)):
 	sys.stderr.write("ERROR: Too many types of output format \n")
 	sys.exit(1)
 
-
+#cycle of cript files to be transformed to documentation
 for part in parts:
 	part.comments = []
 	part.block = []

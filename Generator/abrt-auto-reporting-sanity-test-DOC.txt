@@ -17,7 +17,7 @@ Phases:
 		Print help informations
 		Using of block comment
 		This could be usefull
-			networking: sfsdf sdf sdfsd f
+			networking, action, wifi: sfsdf sdf sdfsd f 
 
 	rlPhaseStartTest "no args"
 		Runs script with no arguments
@@ -38,7 +38,7 @@ Phases:
 			code: rlFail "Mangles the configuration value" 
 			code: OLD=$CONF_VALUE 
 			loop: for every argument in selected word will do...
-			condition, action: Test if actualy value in arg is not "enabled" and "disabled"
+			condition, action: Test if actualy value in arg is not "enabled" and "disabled" 
 			condition: wee will seee
 			loop: something which is connected to this loop
 
@@ -65,5 +65,5 @@ Additional information:
 
 	 Conditions: 
 		if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
-			Test if actualy value in arg is not "enabled" and "disabled"
+			Test if actualy value in arg is not "enabled" and "disabled" 
 			wee will seee

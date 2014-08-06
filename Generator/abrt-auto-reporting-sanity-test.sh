@@ -68,7 +68,7 @@ rlJournalStart
 
     # @ Print help informations
     # @keywords doc help 
-    # @networking sfsdf sdf sdfsd f
+    # @networking @action @wifi sfsdf sdf sdfsd f
     # Using of block comment
     # This could be usefull 
     rlPhaseStartTest "--help"
