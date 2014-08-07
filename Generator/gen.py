@@ -72,10 +72,14 @@ class gener(object):
 					FUNCTION = True
 
 				else:
+					#print(self.block)
 					self.block.append(line)
-				
+					
 				self.comments.append(self.block)
+				#print (self.comments)
 				self.block = []
+				#print("---------------------")
+				#print(self.comments)
 				self.NextLine = False
 				self.BlockComm = False
 
@@ -179,6 +183,14 @@ class NewTextDoc:
 							self.phases.append(self.outsidePhase)
 							self.outsidePhase = []
 
+				#Test of tag description in test
+				elif('@description' in line.lower()):
+					pom_desc_str = line[1:len(line)].strip()
+					if (self.description != ""):
+						self.description += ", " + pom_desc_str[len('@description'): len(line)].strip()
+					else: 
+						self.description = pom_desc_str[len('@description'): len(line)].strip()
+
 				#test of authors in test
 				elif ('@author' in line.lower()):
 					pom_aut_str = line[1:len(line)].strip()
@@ -209,33 +221,39 @@ class NewTextDoc:
 
 					#geting multiple of tags
 					if ('@' == pom_str[0][0:1]):
+						pom_str = ""
 						if (STARTL == True):
-							self.parseMultipleTags(pom_list,False,True)
+							pom_str += "\t\t\tloop"
+							self.parseMultipleTags(pom_list,pom_str,True,True)
 							#self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTC == True):
-							self.parseMultipleTags(pom_list,True,False)
+							pom_str += "\t\t\tcondition"
+							self.parseMultipleTags(pom_list,pom_str,True,True)
 							#self.listPomAdd.append('\t\t\t' + pom_str[len(pom_list[0]) :len(line)].strip() + "\n" )
 
 						elif(STARTP == True):
-							self.parseMultipleTags(pom_list,False,False)
+							pom_str += "\t\t\t"
+							self.parseMultipleTags(pom_list,pom_str,True,False)
 
 					#When STARTP(Phase) is activated, then saves according to cond etc... data
 					elif (STARTP == True):
-
+						pom_str = ""
 						if(STARTL == True):
-							self.action_list.append('\t\t\t' + "loop: " + line[1:len(line)].strip() + "\n" )
-							self.listPomAdd.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+							pom_str += "\t\t\tloop"
+							self.parseMultipleTags(pom_list,pom_str,True,True)
 
 						elif(STARTC == True):
-							self.action_list.append('\t\t\t' + "condition: " + line[1:len(line)].strip() + "\n" )
-							self.listPomAdd.append('\t\t\t' + line[1:len(line)].strip() + "\n" )
+							pom_str += "\t\t\tcondition"
+							self.parseMultipleTags(pom_list,pom_str,True,True)
 
 						elif(STARTB == False):
-							self.action_list.append('\t\t\t' + "action: " + line[1:len(line)].strip() + "\n")
+							pom_str += "\t\t\taction"
+							self.parseMultipleTags(pom_list,pom_str,True,False)
 
 						else:
-							self.pom_list.append('\t\t' + line[1:len(line)].strip() + "\n")
+							pom_str += "\t\t"
+							self.parseMultipleTags(pom_list,pom_str,False,False)
 
 				
 					#saves data of function to func list
@@ -338,34 +356,62 @@ class NewTextDoc:
 				self.author += self.parseInfo.author
 		#adding description from head
 		if(self.parseInfo.description != "None"):
-			self.description += self.parseInfo.description
+			if (self.description != ""):
+				self.description += ', ' + self.parseInfo.description
+			else:
+				self.description += self.parseInfo.description
 
 		#adding keywords from head
 		if(self.parseInfo.keywords != ""):
 			self.keywords += self.parseInfo.keywords
 
-
-	def parseMultipleTags(self,listOfWords,COND,LOOP):
-		outStr = ""
+	#method that parse multiple tags from line
+	def parseMultipleTags(self,listOfWords,beginStr,ACTION,POMADD):
+		outStr = beginStr
 		secStr = "\t\t\t"
-		if ((COND == False) and (LOOP == False)):
-			outStr += "\t\t\t"
-		elif((COND == True) and (LOOP == False)):
-			outStr += "\t\t\tcondition"
-		else:
-			outStr += "\t\t\tloop"
 
+		TEXT = False
 		LAST = True
 		for word in listOfWords:
 			if (word[0:1] == '@'):
 				if (len(outStr.strip()) == 0):
 					outStr += word[1:len(word)]
+
+				elif(TEXT == True):
+					outStr += "\n"
+					secStr += "\n"
+					if((ACTION == True) and (POMADD == True)):
+						self.action_list.append(outStr)
+						self.listPomAdd.append(secStr)
+
+					elif((ACTION == True) and (POMADD == False)):
+						self.action_list.append(outStr)
+
+					elif((ACTION == False) and (POMADD == True)):
+						self.listPomAdd.append(secStr)
+
+					elif((ACTION == False) and (POMADD == False)):
+						self.pom_list.append(outStr)
+						ACTION = True
+					
+
+					LAST = True
+					if (len(beginStr.strip()) == 0):
+						outStr = "\t\t\t" + word[1:len(word)]
+					else:
+						outStr = beginStr + ', ' + word[1:len(word)]
+					secStr = "\t\t\t"
+					TEXT = False
+				
 				else:
 					outStr += ', ' + word[1:len(word)]
 
 			else:
-				if (LAST == True ):
+				TEXT = True
+				if ((LAST == True) and (len(outStr.strip()) != 0) ):
 					outStr += ': '
+					LAST = False
+				elif((len(outStr.strip()) == 0)):
 					LAST = False
 
 				secStr += word + ' '	
@@ -373,9 +419,18 @@ class NewTextDoc:
 
 		outStr += "\n"
 		secStr += "\n"
-		self.action_list.append(outStr)
-		if (((COND == False) and (LOOP == True)) or ((COND == True) and (LOOP == False)) ):
+		if((ACTION == True) and (POMADD == True)):
+			self.action_list.append(outStr)
 			self.listPomAdd.append(secStr)
+
+		elif((ACTION == True) and (POMADD == False)):
+			self.action_list.append(outStr)
+
+		elif((ACTION == False) and (POMADD == True)):
+			self.listPomAdd.append(secStr)
+
+		elif((ACTION == False) and (POMADD == False)):
+			self.pom_list.append(outStr)
 
 		outStr = ""
 		secStr = ""
