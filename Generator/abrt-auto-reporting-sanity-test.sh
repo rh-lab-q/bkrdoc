@@ -31,6 +31,7 @@
 
 TEST="abrt-auto-reporting-sanity"
 PACKAGE="abrt"
+#@ @description does what it does
 
 #@ Function that configure selected value
 #@   does not require any parameter 
@@ -68,7 +69,7 @@ rlJournalStart
 
     # @ Print help informations
     # @keywords doc help 
-    # @networking @action @wifi sfsdf sdf sdfsd f
+    #  blah @networking @action @wifi sfsdf sdf sdfsd f
     # Using of block comment
     # This could be usefull 
     rlPhaseStartTest "--help"
@@ -84,7 +85,7 @@ rlJournalStart
         rlAssertEquals "Reads the configuration" "_$(abrt-auto-reporting)" "_$CONF_VALUE"
     rlPhaseEnd
 
-    #@Single enablned as a argument
+    #@Single enablned as @try a argument
     rlPhaseStartTest "enabled"
         rlRun "abrt-auto-reporting enabled"
 
@@ -122,7 +123,7 @@ rlJournalStart
             get_configured_value #@
             rlAssertNotEquals "Changed the configuration" "_$OLD" "_$CONF_VALUE"
 
-            #@       @action Test if actualy value in arg is not "enabled" and "disabled"
+            #@       @action Test if actualy value in arg is not "enabled" and @important "disabled"
             if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
                 #@ wee will seee
                 rlFail "Mangles the configuration value" #@

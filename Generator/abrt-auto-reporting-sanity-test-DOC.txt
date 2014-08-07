@@ -1,4 +1,4 @@
-Description:  does sanity on abrt-auto-reporting
+Description: does what it does,  does sanity on abrt-auto-reporting
 Author: Janosik Karel,  Jakub Filak <jfilak@redhat.com>
 Keywords: doc help, auto-reporting,
 
@@ -8,43 +8,46 @@ Phases:
 		Could be anything
 
 	rlPhaseStartSetup
-		Make temporary directory and saves work in it
+		Make temporary directory and saves work in it 
 
 	Outside Phase:
 		Additional info
 
 	rlPhaseStartTest "--help"
-		Print help informations
-		Using of block comment
-		This could be usefull
+		Print help informations 
+		blah 
+		Using of block comment 
+		This could be usefull 
 			networking, action, wifi: sfsdf sdf sdfsd f 
 
 	rlPhaseStartTest "no args"
-		Runs script with no arguments
+		Runs script with no arguments 
 
 	rlPhaseStartTest "enabled"
-		Single enablned as a argument
+		Single enablned as 
+			try: a argument 
 
 	rlPhaseStartTest "disabled"
-		Disabled as a argument
+		Disabled as a argument 
 
 	rlPhaseStartTest "enabled (once more)"
-		More than just one enabled as a argument
+		More than just one enabled as a argument 
 
 	rlPhaseStartTest "various argument types"
-		Various types of arguments will start this part
+		Various types of arguments will start this part 
 			code: rlRun "abrt-auto-reporting $arg"  
 			code: get_configured_value 
 			code: rlFail "Mangles the configuration value" 
 			code: OLD=$CONF_VALUE 
-			loop: for every argument in selected word will do...
-			condition, action: Test if actualy value in arg is not "enabled" and "disabled" 
-			condition: wee will seee
-			loop: something which is connected to this loop
+			loop: for every argument in selected word will do... 
+			condition, action: Test if actualy value in arg is not "enabled" and 
+			condition, important: "disabled" 
+			condition: wee will seee 
+			loop: something which is connected to this loop 
 
 	rlPhaseStartCleanup
-		clean after test
-			action: Disable auto reporting
+		clean after test 
+			action: Disable auto reporting 
 
 	Outside Phase:
 		Something on the end of the test
@@ -55,8 +58,8 @@ Expected result:
 Additional information: 
 	 Loops: 
 		for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
-			for every argument in selected word will do...
-			something which is connected to this loop
+			for every argument in selected word will do... 
+			something which is connected to this loop 
 
 	 Functions: 
 		function get_configured_value
@@ -65,5 +68,6 @@ Additional information:
 
 	 Conditions: 
 		if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
-			Test if actualy value in arg is not "enabled" and "disabled" 
-			wee will seee
+			Test if actualy value in arg is not "enabled" and 
+			"disabled" 
+			wee will seee 
