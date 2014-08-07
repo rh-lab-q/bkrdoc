@@ -13,7 +13,7 @@
              0 "Enabling the cache_dir"
      rlRun "rlServiceStart squid"
 
-     #@ Fetch CA certificate, add to CA bundle [setup]
+     #@ Fetch CA certificate, @networking add to CA bundle [setup]
      #@@key Ca certificate
      rlRun "rhts-sync-block -s READY $SERVERS" 0 "Waiting for the server"     
      rlRun "wget http://$SERVERS/repo/ca.crt" 0 "Fetching CA certificate"
@@ -24,7 +24,7 @@
      rlRun "rlFileBackup --clean /etc/yum.repos.d" \
              0 "Backing up yum repositories"
      
-     #@ Set ftp, http, https protocol for yum repository.
+     #@@wifi @action Set ftp, http, https protocol @action for yum repository.
      #@@key ftp, http, https
      for protocol in "ftp" "http" "https" ; do
          cat > /etc/yum.repos.d/$protocol-test.repo <<-EOF
