@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #author Jiri Kulda 
     
-import sys , locale, re
+import sys , locale, re, optparse
 
 
 class gener(object):
@@ -450,6 +450,7 @@ class NewTextDoc:
         fileOut.write("Author: " + self.author + "\n")
         fileOut.write("Keywords: " + self.keywords + "\n\n")
         fileOut.write("Phases: \n")
+        print(self.phases)
         for i in self.phases:
             if (len(i) != 0):
                 for k in i:
@@ -473,8 +474,66 @@ class NewTextDoc:
             for conditions in self.cond:
                 fileOut.write(conditions) 
 				
+    def moinOutput(self):
+        fileOut = open(self.filename[0:len(self.filename) - 3] + "-MoinDOC.txt", "w")
+        fileOut.write(" .'''Description:''' " + self.description + "\n")
+        fileOut.write(" .'''Author:''' " + self.author + "\n")
+        fileOut.write(" .'''Keywords:''' " + self.keywords + "\n\n")
+        fileOut.write("=== Phases: ===\n")
+        for lists in self.phases:
+            if (len(lists) != 0):
+                for block in lists:
+                    if ('Outside Phase:' in block):
+                        fileOut.write("\t'''''" + block.strip() + "'''''\n" )
+                    
+                    elif('phasestart' in block.lower()):
+                        pom = block.strip().split()
+                        if (len(pom) > 1):
+                            fileOut.write("\t'''" + pom[0] + "'''" + " ''" + block[len(pom[0]) + 1:len(block)].strip() + "''\n")
+                        else:
+                            fileOut.write("\t'''" + block.strip() + "'''\n")
+                    
+                    else:
+                        pom = block.strip().split()
+                        MARK = False
+                        for sign in pom:
+                            if (':' == sign[-1].strip()):
+                                #print(sign)
+                                MARK = True
+                        
+                        #need to claryfie where is tag or its just specification of the block
+                        if (MARK == False):
+                            fileOut.write("\t\t ." + block.strip() + "\n")
 
+                        else:
+                            fileOut.write("\t\t\t *" + block.strip() + "\n")
+                fileOut.write("\n")
 
+        fileOut.write("=== Expected result: ===\n\n")
+        fileOut.write("=== Additional information: ===\n")  
+        if (len(self.loop) != 0):
+            fileOut.write("\t '''Loops:''' \n")
+            for loops in self.loop:
+                if (loops[0:len('\t\tfor')] == '\t\tfor'):
+                    fileOut.write("\t\t''" + loops.strip() + "''\n")
+                else:
+                    fileOut.write("\t\t\t *" + loops.strip() + "\n")
+
+        if (len(self.func) != 0):
+            fileOut.write("\n\t '''Functions:''' \n")
+            for functions in self.func:
+                if (functions[0:len('\t\tfunction')] == '\t\tfunction'):
+                    fileOut.write("\t\t''" + functions.strip() + "''\n")
+                else:
+                    fileOut.write("\t\t\t *" + functions.strip() + "\n")
+
+        if (len(self.cond) != 0):
+            fileOut.write("\n\t '''Conditions:''' \n")
+            for conditions in self.cond:
+                if (conditions[0:len('\t\tif')] == '\t\tif'):
+                    fileOut.write("\t\t''" + conditions.strip() + "''\n")
+                else:
+                    fileOut.write("\t\t\t *" + conditions.strip() + "\n")       
 
 
 #!!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
@@ -483,22 +542,31 @@ parts = []
 
 #Options of output doc file
 TXT = False
-PDF = False
+MOIN = False
 LATEX = False
-
+"""
+parser = optparse.OptionParser()
+parser.add_option('-t', '--txt', '--TXT', 
+                  dest="check_text", 
+                  default=False,action="store_true",
+                  )
+parser.add_option('-m', '--moin','--MOIN',
+                  dest="check_moin",
+                  default=False,
+                  action="store_true",
+                  )
+option = parser.parse_args()
+print(option.check_text())
+print(option.check_moin())
+print(option)
+"""
 """ Cycle for parse arguments """
 for arguments in sys.argv[1:sys.argv.__len__()]:
     if(arguments == "--txt"):
-        print("TXT" + arguments)
         TXT = True
 
-    elif(arguments == "--pdf"):
-        print("PDF" + arguments)
-        PDF = True
-
-    elif(arguments == "--tex"):	
-        print("LATEX " + arguments)
-        LATEX = True
+    elif(arguments == "--moin"):
+        MOIN = True
 
     else:
         myGener = ""
@@ -506,7 +574,7 @@ for arguments in sys.argv[1:sys.argv.__len__()]:
         parts.append(myGener)
 
 #Test of formats. It could be different
-if ((TXT == True and PDF == True) or (TXT == True and LATEX == True) or (PDF == True and LATEX == True)):
+if ((TXT == True and MOIN == True) or (TXT == True and LATEX == True) or (MOIN == True and LATEX == True)):
     sys.stderr.write("ERROR: Too many types of output format \n")
     sys.exit(1)
 
@@ -516,6 +584,7 @@ for part in parts:
     #print(part.comments)
     foo = NewTextDoc(part)
     foo.parseData()
-    foo.textOutput()
-
-
+    if (((MOIN == False) and (TXT == False)) or (TXT == True)):
+        foo.textOutput()
+    elif(MOIN == True):
+        foo.moinOutput()
