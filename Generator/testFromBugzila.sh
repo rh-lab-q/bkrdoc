@@ -1,5 +1,5 @@
  #@@author Red Hat (c)
-
+ #@@description hm
 
  #@ On client, prepare squid for caching yum repositories [setup]
  #@@key squid, yum repositories

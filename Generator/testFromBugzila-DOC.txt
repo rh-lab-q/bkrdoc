@@ -1,4 +1,4 @@
-Description: 
+Description: hm
 Author: Red Hat (c)
 Keywords: squid, yum repositories, Ca certificate, ftp, http, https, 
 
