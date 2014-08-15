@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #author Jiri Kulda 
     
-import sys , locale, re, optparse
+import sys
 
 
 class gener(object):
@@ -91,6 +91,11 @@ class gener(object):
                     self.comments.append(POM)
                     POM = []
 					
+                elif (('phasestart' in line.lower()) or (line[0:2].lower() == 'if') or (line[0:3].lower() == 'for') ):
+                    self.block.insert(0,line)
+                    self.comments.append(self.block)
+                    self.block = []    
+
                 elif ('phaseend' in line.lower()):
                     POM.append("END")
                     self.comments.append(POM)
@@ -178,7 +183,7 @@ class NewTextDoc:
             for line in doc:
 				#print(self.listPomAdd)
 				#print(self.listAdd)
-				#print(line)
+                #print(line)
 				#print(STARTC)
 				#print(STARTL)
 				#print("---------------------------------------------")
@@ -450,7 +455,7 @@ class NewTextDoc:
         fileOut.write("Author: " + self.author + "\n")
         fileOut.write("Keywords: " + self.keywords + "\n\n")
         fileOut.write("Phases: \n")
-        print(self.phases)
+        #print(self.phases)
         for i in self.phases:
             if (len(i) != 0):
                 for k in i:
