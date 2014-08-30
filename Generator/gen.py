@@ -1,7 +1,9 @@
 #!/usr/bin/python
 # author Jiri Kulda
 
-import sys, argparse
+import sys
+import argparse
+
 
 """Class to parse from script file data and save them to list"""
 class Gener(object):
@@ -61,7 +63,8 @@ class Gener(object):
                 self.parse_line(line[1:len(line)].strip())
 
             elif self.NextLine:
-                if ('phasestart' in line.lower()) or (line[0:2].lower() == 'if') or (line[0:3].lower() == 'for'):
+                if ('phasestart' in line.lower()) or \
+                (line[0:2].lower() == 'if') or (line[0:3].lower() == 'for'):
                     self.block.insert(0, line)
 
                 elif line[0:len('function')].lower() == 'function':
@@ -87,7 +90,8 @@ class Gener(object):
                     self.comments.append(pom)
                     pom = []
 
-                elif ('phasestart' in line.lower()) or (line[0:2].lower() == 'if') or (line[0:3].lower() == 'for'):
+                elif ('phasestart' in line.lower()) or \
+                (line[0:2].lower() == 'if') or (line[0:3].lower() == 'for'):
                     self.block.insert(0, line)
                     self.comments.append(self.block)
                     self.block = []
@@ -131,7 +135,8 @@ class Gener(object):
 
         elif 'key' in line_sec[0:3].lower():
             pom_str = line_sec.split()
-            self.keywords = line_sec[len(pom_str[0]):len(line_sec)].strip() + ","
+            self.keywords = line_sec[len(pom_str[0]):\
+            len(line_sec)].strip() + ","
 
 
 """ Class to recognize what data geting from previous class """
@@ -198,17 +203,21 @@ class NewTextDoc:
                 elif '@description' in line.lower():
                     pom_desc_str = line[1:len(line)].strip()
                     if self.description != "":
-                        self.description += ", " + pom_desc_str[len('@description'): len(line)].strip()
+                        self.description += ", " + \
+                        pom_desc_str[len('@description'): len(line)].strip()
                     else:
-                        self.description = pom_desc_str[len('@description') + 1: len(line)].strip()
+                        self.description = \
+                        pom_desc_str[len('@description') + 1: len(line)].strip()
 
                 #test of authors in test
                 elif '@author' in line.lower():
                     pom_aut_str = line[1:len(line)].strip()
                     if self.author != "":
-                        self.author += ", " + pom_aut_str[len('@author'): len(line)].strip()
+                        self.author += ", " + \
+                        pom_aut_str[len('@author'): len(line)].strip()
                     else:
-                        self.author = pom_aut_str[len('@author'): len(line)].strip()
+                        self.author = \
+                        pom_aut_str[len('@author'): len(line)].strip()
 
                 #Test of keywords in test
                 elif ('@keywords' in line.lower()) or ('@key' in line.lower()):
@@ -219,7 +228,8 @@ class NewTextDoc:
                         del pom_key[0]
                         pom_key_str = pom_key_str[1:len(pom_key_str)].strip()
 
-                    self.keywords += pom_key_str[len(pom_key[0]):len(line)].strip() + ", "
+                    self.keywords += pom_key_str[len(pom_key[0]):\
+                    len(line)].strip() + ", "
 
                 #test of coments and block comments
                 elif ('@' == line[0:1]) or ('&' == line[0:1]):
@@ -235,34 +245,42 @@ class NewTextDoc:
                         pom_str = ""
                         if start_loop:
                             pom_str += "\t\t\tloop"
-                            self.parse_multiple_tags(pom_list, pom_str, True, True)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, True, True)
 
                         elif start_cond:
                             pom_str += "\t\t\tcondition"
-                            self.parse_multiple_tags(pom_list, pom_str, True, True)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, True, True)
 
                         elif start_phase:
                             pom_str += "\t\t\t"
-                            self.parse_multiple_tags(pom_list, pom_str, True, False)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, True, False)
 
-                    #When start_phase(Phase) is activated, then saves according to cond etc... data
+                    #When start_phase(Phase) is activated, 
+                    #then saves according to cond etc... data
                     elif start_phase:
                         pom_str = ""
                         if start_loop:
                             pom_str += "\t\t\tloop"
-                            self.parse_multiple_tags(pom_list, pom_str, True, True)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, True, True)
 
                         elif start_cond:
                             pom_str += "\t\t\tcondition"
-                            self.parse_multiple_tags(pom_list, pom_str, True, True)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, True, True)
 
                         elif not start_pom:
                             pom_str += "\t\t\taction"
-                            self.parse_multiple_tags(pom_list, pom_str, True, False)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, True, False)
 
                         else:
                             pom_str += "\t\t"
-                            self.parse_multiple_tags(pom_list, pom_str, False, False)
+                            self.parse_multiple_tags\
+                            (pom_list, pom_str, False, False)
 
                     #saves data of function to func list
                     elif start_func:
@@ -271,13 +289,16 @@ class NewTextDoc:
                     #saving out of phase data
                     elif not start_phase:
                         if len(self.outsidePhase) != 0:
-                            self.outsidePhase.append('\t\t' + line[1:len(line)].strip() + "\n")
+                            self.outsidePhase.append('\t\t' + \
+                                line[1:len(line)].strip() + "\n")
                         else:
                             self.outsidePhase.append('\t' + 'Outside Phase:\n')
-                            self.outsidePhase.append('\t\t' + line[1:len(line)].strip() + "\n")
+                            self.outsidePhase.append('\t\t' + \
+                                line[1:len(line)].strip() + "\n")
 
                 #Test of loops and end of loops and multiple cond or loops
-                elif ('for' == line[0:3]) or ('ENDLOOP' == line[0:len('ENDLOOP')]):
+                elif ('for' == line[0:3]) or \
+                ('ENDLOOP' == line[0:len('ENDLOOP')]):
 
                     if 'ENDLOOP' == line[0:len('ENDLOOP')]:
                         self.loop += self.listPomAdd
@@ -302,7 +323,8 @@ class NewTextDoc:
                             self.listPomAdd = []
                         self.listPomAdd.append('\t\t' + line + "\n")
 
-                #Test of condition and end of condition and multiple cond or loops
+                #Test of condition and end of 
+                #condition and multiple cond or loops
                 elif ('if' == line[0:2]) or ('ENDCOND' == line):
                     if 'ENDCOND' in line:
                         self.cond += self.listPomAdd
@@ -328,7 +350,8 @@ class NewTextDoc:
                         self.listPomAdd.append('\t\t' + line + "\n")
 
                         #Test of function and end of function
-                elif ('function' == line[0:len('function')].lower()) or ('ENDFUNC' == line):
+                elif ('function' == line[0:len('function')].lower()) or \
+                ('ENDFUNC' == line):
                     if 'ENDFUNC' == line:
                         start_func = False
                     else:
@@ -343,9 +366,11 @@ class NewTextDoc:
                     self.action_list = []
                     start_phase = False
 
-                #Adding to phases code: It's a test when #@ is on the end of line
+                #Adding to phases code: It's a test
+                # when #@ is on the end of line
                 elif '#@' == line[len(line) - 2:len(line)]:
-                    self.pom_list.append('\t\t\tcode: ' + line[0:len(line) - 2] + '\n')
+                    self.pom_list.append('\t\t\tcode: ' + \
+                        line[0:len(line) - 2] + '\n')
 
             start_pom = False
 
@@ -372,7 +397,8 @@ class NewTextDoc:
             self.keywords += self.parseInfo.keywords
 
     #method that parse multiple tags from line
-    def parse_multiple_tags(self, list_of_words, begin_str, action_in, pom_add):
+    def parse_multiple_tags\
+    (self, list_of_words, begin_str, action_in, pom_add):
         out_str = begin_str
         sec_str = "\t\t\t"
         text_bool = False
@@ -438,7 +464,8 @@ class NewTextDoc:
 
     """Method that tranfer file data to .txt documentattion """
     def text_output(self):
-        file_out = open(self.filename[0:len(self.filename) - 3] + "-DOC.txt", "w")
+        file_out = open(self.filename[0:\
+            len(self.filename) - 3] + "-DOC.txt", "w")
         file_out.write("Description: " + self.description + "\n")
         file_out.write("Author: " + self.author + "\n")
         file_out.write("Keywords: " + self.keywords + "\n\n")
@@ -468,7 +495,8 @@ class NewTextDoc:
                 file_out.write(conditions)
 
     def moin_output(self):
-        file_out = open(self.filename[0:len(self.filename) - 3] + "-MoinDOC.txt", "w")
+        file_out = open(self.filename[0:\
+            len(self.filename) - 3] + "-MoinDOC.txt", "w")
         file_out.write(" .'''Description:''' " + self.description + "\n")
         file_out.write(" .'''Author:''' " + self.author + "\n")
         file_out.write(" .'''Keywords:''' " + self.keywords + "\n\n")
@@ -483,7 +511,8 @@ class NewTextDoc:
                         pom = block.strip().split()
                         if len(pom) > 1:
                             file_out.write(
-                                "\t'''" + pom[0] + "'''" + " ''" + block[len(pom[0]) + 1:len(block)].strip() + "''\n")
+                                "\t'''" + pom[0] + "'''" + " ''" + block\
+                                [len(pom[0]) + 1:len(block)].strip() + "''\n")
                         else:
                             file_out.write("\t'''" + block.strip() + "'''\n")
 
@@ -495,7 +524,8 @@ class NewTextDoc:
                                 #print(sign)
                                 mark_bool = True
 
-                        #need to claryfie where is tag or its just specification of the block
+                        #need to claryfie where is tag or its 
+                        #just specification of the block
                         if not mark_bool:
                             file_out.write("\t\t ." + block.strip() + "\n")
 
@@ -532,18 +562,16 @@ class NewTextDoc:
 
                 #!!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
 """ Parse of arguments """
-parser = argparse.ArgumentParser(description='Parse arguments in cmd line for generator')
-parser.add_argument('files', metavar='file', type=str, nargs='+', help='script file')
-parser.add_argument('--txt', '--TXT', dest='text_in', action='store_true', default=False, help='argument to make txt '
-                                                                                              'doc file output')
-parser.add_argument('--moin', '--MOIN', dest='moin_in', action='store_true', default=False, help='argument to make'
-                                                                                                 ' moinmoin doc '                                                                                                 'file output')
+parser = argparse.ArgumentParser(description=\
+    'Parse arguments in cmd line for generator')
+group = parser.add_mutually_exclusive_group()
+parser.add_argument('files', metavar='file', type=str, nargs='+',\
+ help='script file')
+group.add_argument('--txt', '--TXT', dest='text_in', action='store_true',\
+ default=False, help='argument to make txt doc file output')
+group.add_argument('--moin', '--MOIN', dest='moin_in', action='store_true',\
+ default=False, help='argument to make moinmoin doc file output')
 parser_arg = parser.parse_args()
-
-#test if user type more than just one type of output doc format
-if parser_arg.text_in and parser_arg.moin_in:
-    sys.stderr.write("ERROR: Too many types of output format \n")
-    sys.exit(1)
 
 #cycle of script files to be transformed to documentation
 for file_in_cmd in parser_arg.files:
@@ -552,7 +580,8 @@ for file_in_cmd in parser_arg.files:
     #print(part.comments)
     foo = NewTextDoc(part)
     foo.parse_data()
-    if (not parser_arg.text_in and not parser_arg.moin_in) or parser_arg.text_in:
+    if (not parser_arg.text_in and not parser_arg.moin_in) or \
+    parser_arg.text_in:
         foo.text_output()
     elif parser_arg.moin_in:
         foo.moin_output()
