@@ -190,8 +190,9 @@ class NewTextDoc:
                 #print("---------------------------------------------")
                 #print(start_cond)
                 if 'phasestart' in line.lower():
-                    self.pom_list.insert(0, '\t' + line.strip() + "\n")
-
+                    pom_str = line.strip()
+                    self.pom_list.insert(0, '\040\040' + pom_str[len('rlphasestart'):len(pom_str)] + "\n")
+                    pom_str = ""
                     start_phase = True
                     start_pom = True
 
@@ -244,17 +245,17 @@ class NewTextDoc:
                     if '@' == pom_str[0][0:1]:
                         pom_str = ""
                         if start_loop:
-                            pom_str += "\t\t\tloop"
+                            pom_str += "\040\040\040\040\040\040loop"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, True, True)
 
                         elif start_cond:
-                            pom_str += "\t\t\tcondition"
+                            pom_str += "\040\040\040\040\040\040condition"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, True, True)
 
                         elif start_phase:
-                            pom_str += "\t\t\t"
+                            pom_str += "\040\040\040\040\040\040"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, True, False)
 
@@ -263,37 +264,37 @@ class NewTextDoc:
                     elif start_phase:
                         pom_str = ""
                         if start_loop:
-                            pom_str += "\t\t\tloop"
+                            pom_str += "\040\040\040\040\040\040loop"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, True, True)
 
                         elif start_cond:
-                            pom_str += "\t\t\tcondition"
+                            pom_str += "\040\040\040\040\040\040condition"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, True, True)
 
                         elif not start_pom:
-                            pom_str += "\t\t\taction"
+                            pom_str += "\040\040\040\040\040\040action"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, True, False)
 
                         else:
-                            pom_str += "\t\t"
+                            pom_str += "\040\040\040\040"
                             self.parse_multiple_tags\
                             (pom_list, pom_str, False, False)
 
                     #saves data of function to func list
                     elif start_func:
-                        self.func.append('\t\t\t' + pom_str + "\n")
+                        self.func.append('\040\040\040\040\040\040' + pom_str + "\n")
 
                     #saving out of phase data
                     elif not start_phase:
                         if len(self.outsidePhase) != 0:
-                            self.outsidePhase.append('\t\t' + \
+                            self.outsidePhase.append('\040\040\040\040' + \
                                 line[1:len(line)].strip() + "\n")
                         else:
-                            self.outsidePhase.append('\t' + 'Outside Phase:\n')
-                            self.outsidePhase.append('\t\t' + \
+                            self.outsidePhase.append('\040\040' + 'Outside Phase:\n')
+                            self.outsidePhase.append('\040\040\040\040' + \
                                 line[1:len(line)].strip() + "\n")
 
                 #Test of loops and end of loops and multiple cond or loops
@@ -306,7 +307,7 @@ class NewTextDoc:
                         if len(self.listAdd) != 0:
                             self.listPomAdd = self.listAdd[-1]
                             del self.listAdd[-1]
-                            if self.listPomAdd[0][0:5].strip() == 'for':
+                            if self.listPomAdd[0][0:len('\040\040\040\040for')].strip() == 'for':
                                 start_loop = True
                                 start_cond = False
                             else:
@@ -321,7 +322,7 @@ class NewTextDoc:
                         if len(self.listPomAdd) != 0:
                             self.listAdd.append(self.listPomAdd)
                             self.listPomAdd = []
-                        self.listPomAdd.append('\t\t' + line + "\n")
+                        self.listPomAdd.append('\040\040\040\040' + line + "\n")
 
                 #Test of condition and end of 
                 #condition and multiple cond or loops
@@ -332,7 +333,7 @@ class NewTextDoc:
                         if len(self.listAdd) != 0:
                             self.listPomAdd = self.listAdd[-1]
                             del self.listAdd[-1]
-                            if self.listPomAdd[0][0:5].strip() == 'for':
+                            if self.listPomAdd[0][0:len('\040\040\040\040for')].strip() == 'for':
                                 start_loop = True
                                 start_cond = False
                             else:
@@ -347,7 +348,7 @@ class NewTextDoc:
                         if len(self.listPomAdd) != 0:
                             self.listAdd.append(self.listPomAdd)
                             self.listPomAdd = []
-                        self.listPomAdd.append('\t\t' + line + "\n")
+                        self.listPomAdd.append('\040\040\040\040' + line + "\n")
 
                         #Test of function and end of function
                 elif ('function' == line[0:len('function')].lower()) or \
@@ -356,7 +357,7 @@ class NewTextDoc:
                         start_func = False
                     else:
                         start_func = True
-                        self.func.append('\t\t' + line + "\n")
+                        self.func.append('\040\040\040\040' + line + "\n")
 
                 #Test of END phase
                 elif 'END' in line[0:3]:
@@ -369,7 +370,7 @@ class NewTextDoc:
                 #Adding to phases code: It's a test
                 # when #@ is on the end of line
                 elif '#@' == line[len(line) - 2:len(line)]:
-                    self.pom_list.append('\t\t\tcode: ' + \
+                    self.pom_list.append('\040\040\040\040\040\040code: ' + \
                         line[0:len(line) - 2] + '\n')
 
             start_pom = False
@@ -400,7 +401,7 @@ class NewTextDoc:
     def parse_multiple_tags\
     (self, list_of_words, begin_str, action_in, pom_add):
         out_str = begin_str
-        sec_str = "\t\t\t"
+        sec_str = "\040\040\040\040\040\040"
         text_bool = False
         last_bool = True
         for word in list_of_words:
@@ -427,10 +428,10 @@ class NewTextDoc:
 
                     last_bool = True
                     if len(begin_str.strip()) == 0:
-                        out_str = "\t\t\t" + word[1:len(word)]
+                        out_str = "\040\040\040\040\040\040" + word[1:len(word)]
                     else:
                         out_str = begin_str + ', ' + word[1:len(word)]
-                    sec_str = "\t\t\t"
+                    sec_str = "\040\040\040\040\040\040"
                     text_bool = False
 
                 else:
@@ -480,17 +481,17 @@ class NewTextDoc:
         file_out.write("Expected result: \n\n")
         file_out.write("Additional information: \n")
         if len(self.loop) != 0:
-            file_out.write("\t Loops: \n")
+            file_out.write("\040\040 Loops: \n")
             for loops in self.loop:
                 file_out.write(loops)
 
         if len(self.func) != 0:
-            file_out.write("\n\t Functions: \n")
+            file_out.write("\n\040\040 Functions: \n")
             for functions in self.func:
                 file_out.write(functions)
 
         if len(self.cond) != 0:
-            file_out.write("\n\t Conditions: \n")
+            file_out.write("\n\040\040 Conditions: \n")
             for conditions in self.cond:
                 file_out.write(conditions)
 
@@ -505,16 +506,16 @@ class NewTextDoc:
             if len(lists) != 0:
                 for block in lists:
                     if 'Outside Phase:' in block:
-                        file_out.write("\t'''''" + block.strip() + "'''''\n")
+                        file_out.write("\040\040'''''" + block.strip() + "'''''\n")
 
                     elif 'phasestart' in block.lower():
                         pom = block.strip().split()
                         if len(pom) > 1:
                             file_out.write(
-                                "\t'''" + pom[0] + "'''" + " ''" + block\
+                                "\040\040'''" + pom[0] + "'''" + " ''" + block\
                                 [len(pom[0]) + 1:len(block)].strip() + "''\n")
                         else:
-                            file_out.write("\t'''" + block.strip() + "'''\n")
+                            file_out.write("\040\040'''" + block.strip() + "'''\n")
 
                     else:
                         pom = block.strip().split()
@@ -527,37 +528,37 @@ class NewTextDoc:
                         #need to claryfie where is tag or its 
                         #just specification of the block
                         if not mark_bool:
-                            file_out.write("\t\t ." + block.strip() + "\n")
+                            file_out.write("\040\040\040\040 ." + block.strip() + "\n")
 
                         else:
-                            file_out.write("\t\t\t *" + block.strip() + "\n")
+                            file_out.write("\040\040\040\040\040\040 *" + block.strip() + "\n")
                 file_out.write("\n")
 
         file_out.write("=== Expected result: ===\n\n")
         file_out.write("=== Additional information: ===\n")
         if len(self.loop) != 0:
-            file_out.write("\t '''Loops:''' \n")
+            file_out.write("\040\040 '''Loops:''' \n")
             for loops in self.loop:
-                if loops[0:len('\t\tfor')] == '\t\tfor':
-                    file_out.write("\t\t''" + loops.strip() + "''\n")
+                if loops[0:len('\040\040\040\040for')] == '\040\040\040\040for':
+                    file_out.write("\040\040\040\040''" + loops.strip() + "''\n")
                 else:
-                    file_out.write("\t\t\t *" + loops.strip() + "\n")
+                    file_out.write("\040\040\040\040\040\040 *" + loops.strip() + "\n")
 
         if len(self.func) != 0:
-            file_out.write("\n\t '''Functions:''' \n")
+            file_out.write("\n\040\040 '''Functions:''' \n")
             for functions in self.func:
-                if functions[0:len('\t\tfunction')] == '\t\tfunction':
-                    file_out.write("\t\t''" + functions.strip() + "''\n")
+                if functions[0:len('\040\040\040\040function')] == '\040\040\040\040function':
+                    file_out.write("\040\040\040\040''" + functions.strip() + "''\n")
                 else:
-                    file_out.write("\t\t\t *" + functions.strip() + "\n")
+                    file_out.write("\040\040\040\040\040\040 *" + functions.strip() + "\n")
 
         if len(self.cond) != 0:
-            file_out.write("\n\t '''Conditions:''' \n")
+            file_out.write("\n\040\040 '''Conditions:''' \n")
             for conditions in self.cond:
-                if conditions[0:len('\t\tif')] == '\t\tif':
-                    file_out.write("\t\t''" + conditions.strip() + "''\n")
+                if conditions[0:len('\040\040\040\040if')] == '\040\040\040\040if':
+                    file_out.write("\040\040\040\040''" + conditions.strip() + "''\n")
                 else:
-                    file_out.write("\t\t\t *" + conditions.strip() + "\n")
+                    file_out.write("\040\040\040\040\040\040 *" + conditions.strip() + "\n")
 
 
                 #!!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
@@ -571,6 +572,8 @@ group.add_argument('--txt', '--TXT', dest='text_in', action='store_true',\
  default=False, help='argument to make txt doc file output')
 group.add_argument('--moin', '--MOIN', dest='moin_in', action='store_true',\
  default=False, help='argument to make moinmoin doc file output')
+parser.add_argument('-o','--output', dest='out_in', action='store_true',\
+ default=False, help='argument to save documentation to ouptut file')
 parser_arg = parser.parse_args()
 
 #cycle of script files to be transformed to documentation
