@@ -464,58 +464,63 @@ class NewTextDoc:
             self.pom_list.append(out_str)
 
     """Method that tranfer file data to .txt documentattion """
-    def text_output(self):
-        file_out = open(self.filename[0:\
-            len(self.filename) - 3] + "-DOC.txt", "w")
-        file_out.write("Description: " + self.description + "\n")
-        file_out.write("Author: " + self.author + "\n")
-        file_out.write("Keywords: " + self.keywords + "\n\n")
-        file_out.write("Phases: \n")
+    def text_output(self,out_bool):
+        output_str = ""
+        output_str += "Description: " + self.description + "\n"
+        output_str += "Author: " + self.author + "\n"
+        output_str += "Keywords: " + self.keywords + "\n\n"
+        output_str += "Phases: \n"
         #print(self.phases)
         for i in self.phases:
             if len(i) != 0:
                 for k in i:
-                    file_out.write(k)
-                file_out.write("\n")
+                    output_str += k
+                output_str += "\n"
 
-        file_out.write("Expected result: \n\n")
-        file_out.write("Additional information: \n")
+        output_str += "Expected result: \n\n"
+        output_str += "Additional information: \n"
         if len(self.loop) != 0:
-            file_out.write("\040\040 Loops: \n")
+            output_str += "\040\040 Loops: \n"
             for loops in self.loop:
-                file_out.write(loops)
+                output_str += loops
 
         if len(self.func) != 0:
-            file_out.write("\n\040\040 Functions: \n")
+            output_str += "\n\040\040 Functions: \n"
             for functions in self.func:
-                file_out.write(functions)
+                output_str += functions
 
         if len(self.cond) != 0:
-            file_out.write("\n\040\040 Conditions: \n")
+            output_str += "\n\040\040 Conditions: \n"
             for conditions in self.cond:
-                file_out.write(conditions)
+                output_str += conditions
 
-    def moin_output(self):
-        file_out = open(self.filename[0:\
-            len(self.filename) - 3] + "-MoinDOC.txt", "w")
-        file_out.write(" .'''Description:''' " + self.description + "\n")
-        file_out.write(" .'''Author:''' " + self.author + "\n")
-        file_out.write(" .'''Keywords:''' " + self.keywords + "\n\n")
-        file_out.write("=== Phases: ===\n")
+        if out_bool:
+            file_out = open(self.filename[0:\
+            len(self.filename) - 3] + "-DOC.txt", "w")
+            file_out.write(output_str)
+        else:
+            sys.stdout.write(output_str)
+
+    def moin_output(self,out_bool):
+        output_str = ""
+        output_str += " .'''Description:''' " + self.description + "\n"
+        output_str += " .'''Author:''' " + self.author + "\n"
+        output_str += " .'''Keywords:''' " + self.keywords + "\n\n"
+        output_str += "=== Phases: ===\n"
         for lists in self.phases:
             if len(lists) != 0:
                 for block in lists:
                     if 'Outside Phase:' in block:
-                        file_out.write("\040\040'''''" + block.strip() + "'''''\n")
+                        output_str += "\040\040'''''" + block.strip() + "'''''\n"
 
                     elif 'phasestart' in block.lower():
                         pom = block.strip().split()
                         if len(pom) > 1:
-                            file_out.write(
+                            output_str += \
                                 "\040\040'''" + pom[0] + "'''" + " ''" + block\
-                                [len(pom[0]) + 1:len(block)].strip() + "''\n")
+                                [len(pom[0]) + 1:len(block)].strip() + "''\n"
                         else:
-                            file_out.write("\040\040'''" + block.strip() + "'''\n")
+                            output_str += "\040\040'''" + block.strip() + "'''\n"
 
                     else:
                         pom = block.strip().split()
@@ -528,38 +533,54 @@ class NewTextDoc:
                         #need to claryfie where is tag or its 
                         #just specification of the block
                         if not mark_bool:
-                            file_out.write("\040\040\040\040 ." + block.strip() + "\n")
+                            output_str += "\040\040\040\040 ." + block.strip()\
+                             + "\n"
 
                         else:
-                            file_out.write("\040\040\040\040\040\040 *" + block.strip() + "\n")
-                file_out.write("\n")
+                            output_str += "\040\040\040\040\040\040 *" + \
+                            block.strip() + "\n"
+                output_str += "\n"
 
-        file_out.write("=== Expected result: ===\n\n")
-        file_out.write("=== Additional information: ===\n")
+        output_str += "=== Expected result: ===\n\n"
+        output_str += "=== Additional information: ===\n"
         if len(self.loop) != 0:
-            file_out.write("\040\040 '''Loops:''' \n")
+            output_str += "\040\040 '''Loops:''' \n"
             for loops in self.loop:
-                if loops[0:len('\040\040\040\040for')] == '\040\040\040\040for':
-                    file_out.write("\040\040\040\040''" + loops.strip() + "''\n")
+                if loops[0:len('\040\040\040\040for')] == \
+                '\040\040\040\040for':
+                    output_str += "\040\040\040\040''" + loops.strip() + "''\n"
                 else:
-                    file_out.write("\040\040\040\040\040\040 *" + loops.strip() + "\n")
+                    output_str += "\040\040\040\040\040\040 *" + loops.strip()\
+                     + "\n"
 
         if len(self.func) != 0:
-            file_out.write("\n\040\040 '''Functions:''' \n")
+            output_str += "\n\040\040 '''Functions:''' \n"
             for functions in self.func:
-                if functions[0:len('\040\040\040\040function')] == '\040\040\040\040function':
-                    file_out.write("\040\040\040\040''" + functions.strip() + "''\n")
+                if functions[0:len('\040\040\040\040function')] ==\
+                 '\040\040\040\040function':
+                    output_str += "\040\040\040\040''" + functions.strip()\
+                     + "''\n"
                 else:
-                    file_out.write("\040\040\040\040\040\040 *" + functions.strip() + "\n")
+                    output_str += "\040\040\040\040\040\040 *" + \
+                    functions.strip() + "\n"
 
         if len(self.cond) != 0:
-            file_out.write("\n\040\040 '''Conditions:''' \n")
+            output_str += "\n\040\040 '''Conditions:''' \n"
             for conditions in self.cond:
-                if conditions[0:len('\040\040\040\040if')] == '\040\040\040\040if':
-                    file_out.write("\040\040\040\040''" + conditions.strip() + "''\n")
+                if conditions[0:len('\040\040\040\040if')] ==\
+                 '\040\040\040\040if':
+                    output_str += "\040\040\040\040''" + conditions.strip()\
+                     + "''\n"
                 else:
-                    file_out.write("\040\040\040\040\040\040 *" + conditions.strip() + "\n")
+                    output_str += "\040\040\040\040\040\040 *" + \
+                    conditions.strip() + "\n"
 
+        if out_bool:
+            file_out = open(self.filename[0:\
+            len(self.filename) - 3] + "-MoinDOC.txt", "w")
+            file_out.write(output_str)
+        else:
+            sys.stdout.write(output_str)
 
                 #!!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
 """ Parse of arguments """
@@ -580,11 +601,10 @@ parser_arg = parser.parse_args()
 for file_in_cmd in parser_arg.files:
     part = Gener(file_in_cmd)
     part.parse_tags()
-    #print(part.comments)
     foo = NewTextDoc(part)
     foo.parse_data()
     if (not parser_arg.text_in and not parser_arg.moin_in) or \
     parser_arg.text_in:
-        foo.text_output()
+        foo.text_output(parser_arg.out_in)
     elif parser_arg.moin_in:
-        foo.moin_output()
+        foo.moin_output(parser_arg.out_in)
