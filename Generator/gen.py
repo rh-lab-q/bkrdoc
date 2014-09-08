@@ -30,6 +30,8 @@ class Gener(object):
     #Strin of Keywords of a test
     keywords = ""
 
+    #@ Konstructor of class Gener
+    #@ @param file_in is filepath to input file
     def __init__(self, file_in):
         self.comments = []
         self.block = []
@@ -50,6 +52,8 @@ class Gener(object):
             print "ERROR: Not a script file. (.sh)"
             sys.exit(1)
 
+
+    #@ method to parse tags from file
     def parse_tags(self):
         pom = []
         func = False
@@ -116,7 +120,7 @@ class Gener(object):
                     self.comments.append(pom)
                     pom = []
 
-    #funciton to parse line with comments
+    #@ funciton to parse line with comments
     def parse_line(self, line_sec):
         line_sec = line_sec.strip()
         if (line_sec[0] == '@') and (not self.BlockComm):
@@ -157,6 +161,8 @@ class NewTextDoc:
     listPomAdd = []
     parseInfo = ""
 
+    #@ Constructor of class NewTextDoc
+    #@ @param parse_info contains  parsed informations from file
     def __init__(self, parse_info):
         self.filename = parse_info.filename
         self.parseInfo = parse_info
@@ -170,7 +176,8 @@ class NewTextDoc:
         self.listAdd = []
         self.listPomAdd = []
 
-    #function to parse all data from test
+    #function to recognize all data from test
+    #and set them to proper list
     def parse_data(self):
 
         start_phase = False
@@ -191,7 +198,8 @@ class NewTextDoc:
                 #print(start_cond)
                 if 'phasestart' in line.lower():
                     pom_str = line.strip()
-                    self.pom_list.insert(0, '\040\040' + pom_str[len('rlphasestart'):len(pom_str)] + "\n")
+                    self.pom_list.insert(0, '\040\040' + \
+                        pom_str[len('rlphasestart'):len(pom_str)] + "\n")
                     pom_str = ""
                     start_phase = True
                     start_pom = True
@@ -464,7 +472,7 @@ class NewTextDoc:
             self.pom_list.append(out_str)
 
     """Method that tranfer file data to .txt documentattion """
-    def text_output(self,out_bool):
+    def text_output(self, out_bool):
         output_str = ""
         output_str += "Description: " + self.description + "\n"
         output_str += "Author: " + self.author + "\n"
@@ -501,7 +509,8 @@ class NewTextDoc:
         else:
             sys.stdout.write(output_str)
 
-    def moin_output(self,out_bool):
+    """method that creates moinmoin output of file"""
+    def moin_output(self, out_bool):
         output_str = ""
         output_str += " .'''Description:''' " + self.description + "\n"
         output_str += " .'''Author:''' " + self.author + "\n"
@@ -583,7 +592,8 @@ class NewTextDoc:
             sys.stdout.write(output_str)
 
                 #!!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
-""" Parse of arguments """
+
+# Parse of arguments
 parser = argparse.ArgumentParser(description=\
     'Parse arguments in cmd line for generator')
 group = parser.add_mutually_exclusive_group()
@@ -593,7 +603,7 @@ group.add_argument('--txt', '--TXT', dest='text_in', action='store_true',\
  default=False, help='argument to make txt doc file output')
 group.add_argument('--moin', '--MOIN', dest='moin_in', action='store_true',\
  default=False, help='argument to make moinmoin doc file output')
-parser.add_argument('-o','--output', dest='out_in', action='store_true',\
+parser.add_argument('-o', '--output', dest='out_in', action='store_true',\
  default=False, help='argument to save documentation to ouptut file')
 parser_arg = parser.parse_args()
 
