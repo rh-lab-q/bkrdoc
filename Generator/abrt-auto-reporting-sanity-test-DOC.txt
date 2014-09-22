@@ -4,70 +4,70 @@ Keywords: doc help, auto-reporting,
 
 Phases: 
   Outside Phase:
-    Somenthing in start of the test
-    Could be anything
+     Somenthing in start of the test
+     Could be anything
 
   Setup
     Make temporary directory and saves work in it 
 
   Outside Phase:
-    Additional info
+     Additional info
 
   Test "--help"
-    Print help informations 
-    blah 
-    Using of block comment 
-    This could be usefull 
-      networking, action, wifi: sfsdf sdf sdfsd f 
+     Print help informations 
+     blah 
+     Using of block comment 
+     This could be usefull 
+        Networking, action, wifi: sfsdf sdf sdfsd f 
 
   Test "no args"
-    Runs script with no arguments 
+     Runs script with no arguments 
 
   Test "enabled"
-    Single enablned as 
-      try: a argument 
+     Single enablned as 
+        Try: a argument 
 
   Test "disabled"
-    Disabled as a argument 
+     Disabled as a argument 
 
   Test "enabled (once more)"
-    More than just one enabled as a argument 
+     More than just one enabled as a argument 
 
   Test "various argument types"
-    Various types of arguments will start this part 
-      code: rlRun "abrt-auto-reporting $arg"  
-      code: get_configured_value 
-      code: rlFail "Mangles the configuration value" 
-      code: OLD=$CONF_VALUE 
-      loop: for every argument in selected word will do... 
-      condition, action: Test if actualy value in arg is not "enabled" and 
-      condition, important: "disabled" 
-      condition: wee will seee 
-      loop: something which is connected to this loop 
+     Various types of arguments will start this part 
+        Code: rlRun "abrt-auto-reporting $arg"  
+        Code: get_configured_value 
+        Code: rlFail "Mangles the configuration value" 
+        Code: OLD=$CONF_VALUE 
+        Loop: for every argument in selected word will do... 
+        Condition, action: Test if actualy value in arg is not "enabled" and 
+        Condition, important: "disabled" 
+        Condition: wee will seee 
+        Loop: something which is connected to this loop 
 
   Cleanup
-    clean after test 
-      action: Disable auto reporting 
+     clean after test 
+        Action: Disable auto reporting 
 
   Outside Phase:
-    Something on the end of the test
-    could be anything
+     Something on the end of the test
+     could be anything
 
 Expected result: 
 
 Additional information: 
    Loops: 
-    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
-      for every argument in selected word will do... 
-      something which is connected to this loop 
+      for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+         for every argument in selected word will do... 
+         something which is connected to this loop 
 
    Functions: 
-    function get_configured_value
-      Function that configure selected value
-      does not require any parameter
+      function get_configured_value
+         Function that configure selected value
+         does not require any parameter
 
    Conditions: 
-    if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
-      Test if actualy value in arg is not "enabled" and 
-      "disabled" 
-      wee will seee 
+      if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
+         Test if actualy value in arg is not "enabled" and 
+         "disabled" 
+         wee will seee 
