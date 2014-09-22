@@ -1,0 +1,11 @@
+Description: (Description of the test) 
+Author: (Author or authors of the test)
+Keywords: (Keywords of the test)
+
+Phases:(In this phase we can find all test phases in the test.
+        Including informations in Outside Phase)
+        
+Expected result:(This phase will contain log from the test and information of system)
+
+Additional informations:(This phase will containe more informations about conditions,loops and functions)
+    
