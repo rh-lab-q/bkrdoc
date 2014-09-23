@@ -3,6 +3,7 @@
 
 import sys
 import argparse
+import subprocess
 
 
 """Class to parse from script file data and save them to list"""
@@ -38,6 +39,8 @@ class Gener(object):
         if file_in[(len(file_in) - 3):len(file_in)] == ".sh":
 
             try:
+                subprocess.Popen(file_in + ' >& ahoj.txt', shell=True)
+                #subprocess.Popen( 'rm ahoj.txt', shell=True)
                 self.filename = file_in
                 with open(file_in, "r") as inputfile:
                     #inputfile = open(File ,"r",errors='strict')
