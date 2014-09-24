@@ -496,7 +496,6 @@ class NewTextDoc:
         output_str += "Additional information: \n"
         if len(self.loop) != 0:
             output_str += "\040\040 Loops:"
-            print(self.loop)
             for loops in self.loop:
                 if loops[0:len("\40\40\40\40for")] == "\40\40\40\40for":
                     output_str += "\n"
