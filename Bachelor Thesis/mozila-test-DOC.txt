@@ -1,0 +1,49 @@
+Description:  This test is for testing Bugzilla version 3.6. It first installs the required rpm
+Author:  Dave Lawrence <dkl@redhat.com>
+Keywords: 
+
+Phases: 
+  Setup
+        code: FIREFOX_PATH=$( rpm -ql firefox | grep "/usr/lib\(64\)\?/firefox-[^/]\+/firefox" ) 
+        loop: Copy yum repo config and install all necessary rpms for testing 
+        action: Remove the i386 Firefox if installed 
+        action: Setup up Bugzilla configuration files 
+        action: Start the MySQL service 
+        action: Create the initial test data needed by the testsuite 
+        action: Fix the firefox path in the selenium config file 
+
+  Test
+        action: Set the testoutputlog to the current beaker log dir 
+        loop: Running basic Bugzilla sanity test scripts as shipped with Bugzilla 
+        loop: Running the automated web UI tests using Selenium 
+        loop: Running the XMLRPC WebService test scripts 
+
+  Cleanup
+     Stoping httpd and mysqld services 
+
+Expected result: 
+
+Additional information: 
+   Loops:
+     for i in $YUM_PACKAGES
+        Copy yum repo config and install all necessary rpms for testing 
+
+     for i in `ls t/0*.t`
+        Running basic Bugzilla sanity test scripts as shipped with Bugzilla 
+
+     for i in `ls t/test_*.t`
+        Running the automated web UI tests using Selenium 
+
+     for i in `ls t/webservice_*.t`
+        Running the XMLRPC WebService test scripts 
+
+   Functions:
+     function run_test_case ()
+        function which run test case
+        
+     function create_test_data ()
+        Function which creates test data
+
+   Conditions:
+     if [ $? -eq 0 ]
+        test if previous action passed
