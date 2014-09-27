@@ -119,6 +119,10 @@ class Gener(object):
                     pom.append("ENDCOND")
                     self.comments.append(pom)
                     pom = []
+                    
+                elif line[0:len('function')].lower() == 'function':
+                    self.block.insert(0, line)
+                    func = True
 
                 elif '}' == line[0:1] and func:
                     pom.append("ENDFUNC")
@@ -205,7 +209,7 @@ class NewTextDoc:
                 #print(start_cond)
                 if 'phasestart' in line.lower():
                     pom_str = line.strip()
-                    self.pom_list.insert(0, '\040\040' + \
+                    self.pom_list.insert(0, '\40\40' + \
                                          pom_str[len('rlphasestart'):len(pom_str)] + "\n")
                     start_phase = True
                     start_pom = True
@@ -259,17 +263,17 @@ class NewTextDoc:
                     if '@' == pom_str[0][0:1]:
                         pom_str = ""
                         if start_loop:
-                            pom_str += "\040\040\040\040\040\040loop"
+                            pom_str += "\40\40\40\40\40\40\40\40loop"
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, True, True)
 
                         elif start_cond:
-                            pom_str += "\040\040\040\040\040\040condition"
+                            pom_str += "\40\40\40\40\40\40\40\40condition"
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, True, True)
 
                         elif start_phase:
-                            pom_str += "\040\040\040\040\040\040"
+                            pom_str += "\40\40\40\40\40\40\40\40"
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, True, False)
 
@@ -278,37 +282,42 @@ class NewTextDoc:
                     elif start_phase:
                         pom_str = ""
                         if start_loop:
-                            pom_str += "\040\040\040\040\040\040loop"
+                            pom_str += "\40\40\40\40\40\40\40\40loop"
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, True, True)
 
                         elif start_cond:
-                            pom_str += "\040\040\040\040\040\040condition"
+                            pom_str += "\40\40\40\40\40\40\40\40condition"
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, True, True)
 
                         elif not start_pom:
-                            pom_str += "\040\040\040\040\040\040action"
+                            if line[0:1] == "&":
+                                pom_str += "\40\40\40\40\40\40\40\40        "
+                            
+                            else:
+                                pom_str += "\40\40\40\40\40\40\40\40action"
+                            
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, True, False)
 
                         else:
-                            pom_str += "\040\040\040\040"
+                            pom_str += "\40\40\40\40\40"
                             self.parse_multiple_tags \
                                 (pom_list, pom_str, False, False)
 
                     #saves data of function to func list
                     elif start_func:
-                        self.func.append('\040\040\040\040\040\040' + pom_str + "\n")
+                        self.func.append('\40\40\40\40\40\40\40\40' + pom_str + "\n")
 
                     #saving out of phase data
                     elif not start_phase:
                         if len(self.outsidePhase) != 0:
-                            self.outsidePhase.append('\040\040\040\040' + \
+                            self.outsidePhase.append('\40\40\40\40\40' + \
                                                      line[1:len(line)].strip() + "\n")
                         else:
-                            self.outsidePhase.append('\040\040' + 'Outside Phase:\n')
-                            self.outsidePhase.append('\040\040\040\040' + \
+                            self.outsidePhase.append('\40\40' + 'Outside Phase:\n')
+                            self.outsidePhase.append('\40\40\40\40\40' + \
                                                      line[1:len(line)].strip() + "\n")
 
                 #Test of loops and end of loops and multiple cond or loops
@@ -321,7 +330,7 @@ class NewTextDoc:
                         if len(self.listAdd) != 0:
                             self.listPomAdd = self.listAdd[-1]
                             del self.listAdd[-1]
-                            if self.listPomAdd[0][0:len('\040\040\040\040for')].strip() == 'for':
+                            if self.listPomAdd[0][0:len('\40\40\40\40\40for')].strip() == 'for':
                                 start_loop = True
                                 start_cond = False
                             else:
@@ -336,7 +345,7 @@ class NewTextDoc:
                         if len(self.listPomAdd) != 0:
                             self.listAdd.append(self.listPomAdd)
                             self.listPomAdd = []
-                        self.listPomAdd.append('\040\040\040\040' + line + "\n")
+                        self.listPomAdd.append('\40\40\40\40\40' + line + "\n")
 
                 #Test of condition and end of 
                 #condition and multiple cond or loops
@@ -347,7 +356,7 @@ class NewTextDoc:
                         if len(self.listAdd) != 0:
                             self.listPomAdd = self.listAdd[-1]
                             del self.listAdd[-1]
-                            if self.listPomAdd[0][0:len('\040\040\040\040for')].strip() == 'for':
+                            if self.listPomAdd[0][0:len('\40\40\40\40\40for')].strip() == 'for':
                                 start_loop = True
                                 start_cond = False
                             else:
@@ -362,7 +371,7 @@ class NewTextDoc:
                         if len(self.listPomAdd) != 0:
                             self.listAdd.append(self.listPomAdd)
                             self.listPomAdd = []
-                        self.listPomAdd.append('\040\040\040\040' + line + "\n")
+                        self.listPomAdd.append('\40\40\40\40\40' + line + "\n")
 
                         #Test of function and end of function
                 elif ('function' == line[0:len('function')].lower()) or \
@@ -371,7 +380,7 @@ class NewTextDoc:
                         start_func = False
                     else:
                         start_func = True
-                        self.func.append('\040\040\040\040' + line + "\n")
+                        self.func.append('\40\40\40\40\40' + line + "\n")
 
                 #Test of END phase
                 elif 'END' in line[0:3]:
@@ -384,7 +393,7 @@ class NewTextDoc:
                 #Adding to phases code: It's a test
                 # when #@ is on the end of line
                 elif '#@' == line[len(line) - 2:len(line)]:
-                    self.pom_list.append('\040\040\040\040\040\040code: ' + \
+                    self.pom_list.append('\40\40\40\40\40\40\40\40code: ' + \
                                          line[0:len(line) - 2] + '\n')
 
             start_pom = False
@@ -415,7 +424,7 @@ class NewTextDoc:
     def parse_multiple_tags \
                     (self, list_of_words, begin_str, action_in, pom_add):
         out_str = begin_str
-        sec_str = "\040\040\040\040\040\040"
+        sec_str = "\40\40\40\40\40\40\40\40"
         text_bool = False
         last_bool = True
         for word in list_of_words:
@@ -442,10 +451,10 @@ class NewTextDoc:
 
                     last_bool = True
                     if len(begin_str.strip()) == 0:
-                        out_str = "\040\040\040\040\040\040" + word[1:len(word)]
+                        out_str = "\40\40\40\40\40\40\40\40" + word[1:len(word)]
                     else:
                         out_str = begin_str + ', ' + word[1:len(word)]
-                    sec_str = "\040\040\040\040\040\040"
+                    sec_str = "\40\40\40\40\40\40\40\40"
                     text_bool = False
 
                 else:
@@ -483,7 +492,7 @@ class NewTextDoc:
         output_str = ""
         output_str += "Description: " + self.description + "\n"
         output_str += "Author: " + self.author + "\n"
-        output_str += "Keywords: " + self.keywords + "\n\n"
+        output_str += "Keywords: " + self.keywords[0:(len(self.keywords) - 2)] + "\n\n"
         output_str += "Phases: \n"
         #print(self.phases)
         for i in self.phases:
@@ -495,23 +504,23 @@ class NewTextDoc:
         output_str += "Expected result: \n\n"
         output_str += "Additional information: \n"
         if len(self.loop) != 0:
-            output_str += "\040\040 Loops:"
+            output_str += "\40\40 Loops:"
             for loops in self.loop:
-                if loops[0:len("\40\40\40\40for")] == "\40\40\40\40for":
+                if loops[0:len("\40\40\40\40\40for")] == "\40\40\40\40\40for":
                     output_str += "\n"
                 output_str += loops
 
         if len(self.func) != 0:
-            output_str += "\n\040\040 Functions:"
+            output_str += "\n\40\40 Functions:"
             for functions in self.func:
-                if functions[0:len("\40\40\40\40function")] == "\40\40\40\40function":
+                if functions[0:len("\40\40\40\40\40function")] == "\40\40\40\40\40function":
                     output_str += "\n"
                 output_str += functions
 
         if len(self.cond) != 0:
-            output_str += "\n\040\040 Conditions:"
+            output_str += "\n\40\40 Conditions:"
             for conditions in self.cond:
-                if conditions[0:len("\40\40\40\40if")] == "\40\40\40\40if":
+                if conditions[0:len("\40\40\40\40\40if")] == "\40\40\40\40\40if":
                     output_str += "\n"
                 output_str += conditions
 
@@ -534,16 +543,16 @@ class NewTextDoc:
             if len(lists) != 0:
                 for block in lists:
                     if 'Outside Phase:' in block:
-                        output_str += "\040\040'''''" + block.strip() + "'''''\n"
+                        output_str += "\40\40'''''" + block.strip() + "'''''\n"
 
                     elif 'phasestart' in block.lower():
                         pom = block.strip().split()
                         if len(pom) > 1:
                             output_str += \
-                                "\040\040'''" + pom[0] + "'''" + " ''" + block \
+                                "\40\40'''" + pom[0] + "'''" + " ''" + block \
                                     [len(pom[0]) + 1:len(block)].strip() + "''\n"
                         else:
-                            output_str += "\040\040'''" + block.strip() + "'''\n"
+                            output_str += "\40\40'''" + block.strip() + "'''\n"
 
                     else:
                         pom = block.strip().split()
@@ -556,46 +565,46 @@ class NewTextDoc:
                         #need to claryfie where is tag or its 
                         #just specification of the block
                         if not mark_bool:
-                            output_str += "\040\040\040\040 ." + block.strip() \
+                            output_str += "\40\40\40\40 ." + block.strip() \
                                           + "\n"
 
                         else:
-                            output_str += "\040\040\040\040\040\040 *" + \
+                            output_str += "\40\40\40\40\40\40\40\40 *" + \
                                           block.strip() + "\n"
                 output_str += "\n"
 
         output_str += "=== Expected result: ===\n\n"
         output_str += "=== Additional information: ===\n"
         if len(self.loop) != 0:
-            output_str += "\040\040 '''Loops:''' \n"
+            output_str += "\40\40 '''Loops:''' \n"
             for loops in self.loop:
-                if loops[0:len('\040\040\040\040for')] == \
-                        '\040\040\040\040for':
-                    output_str += "\040\040\040\040''" + loops.strip() + "''\n"
+                if loops[0:len('\40\40\40\40for')] == \
+                        '\40\40\40\40for':
+                    output_str += "\40\40\40\40''" + loops.strip() + "''\n"
                 else:
-                    output_str += "\040\040\040\040\040\040 *" + loops.strip() \
+                    output_str += "\40\40\40\40\40\40\40\40 *" + loops.strip() \
                                   + "\n"
 
         if len(self.func) != 0:
-            output_str += "\n\040\040 '''Functions:''' \n"
+            output_str += "\n\40\40 '''Functions:''' \n"
             for functions in self.func:
-                if functions[0:len('\040\040\040\040function')] == \
-                        '\040\040\040\040function':
-                    output_str += "\040\040\040\040''" + functions.strip() \
+                if functions[0:len('\40\40\40\40function')] == \
+                        '\40\40\40\40function':
+                    output_str += "\40\40\40\40''" + functions.strip() \
                                   + "''\n"
                 else:
-                    output_str += "\040\040\040\040\040\040 *" + \
+                    output_str += "\40\40\40\40\40\40\40\40 *" + \
                                   functions.strip() + "\n"
 
         if len(self.cond) != 0:
-            output_str += "\n\040\040 '''Conditions:''' \n"
+            output_str += "\n\40\40 '''Conditions:''' \n"
             for conditions in self.cond:
-                if conditions[0:len('\040\040\040\040if')] == \
-                        '\040\040\040\040if':
-                    output_str += "\040\040\040\040''" + conditions.strip() \
+                if conditions[0:len('\40\40\40\40if')] == \
+                        '\40\40\40\40if':
+                    output_str += "\40\40\40\40''" + conditions.strip() \
                                   + "''\n"
                 else:
-                    output_str += "\040\040\040\040\040\040 *" + \
+                    output_str += "\40\40\40\40\40\40\40\40 *" + \
                                   conditions.strip() + "\n"
 
         if out_bool:
