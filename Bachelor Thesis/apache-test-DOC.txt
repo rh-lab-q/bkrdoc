@@ -1,18 +1,20 @@
 Description:  Apache example test
 Author:  Petr Splichal <psplicha@redhat.com>
-Keywords: apache
+Keywords: apache, httpd
 
 Phases: 
   Setup "Setup"
      Sums up phase asserts and reports the overall phase result 
         code: rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up" 
+        action: Making temporary directory
+        action: Backuping file
         action: Make sure the httpd package is installed 
         action: Make sure the httpd service is running with fresh configuration 
                 (restarts if necessary, remembers the original state) 
 
   Test "Test Existing Page"
      Check if the file is correct 
-        code: rlAssertGrep "GET / HTTP.*200" "$HttpdLogs/access_log" 
+        action: Testing file $HttpdLogs/access_log of having GET / HTTP.*200
         action: Get the page 
         action: Make sure the content is OK 
         action: Check the access log for the corresponding record 
@@ -24,6 +26,7 @@ Phases:
 
   Cleanup "Cleanup"
      Cleanup after test 
+        action: Restore File and removing temporary directory
         action: Restore the www and log directories to their original state 
         action: Restore httpd service to it's original state 
 
