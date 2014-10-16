@@ -5,9 +5,8 @@ Keywords: apache, httpd
 Phases: 
   Setup "Setup"
      Sums up phase asserts and reports the overall phase result 
-        code: rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up" 
         action: Making temporary directory
-        action: Backuping file
+        action: Backing up file
         action: Make sure the httpd package is installed 
         action: Make sure the httpd service is running with fresh configuration 
                 (restarts if necessary, remembers the original state) 
