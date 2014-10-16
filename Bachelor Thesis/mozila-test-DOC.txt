@@ -9,6 +9,7 @@ Phases:
         action: Remove the i386 Firefox if installed 
         action: Setup up Bugzilla configuration files 
         action: Start the MySQL service 
+        action: Starting the httpd service
         action: Create the initial test data needed by the testsuite 
         action: Fix the firefox path in the selenium config file 
 
@@ -40,10 +41,11 @@ Additional information:
    Functions:
      function run_test_case ()
         function which run test case
-        
+        test if previous action has passed
+
      function create_test_data ()
         Function which creates test data
 
    Conditions:
      if [ $? -eq 0 ]
-        test if previous action passed
+        test if previous action has passed
