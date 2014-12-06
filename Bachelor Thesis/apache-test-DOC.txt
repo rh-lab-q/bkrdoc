@@ -2,28 +2,45 @@ Description:  Apache example test
 Author:  Petr Splichal <psplicha@redhat.com>
 Keywords: apache, httpd
 
-Phases: 
-  Setup "Setup"
+Test structure: Setup, 2xTest, Cleanup
+
+Setup:
+   package httpd must be installed
+   service httpd must be running
+
+Test1:
+   command wget must run succesfuly
+   file index.html must exists and contain string "Welcome to Test Page"
+   file real/path/access_log must contain string "GET / HTTP.*200"   
+
+Test2:
+   command wget must not run succesfuly (expecting return code 1 or 8) and it's stderr must contain string "Not Found"
+   file "missing.html" must not exist
+   File real/path/access_log must contain string "GET / missing.html HTTP.*400"
+   File real/path/error_log must contain string "does not ..."
+
+Cleanup:
+   restore state of httpd service
+
+---------------------------------------------------
+Summary:
      Sums up phase asserts and reports the overall phase result 
         action: Making temporary directory
         action: Backing up file
         action: Make sure the httpd package is installed 
         action: Make sure the httpd service is running with fresh configuration 
-                (restarts if necessary, remembers the original state) 
+                (restarts if necessary, remembers the original state)
 
-  Test "Test Existing Page"
      Check if the file is correct 
         action: Testing file $HttpdLogs/access_log of having GET / HTTP.*200
         action: Get the page 
         action: Make sure the content is OK 
         action: Check the access log for the corresponding record 
 
-  Test "Test Missing Page"
      Trying to access a nonexistent page 
         action: An error message should be reported to stderr 
         action: The access log should contain a 404 record 
 
-  Cleanup "Cleanup"
      Cleanup after test 
         action: Restore File and removing temporary directory
         action: Restore the www and log directories to their original state 
