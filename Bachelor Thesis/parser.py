@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # author Jiri Kulda
-# description: Simple parser for BeakerLib
-#            - Parser is using shlex which is lexical analysator.
+# description: Simple parser for BeakerLib test
 
 import sys
 import shlex          
@@ -9,6 +8,8 @@ import shlex
 class parser(object):
     
     lexer = shlex
+    
+    file_test = ""
     
     all_commands = ["rlAssert0", "rlAssertEquals", "rlAssertNotEquals",\
     "rlAssertGreater", "rlAssertGreaterOrEqual", "rlAssertExists", "rlAssertNotExists",\
@@ -22,100 +23,113 @@ class parser(object):
     ] # there is not every command od BeakerLib library
     
     phases = []
+    outside = ""
     
     def __init__(self, file_in):
+        self.phases = []
+        
         try:                
             with open(file_in, "r") as inputfile:
-                #print("open\n")
                 inputfile = open(file_in ,"r")
-                #self.fileString = inputfile.read()
-                self.lexer = shlex.shlex(inputfile.read(), posix=False)
+                self.file_test = inputfile.read()
                 self.parse_data()
 
         except IOError:
-            #self.fail = False
             sys.stderr.write("ERROR: Fail to open file: " + file_in + "\n")
             sys.exit(1)
             
     
     def parse_data(self):
-        pom_phase = []
-        important_tags = ["rlPhaseStart","rlPhaseStartSetup", "rlPhaseStartTest", \
-        "rlPhaseStartCleanup"]
+        journal = False
+        self.outside = phase_outside(self)
         
-        try:
-            for token in self.lexer:
-                if (token[0:len("rlPhaseStart")] == "rlPhaseStart"):
-                    pom_token = token[len("rlPhaseStart"):len(token)]
-                    token = self.lexer.get_token()
-                    if (token[0:2] != "rl"):
-                        pom_token += " " + token 
-                    else:
-                        self.lexer.push_token(token)
-                    self.parse_phase_data(pom_token)
-            print self.phases
+        for line in self.file_test.split('\n'):
+            line = line.strip()
             
-        except ValueError, err:
-            first_line_of_error = lexer.token.splitlines()[0]
-            print 'ERROR:', lexer.error_leader(), str(err), 'following "' + first_line_of_error + '"'
-
-    
-    def parse_phase_data(self, phase_type):
-        pom_phase = []
-        pom_phase.append(phase_type)
-        try:
-            important_tags = ["rlFileBackup", "rlFileRestore", "rlServiceStart", \
-            "rlWaitForCmd", "rlWaitForFile", "rlWaitForSocket", "rlWait"]
-            for token in self.lexer:
-                #In importatnt tags
-                if (token in important_tags):
-                    print token
-                    
-                #it is in rlRun    
-                elif (token == "rlRun"):
-                    token = self.lexer.get_token()
-                    pom_token = token.split()
-                    
-                    if pom_token[0][-1] == '"':
-                        pom_token[0] = pom_token[0][0:-1]
-                        
-                    #testing if firt token is in important_tags
-                    if (pom_token[0][1:len(pom_token[0])] in important_tags):
-                        pom_phase.append(pom_token[0]) #ZDE je ulozeni tokenu
-                        pom_command = pom_token[-1]
-                        for command in self.lexer:
-                            #testing if "command" is any command 
-                            if (command[0:2] == "rl"):
-                                self.lexer.push_token(command)
-                                if (pom_command != ""):
-                                    pom_phase.append(pom_command)
-                                break
-                            pom_command = command
-                    """else:
-                        pom_phase.append(token) #ZDE je ulozeni tokenu
-                        pom_command = ""
-                        for command in self.lexer:
-                            #testing if "command" is any command 
-                            if (command[0:2] == "rl"):
-                                self.lexer.push_token(command)
-                                if (pom_command != ""):
-                                    pom_phase.append(pom_command)
-                                break
-                            pom_command = command
-                     """   
+            if line[0:len("rljournalstart")].lower() == "rljournalstart":
+                journal = True
                 
-                #testing of phase end
-                if (token[0:len("rlPhaseEnd")] == "rlPhaseEnd"):
-                    self.phases.append(pom_phase)
-                    return 0
+            elif line[0:len("rljournalend")].lower() == "rljournalend":
+                journal = False
+            
+            elif journal and line[0:1] != '#' and len(line) > 1 and \
+            line[0:len("rlphaseend")].lower() != "rlphaseend":
+                print line
+                
+                if line[0:len("rlphasestartsetup")].lower() == "rlphasestartsetup":
+                    self.phases.insert(0, phase_setup(line[len("rlphasestart"):-1], self))
+                    
+                elif line[0:len("rlphasestarttest")].lower() == "rlphasestarttest":
+                    self.phases.insert(0, phase_test(line[len("rlphasestart"):-1], self))
+                
+                elif line[0:len("rlphasestartclean")].lower() == "rlphasestartclean":
+                    self.phases.insert(0, phase_clean(line[len("rlphasestart"):-1], self))
+                
+                elif len(self.phases) > 0:
+                    self.phases[0].setup_statement(line)
+            
+            elif line[0:1] != '#' and len(line) > 1 and \
+            line[0:len("rlphaseend")].lower() != "rlphaseend":
+                self.outside.setup_statement(line)
+        
+        
+class phase_outside:
     
-        except ValueError, err:
-            first_line_of_error = lexer.token.splitlines()[0]
-            print 'ERROR:', lexer.error_leader(), str(err), 'following "' + first_line_of_error + '"'
+    parse_ref = ""
+    statement_list = []
+    
+    def __init__(self,parse_cmd):
+        self.parse_ref = parse_cmd
+        self.statement_list = []
+        
+    def setup_statement(self,line):
+        self.statement_list.insert(-1,line)
 
+class phase_clean:
+    
+    phase_name = ""
+    parse_ref = ""
+    statement_list = []
+    
+    def __init__(self,name,parse_cmd):
+        self.phase_name = name
+        self.parse_ref = parse_cmd
+        self.statement_list = []
+        
+    def setup_statement(self,line):
+        print "++++++++++++++++++++++++++++++++" + line
+
+
+class phase_test:
+    
+    phase_name = ""
+    parse_ref = ""
+    statement_list = []
+    
+    def __init__(self,name,parse_cmd):
+        self.phase_name = name
+        self.parse_ref = parse_cmd
+        self.statement_list = []
+        
+    def setup_statement(self,line):
+        print "-+++++++++-------------------" + line
+
+
+class phase_setup:
+    
+    phase_name = ""
+    parse_ref = ""
+    statement_list = []
+    
+    def __init__(self,name,parse_cmd):
+        self.phase_name = name
+        self.parse_ref = parse_cmd
+        self.statement_list = []
+        
+    def setup_statement(self,line):
+        print "--------------------" + line
+        
 
 #***************** MAIN ******************
 for arg in sys.argv[1:len(sys.argv)]:
     parser(arg)
-
-
