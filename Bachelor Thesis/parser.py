@@ -5,6 +5,7 @@
 import sys
 import shlex
 import re          
+import DFA
             
 class parser(object):
     
@@ -50,7 +51,7 @@ class parser(object):
             
     def parse_data(self):
         journal = False
-        self.phases.append(phase_outside(self))
+        self.phases.append(phase_outside())
         
         for line in self.file_test.split('\n'):
             line = line.strip()
@@ -59,19 +60,19 @@ class parser(object):
             not self.is_phase_journal_end(line) :
                 
                 if self.is_phase_setup(line):
-                    self.phases.append(phase_setup(line[len("rlphasestart"):-1], self))
+                    self.phases.append(phase_setup(line[len("rlphasestart"):]))
                     
                 elif self.is_phase_test(line):
-                    self.phases.append(phase_test(line[len("rlphasestart"):-1], self))
+                    self.phases.append(phase_test(line[len("rlphasestart"):]))
                 
                 elif self.is_phase_clean(line):
-                    self.phases.append(phase_clean(line[len("rlphasestart"):-1], self))
+                    self.phases.append(phase_clean(line[len("rlphasestart"):]))
                 
                 elif len(self.phases) > 0:
                     self.phases[-1].setup_statement(line)
             
             elif self.is_phase_journal_end(line):
-                self.phases.append(phase_outside(self))
+                self.phases.append(phase_outside())
             
             elif line[0:1] != '#' and len(line) > 1:
                 self.phases[-1].setup_statement(line)
@@ -82,6 +83,12 @@ class parser(object):
         for i in self.phases:
             print i.statement_list
             print "\n"
+        
+    
+    def get_doc_data(self):
+        for member in self.phases:
+            member.search_data(self)
+    
         
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
@@ -105,18 +112,39 @@ class parser(object):
     def is_journal_start(self, line):
         return line[0:len("rljournalstart")].lower() == "rljournalstart"
         
+    def is_phase_outside(self,phase_ref):
+        return phase_ref.phase_name == "Outside phase"
+        
+    def search_variable(self, phase_ref, searching_variable):
+        pom_pos = 0
+        pom_variable = ""
+        
+        for member in self.phases:
+            if self.is_phase_outside(member):
+                pom_pos = member.get_variable_position(searching_variable)
+                if pom_pos >= 0:
+                    pom_variable = member.variable_values_list[pom_pos] 
+    
+            elif member == phase_ref:
+                if pom_variable == "":
+                    print "UNKNOWN VARIABLE !!!"
+                return pom_variable
+                
+        
         
         
 class phase_outside:
     """Class for searching data ourside of phases"""
-    parse_ref = ""
+    #parse_ref = ""
+    phase_name = ""
     statement_list = []
     variable_list = []
     variable_values_list = []
     keywords_list = []
     
-    def __init__(self,parse_cmd):
-        self.parse_ref = parse_cmd
+    def __init__(self):
+        #self.parse_ref = parse_cmd
+        self.phase_name = "Outside phase"
         self.statement_list = []
         self.variable_list = []
         self.variable_values_list = []
@@ -125,7 +153,7 @@ class phase_outside:
     def setup_statement(self,line):
         self.statement_list.append(line)
         
-    def search_data(self):
+    def search_data(self,parser_ref):
         for statement in self.statement_list:
             readed = shlex.shlex(statement)
             member = readed.get_token()
@@ -139,61 +167,150 @@ class phase_outside:
                 regular = re.compile("\"(\/.*\/)(.*)\"")
                 match = regular.match(pom)
                 if match:
-                    self.variable_values_list.append(match.group(1))
+                    self.variable_values_list.append(match.group(1) + match.group(2))
                     self.keywords_list.append(match.group(2))
                 else:
                     self.variable_values_list.append(pom[1:-1])
-        
         #print self.variable_list
         #print self.variable_values_list
         #print self.keywords_list
+        
+    def get_variable_position(self,searching_variable):
+        i = -1
+        for member in self.variable_list:
+            if member == searching_variable:
+                i += 1
+                return i
+            else:
+                i += 1
+        
+        return -1
 
 class phase_clean:
     """Class for store informations in test phase"""
     phase_name = ""
-    parse_ref = ""
+    #parse_ref = ""
     statement_list = []
+    doc_ref = ""
     
-    def __init__(self,name,parse_cmd):
+    def __init__(self,name):
         self.phase_name = name
-        self.parse_ref = parse_cmd
+        #self.parse_ref = parse_cmd
         self.statement_list = []
+        self.doc = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
+        
+    def search_data(self,parser_ref):
+        self.doc_ref = statement_automata(self,parser_ref) 
 
 
 class phase_test:
     """Class for store informations in test phase"""
     phase_name = ""
-    parse_ref = ""
+    #parse_ref = ""
     statement_list = []
+    doc_ref = ""
     
-    def __init__(self,name,parse_cmd):
+    def __init__(self,name):
         self.phase_name = name
-        self.parse_ref = parse_cmd
+        #self.parse_ref = parse_cmd
         self.statement_list = []
+        self.doc = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
+    
+    def search_data(self,parser_ref):
+        self.doc_ref = statement_automata(self,parser_ref) 
 
 
 class phase_setup:
     """Class for store informations in setup phase"""
     phase_name = ""
-    parse_ref = ""
+    #parse_ref = ""
+    doc_ref = ""
     statement_list = []
     
-    def __init__(self,name,parse_cmd):
+    def __init__(self,name):
         self.phase_name = name
-        self.parse_ref = parse_cmd
+        #self.parse_ref = parse_cmd
         self.statement_list = []
+        self.doc = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
+    def search_data(self,parser_ref):
+        self.doc_ref = statement_automata(self,parser_ref) 
 
+
+class statement_automata:
+    
+    documentation = []
+    parser_ref = ""
+    phase_ref = ""
+    
+    def __init__(self,phase_ref,parser_ref):
+        
+        self.parser_ref = parser_ref
+        self.documentation = []
+        self.phase_ref = phase_ref
+        
+        for line in phase_ref.statement_list:
+            
+            if self.is_assert_command(line):
+                self.assert_command(line)
+            
+            elif self.is_rlrun_command(line):
+                print "Not implemented rlRun"
+        
+        print self.documentation    
+            
+    def is_assert_command(self,line):
+        return line[0:len("rlAssert")] == "rlAssert"
+        
+    def is_rlrun_command(self,line):
+        return line[0:len("rlRun")] == "rlRun"
+        
+    def assert_command(self,line):
+        pom = line.split()
+        
+        if pom[0] == "rlAssertRpm":
+            self.documentation.append("Package " + pom[1][1:-1] + " must be installed")
+        
+        elif pom[0] == "rlAssertGrep":
+            readed = shlex.shlex(line)
+            readed.get_token() #erase first element with name "rlAssertGrep"
+            pattern = readed.get_token()
+            search_file = readed.get_token()
+            
+            #searching for variable in file string
+            if self.is_variable_in_string(search_file):
+                #regular expression for parsing file data and variables
+                regular = re.compile("\"(.*)\$(.*)(\/.*)\"")
+                match = regular.match(search_file)
+                if match:
+                    self.documentation.append("File " + match.group(1) + \
+                    self.get_variable(match.group(2)) + match.group(3)\
+                    + " must contain string " + pattern)
+            
+            else:
+                self.documentation.append("File " + search_file[1:-1]\
+                 + " must contain string " + pattern)
+        
+        
+                    
+    def is_variable_in_string(self,string_file):
+        return string_file.find('$') >= 0
+            
+    def get_variable(self,variable_string):
+        return self.parser_ref.search_variable(self.phase_ref,variable_string)
+    
+            
 #***************** MAIN ******************
 for arg in sys.argv[1:len(sys.argv)]:
     pom = parser(arg)
-    pom.print_statement()
+    #pom.print_statement()
+    pom.get_doc_data()
