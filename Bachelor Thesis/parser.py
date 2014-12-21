@@ -24,7 +24,13 @@ class parser(object):
     "rlAssertMount", "rlHash", "rlUnhash", "rlFileBackup", "rlFileRestore", \
     "rlServiceStart", "rlServiceStop", "rlServiceRestore", "rlSEBooleanOn",\
     "rlSEBooleanOff", "rlSEBooleanRestore", "rlCleanupAppend", "rlCleanupPrepend",\
-    ] # there is not every command od BeakerLib library
+    "rlVirtualXStop", "rlVirtualXGetDisplay", "rlVirtualXStart", "rlWait", "rlWaitForSocket",\
+    "rlWaitForFile", "rlWaitForCmd", "rlImport", "rlDejaSum", "rlPerfTime_AvgFromRuns",\
+    "rlPerfTime_RunsinTime", "rlLogMetricLow", "rlLogMetricHigh", "rlShowRunningKernel", \
+    "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch", \
+    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", \
+    "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog"
+    ]
     
     phases = []
     outside = ""
@@ -53,6 +59,7 @@ class parser(object):
         journal = False
         self.phases.append(phase_outside())
         
+        pom_line = ""
         for line in self.file_test.split('\n'):
             line = line.strip()
             
@@ -67,15 +74,19 @@ class parser(object):
                 
                 elif self.is_phase_clean(line):
                     self.phases.append(phase_clean(line[len("rlphasestart"):]))
+                    
+                elif self.is_end_back_slash(line):
+                    pom_line = line[0:-1].strip()
                 
                 elif len(self.phases) > 0:
-                    self.phases[-1].setup_statement(line)
+                    if pom_line != "":
+                        self.phases[-1].setup_statement(pom_line + line)
+                        pom_line = ""
+                    else:
+                        self.phases[-1].setup_statement(line)
             
             elif self.is_phase_journal_end(line):
                 self.phases.append(phase_outside())
-            
-            elif line[0:1] != '#' and len(line) > 1:
-                self.phases[-1].setup_statement(line)
 
         
     def print_statement(self):
@@ -84,6 +95,8 @@ class parser(object):
             print i.statement_list
             print "\n"
         
+    def is_end_back_slash(self, line):
+        return line[-1:] == '\\'
     
     def get_doc_data(self):
         for member in self.phases:
@@ -114,6 +127,9 @@ class parser(object):
         
     def is_phase_outside(self,phase_ref):
         return phase_ref.phase_name == "Outside phase"
+        
+    def is_beakerLib_command(self,testing_command):
+        return testing_command in self.all_commands
         
     def search_variable(self, phase_ref, searching_variable):
         pom_pos = 0
@@ -192,18 +208,23 @@ class phase_clean:
     #parse_ref = ""
     statement_list = []
     doc_ref = ""
+    statement_classes = []
+    new_line = False
     
     def __init__(self,name):
         self.phase_name = name
         #self.parse_ref = parse_cmd
         self.statement_list = []
         self.doc = []
+        self.statement_classes = []
+        self.new_line = False
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
     def search_data(self,parser_ref):
-        self.doc_ref = statement_automata(self,parser_ref) 
+        for statement in self.statement_list:
+            self.statement_classes.append(statement_automata(statement,parser_ref))
 
 
 class phase_test:
@@ -212,18 +233,21 @@ class phase_test:
     #parse_ref = ""
     statement_list = []
     doc_ref = ""
+    statement_classes = []
     
     def __init__(self,name):
         self.phase_name = name
         #self.parse_ref = parse_cmd
         self.statement_list = []
         self.doc = []
+        self.statement_classes = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
     
     def search_data(self,parser_ref):
-        self.doc_ref = statement_automata(self,parser_ref) 
+        for statement in self.statement_list:
+            self.statement_classes.append(statement_automata(statement,parser_ref))
 
 
 class phase_setup:
@@ -232,26 +256,62 @@ class phase_setup:
     #parse_ref = ""
     doc_ref = ""
     statement_list = []
+    statement_classes = []
     
     def __init__(self,name):
         self.phase_name = name
         #self.parse_ref = parse_cmd
         self.statement_list = []
         self.doc = []
+        self.statement_classes = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
     def search_data(self,parser_ref):
-        self.doc_ref = statement_automata(self,parser_ref) 
-
+        for statement in self.statement_list:
+            self.statement_classes.append(statement_automata(statement,parser_ref))
 
 class statement_automata:
     
-    documentation = []
-    parser_ref = ""
-    phase_ref = ""
+    command_name = ""
+    first_param = ""
+    second_param = ""
+    third_param = ""
+    options_list = []
     
+    
+    def __init__(self,statement_line,parser_ref):
+        self.command_name = ""
+        self.first_param = ""
+        self.second_param = ""
+        self.third_param = ""
+        self.options_list = []
+        
+        readed = shlex.shlex(statement_line)
+        
+        first = readed.get_token()
+        if self.is_beakerLib_command(first,parser_ref):
+            print "ANO " + first + " is BeakerLib command"
+            
+            
+             
+        else:
+            self.command_name = "UNKNOWN"
+        
+        #print readed.get_token()
+    
+    
+    def is_assert_command(self,line):
+        return line[0:len("rlAssert")] == "rlAssert"
+        
+    def is_rlrun_command(self,line):
+        return line[0:len("rlRun")] == "rlRun"
+        
+    def is_beakerLib_command(self,testing_command,parser_ref):
+        return parser_ref.is_beakerLib_command(testing_command)
+    
+    """
     def __init__(self,phase_ref,parser_ref):
         
         self.parser_ref = parser_ref
@@ -307,7 +367,7 @@ class statement_automata:
             
     def get_variable(self,variable_string):
         return self.parser_ref.search_variable(self.phase_ref,variable_string)
-    
+    """
             
 #***************** MAIN ******************
 for arg in sys.argv[1:len(sys.argv)]:
