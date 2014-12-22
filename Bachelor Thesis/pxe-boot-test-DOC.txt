@@ -2,9 +2,10 @@ Description:
 Author:  Alexander Todorov <atodorov@redhat.com>
 Keywords: RedHatEnterpriseLinux7, RedHatEnterpriseLinux*, Fedora*
 
-Phases: 
-  Test PXE-Boot
-     Testing of syslog in OS made by RH 
+Test structure: Test
+
+Test PXE-Boot
+    Value $? must be 0
 
 Expected result: 
 

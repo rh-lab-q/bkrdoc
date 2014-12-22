@@ -16,35 +16,11 @@ Test1:
 Test2:
    command wget must not run succesfuly (expecting return code 1 or 8) and it's stderr must contain string "Not Found"
    file "missing.html" must not exist
-   File real/path/access_log must contain string "GET / missing.html HTTP.*400"
-   File real/path/error_log must contain string "does not ..."
+   File /var/log/httpd/access_log must contain string "GET /missing.html HTTP.*404"
+   File /var/log/httpd/error_log must contain string "does not exist.*missing.html"
 
 Cleanup:
    restore state of httpd service
-
----------------------------------------------------
-Summary:
-     Sums up phase asserts and reports the overall phase result 
-        action: Making temporary directory
-        action: Backing up file
-        action: Make sure the httpd package is installed 
-        action: Make sure the httpd service is running with fresh configuration 
-                (restarts if necessary, remembers the original state)
-
-     Check if the file is correct 
-        action: Testing file $HttpdLogs/access_log of having GET / HTTP.*200
-        action: Get the page 
-        action: Make sure the content is OK 
-        action: Check the access log for the corresponding record 
-
-     Trying to access a nonexistent page 
-        action: An error message should be reported to stderr 
-        action: The access log should contain a 404 record 
-
-     Cleanup after test 
-        action: Restore File and removing temporary directory
-        action: Restore the www and log directories to their original state 
-        action: Restore httpd service to it's original state 
 
 Expected result: 
 
