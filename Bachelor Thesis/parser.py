@@ -5,7 +5,7 @@
 import sys
 import shlex
 import re          
-import DFA
+import argparse
             
 class parser(object):
     
@@ -29,8 +29,19 @@ class parser(object):
     "rlPerfTime_RunsinTime", "rlLogMetricLow", "rlLogMetricHigh", "rlShowRunningKernel", \
     "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch", \
     "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", \
-    "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog"
+    "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",\
+    "rlGetTestState", "rlGetPhaseState"
     ]
+    
+    commands_with_no_options = ["rlGetTestState", "rlGetPhaseState", "rlGetArch", \
+    "rlGetPrimaryArch", "rlGetSecondaryArch", "rlGetDistroRelease", "rlGetDistroVariant",\
+    "rlShowRunningKernel", "rlPass", "rlFail", "rlAssert0", "rlAssertEquals",\
+    "rlAssertNotEquals", "rlAssertGreater", "rlAssertGreaterOrEqual", "rlAssertExists",\
+    "rlAssertNotExists", "rlAssertDiffer", "rlAssertNotDiffer","rlGetMakefileRequires",\
+    "rlCheckRequirements", "rlCheckMakefileRequires", "rlMount", "rlCheckMount", \
+    "rlAssertMount", "rlCleanupAppend", "rlCleanupPrepend", "rlDejaSum",\
+    "rlVirtualXStart", "rlVirtualXGetDisplay", "rlVirtualXStop" ]
+    
     
     phases = []
     outside = ""
@@ -102,6 +113,8 @@ class parser(object):
         for member in self.phases:
             member.search_data(self)
     
+    def is_no_option_command(self, command):
+        return command in self.commands_with_no_options
         
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
@@ -275,99 +288,159 @@ class phase_setup:
 class statement_automata:
     
     command_name = ""
-    first_param = ""
-    second_param = ""
-    third_param = ""
-    options_list = []
-    
+    parsed_param_ref = ""
     
     def __init__(self,statement_line,parser_ref):
         self.command_name = ""
-        self.first_param = ""
-        self.second_param = ""
-        self.third_param = ""
+        self.param_list = []
         self.options_list = []
         
         readed = shlex.shlex(statement_line)
-        
+        pom_list = []
+    
         first = readed.get_token()
         if self.is_beakerLib_command(first,parser_ref):
-            print "ANO " + first + " is BeakerLib command"
+            element = readed.get_token()
+            while (element != ""):
+                pom_list.append(element)
+                element = readed.get_token()
             
+            if self.is_Rpm_command(first):
+                self.rpm_command(pom_list)
+                
+            elif self.is_assert_command(first):
+                
+                if self.is_assert_grep(first):
+                    self.assert_grep(pom_list)
+                
+                elif self.is_rlPass_or_rlFail(first):
+                    self.rlPass_or_rlFail(pom_list)
+                    
+                elif self.is_assert0(first):
+                    self.assert0(pom_list)
+                    
+                elif self.is_assert_comparasion(first):
+                    self.assert_comparasion(pom_list)
+                    
+                elif self.is_assert_exists(first):
+                    self.assert_exits(pom_list)
+                
+                elif self.is_assert_differ(first):
+                    self.assert_differ(pom_list)
             
-             
+            elif self.is_rlIsRHEL_or_rlISFedora(first):
+                self.IsRHEL_or_Is_Fedora(pom_list)
+                
         else:
             self.command_name = "UNKNOWN"
+            
+    def rpm_command(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        if len(pom_param_list) == 1 and pom_param_list[0] == "--all":
+            parser.add_argument('-i', '-I', dest='all_in', action='store_true',
+                   default=False, help='assert all packages')
+            self.parsed_param_ref = parser.parse_args(pom_param_list)
+        else:
+            parser.add_argument('name', type = self.string_type)
+            parser.add_argument('version', type = str, nargs = '?')
+            parser.add_argument('release', type = str, nargs = '?')
+            parser.add_argument('arch', type = str, nargs = '?')
+            self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def IsRHEL_or_Is_Fedora(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('type', type = str, nargs = '*')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
         
-        #print readed.get_token()
+    def assert_differ(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('file1', type = self.string_type)
+        parser.add_argument('file2', type = self.string_type)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def assert_exits(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('file|directory', type = self.string_type)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def assert_comparasion(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('comment', type = self.string_type)
+        parser.add_argument('value1', type = int)
+        parser.add_argument('value2', type = int)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
     
+    def assert0(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('comment', type = self.string_type)
+        parser.add_argument('value', type = int)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+    
+    def rlPass_or_rlFail(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('comment', type = self.string_type)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+    
+    
+    def assert_grep(self,pom_param_list):        
+        parser = argparse.ArgumentParser()
+        parser.add_argument('pattern', type = self.string_type)
+        parser.add_argument('file', type = self.string_type)
+        parser.add_argument('-i', '-I', dest='text_in', action='store_true',
+                   default=False, help='insensitive matches')
+        parser.add_argument('-e', '-E', dest='moin_in', action='store_true',
+                   default=False, help='Extended grep')
+        parser.add_argument('-p', '-P', dest='out_in', action='store_true',
+                    default=False, help='perl regular expression')        
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    
+    def string_type(self,command):
+        if command[0:1] != '"':
+            raise argparse.ArgumentTypeError("Not type string")
+        return command
+        
+    def is_rlIsRHEL_or_rlISFedora(self,command):
+        return command == "rlIsRHEL" or command == "rlIsFedora"
+        
+    def is_assert_differ(self,command):
+        return command == "rlAssertDiffer" or command == "rlAssertNotDiffer"
+        
+    def is_assert_exists(self,command):
+        return command == "rlAssertExists" or command == "rlAssertNotExists"
+    
+    def is_assert_comparasion(self,command):
+        pom = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",\
+        "rlAssertGreaterOrEqual"]
+        return command in pom
+        
+    def is_rlPass_or_rlFail(self,command):
+        return command == "rlPass" or command == "rlFail"
+        
+    def is_assert_grep(self,command):
+        return command == "rlAssertGrep" or command == "rlAssertNotGrep"
+        
+    def is_assert0(self,command):
+        return command == "rlAssert0"
+    
+    def is_command_with_max_two_params(self, command, parser_ref):
+        parser_ref.is_in_two_command_list(command)
     
     def is_assert_command(self,line):
         return line[0:len("rlAssert")] == "rlAssert"
         
+    def is_Rpm_command(self,command):
+        return command[-3:] == "Rpm"
+        
     def is_rlrun_command(self,line):
         return line[0:len("rlRun")] == "rlRun"
+    
+    def is_no_option_command(self,command,parser_ref):
+        return parser_ref.is_no_option_command(command)
         
     def is_beakerLib_command(self,testing_command,parser_ref):
         return parser_ref.is_beakerLib_command(testing_command)
     
-    """
-    def __init__(self,phase_ref,parser_ref):
-        
-        self.parser_ref = parser_ref
-        self.documentation = []
-        self.phase_ref = phase_ref
-        
-        for line in phase_ref.statement_list:
-            
-            if self.is_assert_command(line):
-                self.assert_command(line)
-            
-            elif self.is_rlrun_command(line):
-                print "Not implemented rlRun"
-        
-        print self.documentation    
-            
-    def is_assert_command(self,line):
-        return line[0:len("rlAssert")] == "rlAssert"
-        
-    def is_rlrun_command(self,line):
-        return line[0:len("rlRun")] == "rlRun"
-        
-    def assert_command(self,line):
-        pom = line.split()
-        
-        if pom[0] == "rlAssertRpm":
-            self.documentation.append("Package " + pom[1][1:-1] + " must be installed")
-        
-        elif pom[0] == "rlAssertGrep":
-            readed = shlex.shlex(line)
-            readed.get_token() #erase first element with name "rlAssertGrep"
-            pattern = readed.get_token()
-            search_file = readed.get_token()
-            
-            #searching for variable in file string
-            if self.is_variable_in_string(search_file):
-                #regular expression for parsing file data and variables
-                regular = re.compile("\"(.*)\$(.*)(\/.*)\"")
-                match = regular.match(search_file)
-                if match:
-                    self.documentation.append("File " + match.group(1) + \
-                    self.get_variable(match.group(2)) + match.group(3)\
-                    + " must contain string " + pattern)
-            
-            else:
-                self.documentation.append("File " + search_file[1:-1]\
-                 + " must contain string " + pattern)
-        
-        
-                    
-    def is_variable_in_string(self,string_file):
-        return string_file.find('$') >= 0
-            
-    def get_variable(self,variable_string):
-        return self.parser_ref.search_variable(self.phase_ref,variable_string)
-    """
             
 #***************** MAIN ******************
 for arg in sys.argv[1:len(sys.argv)]:
