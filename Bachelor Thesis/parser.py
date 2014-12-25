@@ -300,13 +300,35 @@ class statement_automata:
     
         first = readed.get_token()
         if self.is_beakerLib_command(first,parser_ref):
+            self.command_name = first 
             element = readed.get_token()
             while (element != ""):
-                pom_list.append(element)
-                element = readed.get_token()
+                if element == '-' or element == '--' or element == '$':
+                    element += readed.get_token()
+                    
+                    #Important for status in rlrun command
+                    if self.is_rlrun_command(first):
+                        pom_list[-1] = pom_list[-1] + element
+                        element = readed.get_token()
+                        
+                #Important for status in rlrun command
+                elif element == ',' and self.is_rlrun_command(first):
+                    element += readed.get_token()
+                    pom_list[-1] = pom_list[-1] + element
+                    element = readed.get_token()
+                
+                else:
+                    pom_list.append(element)
+                    element = readed.get_token()
+                    
+            if self.is_rlrun_command(first):
+                self.rlRun(pom_list)
             
-            if self.is_Rpm_command(first):
+            elif self.is_Rpm_command(first):
                 self.rpm_command(pom_list)
+            
+            elif self.is_check_or_assert_mount(first):
+                self.check_or_assert_mount(pom_list)
                 
             elif self.is_assert_command(first):
                 
@@ -327,17 +349,207 @@ class statement_automata:
                 
                 elif self.is_assert_differ(first):
                     self.assert_differ(pom_list)
+                    
+                elif self.is_assert_binary_origin(first):
+                    self.assert_binary_origin(pom_list)
+            
+            elif self.is_rlFileBackup(first):
+                self.rlFileBackup(pom_list)
+                
+            elif self.is_rlFileRestore(first):
+                self.rlFile_Restore(pom_list)
             
             elif self.is_rlIsRHEL_or_rlISFedora(first):
                 self.IsRHEL_or_Is_Fedora(pom_list)
                 
+            elif self.is_rlmount(first):
+                self.rl_mount(pom_list)
+                
+            elif self.is_rlHash_or_rlUnhash(first):
+                self.rlHash_or_rlUnhash(pom_list)
+                
+            elif self.is_rlReport(first):
+                self.rlReport(pom_list)
+                
+            elif self.is_rlWatchdog(first):
+                self.rlWatchdog(pom_list)
+                
+            elif self.is_rlservicexxx(first):
+                self.rlServicexxx(pom_list)
+                
+            elif self.is_SEBooleanxxx(first):
+                self.SEBooleanxxx(pom_list)
+                
+            elif self.is_rlCleanup_Apend_or_Prepend(first):
+                self.rlCleanup_Apend_or_Prepend(pom_list)
+                
+            elif self.is_rlPerfTime_RunsInTime(first):
+                self.rlPerfTime_RunsInTime(pom_list)
+            
+            elif self.is_rlPerfTime_AvgFromRuns(first):
+                self.rlPerfTime_AvgFromRuns(pom_list)
+                
+            elif self.is_rlImport(first):
+                self.rlImport(pom_list)
+                
+            elif self.is_rlWaitForxxx(first):
+                self.rlWaitForxxx(pom_list,first)
+                
+            elif self.is_rlWaitFor(first):
+                self.rlWaitFor(pom_list)
+                
+            elif self.is_VirtualXxxx(first):
+                self.rlVirtualX_xxx(pom_list)
+            
         else:
             self.command_name = "UNKNOWN"
+            
+    def rlWatchdog(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("command", type=str)
+        parser.add_argument("timeout", type=str)
+        parser.add_argument("signal", type=str, nargs = '?', default = "KILL")
+        parser.add_argument("callback", type=str, nargs = '?')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlReport(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("name", type=str)
+        parser.add_argument("result", type=str)
+        parser.add_argument("score", type=str, nargs = '?')
+        parser.add_argument("log", type=str, nargs = '?')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+            
+    def rlRun(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-t', dest='t', action='store_true', default=False)
+        parser.add_argument('-l', dest='l', action='store_true', default=False)
+        parser.add_argument('-c', dest='c', action='store_true', default=False)
+        parser.add_argument('-s', dest='s', action='store_true', default=False)
+        parser.add_argument("command", type=self.string_type)
+        parser.add_argument("status", type=str, nargs = '?', default = 0)
+        parser.add_argument("comment", type=self.string_type, nargs = '?')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+    
+    def rlVirtualX_xxx(self, pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("name", type=str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlWaitFor(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('n', type = str, nargs = '*')
+        parser.add_argument("-t", type=int, help="time")
+        parser.add_argument("-s", type=str, help="SIGNAL", default = "SIGTERM")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    
+    def rlWaitForxxx(self,pom_param_list,command):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-p", type=str, help="PID")
+        parser.add_argument("-t", type=str, help="time")
+        parser.add_argument("-d", type=int, help="delay", default = 1)
+        
+        if is_rlWaitForCmd(command):
+            parser.add_argument("command", type=str)
+            parser.add_argument("-m", type=int, help="count")
+            parser.add_argument("-r", type=int, help="retrval")
+        
+        elif is_rlWaitForFile(command):
+            parser.add_argument("path", type=str)
+            
+        elif is_rlWaitForSocket(command):
+            parser.add_argument("port_path", type=str)
+            parser.add_argument('--close', dest='close', action='store_true',
+                   default=False)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlImport(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("LIBRARY", type=str, nargs = '+')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlPerfTime_RunsInTime(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("command", type=str)
+        parser.add_argument("time", type=int, nargs = '?', default = 30)
+        parser.add_argument("runs", type=int, nargs = '?', default = 3)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlPerfTime_AvgFromRuns(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("command", type=str)
+        parser.add_argument("count", type=int, nargs = '?', default = 3)
+        parser.add_argument("warmup", type=str, nargs = '?', default = "warmup")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlCleanup_Apend_or_Prepend(self, pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("string", type=str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def SEBooleanxxx(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("boolean", type=str, nargs = '+')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlServicexxx(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("service", type=str, nargs = '+')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rlFileRestore(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--namespace", type=str,
+                    help="specified namespace to use")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+            
+    def rlFileBackup(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--clean', dest='clean', action='store_true',
+                   default=False)
+        parser.add_argument("--namespace", type=str,
+                    help="specified namespace to use")
+        parser.add_argument('file', type = str, nargs = '+')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+            
+    def rlHash_or_rlUnhash(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--decode', dest='decode', action='store_true',
+                   default=False, help='unhash given string')
+        parser.add_argument("--algorithm", type=str,
+                    help="given hash algorithm")
+        parser.add_argument('stdin_STRING', type = str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+            
+    def check_or_assert_mount(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('server', type = str, nargs = '?')
+        parser.add_argument('share', type = str, nargs = '?')
+        parser.add_argument('mountpoint', type = str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def rl_mount(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('server', type = str)
+        parser.add_argument('share', type = str)
+        parser.add_argument('mountpoint', type = str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            
+    def assert_binary_origin(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('binary', type = str)
+        parser.add_argument('package', type = str, nargs = '*')
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def rpm_command(self,pom_param_list):
         parser = argparse.ArgumentParser()
         if len(pom_param_list) == 1 and pom_param_list[0] == "--all":
-            parser.add_argument('-i', '-I', dest='all_in', action='store_true',
+            parser.add_argument('--all', dest='all', action='store_true',
                    default=False, help='assert all packages')
             self.parsed_param_ref = parser.parse_args(pom_param_list)
         else:
@@ -373,7 +585,7 @@ class statement_automata:
     def assert0(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument('comment', type = self.string_type)
-        parser.add_argument('value', type = int)
+        parser.add_argument('value', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
     def rlPass_or_rlFail(self,pom_param_list):
@@ -399,6 +611,74 @@ class statement_automata:
         if command[0:1] != '"':
             raise argparse.ArgumentTypeError("Not type string")
         return command
+        
+    def is_rlWatchdog(self,command):
+        return command == "rlWatchdog"
+        
+    def is_rlReport(self,command):
+        return command == "rlReport"
+        
+    def is_VirtualXxxx(self, command):
+        pom_list = ["rlVirtualXStop", "rlVirtualXStart", "rlVirtualXGetDisplay"]
+        return command in pom_list
+        
+    def is_rlWaitFor(self, command):
+        return command == "rlWaitFor"
+        
+    def is_rlWaitForSocket(self, command):
+        return command == "rlWaitForSocket"
+        
+    def is_rlWaitForFile(self, command):
+        return command == "rlWaitForFile"
+        
+    def is_rlWaitForCmd(self, command):
+        return command == "rlWaitForCmd"
+        
+    def is_rlWaitForxxx(self,command):
+        pom_list = ["rlWaitForCmd", "rlWaitForFile", "rlWaitForSocket"]
+        return command in pom_list
+        
+    def is_rlImport(self,command):
+        return command == "rlImport"
+        
+    def is_rlPerfTime_RunsInTime(self, command):
+        return command == "rlPerfTime_RunsInTime"
+        
+    def is_rlPerfTime_AvgFromRuns(self, command):
+        return command == "rlPerfTime_AvgFromRuns"
+        
+    def is_rlCleanup_Apend_or_Prepend(self,command):
+        return command == "rlCleanupAppend" or command == "rlCleanupPrepend"
+        
+    def is_SEBooleanxxx(self,command):
+        pom_list = ["rlSEBooleanOn", "rlSEBooleanOff", "rlSEBooleanRestore"]
+        return command in pom_list
+        
+    def is_rlservicexxx(self,command):
+        pom_list = ["rlServiceStart", "rlServiceStop", "rlServiceRestore"]
+        return command in pom_list
+        
+    def is_rlFileBackup(self,command):
+        return command == "rlFileBackup"
+        
+    def is_rlFileRestore(self,command):
+        return command == "rlFileRestore"
+        
+    def is_rlHash_or_rlUnhash(self,command):
+        return command == "rlHash" or command == "rlUnhash"
+        
+    def is_check_or_assert_mount(self,command):
+        return command == "rlCheckMount" or command == "rlAssertMount"
+        
+    def is_get_or_check_makefile_requires(self,command):
+        return command == "rlCheckMakefileRequires" or command == \
+        "rlGetMakefileRequires"
+        
+    def is_rlmount(self,command):
+        return command == "rlMount"    
+    
+    def is_assert_binary_origin(self,command):
+        return command == "rlAssertBinaryOrigin"
         
     def is_rlIsRHEL_or_rlISFedora(self,command):
         return command == "rlIsRHEL" or command == "rlIsFedora"
