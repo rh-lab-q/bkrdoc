@@ -427,7 +427,7 @@ class statement_automata:
         parser.add_argument('-l', dest='l', action='store_true', default=False)
         parser.add_argument('-c', dest='c', action='store_true', default=False)
         parser.add_argument('-s', dest='s', action='store_true', default=False)
-        parser.add_argument("command", type=self.string_type)
+        parser.add_argument("command", type=str)
         parser.add_argument("status", type=str, nargs = '?', default = 0)
         parser.add_argument("comment", type=self.string_type, nargs = '?')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
@@ -553,7 +553,7 @@ class statement_automata:
                    default=False, help='assert all packages')
             self.parsed_param_ref = parser.parse_args(pom_param_list)
         else:
-            parser.add_argument('name', type = self.string_type)
+            parser.add_argument('name', type = str)
             parser.add_argument('version', type = str, nargs = '?')
             parser.add_argument('release', type = str, nargs = '?')
             parser.add_argument('arch', type = str, nargs = '?')
@@ -584,7 +584,7 @@ class statement_automata:
     
     def assert0(self,pom_param_list):
         parser = argparse.ArgumentParser()
-        parser.add_argument('comment', type = self.string_type)
+        parser.add_argument('comment', type = str)
         parser.add_argument('value', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
@@ -596,8 +596,8 @@ class statement_automata:
     
     def assert_grep(self,pom_param_list):        
         parser = argparse.ArgumentParser()
-        parser.add_argument('pattern', type = self.string_type)
-        parser.add_argument('file', type = self.string_type)
+        parser.add_argument('pattern', type = str)
+        parser.add_argument('file', type = str)
         parser.add_argument('-i', '-I', dest='text_in', action='store_true',
                    default=False, help='insensitive matches')
         parser.add_argument('-e', '-E', dest='moin_in', action='store_true',
