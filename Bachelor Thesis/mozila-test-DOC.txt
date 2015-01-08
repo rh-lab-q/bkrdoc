@@ -1,21 +1,22 @@
 Description:  This test is for testing Bugzilla version 3.6. It first installs the required rpm
 Author:  Dave Lawrence <dkl@redhat.com>
-Keywords: 
+Keywords: mysql, httpd
 
 Test structure: Setup, Test, Cleanup
 
-Setup
+Setup [Unknown commands = 13, Total = 17]  
     Starting mysqld service
     Starting httpd service
-    Packages httpd mysql-server firefox.x86_64 tigervnc-server-minimal perl-Test-WWW-Selenium java-1.6.0-openjdk must be installed
+    Packages httpd mysql-server firefox.x86_64 java-1.6.0-openjdk ... must be installed 
+    
 
-Test
+Test [Unknown commands = 1, Total = 7]
     Running common sanity tests
     Running Selenium tests
     Running WebService tests
     Printing test results
 
-Cleanup
+Cleanup [Unknown commands = 0, Total = 2]
     Stoping httpd service
     Stoping mysqld service
 

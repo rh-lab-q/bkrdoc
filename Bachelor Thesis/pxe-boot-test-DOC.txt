@@ -1,10 +1,10 @@
-Description: 
+Description: Syslog testing
 Author:  Alexander Todorov <atodorov@redhat.com>
 Keywords: RedHatEnterpriseLinux7, RedHatEnterpriseLinux*, Fedora*
 
-Test structure: Test
+Test structure: One Test phase
 
-Test PXE-Boot
+Test PXE-Boot [Unknown commands = 1, Total = 2]
     Value $? must be 0
 
 Expected result: 

@@ -4,22 +4,22 @@ Keywords: apache, httpd
 
 Test structure: Setup, 2xTest, Cleanup
 
-Setup:
+Setup: [Unknown commands = 3, Total = 7]
    package httpd must be installed
    service httpd must be running
 
-Test1:
+Test1: [Unknown commands = 3, Total = 5]
    command wget must run succesfuly
    file index.html must exists and contain string "Welcome to Test Page"
    file real/path/access_log must contain string "GET / HTTP.*200"   
 
-Test2:
+Test2: [Unknown commands = 3, Total = 5]
    command wget must not run succesfuly (expecting return code 1 or 8) and it's stderr must contain string "Not Found"
    file "missing.html" must not exist
    File /var/log/httpd/access_log must contain string "GET /missing.html HTTP.*404"
    File /var/log/httpd/error_log must contain string "does not exist.*missing.html"
 
-Cleanup:
+Cleanup: [Unknown commands = 2, Total = 4]
    restore state of httpd service
 
 Expected result: 
