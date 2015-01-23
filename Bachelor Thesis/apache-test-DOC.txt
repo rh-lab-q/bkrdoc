@@ -4,6 +4,8 @@ Keywords: apache, httpd
 
 Test structure: Setup, 2xTest, Cleanup
 
+Test launch: ./apache-test.sh
+
 Setup: [Unknown commands = 3, Total = 7]
    package httpd must be installed
    service httpd must be running
@@ -11,7 +13,7 @@ Setup: [Unknown commands = 3, Total = 7]
 Test1: [Unknown commands = 3, Total = 5]
    command wget must run succesfuly
    file index.html must exists and contain string "Welcome to Test Page"
-   file real/path/access_log must contain string "GET / HTTP.*200"   
+   file /var/log/httpd/access_log must contain string "GET / HTTP.*200"   
 
 Test2: [Unknown commands = 3, Total = 5]
    command wget must not run succesfuly (expecting return code 1 or 8) and it's stderr must contain string "Not Found"
