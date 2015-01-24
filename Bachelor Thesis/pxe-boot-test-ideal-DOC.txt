@@ -6,9 +6,9 @@ Test structure: 1xTest
 
 Test launch: ./pxe-boot-test.sh
 
-Test PXE-Boot [Unknown commands = 1, Total = 2]
-    Value $? must be 0
-
+Test PXE-Boot [Unknown commands = 2, Total = 2]
+    Testing of syslog in OS made by RedHat
+    
 Expected result: 
 
 Additional information: 
