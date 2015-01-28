@@ -287,9 +287,6 @@ class phase_setup:
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
-        
-        for foo in self.statement_classes:
-            print foo.argname
 
 
 class statement_automata:
