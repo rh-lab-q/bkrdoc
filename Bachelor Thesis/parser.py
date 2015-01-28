@@ -87,7 +87,7 @@ class parser(object):
                     self.phases.append(phase_clean(line[len("rlphasestart"):]))
                     
                 elif self.is_end_back_slash(line):
-                    pom_line = line[0:-1].strip()
+                    pom_line = line[0:-1]
                 
                 elif len(self.phases) > 0:
                     if pom_line != "":
@@ -236,8 +236,9 @@ class phase_clean:
         self.statement_list.append(line)
         
     def search_data(self,parser_ref):
+        command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
-            self.statement_classes.append(statement_automata(statement,parser_ref))
+            self.statement_classes.append(command_translator.parse_command(statement))
 
 
 class phase_test:
@@ -259,8 +260,9 @@ class phase_test:
         self.statement_list.append(line)
     
     def search_data(self,parser_ref):
+        command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
-            self.statement_classes.append(statement_automata(statement,parser_ref))
+            self.statement_classes.append(command_translator.parse_command(statement))
 
 
 class phase_setup:
@@ -282,27 +284,35 @@ class phase_setup:
         self.statement_list.append(line)
         
     def search_data(self,parser_ref):
+        command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
-            self.statement_classes.append(statement_automata(statement,parser_ref))
+            self.statement_classes.append(command_translator.parse_command(statement))
+        
+        for foo in self.statement_classes:
+            print foo.argname
+
 
 class statement_automata:
-    
-    command_name = ""
     parsed_param_ref = ""
+    parser_ref = ""
     
-    def __init__(self,statement_line,parser_ref):
-        self.command_name = ""
-        self.param_list = []
-        self.options_list = []
+    def __init__(self,parser_ref):
+        self.parser_ref = parser_ref
         
+    def parse_command(self,statement_line):
+        #Reading statement using shlex lexicator
         readed = shlex.shlex(statement_line)
         pom_list = []
     
         first = readed.get_token()
-        if self.is_beakerLib_command(first,parser_ref):
+        if self.is_beakerLib_command(first,self.parser_ref):
             self.command_name = first 
+            pom_list.append(first)
             element = readed.get_token()
+            
             while (element != ""):
+                #This condition is here because shlex splits "-" or "--" from options
+                #so there is no chance to match it after using argparse 
                 if element == '-' or element == '--' or element == '$':
                     element += readed.get_token()
                     
@@ -402,10 +412,18 @@ class statement_automata:
                 self.rlVirtualX_xxx(pom_list)
             
         else:
-            self.command_name = "UNKNOWN"
-            
+            self.unknown_command(pom_list)
+        
+        return self.parsed_param_ref;    
+        
+    def unknown_command(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        self.parsed_param_ref = parser.parse_args(["UNKNOWN"])
+        
     def rlWatchdog(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("command", type=str)
         parser.add_argument("timeout", type=str)
         parser.add_argument("signal", type=str, nargs = '?', default = "KILL")
@@ -414,6 +432,7 @@ class statement_automata:
             
     def rlReport(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("name", type=str)
         parser.add_argument("result", type=str)
         parser.add_argument("score", type=str, nargs = '?')
@@ -423,6 +442,7 @@ class statement_automata:
             
     def rlRun(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('-t', dest='t', action='store_true', default=False)
         parser.add_argument('-l', dest='l', action='store_true', default=False)
         parser.add_argument('-c', dest='c', action='store_true', default=False)
@@ -434,11 +454,13 @@ class statement_automata:
     
     def rlVirtualX_xxx(self, pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("name", type=str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def rlWaitFor(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('n', type = str, nargs = '*')
         parser.add_argument("-t", type=int, help="time")
         parser.add_argument("-s", type=str, help="SIGNAL", default = "SIGTERM")
@@ -447,6 +469,7 @@ class statement_automata:
     
     def rlWaitForxxx(self,pom_param_list,command):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("-p", type=str, help="PID")
         parser.add_argument("-t", type=str, help="time")
         parser.add_argument("-d", type=int, help="delay", default = 1)
@@ -467,11 +490,13 @@ class statement_automata:
             
     def rlImport(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("LIBRARY", type=str, nargs = '+')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def rlPerfTime_RunsInTime(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("command", type=str)
         parser.add_argument("time", type=int, nargs = '?', default = 30)
         parser.add_argument("runs", type=int, nargs = '?', default = 3)
@@ -479,6 +504,7 @@ class statement_automata:
             
     def rlPerfTime_AvgFromRuns(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("command", type=str)
         parser.add_argument("count", type=int, nargs = '?', default = 3)
         parser.add_argument("warmup", type=str, nargs = '?', default = "warmup")
@@ -486,21 +512,25 @@ class statement_automata:
             
     def rlCleanup_Apend_or_Prepend(self, pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("string", type=str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def SEBooleanxxx(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("boolean", type=str, nargs = '+')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def rlServicexxx(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("service", type=str, nargs = '+')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def rlFileRestore(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument("--namespace", type=str,
                     help="specified namespace to use")
         self.parsed_param_ref = parser.parse_args(pom_param_list)
@@ -508,6 +538,7 @@ class statement_automata:
             
     def rlFileBackup(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('--clean', dest='clean', action='store_true',
                    default=False)
         parser.add_argument("--namespace", type=str,
@@ -518,6 +549,7 @@ class statement_automata:
             
     def rlHash_or_rlUnhash(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('--decode', dest='decode', action='store_true',
                    default=False, help='unhash given string')
         parser.add_argument("--algorithm", type=str,
@@ -528,6 +560,7 @@ class statement_automata:
             
     def check_or_assert_mount(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('server', type = str, nargs = '?')
         parser.add_argument('share', type = str, nargs = '?')
         parser.add_argument('mountpoint', type = str)
@@ -535,6 +568,7 @@ class statement_automata:
             
     def rl_mount(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('server', type = str)
         parser.add_argument('share', type = str)
         parser.add_argument('mountpoint', type = str)
@@ -542,12 +576,14 @@ class statement_automata:
             
     def assert_binary_origin(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('binary', type = str)
         parser.add_argument('package', type = str, nargs = '*')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def rpm_command(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         if len(pom_param_list) == 1 and pom_param_list[0] == "--all":
             parser.add_argument('--all', dest='all', action='store_true',
                    default=False, help='assert all packages')
@@ -561,22 +597,26 @@ class statement_automata:
             
     def IsRHEL_or_Is_Fedora(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('type', type = str, nargs = '*')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
         
     def assert_differ(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('file1', type = self.string_type)
         parser.add_argument('file2', type = self.string_type)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def assert_exits(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('file|directory', type = self.string_type)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def assert_comparasion(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('comment', type = self.string_type)
         parser.add_argument('value1', type = int)
         parser.add_argument('value2', type = int)
@@ -584,18 +624,21 @@ class statement_automata:
     
     def assert0(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('comment', type = str)
         parser.add_argument('value', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
     def rlPass_or_rlFail(self,pom_param_list):
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('comment', type = self.string_type)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
     
     def assert_grep(self,pom_param_list):        
         parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
         parser.add_argument('pattern', type = str)
         parser.add_argument('file', type = str)
         parser.add_argument('-i', '-I', dest='text_in', action='store_true',
@@ -720,6 +763,13 @@ class statement_automata:
         
     def is_beakerLib_command(self,testing_command,parser_ref):
         return parser_ref.is_beakerLib_command(testing_command)
+    
+
+    
+class documentation_translator:
+        
+    def __init__(self, command_ref):
+        print "ahoj"
     
             
 #***************** MAIN ******************
