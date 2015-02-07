@@ -112,9 +112,6 @@ class parser(object):
     def get_doc_data(self):
         for member in self.phases:
             member.search_data(self)
-    
-    def is_no_option_command(self, command):
-        return command in self.commands_with_no_options
         
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
@@ -306,6 +303,7 @@ class statement_automata:
             self.command_name = first 
             pom_list.append(first)
             element = readed.get_token()
+            condition = conditions_for_commands()
             
             while (element != ""):
                 #This condition is here because shlex splits "-" or "--" from options
@@ -314,12 +312,12 @@ class statement_automata:
                     element += readed.get_token()
                     
                     #Important for status in rlrun command
-                    if self.is_rlrun_command(first):
+                    if condition.is_rlrun_command(first):
                         pom_list[-1] = pom_list[-1] + element
                         element = readed.get_token()
                         
                 #Important for status in rlrun command
-                elif element == ',' and self.is_rlrun_command(first):
+                elif element == ',' and condition.is_rlrun_command(first):
                     element += readed.get_token()
                     pom_list[-1] = pom_list[-1] + element
                     element = readed.get_token()
@@ -328,84 +326,84 @@ class statement_automata:
                     pom_list.append(element)
                     element = readed.get_token()
                     
-            if self.is_rlrun_command(first):
+            if condition.is_rlrun_command(first):
                 self.rlRun(pom_list)
             
-            elif self.is_Rpm_command(first):
+            elif condition.is_Rpm_command(first):
                 self.rpm_command(pom_list)
             
-            elif self.is_check_or_assert_mount(first):
+            elif condition.is_check_or_assert_mount(first):
                 self.check_or_assert_mount(pom_list)
                 
-            elif self.is_assert_command(first):
+            elif condition.is_assert_command(first):
                 
-                if self.is_assert_grep(first):
+                if condition.is_assert_grep(first):
                     self.assert_grep(pom_list)
                 
-                elif self.is_rlPass_or_rlFail(first):
+                elif condition.is_rlPass_or_rlFail(first):
                     self.rlPass_or_rlFail(pom_list)
                     
-                elif self.is_assert0(first):
+                elif condition.is_assert0(first):
                     self.assert0(pom_list)
                     
-                elif self.is_assert_comparasion(first):
+                elif condition.is_assert_comparasion(first):
                     self.assert_comparasion(pom_list)
                     
-                elif self.is_assert_exists(first):
+                elif condition.is_assert_exists(first):
                     self.assert_exits(pom_list)
                 
-                elif self.is_assert_differ(first):
+                elif condition.is_assert_differ(first):
                     self.assert_differ(pom_list)
                     
-                elif self.is_assert_binary_origin(first):
+                elif condition.is_assert_binary_origin(first):
                     self.assert_binary_origin(pom_list)
             
-            elif self.is_rlFileBackup(first):
+            elif condition.is_rlFileBackup(first):
                 self.rlFileBackup(pom_list)
                 
-            elif self.is_rlFileRestore(first):
+            elif condition.is_rlFileRestore(first):
                 self.rlFile_Restore(pom_list)
             
-            elif self.is_rlIsRHEL_or_rlISFedora(first):
+            elif condition.is_rlIsRHEL_or_rlISFedora(first):
                 self.IsRHEL_or_Is_Fedora(pom_list)
                 
-            elif self.is_rlmount(first):
+            elif condition.is_rlmount(first):
                 self.rl_mount(pom_list)
                 
-            elif self.is_rlHash_or_rlUnhash(first):
+            elif condition.is_rlHash_or_rlUnhash(first):
                 self.rlHash_or_rlUnhash(pom_list)
                 
-            elif self.is_rlReport(first):
+            elif condition.is_rlReport(first):
                 self.rlReport(pom_list)
                 
-            elif self.is_rlWatchdog(first):
+            elif condition.is_rlWatchdog(first):
                 self.rlWatchdog(pom_list)
                 
-            elif self.is_rlservicexxx(first):
+            elif condition.is_rlservicexxx(first):
                 self.rlServicexxx(pom_list)
                 
-            elif self.is_SEBooleanxxx(first):
+            elif condition.is_SEBooleanxxx(first):
                 self.SEBooleanxxx(pom_list)
                 
-            elif self.is_rlCleanup_Apend_or_Prepend(first):
+            elif condition.is_rlCleanup_Apend_or_Prepend(first):
                 self.rlCleanup_Apend_or_Prepend(pom_list)
                 
-            elif self.is_rlPerfTime_RunsInTime(first):
+            elif condition.is_rlPerfTime_RunsInTime(first):
                 self.rlPerfTime_RunsInTime(pom_list)
             
-            elif self.is_rlPerfTime_AvgFromRuns(first):
+            elif condition.is_rlPerfTime_AvgFromRuns(first):
                 self.rlPerfTime_AvgFromRuns(pom_list)
                 
-            elif self.is_rlImport(first):
+            elif condition.is_rlImport(first):
                 self.rlImport(pom_list)
                 
-            elif self.is_rlWaitForxxx(first):
+            elif condition.is_rlWaitForxxx(first):
                 self.rlWaitForxxx(pom_list,first)
                 
-            elif self.is_rlWaitFor(first):
+            elif condition.is_rlWaitFor(first):
                 self.rlWaitFor(pom_list)
                 
-            elif self.is_VirtualXxxx(first):
+            elif condition.is_VirtualXxxx(first):
                 self.rlVirtualX_xxx(pom_list)
             
         else:
@@ -651,6 +649,20 @@ class statement_automata:
         if command[0:1] != '"':
             raise argparse.ArgumentTypeError("Not type string")
         return command
+    
+    def is_beakerLib_command(self,testing_command,parser_ref):
+        return parser_ref.is_beakerLib_command(testing_command)
+    
+
+class documentation_translator:
+    
+    def __init__(self,parser_ref):
+        self.parser_ref = parser_ref
+
+    
+class conditions_for_commands:
+    """ Class consits of conditions for testing commands used in 
+    parser_automata and documentation translator """        
         
     def is_rlWatchdog(self,command):
         return command == "rlWatchdog"
@@ -743,9 +755,6 @@ class statement_automata:
     def is_assert0(self,command):
         return command == "rlAssert0"
     
-    def is_command_with_max_two_params(self, command, parser_ref):
-        parser_ref.is_in_two_command_list(command)
-    
     def is_assert_command(self,line):
         return line[0:len("rlAssert")] == "rlAssert"
         
@@ -754,19 +763,6 @@ class statement_automata:
         
     def is_rlrun_command(self,line):
         return line[0:len("rlRun")] == "rlRun"
-    
-    def is_no_option_command(self,command,parser_ref):
-        return parser_ref.is_no_option_command(command)
-        
-    def is_beakerLib_command(self,testing_command,parser_ref):
-        return parser_ref.is_beakerLib_command(testing_command)
-    
-
-    
-class documentation_translator:
-        
-    def __init__(self, command_ref):
-        print "ahoj"
     
             
 #***************** MAIN ******************
