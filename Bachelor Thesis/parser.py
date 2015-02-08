@@ -30,17 +30,8 @@ class parser(object):
     "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch", \
     "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", \
     "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",\
-    "rlGetTestState", "rlGetPhaseState"
+    "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText"
     ]
-    
-    commands_with_no_options = ["rlGetTestState", "rlGetPhaseState", "rlGetArch", \
-    "rlGetPrimaryArch", "rlGetSecondaryArch", "rlGetDistroRelease", "rlGetDistroVariant",\
-    "rlShowRunningKernel", "rlPass", "rlFail", "rlAssert0", "rlAssertEquals",\
-    "rlAssertNotEquals", "rlAssertGreater", "rlAssertGreaterOrEqual", "rlAssertExists",\
-    "rlAssertNotExists", "rlAssertDiffer", "rlAssertNotDiffer","rlGetMakefileRequires",\
-    "rlCheckRequirements", "rlCheckMakefileRequires", "rlMount", "rlCheckMount", \
-    "rlAssertMount", "rlCleanupAppend", "rlCleanupPrepend", "rlDejaSum",\
-    "rlVirtualXStart", "rlVirtualXGetDisplay", "rlVirtualXStop" ]
     
     
     phases = []
@@ -763,7 +754,33 @@ class conditions_for_commands:
         
     def is_rlrun_command(self,line):
         return line[0:len("rlRun")] == "rlRun"
+        
+    def is_rlJournalPrint(self,command):
+        pom = ["rlJournalPrint", "rlJournalPrintText"]
+        return command in pom
+        
+    def is_rlGetPhase_or_Test_State(self,command):
+        pom = ["rlGetPhaseState", "rlGetTestState"]
+        return command in pom
     
+    def is_rlLog(self,command):
+        pom = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",\
+         "rlLogDebug", "rlLog"]
+        return command in pom
+        
+    def is_rlLogMetric(self,command):
+        pom = ["rlLogMetricLow", "rlLogMetricHigh"]
+        return command in pom
+        
+    def is_rlDie(self,command):
+        return command[0:len("rlDie")] == "rlDie"
+        
+    def is_rlBundleLogs(self,command):
+        return command[0:len("rlBundleLogs")] == "rlBundleLogs"
+
+    def is_rlFileSubmit(self,command):
+        return command[0:len("rlFileSubmit")] == "rlFileSubmit"
+
             
 #***************** MAIN ******************
 for arg in sys.argv[1:len(sys.argv)]:
