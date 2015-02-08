@@ -780,6 +780,20 @@ class conditions_for_commands:
 
     def is_rlFileSubmit(self,command):
         return command[0:len("rlFileSubmit")] == "rlFileSubmit"
+        
+    def is_rlShowPackageVersion (self,command):
+        return command[0:len("rlShowPackageVersion")] == "rlShowPackageVersion"
+        
+    def is_rlGet_x_Arch(self,command):
+        pom = ["rlGetArch","rlGetPrimaryArch","rlGetSecondaryArch"]
+        return command in pom
+        
+    def is_rlGetDistro(self,command):
+        pom = ["rlGetDistroRelease","rlGetDistroVariant"]
+        return command in pom
+
+    def is_rlShowRunningKernel(self,command):
+        return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
 
             
 #***************** MAIN ******************
