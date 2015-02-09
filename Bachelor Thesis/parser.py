@@ -285,18 +285,17 @@ class statement_automata:
         self.parser_ref = parser_ref
         
     def parse_command(self,statement_line):
-        #Reading statement using shlex lexicator
-        readed = shlex.shlex(statement_line)
+        #Spliting statement using shlex lexicator
         pom_list = []
+        pom_list = shlex.split(statement_line,posix = True)
+        first = pom_list[0]
     
-        first = readed.get_token()
         if self.is_beakerLib_command(first,self.parser_ref):
             self.command_name = first 
-            pom_list.append(first)
-            element = readed.get_token()
             condition = conditions_for_commands()
+
             
-            while (element != ""):
+            """while (element != ""):
                 #This condition is here because shlex splits "-" or "--" from options
                 #so there is no chance to match it after using argparse 
                 if element == '-' or element == '--' or element == '$':
@@ -315,7 +314,8 @@ class statement_automata:
                 
                 else:
                     pom_list.append(element)
-                    element = readed.get_token()
+                    element = readed.get_token()"""
+                    
                     
             if condition.is_rlrun_command(first):
                 self.rlRun(pom_list)
@@ -363,6 +363,21 @@ class statement_automata:
                 
             elif condition.is_rlHash_or_rlUnhash(first):
                 self.rlHash_or_rlUnhash(pom_list)
+            
+            elif condition.is_rlLog(first):
+                self.rlLog(pom_list)
+                
+            elif condition.is_rlDie(first):
+                self.rlDie(pom_list)
+                
+            elif condition.is_rlGet_x_Arch(first):
+                self.rlGet_command(pom_list)
+                
+            elif condition.is_rlGetDistro(first):
+                self.rlGet_command(pom_list)
+                
+            elif condition.is_rlGetPhase_or_Test_State(first):
+                self.rlGet_command(pom_list)
                 
             elif condition.is_rlReport(first):
                 self.rlReport(pom_list)
@@ -370,20 +385,38 @@ class statement_automata:
             elif condition.is_rlWatchdog(first):
                 self.rlWatchdog(pom_list)
                 
+            elif condition.is_rlBundleLogs(first):
+                self.rlBundleLogs(pom_list)
+                
             elif condition.is_rlservicexxx(first):
                 self.rlServicexxx(pom_list)
                 
             elif condition.is_SEBooleanxxx(first):
                 self.SEBooleanxxx(pom_list)
                 
+            elif condition.is_rlShowRunningKernel(first):
+                self.rlShowRunningKernel(pom_list)
+                
+            elif condition.is_get_or_check_makefile_requires(first):
+                self.rlGet_or_rlCheck_MakefileRequeries(pom_list)
+            
             elif condition.is_rlCleanup_Apend_or_Prepend(first):
                 self.rlCleanup_Apend_or_Prepend(pom_list)
+
+            elif condition.is_rlFileSubmit(first):
+                self.rlFileSubmit(pom_list)
                 
             elif condition.is_rlPerfTime_RunsInTime(first):
                 self.rlPerfTime_RunsInTime(pom_list)
             
             elif condition.is_rlPerfTime_AvgFromRuns(first):
                 self.rlPerfTime_AvgFromRuns(pom_list)
+                
+            elif condition.is_rlShowPackageVersion(first):
+                self.rlShowPackageVersion(pom_list)
+            
+            elif condition.is_rlJournalPrint(first):
+                self.rlJournalPrint(pom_list)
                 
             elif condition.is_rlImport(first):
                 self.rlImport(pom_list)
@@ -400,7 +433,68 @@ class statement_automata:
         else:
             self.unknown_command(pom_list)
         
-        return self.parsed_param_ref;    
+        return self.parsed_param_ref;
+        
+    def rlJournalPrint(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        parser.add_argument("type", type=str,nargs = "?")
+        parser.add_argument('--full-journal', dest='full_journal',\
+         action='store_true', default=False)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlShowPackageVersion(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        parser.add_argument("package", type=str,nargs = "+")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlFileSubmit(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        parser.add_argument("-s", type=str, help="sets separator")
+        parser.add_argument("path_to_file", type=str)
+        parser.add_argument("required_name", type=str,nargs = "?")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlBundleLogs(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        parser.add_argument("package", type=str)
+        parser.add_argument("file", type=str,nargs = "+")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlDie(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        parser.add_argument("message", type=str)
+        parser.add_argument("file", type=str,nargs = "*")
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlLog(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        parser.add_argument("message", type=str)
+        parser.add_argument("logfile", type=str,nargs = "?")
+        parser.add_argument("priority", type=str,nargs = "?")
+        parser.add_argument('--prio-label', dest='prio_label',\
+         action='store_true', default=False)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlShowRunningKernel(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlGet_or_rlCheck_MakefileRequeries(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        
+    def rlGet_command(self,pom_param_list):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("argname", type=str)
+        self.parsed_param_ref = parser.parse_args(pom_param_list)
         
     def unknown_command(self,pom_param_list):
         parser = argparse.ArgumentParser()
@@ -435,7 +529,7 @@ class statement_automata:
         parser.add_argument('-s', dest='s', action='store_true', default=False)
         parser.add_argument("command", type=str)
         parser.add_argument("status", type=str, nargs = '?', default = 0)
-        parser.add_argument("comment", type=self.string_type, nargs = '?')
+        parser.add_argument("comment", type=str, nargs = '?')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
     def rlVirtualX_xxx(self, pom_param_list):
@@ -590,20 +684,20 @@ class statement_automata:
     def assert_differ(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
-        parser.add_argument('file1', type = self.string_type)
-        parser.add_argument('file2', type = self.string_type)
+        parser.add_argument('file1', type = str)
+        parser.add_argument('file2', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def assert_exits(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
-        parser.add_argument('file|directory', type = self.string_type)
+        parser.add_argument('file|directory', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def assert_comparasion(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
-        parser.add_argument('comment', type = self.string_type)
+        parser.add_argument('comment', type = str)
         parser.add_argument('value1', type = int)
         parser.add_argument('value2', type = int)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
@@ -618,7 +712,7 @@ class statement_automata:
     def rlPass_or_rlFail(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
-        parser.add_argument('comment', type = self.string_type)
+        parser.add_argument('comment', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
     
