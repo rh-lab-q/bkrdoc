@@ -103,6 +103,11 @@ class parser(object):
     def get_doc_data(self):
         for member in self.phases:
             member.search_data(self)
+            
+    def get_documentation_information(self):
+        for member in self.phases:
+            if not self.is_phase_outside(member):
+                member.translate_data(self)
         
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
@@ -211,14 +216,15 @@ class phase_clean:
     doc_ref = ""
     statement_classes = []
     new_line = False
+    documentation_information = []
     
     def __init__(self,name):
         self.phase_name = name
-        #self.parse_ref = parse_cmd
         self.statement_list = []
         self.doc = []
         self.statement_classes = []
         self.new_line = False
+        self.documentation_information = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
@@ -227,6 +233,11 @@ class phase_clean:
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
+            
+    def translate_data(self,parser_ref):
+        data_translator = documentation_translator(parser_ref)
+        for data in self.statement_classes:
+            self.documentation_information.append(data_translator.translate_data(data))
 
 
 class phase_test:
@@ -236,13 +247,14 @@ class phase_test:
     statement_list = []
     doc_ref = ""
     statement_classes = []
+    documentation_information = []
     
     def __init__(self,name):
         self.phase_name = name
-        #self.parse_ref = parse_cmd
         self.statement_list = []
         self.doc = []
         self.statement_classes = []
+        self.documentation_information = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
@@ -251,6 +263,11 @@ class phase_test:
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
+            
+    def translate_data(self,parser_ref):
+        data_translator = documentation_translator(parser_ref)
+        for data in self.statement_classes:
+            self.documentation_information.append(data_translator.translate_data(data))
 
 
 class phase_setup:
@@ -260,6 +277,7 @@ class phase_setup:
     doc_ref = ""
     statement_list = []
     statement_classes = []
+    documentation_information = []
     
     def __init__(self,name):
         self.phase_name = name
@@ -267,6 +285,7 @@ class phase_setup:
         self.statement_list = []
         self.doc = []
         self.statement_classes = []
+        self.documentation_information = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
@@ -275,6 +294,11 @@ class phase_setup:
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
+            
+    def translate_data(self,parser_ref):
+        data_translator = documentation_translator(parser_ref)
+        for data in self.statement_classes:
+            self.documentation_information.append(data_translator.translate_data(data))
 
 
 class statement_automata:
@@ -730,19 +754,270 @@ class statement_automata:
         self.parsed_param_ref = parser.parse_args(pom_param_list)
         
     
-    def string_type(self,command):
-        if command[0:1] != '"':
-            raise argparse.ArgumentTypeError("Not type string")
-        return command
-    
     def is_beakerLib_command(self,testing_command,parser_ref):
         return parser_ref.is_beakerLib_command(testing_command)
     
 
 class documentation_translator:
+    """Class making documentation information from argparse data. 
+    Generated information are focused on BeakerLib commands"""
     
     def __init__(self,parser_ref):
         self.parser_ref = parser_ref
+        
+    def translate_data(self,argparse_data):
+        
+        if argparse_data.argname != "UNKNOWN":
+            argname = argparse_data.argname
+            condition = conditions_for_commands()
+            
+            if condition.is_rlrun_command(argname):
+                self.rlRun(argparse_data)
+            
+            elif condition.is_Rpm_command(argname):
+                self.rpm_command(argparse_data)
+            
+            elif condition.is_check_or_assert_mount(argname):
+                self.check_or_assert_mount(argparse_data)
+                
+            elif condition.is_assert_command(argname):
+                
+                if condition.is_assert_grep(argname):
+                    self.assert_grep(argparse_data)
+                
+                elif condition.is_rlPass_or_rlFail(argname):
+                    self.rlPass_or_rlFail(argparse_data)
+                    
+                elif condition.is_assert0(argname):
+                    self.assert0(argparse_data)
+                    
+                elif condition.is_assert_comparasion(argname):
+                    self.assert_comparasion(argparse_data)
+                    
+                elif condition.is_assert_exists(argname):
+                    self.assert_exits(argparse_data)
+                
+                elif condition.is_assert_differ(argname):
+                    self.assert_differ(argparse_data)
+                    
+                elif condition.is_assert_binary_origin(argname):
+                    self.assert_binary_origin(argparse_data)
+            
+            elif condition.is_rlFileBackup(argname):
+                self.rlFileBackup(argparse_data)
+                
+            elif condition.is_rlFileRestore(argname):
+                self.rlFile_Restore(argparse_data)
+            
+            elif condition.is_rlIsRHEL_or_rlISFedora(argname):
+                self.IsRHEL_or_Is_Fedora(argparse_data)
+                
+            elif condition.is_rlmount(argname):
+                self.rl_mount(argparse_data)
+                
+            elif condition.is_rlHash_or_rlUnhash(argname):
+                self.rlHash_or_rlUnhash(argparse_data)
+            
+            elif condition.is_rlLog(argname):
+                self.rlLog(argparse_data)
+                
+            elif condition.is_rlDie(argname):
+                self.rlDie(argparse_data)
+                
+            elif condition.is_rlGet_x_Arch(argname):
+                self.rlGet_command(argparse_data)
+                
+            elif condition.is_rlGetDistro(argname):
+                self.rlGet_command(argparse_data)
+                
+            elif condition.is_rlGetPhase_or_Test_State(argname):
+                self.rlGet_command(argparse_data)
+                
+            elif condition.is_rlReport(argname):
+                self.rlReport(argparse_data)
+                
+            elif condition.is_rlWatchdog(argname):
+                self.rlWatchdog(argparse_data)
+                
+            elif condition.is_rlBundleLogs(argname):
+                self.rlBundleLogs(argparse_data)
+                
+            elif condition.is_rlservicexxx(argname):
+                self.rlServicexxx(argparse_data)
+                
+            elif condition.is_SEBooleanxxx(argname):
+                self.SEBooleanxxx(argparse_data)
+                
+            elif condition.is_rlShowRunningKernel(argname):
+                self.rlShowRunningKernel(argparse_data)
+                
+            elif condition.is_get_or_check_makefile_requires(argname):
+                self.rlGet_or_rlCheck_MakefileRequeries(argparse_data)
+            
+            elif condition.is_rlCleanup_Apend_or_Prepend(argname):
+                self.rlCleanup_Apend_or_Prepend(argparse_data)
+
+            elif condition.is_rlFileSubmit(argname):
+                self.rlFileSubmit(argparse_data)
+                
+            elif condition.is_rlPerfTime_RunsInTime(argname):
+                self.rlPerfTime_RunsInTime(argparse_data)
+            
+            elif condition.is_rlPerfTime_AvgFromRuns(argname):
+                self.rlPerfTime_AvgFromRuns(argparse_data)
+                
+            elif condition.is_rlShowPackageVersion(argname):
+                self.rlShowPackageVersion(argparse_data)
+            
+            elif condition.is_rlJournalPrint(argname):
+                self.rlJournalPrint(argparse_data)
+                
+            elif condition.is_rlImport(argname):
+                self.rlImport(argparse_data)
+                
+            elif condition.is_rlWaitForxxx(argname):
+                self.rlWaitForxxx(argparse_data,argname)
+                
+            elif condition.is_rlWaitFor(argname):
+                self.rlWaitFor(argparse_data)
+                
+            elif condition.is_VirtualXxxx(argname):
+                self.rlVirtualX_xxx(argparse_data)
+            
+            
+        else:
+            print "NIC"
+
+    def rlJournalPrint(self,argparse_data):
+        pass
+        
+    def rlShowPackageVersion(self,argparse_data):
+        pass
+        
+    def rlFileSubmit(self,argparse_data):
+        pass
+        
+    def rlBundleLogs(self,argparse_data):
+        pass
+        
+    def rlDie(self,argparse_data):
+        pass
+        
+    def rlLog(self,argparse_data):
+        pass
+        
+    def rlShowRunningKernel(self,argparse_data):
+        pass
+        
+    def rlGet_or_rlCheck_MakefileRequeries(self,argparse_data):
+        pass
+        
+    def rlGet_command(self,argparse_data):
+        pass
+        
+    def unknown_command(self,argparse_data):
+        pass
+        
+    def rlWatchdog(self,argparse_data):
+        pass
+            
+    def rlReport(self,argparse_data):
+        pass
+        
+            
+    def rlRun(self,argparse_data):
+        pass
+    
+    def rlVirtualX_xxx(self, argparse_data):
+        pass
+            
+    def rlWaitFor(self,argparse_data):
+        pass
+        
+    
+    def rlWaitForxxx(self,argparse_data,command):
+        pass
+            
+    def rlImport(self,argparse_data):
+        pass
+            
+    def rlPerfTime_RunsInTime(self,argparse_data):
+        pass
+            
+    def rlPerfTime_AvgFromRuns(self,argparse_data):
+        pass
+            
+    def rlCleanup_Apend_or_Prepend(self, argparse_data):
+        pass
+            
+    def SEBooleanxxx(self,argparse_data):
+        pass
+            
+    def rlServicexxx(self,argparse_data):
+        pass
+            
+    def rlFileRestore(self,argparse_data):
+        pass
+        
+            
+    def rlFileBackup(self,argparse_data):
+        pass
+        
+            
+    def rlHash_or_rlUnhash(self,argparse_data):
+        pass
+        
+            
+    def check_or_assert_mount(self,argparse_data):
+        pass
+            
+    def rl_mount(self,argparse_data):
+        pass
+            
+    def assert_binary_origin(self,argparse_data):
+        pass
+            
+    def rpm_command(self,argparse_data):
+        pass
+            
+    def IsRHEL_or_Is_Fedora(self,argparse_data):
+        pass
+        
+    def assert_differ(self,argparse_data):
+        pass
+            
+    def assert_exits(self,argparse_data):
+        pass
+            
+    def assert_comparasion(self,argparse_data):
+        pass
+    
+    def assert0(self,argparse_data):
+        pass
+    
+    def rlPass_or_rlFail(self,argparse_data):
+        pass
+    
+    def assert_grep(self,argparse_data):        
+        pass
+
+class documentation_information:
+    """ Class made as a output of class documentation translator """
+    
+    information = ""
+    
+    linker_inf = ""
+    
+    importance = 0
+    
+    connection_data = []
+    
+    def __init__(self,inf,link_inf,importance_of_inf, connection):
+        self.information = inf
+        self.linker_inf = link_inf
+        self.importance = importance_of_inf
+        self.connection_data = connection
+    
 
     
 class conditions_for_commands:
@@ -895,3 +1170,5 @@ for arg in sys.argv[1:len(sys.argv)]:
     pom = parser(arg)
     #pom.print_statement()
     pom.get_doc_data()
+    pom.get_documentation_information()
+    
