@@ -6,6 +6,7 @@ import sys
 import shlex
 import re          
 import argparse
+
             
 class parser(object):
     
@@ -237,7 +238,8 @@ class phase_clean:
     def translate_data(self,parser_ref):
         data_translator = documentation_translator(parser_ref)
         for data in self.statement_classes:
-            self.documentation_information.append(data_translator.translate_data(data))
+            if data.argname != "UNKNOWN":
+                self.documentation_information.append(data_translator.translate_data(data))
 
 
 class phase_test:
@@ -267,7 +269,8 @@ class phase_test:
     def translate_data(self,parser_ref):
         data_translator = documentation_translator(parser_ref)
         for data in self.statement_classes:
-            self.documentation_information.append(data_translator.translate_data(data))
+            if data.argname != "UNKNOWN":
+                self.documentation_information.append(data_translator.translate_data(data))
 
 
 class phase_setup:
@@ -298,7 +301,8 @@ class phase_setup:
     def translate_data(self,parser_ref):
         data_translator = documentation_translator(parser_ref)
         for data in self.statement_classes:
-            self.documentation_information.append(data_translator.translate_data(data))
+            if data.argname != "UNKNOWN":
+                self.documentation_information.append(data_translator.translate_data(data))
 
 
 class statement_automata:
@@ -761,141 +765,199 @@ class statement_automata:
 class documentation_translator:
     """Class making documentation information from argparse data. 
     Generated information are focused on BeakerLib commands"""
+    inf_ref = ""
+    
+    low = 1
+    medium = 2
+    high = 3
+    
+    information = ""
+    link_information = ""
+    connection = []
+    importance = 0
     
     def __init__(self,parser_ref):
         self.parser_ref = parser_ref
+        self.inf_ref = ""
+        self.information = ""
+        self.link_information = ""
+        self.connection = []
+        self.importance = 0
         
     def translate_data(self,argparse_data):
         
-        if argparse_data.argname != "UNKNOWN":
-            argname = argparse_data.argname
-            condition = conditions_for_commands()
+        argname = argparse_data.argname
+        condition = conditions_for_commands()
+        
+        if condition.is_rlrun_command(argname):
+            self.rlRun(argparse_data)
+        
+        elif condition.is_Rpm_command(argname):
+            self.rpm_command(argparse_data)
             
-            if condition.is_rlrun_command(argname):
-                self.rlRun(argparse_data)
-            
-            elif condition.is_Rpm_command(argname):
-                self.rpm_command(argparse_data)
-            
-            elif condition.is_check_or_assert_mount(argname):
-                self.check_or_assert_mount(argparse_data)
+        elif condition.is_check_or_assert_mount(argname):
+            self.check_or_assert_mount(argparse_data)
                 
-            elif condition.is_assert_command(argname):
+        elif condition.is_assert_command(argname):
                 
-                if condition.is_assert_grep(argname):
-                    self.assert_grep(argparse_data)
+            if condition.is_assert_grep(argname):
+                self.assert_grep(argparse_data)
                 
-                elif condition.is_rlPass_or_rlFail(argname):
-                    self.rlPass_or_rlFail(argparse_data)
+            elif condition.is_rlPass_or_rlFail(argname):
+                self.rlPass_or_rlFail(argparse_data)
                     
-                elif condition.is_assert0(argname):
-                    self.assert0(argparse_data)
+            elif condition.is_assert0(argname):
+                self.assert0(argparse_data)
+                
+            elif condition.is_assert_comparasion(argname):
+                self.assert_comparasion(argparse_data)
                     
-                elif condition.is_assert_comparasion(argname):
-                    self.assert_comparasion(argparse_data)
-                    
-                elif condition.is_assert_exists(argname):
-                    self.assert_exits(argparse_data)
-                
-                elif condition.is_assert_differ(argname):
-                    self.assert_differ(argparse_data)
-                    
-                elif condition.is_assert_binary_origin(argname):
-                    self.assert_binary_origin(argparse_data)
+            elif condition.is_assert_exists(argname):
+                self.assert_exits(argparse_data)
             
-            elif condition.is_rlFileBackup(argname):
-                self.rlFileBackup(argparse_data)
+            elif condition.is_assert_differ(argname):
+                self.assert_differ(argparse_data)
                 
-            elif condition.is_rlFileRestore(argname):
-                self.rlFile_Restore(argparse_data)
+            elif condition.is_assert_binary_origin(argname):
+                self.assert_binary_origin(argparse_data)
+        
+        elif condition.is_rlFileBackup(argname):
+            self.rlFileBackup(argparse_data)
             
-            elif condition.is_rlIsRHEL_or_rlISFedora(argname):
-                self.IsRHEL_or_Is_Fedora(argparse_data)
-                
-            elif condition.is_rlmount(argname):
-                self.rl_mount(argparse_data)
-                
-            elif condition.is_rlHash_or_rlUnhash(argname):
-                self.rlHash_or_rlUnhash(argparse_data)
+        elif condition.is_rlFileRestore(argname):
+            self.rlFile_Restore(argparse_data)
+        
+        elif condition.is_rlIsRHEL_or_rlISFedora(argname):
+            self.IsRHEL_or_Is_Fedora(argparse_data)
             
-            elif condition.is_rlLog(argname):
-                self.rlLog(argparse_data)
-                
-            elif condition.is_rlDie(argname):
-                self.rlDie(argparse_data)
-                
-            elif condition.is_rlGet_x_Arch(argname):
-                self.rlGet_command(argparse_data)
-                
-            elif condition.is_rlGetDistro(argname):
-                self.rlGet_command(argparse_data)
-                
-            elif condition.is_rlGetPhase_or_Test_State(argname):
-                self.rlGet_command(argparse_data)
-                
-            elif condition.is_rlReport(argname):
-                self.rlReport(argparse_data)
-                
-            elif condition.is_rlWatchdog(argname):
-                self.rlWatchdog(argparse_data)
-                
-            elif condition.is_rlBundleLogs(argname):
-                self.rlBundleLogs(argparse_data)
-                
-            elif condition.is_rlservicexxx(argname):
-                self.rlServicexxx(argparse_data)
-                
-            elif condition.is_SEBooleanxxx(argname):
-                self.SEBooleanxxx(argparse_data)
-                
-            elif condition.is_rlShowRunningKernel(argname):
-                self.rlShowRunningKernel(argparse_data)
-                
-            elif condition.is_get_or_check_makefile_requires(argname):
-                self.rlGet_or_rlCheck_MakefileRequeries(argparse_data)
+        elif condition.is_rlmount(argname):
+            self.rl_mount(argparse_data)
             
-            elif condition.is_rlCleanup_Apend_or_Prepend(argname):
-                self.rlCleanup_Apend_or_Prepend(argparse_data)
+        elif condition.is_rlHash_or_rlUnhash(argname):
+            self.rlHash_or_rlUnhash(argparse_data)
+        
+        elif condition.is_rlLog(argname):
+            self.rlLog(argparse_data)
+            
+        elif condition.is_rlDie(argname):
+            self.rlDie(argparse_data)
+                
+        elif condition.is_rlGet_x_Arch(argname):
+            self.rlGet_command(argparse_data)
+            
+        elif condition.is_rlGetDistro(argname):
+            self.rlGet_command(argparse_data)
+            
+        elif condition.is_rlGetPhase_or_Test_State(argname):
+            self.rlGet_command(argparse_data)
+            
+        elif condition.is_rlReport(argname):
+            self.rlReport(argparse_data)
+            
+        elif condition.is_rlWatchdog(argname):
+            self.rlWatchdog(argparse_data)
+            
+        elif condition.is_rlBundleLogs(argname):
+            self.rlBundleLogs(argparse_data)
+            
+        elif condition.is_rlservicexxx(argname):
+            self.rlServicexxx(argparse_data)
+            
+        elif condition.is_SEBooleanxxx(argname):
+            self.SEBooleanxxx(argparse_data)
+            
+        elif condition.is_rlShowRunningKernel(argname):
+            self.rlShowRunningKernel(argparse_data)
+                
+        elif condition.is_get_or_check_makefile_requires(argname):
+            self.rlGet_or_rlCheck_MakefileRequeries(argparse_data)
+        
+        elif condition.is_rlCleanup_Apend_or_Prepend(argname):
+            self.rlCleanup_Apend_or_Prepend(argparse_data)
 
-            elif condition.is_rlFileSubmit(argname):
-                self.rlFileSubmit(argparse_data)
+        elif condition.is_rlFileSubmit(argname):
+            self.rlFileSubmit(argparse_data)
                 
-            elif condition.is_rlPerfTime_RunsInTime(argname):
-                self.rlPerfTime_RunsInTime(argparse_data)
+        elif condition.is_rlPerfTime_RunsInTime(argname):
+            self.rlPerfTime_RunsInTime(argparse_data)
             
-            elif condition.is_rlPerfTime_AvgFromRuns(argname):
-                self.rlPerfTime_AvgFromRuns(argparse_data)
+        elif condition.is_rlPerfTime_AvgFromRuns(argname):
+            self.rlPerfTime_AvgFromRuns(argparse_data)
                 
-            elif condition.is_rlShowPackageVersion(argname):
-                self.rlShowPackageVersion(argparse_data)
+        elif condition.is_rlShowPackageVersion(argname):
+            self.rlShowPackageVersion(argparse_data)
+        
+        elif condition.is_rlJournalPrint(argname):
+            self.rlJournalPrint(argparse_data)
             
-            elif condition.is_rlJournalPrint(argname):
-                self.rlJournalPrint(argparse_data)
+        elif condition.is_rlImport(argname):
+            self.rlImport(argparse_data)
+            
+        elif condition.is_rlWaitForxxx(argname):
+            self.rlWaitForxxx(argparse_data,argname)
                 
-            elif condition.is_rlImport(argname):
-                self.rlImport(argparse_data)
+        elif condition.is_rlWaitFor(argname):
+            self.rlWaitFor(argparse_data)
                 
-            elif condition.is_rlWaitForxxx(argname):
-                self.rlWaitForxxx(argparse_data,argname)
-                
-            elif condition.is_rlWaitFor(argname):
-                self.rlWaitFor(argparse_data)
-                
-            elif condition.is_VirtualXxxx(argname):
-                self.rlVirtualX_xxx(argparse_data)
+        elif condition.is_VirtualXxxx(argname):
+            self.rlVirtualX_xxx(argparse_data)
+            
+        return self.inf_ref
             
             
-        else:
-            print "NIC"
-
     def rlJournalPrint(self,argparse_data):
-        pass
+        self.importance = self.low
+        if argparse_data.argname == "rlJournalPrint":
+            if len(argparse_data.type):
+                self.information = "Prints content of the journal in " + \
+                argparse_data.type + " format"
+            else:
+                self.information = "Prints content of the journal in xml format"
+        else:
+            if argparse_data.full_journal:
+                self.information = "Prints content of the journal in pretty text format" +\
+                  " with additional information"
+            else:
+                self.information = "Prints content of the journal in pretty text format"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlShowPackageVersion(self,argparse_data):
-        pass
+        self.importance = self.low
+        if len(argparse_data.package) == 1:
+            self.information = "Shows information about " + argparse_data.package[0] +\
+            " version"
+        else:
+            self.information = "Shows information about "
+            i = 0;
+            for package in argparse_data.package:
+                if i > 4:
+                    self.information += "... "
+                elif i != 0:
+                    self.information += ", "
+                self.information += package
+                i += 1
+            self.information += " version"
+        self.connection = argparse_data.package        
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlFileSubmit(self,argparse_data):
-        pass
+        self.importance = self.low
+        if not len(argparse_data.s) and not len(argparse_data.required_name):
+            self.information = "Resolves absolute path " + argparse_data.path_to_file
+            self.information += " and replaces \/ for -"
+            
+        elif len(argparse_data.s) and not len(argparse_data.required_name):
+            self.information = "Resolves absolute path " + argparse_data.path_to_file
+            self.information += " and replaces \/ for " + argpase_data.s
+            
+        elif len(argparse_data.s) and len(argparse_data.required_name):
+            self.information = "Resolves absolute path " + argparse_data.path_to_file
+            self.information += ", replaces \/ for " + argparse_data.s
+            self.information += " and rename file to " + argparse_data.required_name
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlBundleLogs(self,argparse_data):
         pass
@@ -1019,7 +1081,6 @@ class documentation_information:
         self.connection_data = connection
     
 
-    
 class conditions_for_commands:
     """ Class consits of conditions for testing commands used in 
     parser_automata and documentation translator """        
