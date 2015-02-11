@@ -556,7 +556,7 @@ class statement_automata:
         parser.add_argument('-c', dest='c', action='store_true', default=False)
         parser.add_argument('-s', dest='s', action='store_true', default=False)
         parser.add_argument("command", type=str)
-        parser.add_argument("status", type=str, nargs = '?', default = 0)
+        parser.add_argument("status", type=str, nargs = '?', default = "0")
         parser.add_argument("comment", type=str, nargs = '?')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
     
@@ -582,15 +582,15 @@ class statement_automata:
         parser.add_argument("-t", type=str, help="time")
         parser.add_argument("-d", type=int, help="delay", default = 1)
         
-        if is_rlWaitForCmd(command):
+        if conditions_for_commands().is_rlWaitForCmd(command):
             parser.add_argument("command", type=str)
-            parser.add_argument("-m", type=int, help="count")
-            parser.add_argument("-r", type=int, help="retrval")
+            parser.add_argument("-m", type=str, help="count")
+            parser.add_argument("-r", type=str, help="retrval", default = "0")
         
-        elif is_rlWaitForFile(command):
+        elif conditions_for_commands().is_rlWaitForFile(command):
             parser.add_argument("path", type=str)
             
-        elif is_rlWaitForSocket(command):
+        elif conditions_for_commands().is_rlWaitForSocket(command):
             parser.add_argument("port_path", type=str)
             parser.add_argument('--close', dest='close', action='store_true',
                    default=False)
@@ -896,12 +896,18 @@ class documentation_translator:
             
         elif condition.is_rlImport(argname):
             self.rlImport(argparse_data)
-            
-        elif condition.is_rlWaitForxxx(argname):
-            self.rlWaitForxxx(argparse_data,argname)
                 
         elif condition.is_rlWaitFor(argname):
             self.rlWaitFor(argparse_data)
+            
+        elif condition.is_rlWaitForCmd(argname):
+            self.rlWaitForCmd(argparse_data)
+            
+        elif condition.is_rlWaitForFile(argname):
+            self.rlWaitForFile(argparse_data)
+            
+        elif condition.is_rlWaitForSocket(argname):
+            self.rlWaitForSocket(argparse_data)
                 
         elif condition.is_VirtualXxxx(argname):
             self.rlVirtualX_xxx(argparse_data)
@@ -961,7 +967,7 @@ class documentation_translator:
         self.importance = self.low
         if len(argparse_data.file) > 1:
             self.information = "Creates a tarball of files " + \
-            self.connect_multiple_facts(argparse_data.file)
+            self.connect_multiple_facts(argparse_data.file,3)
             self.information += " and attached them to test result" 
         else:
             self.information = "Creates a tarball of file " + argparse_data.file[0]
@@ -972,54 +978,226 @@ class documentation_translator:
         self.link_information,self.importance,self.connection)
         
     def rlDie(self,argparse_data):
-        pass
+        self.importance = self.low
+        if len(argparse_data.file):
+            self.information = "Message " + argparse_data.message
+            if len(argparse_data.file) > 1:
+                self.information += " will be created in to log and files "
+            else:
+                self.information += " will be created in to log and file "
+            self.information += self.connect_multiple_facts(argparse_data.file,3)
+            self.information += " will be uploaded"
+        else:
+            self.information = "Message " + argparse_data.message
+            self.information += " will be created in to log"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlLog(self,argparse_data):
-        pass
+        self.importance = self.low
+        self.information = "Message " + argparse_data.message
+        if argparse_data.logfile:
+            self.information += " will be created in to logfile "
+            self.information += argparse_data.logfile
+        else:
+            self.information += " will be created in to log"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlShowRunningKernel(self,argparse_data):
-        pass
+        self.importance = self.low
+        self.information = "Log a message with version of the currently running kernel"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlGet_or_rlCheck_MakefileRequeries(self,argparse_data):
-        pass
+        self.importance = self.low
+        if argparse_data.argname == "rlGetMakefileRequires":
+            self.importance = "Prints comma separated list of requirements defined in Makefile"
+        else:
+            self.importance = "Checking requirements in Makefile and returns number of compliance"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlGet_command(self,argparse_data):
-        pass
+        self.importance = self.low
+        if conditions_for_commands().is_rlGetPhase_or_Test_State(argparse_data.argname):
+            if argparse_data.argname == "rlGetTestState":
+                self.information = "Returns number of failed asserts" 
+            else:
+                self.information = "Returns number of failed asserts in current phase"
+        elif conditions_for_commands().is_rlGetDistro(argparse_data.argname):
+            if argparse_data.argname == "rlGetDistroRelease":
+                self.information = "Return release of the distribution on the system"
+            else:
+                self.information = "Return variant of the distribution on the system"
         
-    def unknown_command(self,argparse_data):
-        pass
+        elif argparse_data.argname == "rlGetPrimaryArch":
+            self.information = "Return primary arch for the current system"
+        
+        else:
+            self.information = "Return base arch for the current system"
+                
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)        
         
     def rlWatchdog(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Run command " + argparse_data.command
+        self.information += " for " + argparse_data.timeout
+        self.information += " seconds"
+        if argparse_data.signal:
+            self.information += " and killed with signal "
+            self.information += argparse_data.signal
+        
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlReport(self,argparse_data):
-        pass
+        #TODO Check if it is ALL 
+        self.importance = self.medium
+        self.information = argparse_data.name + " " + argparse_data.result
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
-            
     def rlRun(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Command " + argparse_data.command
+        if argparse_data.status == "0":
+            self.information += " must run successfully"
+        elif argparse_data.status == "1":
+            self.information += " must run unsuccessfully"
+        else:
+            self.information += " exit code must match " 
+            self.information += argparse_data.status
+        
+        if argparse_data.l:
+            self.information += " and output will be stored in to log"
+        elif argparse_data.c:
+            self.information += " and failed output will be stored in to log"
+        elif argparse_data.t and argparse_data.s:
+            self.information += " and stdout and stderr will be tagged and stored"
+        elif argparse_data.t:
+            self.information += " and stdout and stderr will be tagged"
+        elif argparse_data.s:
+            self.information += " and stdout and stderr will be stored" 
+        
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
     
     def rlVirtualX_xxx(self, argparse_data):
-        pass
-            
-    def rlWaitFor(self,argparse_data):
-        pass
+        self.importance = self.medium
+        if argparse_data.argname == "rlVirtualXStop":
+            self.information = "Kills " + argparse_data.name
+            self.information += " server"
+        elif argparse_data.argname == "rlVirtualXStart":
+            self.information = "Starts virtual X " + argparse_data.name
+            self.information += " server on a first free display"
+        else:
+            self.information = "Shows number of display where virtual X "
+            self.information += argparse_data.name + " is running"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)     
         
-    
-    def rlWaitForxxx(self,argparse_data,command):
-        pass
+    def rlWaitFor(self,argparse_data):
+        self.importance = self.low
+        if len(argparse_data.n) == 1:
+            self.information = "Wait for " + argparse_data.n[0] 
+            self.information += " process"
+        elif len(argparse_data.n) > 1:
+            self.information = "Wait for " + connect_multiple_facts(argparse_data.n,3)
+            self.information += " processes"
+        else: 
+            self.information = "All currently active child processes are" 
+            self.information += " waited for, and the return status is zero"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection) 
+        
+    def rlWaitForSocket(self,argparse_data):
+        self.importance = self.low
+        if argparse_data.close:
+            self.information = "Wait for the socket with this path" 
+            self.information += argparse_data.port_path + "to stop listening"
+        elif argparse_data.p:
+            self.information = "Pauses script until socket with this path or port "
+            self.information += argparse_data.port_path  + " starts listening"
+            self.information += "\n and process with this PID " + argparse_data.p
+            self.information += " must be running"
+        else:
+            self.information = "Pauses script until socket with this path or port "
+            self.information += argparse_data.port_path  + " starts listening"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
+        
+    def rlWaitForFile(self,argparse_data):
+        self.importance = self.low
+        if argparse_data.p:
+            self.information = "Pauses script until file or directory with this path "
+            self.information += argparse_data.path  + " starts existing"
+            self.information += "\n and process with this PID " + argparse_data.p
+            self.information += " must be running"
+        else:
+            self.information = "Pauses script until file or directory with this path "
+            self.information += argparse_data.path  + " starts listening"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
+        
+    def rlWaitForCmd(self,argparse_data):
+        self.importance = self.low
+        self.information = "Pauses script until command " 
+        self.information += argparse_data.command 
+        
+        if argparse_data.r == "0":
+            self.information +=  " exit status is successfully"
+        elif argparse_data.r == "1":
+            self.information +=  " exit status is unsuccessfully"
+        else:
+            self.information += " exit status is " + argparse_data.r
+        if argparse_data.p:
+            self.information += "\n and process with this PID " + argparse_data.p
+            self.information += " must be running"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlImport(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Imports code provided by "
+        if len(argparse_data.LIBRARY) == 1:
+            self.information += argparse_data.LIBRARY[0]
+            self.information += "  library into the test namespace"
+        else:
+            self.information += connect_multiple_facts(argparse_data.LIBRARY,2)
+            self.information += "  libraries into the test namespace"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlPerfTime_RunsInTime(self,argparse_data):
-        pass
+        self.importance = self.low
+        self.information = "Measures, how many runs of command "
+        self.information += argparse_data.command + " in " 
+        self.information += argparse_data.time + " second(s)"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlPerfTime_AvgFromRuns(self,argparse_data):
-        pass
+        self.importance = self.low
+        self.information = "Measures the average time of running command "
+        self.information += argparse_data.command
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlCleanup_Apend_or_Prepend(self, argparse_data):
-        pass
+        self.importance = self.medium
+        if argparse_data.argname == "rlCleanupAppend":
+            self.information = "Appends string: " + argparse_data.string 
+            self.information += " to the cleanup buffer"
+            self.information += " and recreates the cleanup script" 
+        else:
+            self.information = "Prepends string: " + argparse_data.string
+            self.information += " to the cleanup buffer"
+            self.information += " and recreates the cleanup script"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def SEBooleanxxx(self,argparse_data):
         pass
@@ -1030,15 +1208,12 @@ class documentation_translator:
     def rlFileRestore(self,argparse_data):
         pass
         
-            
     def rlFileBackup(self,argparse_data):
         pass
         
-            
     def rlHash_or_rlUnhash(self,argparse_data):
         pass
         
-            
     def check_or_assert_mount(self,argparse_data):
         pass
             
@@ -1074,15 +1249,20 @@ class documentation_translator:
         
     def connect_multiple_facts(self,facts ,max_size = 5):
         pom_inf = ""
-        if len(facts) == 2:
+        if len(facts) == 1:
+            pom_inf = facts[0]
+        elif len(facts) == 2:
             pom_inf = facts[0] + " and " + facts[1]
         else:
             i = 0
             while(i < max_size):
                 pom_inf += facts[i]
-                if len(facts) > (i + 2):
+                if len(facts) > (i + 2) and (i + 2) < max_size:
                     pom_inf += ", "
                 elif (i + 1) == len(facts):
+                    return pom_inf
+                elif (i + 1) == max_size:
+                    pom_inf += "..."
                     return pom_inf
                 else:
                     pom_inf += " and "
