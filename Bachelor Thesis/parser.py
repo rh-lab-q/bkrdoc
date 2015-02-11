@@ -785,6 +785,10 @@ class documentation_translator:
         self.importance = 0
         
     def translate_data(self,argparse_data):
+        self.inf_ref = ""
+        self.information = ""
+        self.link_information = ""
+        self.connection = []
         
         argname = argparse_data.argname
         condition = conditions_for_commands()
@@ -927,17 +931,11 @@ class documentation_translator:
         if len(argparse_data.package) == 1:
             self.information = "Shows information about " + argparse_data.package[0] +\
             " version"
+            self.link_information = "shows information about this package version"
         else:
             self.information = "Shows information about "
-            i = 0;
-            for package in argparse_data.package:
-                if i > 4:
-                    self.information += "... "
-                elif i != 0:
-                    self.information += ", "
-                self.information += package
-                i += 1
-            self.information += " version"
+            self.information += self.connect_multiple_facts(argparse_data.package,4)\
+              + " version"
         self.connection = argparse_data.package        
         self.inf_ref = documentation_information(self.information,\
         self.link_information,self.importance,self.connection)
@@ -960,7 +958,18 @@ class documentation_translator:
         self.link_information,self.importance,self.connection)
         
     def rlBundleLogs(self,argparse_data):
-        pass
+        self.importance = self.low
+        if len(argparse_data.file) > 1:
+            self.information = "Creates a tarball of files " + \
+            self.connect_multiple_facts(argparse_data.file)
+            self.information += " and attached them to test result" 
+        else:
+            self.information = "Creates a tarball of file " + argparse_data.file[0]
+            self.information += " and attached it to test result"
+            self.connection = argparse_data.file
+            self.link_information = "creates a tarball of this file" 
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def rlDie(self,argparse_data):
         pass
@@ -1062,6 +1071,25 @@ class documentation_translator:
     
     def assert_grep(self,argparse_data):        
         pass
+        
+    def connect_multiple_facts(self,facts ,max_size = 5):
+        pom_inf = ""
+        if len(facts) == 2:
+            pom_inf = facts[0] + " and " + facts[1]
+        else:
+            i = 0
+            while(i < max_size):
+                pom_inf += facts[i]
+                if len(facts) > (i + 2):
+                    pom_inf += ", "
+                elif (i + 1) == len(facts):
+                    return pom_inf
+                else:
+                    pom_inf += " and "
+                i += 1
+            pom_inf += "..."
+        return pom_inf
+        
 
 class documentation_information:
     """ Class made as a output of class documentation translator """
