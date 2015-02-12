@@ -1200,10 +1200,38 @@ class documentation_translator:
         self.link_information,self.importance,self.connection)
             
     def SEBooleanxxx(self,argparse_data):
-        pass
+        self.importance = self.medium
+        if argparse_data.argname == "rlSEBooleanOn":
+            self.information = "Sets boolean(s) "
+            self.information += self.connect_multiple_facts(argparse_data.boolean,3)
+            self.information += " to true"
+        elif argparse_data.argname == "rlSEBooleanOff":
+            self.information = "Sets boolean(s) "
+            self.information += self.connect_multiple_facts(argparse_data.boolean,3)
+            self.information += " to false"
+        else:
+            self.information = "Restore boolean(s) "
+            self.information += self.connect_multiple_facts(argparse_data.boolean,3)
+            self.information += " into original state"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlServicexxx(self,argparse_data):
-        pass
+        self.importance = self.medium
+        if argparse_data.argname == "rlServiceStart":
+            self.information = "Service(s) "
+            self.information += self.connect_multiple_facts(argparse_data.service,3)
+            self.information += " must be running"
+        elif argparse_data.argname == "rlServiceStop":
+            self.information = "Service(s) "
+            self.information += self.connect_multiple_facts(argparse_data.service,3)
+            self.information += " must be stopped"
+        else:
+            self.information = "Service(s) "
+            self.information += self.connect_multiple_facts(argparse_data.service,3)
+            self.information += " will be restored into original atate"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rlFileRestore(self,argparse_data):
         pass
