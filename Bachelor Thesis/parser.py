@@ -692,7 +692,7 @@ class statement_automata:
     def rpm_command(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
-        if len(pom_param_list) == 1 and pom_param_list[0] == "--all":
+        if len(pom_param_list) == 2 and pom_param_list[1] == "--all":
             parser.add_argument('--all', dest='all', action='store_true',
                    default=False, help='assert all packages')
             self.parsed_param_ref = parser.parse_args(pom_param_list)
@@ -701,6 +701,9 @@ class statement_automata:
             parser.add_argument('version', type = str, nargs = '?')
             parser.add_argument('release', type = str, nargs = '?')
             parser.add_argument('arch', type = str, nargs = '?')
+            #this line is for information translator
+            parser.add_argument('--all', dest='all', action='store_true',
+                   default=False, help='assert all packages')
             self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def IsRHEL_or_Is_Fedora(self,pom_param_list):
@@ -719,7 +722,7 @@ class statement_automata:
     def assert_exits(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
-        parser.add_argument('file|directory', type = str)
+        parser.add_argument('file_directory', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
     def assert_comparasion(self,pom_param_list):
@@ -1234,46 +1237,203 @@ class documentation_translator:
         self.link_information,self.importance,self.connection)
             
     def rlFileRestore(self,argparse_data):
-        pass
+        self.importance = self.medium
+        if argparse_data.namespace:
+            self.information = "Restore backed up file with namespace: "
+            self.information += argparse_data.namespace 
+            self.information += "to their original state"   
+        else:
+            self.information = "Restore backed up files to their "
+            self.information += "original location"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)    
         
     def rlFileBackup(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Backing up file(s) or directory(ies): "
+        self.information += self.connect_multiple_facts(argparse_data.file,2) 
+        self.link_information = "backed up"
+        self.connection = argparse_data.file
+        if argparse_data.namespace:
+            self.information += "with namespace " + argparse_data.namespace
+            
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection) 
         
     def rlHash_or_rlUnhash(self,argparse_data):
-        pass
+        self.importance = self.medium
+        if argparse_data.argname == "rlUnhas" or argparse_data.decode:
+            self.information = "Unhashing string "
+            self.information += argparse_data.stdin_STRING
+        else:
+            self.information = "Hashing string "
+            self.information += argparse_data.stdin_STRING
+        
+        if argparse_data.algorithm:
+            self.information += " with hashing algorithm "
+            self.information += argparse_data.algorithm
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection) 
+        
         
     def check_or_assert_mount(self,argparse_data):
-        pass
+        self.importance = self.low
+        if argparse_data.argname == "rlCheckMount":
+            self.information = "Check if directory " 
+            self.information += argparse_data.mountpoint
+            self.information += "is a mountpoint"
+        else:
+            self.information = "Directory " 
+            self.information += argparse_data.mountpoint
+            self.information += "must be a mountpoint"
+        
+        if argparse_data.server and argparse_data.mountpoint:
+            self.information += " to server " + argparse_data.server 
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
+        
             
     def rl_mount(self,argparse_data):
-        pass
+        self.importance = self.low
+        self.information = "Creating mount point " + argparse_data.mountpoint
+        self.information += " and mount NFS " + argparse_data.server 
+        self.information += " share"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def assert_binary_origin(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Binary " + argparse_data.binary + "must be"
+        self.information += " owned by package(s) " 
+        self.information += self.connect_multiple_facts(argparse_data.package, 4)
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def rpm_command(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.connection.append(argparse_data.name)
+        if argparse_data.argname == "rlCheckRpm":
+            self.information = "Check if package " + argparse_data.name
+            self.information += " is installed"
+            self.link_information = "check if is it installed"
+        elif argparse_data.argname == "rlAssertRpm":
+            if argparse_data.all:
+                self.information = "Packages in $PACKAGES, $REQUIRES" 
+                self.information += " and $COLLECTIONS must be installed"
+            else:
+                self.information = "Package " + argparse_data.name
+                self.information += " must be installed"
+                self.link_information = " must be installed"
+        else:
+            self.information = "Package " + argparse_data.name
+            self.information += " must not be installed"
+            self.link_information = " must not be installed"
             
+        if argparse_data.version or argparse_data.release or \
+        argparse_data.arch:
+            self.information += " with"
+            self.link_information += " with"
+            if argparse_data.version:
+                self.information += " version: " + argparse_data.version
+                self.link_information += " version: " + argparse_data.version 
+            
+            if argparse_data.release:
+                self.information += " release: " + argparse_data.release
+                self.link_information += " release: " + argparse_data.release
+                
+            if argparse_data.arch:
+                self.information += " architecture: " + argparse_data.arch
+                self.link_information += " architecture: " + argparse_data.arch
+                
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
+        
     def IsRHEL_or_Is_Fedora(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information += "Check if we'are running on"
+        if argparse_data.argname == "rlIsRHEL":
+            self.information += " RHEL "
+        else:
+            self.information += " Fedora "
+        
+        if len(argparse_data.type):
+            self.information += self.connect_multiple_facts(argparse_data.type)
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def assert_differ(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.importance = "File1 " + argparse_data.file1 + " and File2 "
+        self.importance += argparse_data.file2
+        if argparse_data.argname == "rlAssertDiffer":
+            self.importance += " must be different"
+        else:
+            self.importance += " must be identical"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def assert_exits(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "File or directory " + argparse_data.file_directory
+        self.connection.append(argparse_data.file_directory)
+        if argparse_data.argname == "rlAssertExists":
+            self.information += " must exists"
+            self.link_information += " must exists"
+        else:
+            self.information += " must not exists"
+            self.link_information += " must not exists"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
             
     def assert_comparasion(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Value1 " + argparse_data.value1
+        if argparse_data.argname == "rlAssertEquals":
+            self.information += " must be equal to Value2 "
+            self.information += argparse_data.value2
+        elif argparse_data.argname == "rlAssertNotEquals":
+            self.information += " must not be equal to Value2 "
+            self.information += argparse_data.value2
+        elif argparse_data.argname == "rlAssertGreater":
+            self.information += " must be greater to Value2 "
+            self.information += argparse_data.value2
+        else:
+            self.information += " must be greater or equal to Value2 "
+            self.information += argparse_data.value2
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
     
     def assert0(self,argparse_data):
-        pass
+        self.importance = self.medium
+        self.information = "Value " + argparse_data.value + " must be 0"
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
     
     def rlPass_or_rlFail(self,argparse_data):
         pass
     
     def assert_grep(self,argparse_data):        
-        pass
+        self.importance = self.medium
+        self.information = "File " + argparse_data.file 
+        self.connection.append(argparse_data.file)
+        if argparse_data.argname == "rlAssertGrep":
+            self.information += " must contain"
+            self.link_information = "must contain"
+        else:
+            self.information += " must not contain"
+            self.link_information = "must not contain"
+        self.information += " pattern " + argparse_data.pattern
+        self.link_information += " pattern " + argparse_data.pattern
+        
+        if argparse_data.text_in:
+            self.information += " matches with insensitive option"
+        elif argparse_data.moin_in:
+            self.information += " matches with extended option"
+        elif argparse_data.out_in:
+            self.information += " matches with perl regular expressions"
+        
+        self.inf_ref = documentation_information(self.information,\
+        self.link_information,self.importance,self.connection)
         
     def connect_multiple_facts(self,facts ,max_size = 5):
         pom_inf = ""
