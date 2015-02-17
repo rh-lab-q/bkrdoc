@@ -40,7 +40,7 @@ class parser(object):
     
     def __init__(self, file_in):
         self.phases = []
-        
+        file_in = file_in.strip()
         if file_in[(len(file_in) - 3):len(file_in)] == ".sh":
             try:                
                 with open(file_in, "r") as inputfile:
@@ -66,7 +66,7 @@ class parser(object):
         for line in self.file_test.split('\n'):
             line = line.strip()
             
-            if line[0:1] != '#' and len(line) > 1 and \
+            if line[0:1] != '#' and len(line) >= 1 and \
             not self.is_phase_journal_end(line) :
                 
                 if self.is_phase_setup(line):
@@ -97,6 +97,7 @@ class parser(object):
         for i in self.phases:
             print i.statement_list
             print "\n"
+        
         
     def is_end_back_slash(self, line):
         return line[-1:] == '\\'
@@ -154,6 +155,45 @@ class parser(object):
                 return pom_variable
                 
         
+class test_variables:
+    """Class contain variables from BeakerLib test"""
+    variable_names_list = []
+    variable_values_list = []
+    
+    def __init__ (self):
+        self.variable_names_list = []
+        self.variable_values_list = []
+        
+    def add_variable(self,name,value):
+        if (self.is_existing_variable(name)):
+            pom_pos = self.get_variable_position(name)
+            self.variable_values_list[pom_pos] = value
+        else:
+            self.variable_names_list.append(name)
+            self.variable_values_list.append(value)
+        
+    def is_existing_variable(self ,name):
+        return name in self.variable_names_list
+        
+    def get_variable_position(self,name):
+        i = 0
+        for element in self.variable_names_list:
+            if element == name:
+                return i
+            i += 1
+        return -1
+
+
+class test_function:
+    """Class for working with functions from the BeakerLib test"""
+    
+    statement_list = []
+    
+    def __init__(self):
+        self.statement_list = []
+        
+    def add_line(self,line):
+        self.statement_list.append(line)
         
         
 class phase_outside:
@@ -161,53 +201,64 @@ class phase_outside:
     #parse_ref = ""
     phase_name = ""
     statement_list = []
-    variable_list = []
-    variable_values_list = []
+    variables = ""
     keywords_list = []
+    func_list = []
     
     def __init__(self):
         #self.parse_ref = parse_cmd
         self.phase_name = "Outside phase"
         self.statement_list = []
-        self.variable_list = []
+        self.variables = test_variables()
         self.variable_values_list = []
         self.keywords_list = []
+        self.func_list = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
     def search_data(self,parser_ref):
+        func = False
         for statement in self.statement_list:
-            readed = shlex.shlex(statement)
-            member = readed.get_token()
-            pom = readed.get_token()
+            
+            #This three conditions are here because of gettion further 
+            #information from functions.
+            if self.is_function(statement):
+                func = True
+                self.func_list.append(test_function())
+                self.func_list[-1].add_line(statement)
+            
+            elif func and not self.is_function_end(statement):
+                self.func_list[-1].add_line(statement)
+            
+            elif func and self.is_function_end(statement):
+                self.func_list[-1].add_line(statement)
+                func = False
+            
+            else:
+            #searching variables in statement line
+                readed = shlex.shlex(statement)
+                member = readed.get_token()
+                pom = readed.get_token()
             
             # condition to handle assign to random value
             # setting variable list
-            if pom == '=':
-                pom = readed.get_token()
-                self.variable_list.append(member)
-                regular = re.compile("\"(\/.*\/)(.*)\"")
-                match = regular.match(pom)
-                if match:
-                    self.variable_values_list.append(match.group(1) + match.group(2))
-                    self.keywords_list.append(match.group(2))
-                else:
-                    self.variable_values_list.append(pom[1:-1])
-        #print self.variable_list
-        #print self.variable_values_list
-        #print self.keywords_list
+                if pom == '=':
+                    pom = readed.get_token()
+                    regular = re.compile("\"(\/.*\/)(.*)\"")
+                    match = regular.match(pom)
+                    if match:
+                        self.variables.add_variable(member,match.group(1) + match.group(2))
+                        self.keywords_list.append(match.group(2))
+                    else:
+                        self.variables.add_variable(member,pom[1:-1])
+    
+    def is_function(self, line):
+        return line[0:len("function")] == "function"
         
-    def get_variable_position(self,searching_variable):
-        i = -1
-        for member in self.variable_list:
-            if member == searching_variable:
-                i += 1
-                return i
-            else:
-                i += 1
+    def is_function_end(self, line):
+        return line[0:1] == "}" or line[-1] == "}"
         
-        return -1
 
 class phase_clean:
     """Class for store informations in test phase"""
@@ -315,35 +366,12 @@ class statement_automata:
     def parse_command(self,statement_line):
         #Spliting statement using shlex lexicator
         pom_list = []
-        pom_list = shlex.split(statement_line,posix = True)
+        pom_list = shlex.split(statement_line,True,posix = True)
         first = pom_list[0]
     
         if self.is_beakerLib_command(first,self.parser_ref):
             self.command_name = first 
             condition = conditions_for_commands()
-
-            
-            """while (element != ""):
-                #This condition is here because shlex splits "-" or "--" from options
-                #so there is no chance to match it after using argparse 
-                if element == '-' or element == '--' or element == '$':
-                    element += readed.get_token()
-                    
-                    #Important for status in rlrun command
-                    if condition.is_rlrun_command(first):
-                        pom_list[-1] = pom_list[-1] + element
-                        element = readed.get_token()
-                        
-                #Important for status in rlrun command
-                elif element == ',' and condition.is_rlrun_command(first):
-                    element += readed.get_token()
-                    pom_list[-1] = pom_list[-1] + element
-                    element = readed.get_token()
-                
-                else:
-                    pom_list.append(element)
-                    element = readed.get_token()"""
-                    
                     
             if condition.is_rlrun_command(first):
                 self.rlRun(pom_list)
