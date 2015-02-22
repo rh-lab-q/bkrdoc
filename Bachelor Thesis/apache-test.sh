@@ -50,7 +50,7 @@ rlJournalStart
         pushd $TmpDir
 
         # Add a comment to make the final report more readable
-        rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up" #@
+        rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up" 
         rlRun "echo 'Welcome to Test Page!' > $HttpdPages/index.html" 0 \
                 "Creating a simple welcome page"
 
@@ -61,6 +61,7 @@ rlJournalStart
         # (restarts if necessary, remembers the original state)
         rlRun "rlServiceStart httpd"
     rlPhaseEnd # Sums up phase asserts and reports the overall phase result
+    HttpdPages="/var/www/"
 
     #@Check if the file is correct
     rlPhaseStartTest "Test Existing Page"
@@ -73,7 +74,7 @@ rlJournalStart
         #@ Make sure the content is OK
         rlAssertGrep "Welcome to Test Page" "index.html"
         #@ Check the access log for the corresponding record
-        rlAssertGrep "GET / HTTP.*200" "$HttpdLogs/access_log" #@
+        rlAssertGrep "GET / HTTP.*200" "$HttpdLogs/access_log" 
     rlPhaseEnd
 
     #@ Trying to access a nonexistent page
