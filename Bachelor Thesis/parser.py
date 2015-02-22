@@ -103,8 +103,15 @@ class parser(object):
         return line[-1:] == '\\'
     
     def get_doc_data(self):
+        pom_var = test_variables()
         for member in self.phases:
-            member.search_data(self)
+            member.search_data(self,pom_var)
+            pom_var = test_variables()
+            
+            #copying variables to new variable instance
+            for var in member.variables.variable_names_list:
+                pom_value = member.variables.get_variable_value(var)
+                pom_var.add_variable(var,pom_value)
             
     def get_documentation_information(self):
         for member in self.phases:
@@ -172,8 +179,12 @@ class test_variables:
             self.variable_names_list.append(name)
             self.variable_values_list.append(value)
         
-    def is_existing_variable(self ,name):
+    def is_existing_variable(self, name):
         return name in self.variable_names_list
+        
+    def get_variable_value(self, name):
+        pos = self.get_variable_position(name)
+        return self.variable_values_list[pos]
         
     def get_variable_position(self,name):
         i = 0
@@ -197,8 +208,7 @@ class test_function:
         
         
 class phase_outside:
-    """Class for searching data ourside of phases"""
-    #parse_ref = ""
+    """Class for searching data outside of phases"""
     phase_name = ""
     statement_list = []
     variables = ""
@@ -210,14 +220,14 @@ class phase_outside:
         self.phase_name = "Outside phase"
         self.statement_list = []
         self.variables = test_variables()
-        self.variable_values_list = []
         self.keywords_list = []
         self.func_list = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
-    def search_data(self,parser_ref):
+    def search_data(self,parser_ref,variable_copy):
+        self.variables = variable_copy
         func = False
         for statement in self.statement_list:
             
@@ -261,27 +271,27 @@ class phase_outside:
         
 
 class phase_clean:
-    """Class for store informations in test phase"""
+    """Class for store information in test phase"""
     phase_name = ""
-    #parse_ref = ""
     statement_list = []
     doc_ref = ""
+    variables = ""
     statement_classes = []
-    new_line = False
     documentation_information = []
     
     def __init__(self,name):
         self.phase_name = name
         self.statement_list = []
         self.doc = []
+        self.variables = test_variables()
         self.statement_classes = []
-        self.new_line = False
         self.documentation_information = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
-    def search_data(self,parser_ref):
+    def search_data(self,parser_ref, variable_copy):
+        self.variables = variable_copy
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
@@ -294,11 +304,11 @@ class phase_clean:
 
 
 class phase_test:
-    """Class for store informations in test phase"""
+    """Class for store information in test phase"""
     phase_name = ""
-    #parse_ref = ""
     statement_list = []
     doc_ref = ""
+    variables = ""
     statement_classes = []
     documentation_information = []
     
@@ -306,13 +316,15 @@ class phase_test:
         self.phase_name = name
         self.statement_list = []
         self.doc = []
+        self.variables = test_variables()
         self.statement_classes = []
         self.documentation_information = []
         
-    def setup_statement(self,line):
+    def setup_statement(self, line):
         self.statement_list.append(line)
     
-    def search_data(self,parser_ref):
+    def search_data(self, parser_ref, variable_copy):
+        self.variables = variable_copy
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
@@ -325,26 +337,27 @@ class phase_test:
 
 
 class phase_setup:
-    """Class for store informations in setup phase"""
+    """Class for store information in setup phase"""
     phase_name = ""
-    #parse_ref = ""
     doc_ref = ""
+    variables = ""
     statement_list = []
     statement_classes = []
     documentation_information = []
     
     def __init__(self,name):
         self.phase_name = name
-        #self.parse_ref = parse_cmd
         self.statement_list = []
         self.doc = []
+        self.variables = test_variables()
         self.statement_classes = []
         self.documentation_information = []
         
     def setup_statement(self,line):
         self.statement_list.append(line)
         
-    def search_data(self,parser_ref):
+    def search_data(self,parser_ref, variable_copy):
+        self.variables = variable_copy
         command_translator = statement_automata(parser_ref)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
@@ -556,6 +569,7 @@ class statement_automata:
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         self.parsed_param_ref = parser.parse_args(["UNKNOWN"])
+        #print pom_param_list
         
     def rlWatchdog(self,pom_param_list):
         parser = argparse.ArgumentParser()
@@ -802,24 +816,12 @@ class documentation_translator:
     medium = 2
     high = 3
     
-    information = ""
-    link_information = ""
-    connection = []
-    importance = 0
-    
     def __init__(self,parser_ref):
         self.parser_ref = parser_ref
         self.inf_ref = ""
-        self.information = ""
-        self.link_information = ""
-        self.connection = []
-        self.importance = 0
         
     def translate_data(self,argparse_data):
         self.inf_ref = ""
-        self.information = ""
-        self.link_information = ""
-        self.connection = []
         
         argname = argparse_data.argname
         condition = conditions_for_commands()
@@ -944,205 +946,151 @@ class documentation_translator:
             self.rlVirtualX_xxx(argparse_data)
             
         return self.inf_ref
-            
-            
-    def rlJournalPrint(self,argparse_data):
-        self.importance = self.low
+
+
+    def rlJournalPrint(self, argparse_data):
+        importance = self.low
+        inf_units = []
         if argparse_data.argname == "rlJournalPrint":
             if len(argparse_data.type):
-                self.information = "Prints content of the journal in " + \
-                argparse_data.type + " format"
+                inf_units.append(argparse_data.type)
             else:
-                self.information = "Prints content of the journal in xml format"
+                inf_units.append("xml")
         else:
             if argparse_data.full_journal:
-                self.information = "Prints content of the journal in pretty text format" +\
-                  " with additional information"
+                inf_units.append("pretty text")
+                inf_units.append("additional information")
             else:
-                self.information = "Prints content of the journal in pretty text format"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+                inf_units.append("pretty text")
+        self.inf_ref = rlJournalPrint_information(inf_units, importance)
         
-    def rlShowPackageVersion(self,argparse_data):
-        self.importance = self.low
-        if len(argparse_data.package) == 1:
-            self.information = "Shows information about " + argparse_data.package[0] +\
-            " version"
-            self.link_information = "shows information about this package version"
-        else:
-            self.information = "Shows information about "
-            self.information += self.connect_multiple_facts(argparse_data.package,4)\
-              + " version"
-        self.connection = argparse_data.package        
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+    def rlShowPackageVersion(self, argparse_data):
+        importance = self.low
+        inf_units = argparse_data.package
+        self.inf_ref = rlShowPackageVersion_information(inf_units,importance)
         
     def rlFileSubmit(self,argparse_data):
-        self.importance = self.low
+        importance = self.low
+        inf_units = []
+        inf_units.append(argparse_data.path_to_file)
         if not len(argparse_data.s) and not len(argparse_data.required_name):
-            self.information = "Resolves absolute path " + argparse_data.path_to_file
-            self.information += " and replaces \/ for -"
+            inf_units.append('-')
             
         elif len(argparse_data.s) and not len(argparse_data.required_name):
-            self.information = "Resolves absolute path " + argparse_data.path_to_file
-            self.information += " and replaces \/ for " + argpase_data.s
+            inf_units.append(argparse_data.s)
             
         elif len(argparse_data.s) and len(argparse_data.required_name):
-            self.information = "Resolves absolute path " + argparse_data.path_to_file
-            self.information += ", replaces \/ for " + argparse_data.s
-            self.information += " and rename file to " + argparse_data.required_name
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+            inf_units.append(argparse_data.s)
+            inf_units.append( argparse_data.required_name)
+        self.inf_ref = rlFileSubmit_information(inf_units, importance)
         
-    def rlBundleLogs(self,argparse_data):
-        self.importance = self.low
-        if len(argparse_data.file) > 1:
-            self.information = "Creates a tarball of files " + \
-            self.connect_multiple_facts(argparse_data.file,3)
-            self.information += " and attached them to test result" 
-        else:
-            self.information = "Creates a tarball of file " + argparse_data.file[0]
-            self.information += " and attached it to test result"
-            self.connection = argparse_data.file
-            self.link_information = "creates a tarball of this file" 
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+    def rlBundleLogs(self, argparse_data):
+        importance = self.low
+        inf_units = argparse_data.file
+        self.inf_ref = rlBundleLogs_information(inf_units, importance)
         
-    def rlDie(self,argparse_data):
-        self.importance = self.low
-        if len(argparse_data.file):
-            self.information = "Message " + argparse_data.message
-            if len(argparse_data.file) > 1:
-                self.information += " will be created in to log and files "
-            else:
-                self.information += " will be created in to log and file "
-            self.information += self.connect_multiple_facts(argparse_data.file,3)
-            self.information += " will be uploaded"
-        else:
-            self.information = "Message " + argparse_data.message
-            self.information += " will be created in to log"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+    def rlDie(self, argparse_data):
+        importance = self.low
+        inf_units = []
+        inf_units.append(argparse_data.message)
+        inf_units += argparse_data.file
+        self.inf_ref = rlDie_information(inf_units, importance)
         
     def rlLog(self,argparse_data):
-        self.importance = self.low
-        self.information = "Message " + argparse_data.message
+        importance = self.low
+        inf_units = []
+        inf_units.append(argparse_data.message)
         if argparse_data.logfile:
-            self.information += " will be created in to logfile "
-            self.information += argparse_data.logfile
-        else:
-            self.information += " will be created in to log"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+            inf_units.append(argparse_data.logfile)
+        self.inf_ref = rlLog_information(inf_units, importance)
         
     def rlShowRunningKernel(self,argparse_data):
-        self.importance = self.low
-        self.information = "Log a message with version of the currently running kernel"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        importance = self.low
+        self.inf_ref = rlShowRunningKernel_information("", importance)
         
     def rlGet_or_rlCheck_MakefileRequeries(self,argparse_data):
-        self.importance = self.low
+        importance = self.low
         if argparse_data.argname == "rlGetMakefileRequires":
-            self.importance = "Prints comma separated list of requirements defined in Makefile"
+            self.inf_ref = rlGetMakefileRequires_information("", importance)
         else:
-            self.importance = "Checking requirements in Makefile and returns number of compliance"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+            self.inf_ref = rlCheckMakefileRequires_information("", importance)
         
-    def rlGet_command(self,argparse_data):
-        self.importance = self.low
+    def rlGet_command(self, argparse_data):
+        importance = self.low
         if conditions_for_commands().is_rlGetPhase_or_Test_State(argparse_data.argname):
             if argparse_data.argname == "rlGetTestState":
-                self.information = "Returns number of failed asserts" 
+                self.inf_ref = rlGetTestState_information([""], importance)
             else:
-                self.information = "Returns number of failed asserts in current phase"
+                self.inf_ref = rlGetPhaseState_information([""], importance)
+
         elif conditions_for_commands().is_rlGetDistro(argparse_data.argname):
             if argparse_data.argname == "rlGetDistroRelease":
-                self.information = "Return release of the distribution on the system"
+                self.inf_ref = rlGetDistroRelease_information([""], importance)
             else:
-                self.information = "Return variant of the distribution on the system"
+                self.inf_ref = rlGetDistroVariant_information([""], importance)
         
         elif argparse_data.argname == "rlGetPrimaryArch":
-            self.information = "Return primary arch for the current system"
+            self.inf_ref = rlGetPrimaryArch_information([""], importance)
         
         else:
-            self.information = "Return base arch for the current system"
-                
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)        
+            self.inf_ref = rlGetSecondaryArch_information([""], importance)
         
     def rlWatchdog(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Run command " + argparse_data.command
-        self.information += " for " + argparse_data.timeout
-        self.information += " seconds"
+        importance = self.medium
+        inf_unit = []
+        inf_unit.append(argparse_data.command)
+        inf_unit.append(argparse_data.timeout)
         if argparse_data.signal:
-            self.information += " and killed with signal "
-            self.information += argparse_data.signal
+            inf_unit.append(argparse_data.signal)
         
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        self.inf_ref = rlWatchdog_information(inf_unit, importance)
             
     def rlReport(self,argparse_data):
-        #TODO Check if it is ALL 
-        self.importance = self.medium
-        self.information = argparse_data.name + " " + argparse_data.result
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        importance = self.medium
+        inf_units = []
+        inf_units.append(argparse_data.name)
+        inf_units.append(argparse_data.result)
+        self.inf_ref = rlReport_information(inf_units, importance)
         
     def rlRun(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Command " + argparse_data.command
-        if argparse_data.status == "0":
-            self.information += " must run successfully"
-        elif argparse_data.status == "1":
-            self.information += " must run unsuccessfully"
-        else:
-            self.information += " exit code must match " 
-            self.information += argparse_data.status
-        
+        importance = self.medium
+        inf_units = []
+        inf_units.append(argparse_data.command)
+        inf_units.append(argparse_data.status)
+
+        option = ""
         if argparse_data.l:
-            self.information += " and output will be stored in to log"
+            option = " and output will be stored in to log"
         elif argparse_data.c:
-            self.information += " and failed output will be stored in to log"
+            option = " and failed output will be stored in to log"
         elif argparse_data.t and argparse_data.s:
-            self.information += " and stdout and stderr will be tagged and stored"
+            option= " and stdout and stderr will be tagged and stored"
         elif argparse_data.t:
-            self.information += " and stdout and stderr will be tagged"
+            option += " and stdout and stderr will be tagged"
         elif argparse_data.s:
-            self.information += " and stdout and stderr will be stored" 
+            option += " and stdout and stderr will be stored"
         
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        self.inf_ref = rlRun_information(inf_units, importance, option)
     
     def rlVirtualX_xxx(self, argparse_data):
-        self.importance = self.medium
+        importance = self.medium
+        inf_units = []
+        inf_units.append(argparse_data.name)
         if argparse_data.argname == "rlVirtualXStop":
-            self.information = "Kills " + argparse_data.name
-            self.information += " server"
+            self.inf_ref = rlVirtualXStop_information(inf_units, importance)
         elif argparse_data.argname == "rlVirtualXStart":
-            self.information = "Starts virtual X " + argparse_data.name
-            self.information += " server on a first free display"
+            self.inf_ref = rlVirtualXStart_information(inf_units, importance)
         else:
-            self.information = "Shows number of display where virtual X "
-            self.information += argparse_data.name + " is running"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)     
+            self.inf_ref = rlVirtualXGetDisplay_information(inf_units, importance)
         
     def rlWaitFor(self,argparse_data):
-        self.importance = self.low
-        if len(argparse_data.n) == 1:
-            self.information = "Wait for " + argparse_data.n[0] 
-            self.information += " process"
-        elif len(argparse_data.n) > 1:
-            self.information = "Wait for " + connect_multiple_facts(argparse_data.n,3)
-            self.information += " processes"
-        else: 
-            self.information = "All currently active child processes are" 
-            self.information += " waited for, and the return status is zero"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection) 
+        importance = self.low
+        if len(argparse_data.n):
+            inf_units = argparse_data.n
+            self.inf_ref = rlWaitFor_information(inf_units, importance)
+        else:
+            self.inf_ref = rlWaitFor_information([""], importance)
+
         
     def rlWaitForSocket(self,argparse_data):
         self.importance = self.low
@@ -1197,7 +1145,7 @@ class documentation_translator:
             self.information += argparse_data.LIBRARY[0]
             self.information += "  library into the test namespace"
         else:
-            self.information += connect_multiple_facts(argparse_data.LIBRARY,2)
+            self.information += self.connect_multiple_facts(argparse_data.LIBRARY,2)
             self.information += "  libraries into the test namespace"
         self.inf_ref = documentation_information(self.information,\
         self.link_information,self.importance,self.connection)
@@ -1462,7 +1410,49 @@ class documentation_translator:
         
         self.inf_ref = documentation_information(self.information,\
         self.link_information,self.importance,self.connection)
+
+    """
+    def connect_multiple_facts(self,facts ,max_size = 5):
+        pom_inf = ""
+        if len(facts) == 1:
+            pom_inf = facts[0]
+        elif len(facts) == 2:
+            pom_inf = facts[0] + " and " + facts[1]
+        else:
+            i = 0
+            while(i < max_size):
+                pom_inf += facts[i]
+                if len(facts) > (i + 2) and (i + 2) < max_size:
+                    pom_inf += ", "
+                elif (i + 1) == len(facts):
+                    return pom_inf
+                elif (i + 1) == max_size:
+                    pom_inf += "..."
+                    return pom_inf
+                else:
+                    pom_inf += " and "
+                i += 1
+            pom_inf += "..."
+        return pom_inf"""
         
+
+class documentation_information(object):
+    """ Class made as a output of class documentation translator """
+    
+    information_units = []
+
+    cmd_name = ""
+
+    importance = ""
+    
+    def __init__(self, name):
+        self.cmd_name = name
+        self.information_units = []
+        self.importance = ""
+
+    def generate_information(self):
+        pass
+
     def connect_multiple_facts(self,facts ,max_size = 5):
         pom_inf = ""
         if len(facts) == 1:
@@ -1485,25 +1475,431 @@ class documentation_translator:
                 i += 1
             pom_inf += "..."
         return pom_inf
-        
 
-class documentation_information:
-    """ Class made as a output of class documentation translator """
-    
-    information = ""
-    
-    linker_inf = ""
-    
-    importance = 0
-    
-    connection_data = []
-    
-    def __init__(self,inf,link_inf,importance_of_inf, connection):
-        self.information = inf
-        self.linker_inf = link_inf
-        self.importance = importance_of_inf
-        self.connection_data = connection
-    
+class rlJournalPrint_information(documentation_information):
+    """ Class doc """
+
+    def __init__ (self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Prints content of the journal in " + self.information_units[0] + " format"
+        if len(self.information_units) > 1:
+            out += " with additional information"
+        return out
+
+class rlShowPackageVersion_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out =  "Shows information about "
+        out += self.connect_multiple_facts(self.information_units,4)
+        out += " version"
+        return out
+
+class rlFileSubmit_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Resolves absolute path " + self.information_units[0]
+        if len(self.information_units) == 3:
+            out += ", replaces / for " + self.information_units[1]
+            out += " and rename file to " + self.information_units[2]
+        else:
+            out += " and replaces / for " + self.information_units[1]
+        return out
+
+class rlBundleLogs_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Creates a tarball of file(s) " + self.connect_multiple_facts(self.information_units,3)
+        out += " and attached it/them to test result"
+        return out
+
+class rlDie_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Message " + self.information_units[0]
+        if len(self.information_units) > 1:
+            out += " will be created in to log and file(s) "
+            out += self.connect_multiple_facts(self.information_units[1:],3)
+            out += " will be uploaded"
+        else:
+            out += " will be created in to log"
+        return out
+
+
+class rlLog_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Message " + self.information_units[0]
+        if len(self.information_units) == 2:
+            out += " will be created in to logfile "
+            out += self.information_units[1]
+        else:
+            out += " will be created in to log"
+        return out
+
+class rlShowRunningKernel_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Log a message with version of the currently running kernel"
+
+
+class rlCheckMakefileRequires_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Checking requirements in Makefile and returns number of compliance"
+
+class rlGetMakefileRequires_information(documentation_information):
+
+    def __init__(self,units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Prints comma separated list of requirements defined in Makefile"
+
+
+class rlGetPrimaryArch_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Return primary arch for the current system"
+
+class rlGetSecondaryArch_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Return base arch for the current system"
+
+class rlGetDistroRelease_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Return release of the distribution on the system"
+
+
+class rlGetDistroVariant_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Return variant of the distribution on the system"
+
+
+class rlGetTestState_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Returns number of failed asserts"
+
+
+class rlGetPhaseState_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Returns number of failed asserts in current phase"
+
+
+class rlWatchdog_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Run command " + self.information_units[0]
+        out += " for " + self.information_units[1]
+        out += " seconds"
+        if len(self.information_units) == 3:
+            out += " and killed with signal "
+            out += self.information_units[2]
+        return out
+
+
+class rlReport_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = "Test " + self.information_units[0]
+        out += " with result " + self.information_units[1]
+        return out
+
+
+class rlRun_information(documentation_information):
+
+    def __init__(self, units, information_importance, option):
+        self.information_units = units
+        self.importance = information_importance
+        self.option = option
+
+    def generate_information(self):
+        out = "Command " + self.information_units[0]
+        if self.information_units[1] == "0":
+            out += " must run successfully"
+        elif self.information_units[1] == "1":
+            out += " must run unsuccessfully"
+        else:
+            out += " exit code must match " + self.information_units[1]
+
+        if not self.option == "" :
+            out += self.option
+        return out
+
+
+class rlVirtualXStart_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Starts virtual X " + self.information_units[0] + " server on a first free display"
+
+
+class rlVirtualXStop_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Kills virtual X " + self.information_units[0] + " server"
+
+
+class rlVirtualXGetDisplay_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        return "Shows number of display where virtual X " + self.information_units[0] + " is running"
+
+
+class rlWaitFor_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+    def generate_information(self):
+        out = ""
+        if self.information_units[0]:
+            out = "Wait for "  + self.connect_multiple_facts(self.information_units,3)
+        else:
+            out = "All currently active child processes are"
+            out += " waited for, and the return status is zero"
+        return out
+
+class rlWaitForSocket_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlWaitForFile_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlWaitForCmd_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlImport_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlPerfTime_RunsInTime_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlPerfTime_AvgFromRuns_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlCleanup_Append_or_Prepend_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlSEBooleanxxx_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlServicexxx_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlFileRestore_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlFileBackup_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlHash_or_rlUnhash_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlCheck_or_assert_mount_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlMount_nformation(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlAssert_binary_origin_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlRpm_command_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlIsRHEL_or_rlIsFedora_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlAssert_differ_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlAssert_exists_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlAssert_comparison_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlAssert0_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlPass_or_rlFail_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
+
+class rlAssert_grep_information(documentation_information):
+
+    def __init__(self, units, information_importance):
+        self.information_units = units
+        self.importance = information_importance
+
 
 class conditions_for_commands:
     """ Class consits of conditions for testing commands used in 
