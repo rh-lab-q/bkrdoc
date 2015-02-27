@@ -1093,65 +1093,41 @@ class documentation_translator:
 
         
     def rlWaitForSocket(self,argparse_data):
-        self.importance = self.low
+        importance = self.low
+        inf_units = []
+        inf_units.append(argparse_data.port_path)
+        close = False
+        pid = ""
         if argparse_data.close:
-            self.information = "Wait for the socket with this path" 
-            self.information += argparse_data.port_path + "to stop listening"
+            close = True
         elif argparse_data.p:
-            self.information = "Pauses script until socket with this path or port "
-            self.information += argparse_data.port_path  + " starts listening"
-            self.information += "\n and process with this PID " + argparse_data.p
-            self.information += " must be running"
-        else:
-            self.information = "Pauses script until socket with this path or port "
-            self.information += argparse_data.port_path  + " starts listening"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+            pid = argparse_data.p
+        self.inf_ref = rlWaitForSocket_information(inf_units, importance, close, pid)
         
     def rlWaitForFile(self,argparse_data):
-        self.importance = self.low
+        importance = self.low
+        inf_units = []
+        inf_units.append(argparse_data.path)
         if argparse_data.p:
-            self.information = "Pauses script until file or directory with this path "
-            self.information += argparse_data.path  + " starts existing"
-            self.information += "\n and process with this PID " + argparse_data.p
-            self.information += " must be running"
-        else:
-            self.information = "Pauses script until file or directory with this path "
-            self.information += argparse_data.path  + " starts listening"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+            inf_units.append(argparse_data.p)
+        self.inf_ref = rlWaitForFile_information(inf_units, importance)
         
     def rlWaitForCmd(self,argparse_data):
-        self.importance = self.low
-        self.information = "Pauses script until command " 
-        self.information += argparse_data.command 
-        
-        if argparse_data.r == "0":
-            self.information +=  " exit status is successfully"
-        elif argparse_data.r == "1":
-            self.information +=  " exit status is unsuccessfully"
-        else:
-            self.information += " exit status is " + argparse_data.r
+        importance = self.low
+        inf_units = []
+        inf_units.append(argparse_data.command)
+        inf_units.append(argparse_data.r)
         if argparse_data.p:
-            self.information += "\n and process with this PID " + argparse_data.p
-            self.information += " must be running"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+            inf_units.append(argparse_data.p)
+        self.inf_ref = rlWaitForCmd_information(inf_units, importance)
             
     def rlImport(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Imports code provided by "
-        if len(argparse_data.LIBRARY) == 1:
-            self.information += argparse_data.LIBRARY[0]
-            self.information += "  library into the test namespace"
-        else:
-            self.information += self.connect_multiple_facts(argparse_data.LIBRARY,2)
-            self.information += "  libraries into the test namespace"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        importance = self.medium
+        inf_units = argparse_data.LIBRARY
+        self.inf_ref = rlImport_information(inf_units, importance)
             
     def rlPerfTime_RunsInTime(self,argparse_data):
-        self.importance = self.low
+        importance = self.low
         self.information = "Measures, how many runs of command "
         self.information += argparse_data.command + " in " 
         self.information += argparse_data.time + " second(s)"
@@ -1349,8 +1325,20 @@ class documentation_translator:
         self.link_information,self.importance,self.connection)
             
     def assert_exits(self,argparse_data):
-        self.importance = self.medium
-        self.information = "File or directory " + argparse_data.file_directory
+        importance = self.medium
+        unit = []
+        pom = []
+        pom.append("FILE")
+        pom.append(argparse_data.file_directory)
+        unit.append(pom)
+        action = []
+        if argparse_data.argname == "rlAssertExists":
+            action.append("exists")
+        else:
+            action.append("not exists")
+
+        self.inf_ref = documentation_information_sec(unit, action, importance)
+        """self.information = "File or directory " + argparse_data.file_directory
         self.connection.append(argparse_data.file_directory)
         if argparse_data.argname == "rlAssertExists":
             self.information += " must exists"
@@ -1359,7 +1347,7 @@ class documentation_translator:
             self.information += " must not exists"
             self.link_information += " must not exists"
         self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        self.link_information,self.importance,self.connection)"""
             
     def assert_comparasion(self,argparse_data):
         self.importance = self.medium
@@ -1389,8 +1377,24 @@ class documentation_translator:
         pass
     
     def assert_grep(self,argparse_data):        
-        self.importance = self.medium
-        self.information = "File " + argparse_data.file 
+        importance = self.medium
+        unit = []
+        pom = []
+        pom.append("FILE")
+        pom.append(argparse_data.file)
+        pom.append(argparse_data.pattern)
+        unit.append(pom)
+        pom = []
+        pom.append("PATTERN")
+        pom.append(argparse_data.pattern)
+        pom.append(argparse_data.file)
+        unit.append(pom)
+        action = []
+        if argparse_data.argname == "rlAssertGrep":
+            action.append("contain")
+        else:
+            action.append("not contain")
+        """self.information = "File " + argparse_data.file
         self.connection.append(argparse_data.file)
         if argparse_data.argname == "rlAssertGrep":
             self.information += " must contain"
@@ -1400,16 +1404,23 @@ class documentation_translator:
             self.link_information = "must not contain"
         self.information += " pattern " + argparse_data.pattern
         self.link_information += " pattern " + argparse_data.pattern
-        
+        """"""
         if argparse_data.text_in:
             self.information += " matches with insensitive option"
         elif argparse_data.moin_in:
             self.information += " matches with extended option"
         elif argparse_data.out_in:
             self.information += " matches with perl regular expressions"
-        
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        """
+        option = ""
+        if argparse_data.text_in:
+            option = "text_in"
+        elif argparse_data.moin_in:
+            option = "moin_in"
+        elif argparse_data.out_in:
+            option = "out_in"
+
+        self.inf_ref = documentation_information_sec(unit, action, importance, option)
 
     """
     def connect_multiple_facts(self,facts ,max_size = 5):
@@ -1434,7 +1445,109 @@ class documentation_translator:
                 i += 1
             pom_inf += "..."
         return pom_inf"""
-        
+"""
+array = [#topic: FILE, PATTERN, PACKAGE# ACTIONS
+                [  1,     0,      0],  # exists
+                [  2,     0,      0],  # not exists
+                [  3,     0,      0]   # contain
+        ]"""
+
+
+class documentation_information_sec(object):
+
+    topic = []
+
+    options = []
+
+    action = []
+
+    importance = ""
+
+    def __init__(self, topic, action, importance, options = []):
+        self.topic = topic
+        self.options = options
+        self.action = action
+        self.importance = importance
+
+    def get_information_line(self):
+        generate_information().get_information_from_facts(self.topic, self.action, self.options)
+
+class generate_information(object):
+
+    array = [#topic: FILE, PATTERN, PACKAGE# ACTIONS
+                [  1,     0,      0],  # exists
+                [  2,     0,      0],  # not exists
+                [  3,     0,      0]   # contain
+        ]
+
+
+    def get_information_from_facts(self, topics, actions, options):
+        information = ""
+        for topic in topics:
+            for action in actions:
+                column = self.get_topic_number(topic[0])
+                row = self.get_action_number(action)
+                rule = self.array[row][column]
+                if rule:
+                    information = self.get_information(rule,topic, options)
+                    print information
+
+
+    def get_information(self, rule, unit, options):
+        if self.is_rule_one(rule):
+            return "File or directory " + unit[1] + " must exist"
+
+        elif self.is_rule_two(rule):
+            return "File or directory " + unit[1] + " must not exist"
+
+        elif self.is_rule_three(rule):
+            return "File " + unit[1] + " must contain pattern " + unit[2]
+
+    def get_action_number(self, action):
+        if self.is_action_exists(action):
+            return 0
+        elif self.is_action_not_exists(action):
+            return 1
+        elif self.is_action_contain(action):
+            return 2
+
+
+    def get_topic_number(self,topic):
+
+        if self.is_topic_FILE(topic):
+            return 0
+        elif self.is_topic_PATTERN(topic):
+            return 1
+        elif self.is_topic_PACKAGE(topic):
+            return 2
+
+
+    def is_rule_one(self, rule):
+        return rule == 1
+
+    def is_rule_two(self, rule):
+        return rule == 2
+
+    def is_rule_three(self, rule):
+        return rule == 3
+
+    def is_topic_FILE(self, topic):
+        return topic == "FILE"
+
+    def is_topic_PATTERN(self, topic):
+        return topic == "PATTERN"
+
+    def is_topic_PACKAGE(self, topic):
+        return  topic == "PACKAGE"
+
+    def is_action_exists(self, action):
+        return action == "exists"
+
+    def is_action_not_exists(self, action):
+        return action == "not exists"
+
+    def is_action_contain(self, action):
+        return action == "contain"
 
 class documentation_information(object):
     """ Class made as a output of class documentation translator """
@@ -1742,10 +1855,26 @@ class rlWaitFor_information(documentation_information):
 
 class rlWaitForSocket_information(documentation_information):
 
-    def __init__(self, units, information_importance):
+    def __init__(self, units, information_importance, close, pid):
         self.information_units = units
         self.importance = information_importance
+        self.close = close
+        self.pid = pid
 
+    def generate_information(self):
+        out = ""
+        if self.close:
+            out = "Wait for the socket with this path"
+            out += self.information_units[0] + "to stop listening"
+        elif not self.pid == "":
+            out = "Pauses script until socket with this path or port "
+            out += self.information_units[0]  + " starts listening"
+            out += "\n and process with this PID " + self.pid
+            out += " must be running"
+        else:
+            out = "Pauses script until socket with this path or port "
+            out += self.information_units[0]  + " starts listening"
+        return  out
 
 class rlWaitForFile_information(documentation_information):
 
@@ -1753,6 +1882,16 @@ class rlWaitForFile_information(documentation_information):
         self.information_units = units
         self.importance = information_importance
 
+    def generate_information(self):
+        if len(self.information_units) == 2:
+            out = "Pauses script until file or directory with this path "
+            out += self.information_units[0]  + " starts existing"
+            out += "\n and process with this PID " + self.information_units[1]
+            out += " must be running"
+        else:
+            out = "Pauses script until file or directory with this path "
+            out += self.information_units[0]  + " starts listening"
+        return out
 
 class rlWaitForCmd_information(documentation_information):
 
@@ -1760,6 +1899,19 @@ class rlWaitForCmd_information(documentation_information):
         self.information_units = units
         self.importance = information_importance
 
+    def generate_information(self):
+        out = "Pauses script execution until command " + self.information_units[0]
+        if self.information_units[1] == "0":
+            out +=  " exit status is successful"
+        elif self.information_units[1] == "1":
+            out +=  " exit status is unsuccessful"
+        else:
+            out += " exit status match " + self.information_units[1]
+
+        if len(self.information_units) == 3:
+            out += "\n and process with this PID " + self.information_units[2]
+            out += " must be running"
+        return  out
 
 class rlImport_information(documentation_information):
 
@@ -1767,6 +1919,10 @@ class rlImport_information(documentation_information):
         self.information_units = units
         self.importance = information_importance
 
+    def generate_information(self):
+        out = "Imports code provided by "
+        out += self.connect_multiple_facts(self.information_units,2)
+        out += "  library(ies) into the test namespace"
 
 class rlPerfTime_RunsInTime_information(documentation_information):
 
