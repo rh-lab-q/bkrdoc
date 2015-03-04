@@ -1470,6 +1470,7 @@ class documentation_information_sec(object):
         self.importance = importance
 
     def get_information_line(self):
+        #TODO return to something !
         generate_information().get_information_from_facts(self.topic, self.action, self.options)
 
 class generate_information(object):
@@ -1489,19 +1490,10 @@ class generate_information(object):
                 row = self.get_action_number(action)
                 rule = self.array[row][column]
                 if rule:
-                    information = self.get_information(rule,topic, options)
+                    information = information_unit().get_information(rule,topic, options)
                     print information
 
 
-    def get_information(self, rule, unit, options):
-        if self.is_rule_one(rule):
-            return "File or directory " + unit[1] + " must exist"
-
-        elif self.is_rule_two(rule):
-            return "File or directory " + unit[1] + " must not exist"
-
-        elif self.is_rule_three(rule):
-            return "File " + unit[1] + " must contain pattern " + unit[2]
 
     def get_action_number(self, action):
         if self.is_action_exists(action):
@@ -1522,15 +1514,6 @@ class generate_information(object):
             return 2
 
 
-    def is_rule_one(self, rule):
-        return rule == 1
-
-    def is_rule_two(self, rule):
-        return rule == 2
-
-    def is_rule_three(self, rule):
-        return rule == 3
-
     def is_topic_FILE(self, topic):
         return topic == "FILE"
 
@@ -1548,6 +1531,29 @@ class generate_information(object):
 
     def is_action_contain(self, action):
         return action == "contain"
+
+
+class information_unit:
+
+    def get_information(self, rule, unit, options):
+        if self.is_rule_one(rule):
+            return "File or directory " + unit[1] + " must exist"
+
+        elif self.is_rule_two(rule):
+            return "File or directory " + unit[1] + " must not exist"
+
+        elif self.is_rule_three(rule):
+            return "File " + unit[1] + " must contain pattern " + unit[2]
+
+    def is_rule_one(self, rule):
+        return rule == 1
+
+    def is_rule_two(self, rule):
+        return rule == 2
+
+    def is_rule_three(self, rule):
+        return rule == 3
+
 
 class documentation_information(object):
     """ Class made as a output of class documentation translator """
