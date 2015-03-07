@@ -16,21 +16,21 @@ class parser(object):
     
     description = ""
     
-    all_commands = ["rlAssert0", "rlAssertEquals", "rlAssertNotEquals",\
-    "rlAssertGreater", "rlAssertGreaterOrEqual", "rlAssertExists", "rlAssertNotExists",\
-    "rlAssertGrep", "rlAssertNotGrep", "rlAssertDiffer", "rlAssertNotDiffer", "rlRun",\
-    "rlWatchdog", "rlReport", "rlIsRHEL", "rlIsFedora", "rlCheckRpm", "rlAssertRpm", \
-    "rlAssertNotRpm", "rlAssertBinaryOrigin", "rlGetMakefileRequires", \
-    "rlCheckRequirements", "rlCheckMakefileRequires", "rlMount", "rlCheckMount", \
-    "rlAssertMount", "rlHash", "rlUnhash", "rlFileBackup", "rlFileRestore", \
-    "rlServiceStart", "rlServiceStop", "rlServiceRestore", "rlSEBooleanOn",\
-    "rlSEBooleanOff", "rlSEBooleanRestore", "rlCleanupAppend", "rlCleanupPrepend",\
-    "rlVirtualXStop", "rlVirtualXGetDisplay", "rlVirtualXStart", "rlWait", "rlWaitForSocket",\
-    "rlWaitForFile", "rlWaitForCmd", "rlImport", "rlDejaSum", "rlPerfTime_AvgFromRuns",\
-    "rlPerfTime_RunsinTime", "rlLogMetricLow", "rlLogMetricHigh", "rlShowRunningKernel", \
-    "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch", \
-    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", \
-    "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",\
+    all_commands = ["rlAssert0", "rlAssertEquals", "rlAssertNotEquals",
+    "rlAssertGreater", "rlAssertGreaterOrEqual", "rlAssertExists", "rlAssertNotExists",
+    "rlAssertGrep", "rlAssertNotGrep", "rlAssertDiffer", "rlAssertNotDiffer", "rlRun",
+    "rlWatchdog", "rlReport", "rlIsRHEL", "rlIsFedora", "rlCheckRpm", "rlAssertRpm",
+    "rlAssertNotRpm", "rlAssertBinaryOrigin", "rlGetMakefileRequires",
+    "rlCheckRequirements", "rlCheckMakefileRequires", "rlMount", "rlCheckMount",
+    "rlAssertMount", "rlHash", "rlUnhash", "rlFileBackup", "rlFileRestore",
+    "rlServiceStart", "rlServiceStop", "rlServiceRestore", "rlSEBooleanOn",
+    "rlSEBooleanOff", "rlSEBooleanRestore", "rlCleanupAppend", "rlCleanupPrepend",
+    "rlVirtualXStop", "rlVirtualXGetDisplay", "rlVirtualXStart", "rlWait", "rlWaitForSocket",
+    "rlWaitForFile", "rlWaitForCmd", "rlImport", "rlDejaSum", "rlPerfTime_AvgFromRuns",
+    "rlPerfTime_RunsinTime", "rlLogMetricLow", "rlLogMetricHigh", "rlShowRunningKernel",
+    "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch",
+    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie",
+    "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",
     "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText"
     ]
     
@@ -194,6 +194,17 @@ class test_variables:
             i += 1
         return -1
 
+    def replace_variable_in_string(self, string):
+        i = 0
+        pom_str = string
+        if len(self.variable_names_list):
+            for element in self.variable_names_list:
+                pom_str = pom_str.replace("$" + element, self.variable_values_list[i])
+                i += 1
+            return pom_str
+        else:
+            return string
+
 
 class test_function:
     """Class for working with functions from the BeakerLib test"""
@@ -231,7 +242,7 @@ class phase_outside:
         func = False
         for statement in self.statement_list:
             
-            #This three conditions are here because of gettion further 
+            #This three conditions are here because of getting further
             #information from functions.
             if self.is_function(statement):
                 func = True
@@ -248,26 +259,43 @@ class phase_outside:
             else:
             #searching variables in statement line
                 readed = shlex.shlex(statement)
+                list_of_statement = shlex.split(statement,True, True)
                 member = readed.get_token()
-                pom = readed.get_token()
+                equal_to = readed.get_token()
             
             # condition to handle assign to random value
             # setting variable list
-                if pom == '=':
-                    pom = readed.get_token()
+                if equal_to == '=':
+                    #This 7 lines are here for erasing comments and for reading whole line
+                    pom_i = statement.find("=", len(member)) + 1
+                    list_of_statement = shlex.split(statement[pom_i:],True, True)
+                    value = ""
+                    for value_member in list_of_statement:
+                        if not value == "":
+                            value += " "
+                        value += value_member
+
                     regular = re.compile("\"(\/.*\/)(.*)\"")
-                    match = regular.match(pom)
+                    match = regular.match(value)
                     if match:
                         self.variables.add_variable(member,match.group(1) + match.group(2))
                         self.keywords_list.append(match.group(2))
                     else:
-                        self.variables.add_variable(member,pom[1:-1])
+                        self.variables.add_variable(member,value)
     
     def is_function(self, line):
         return line[0:len("function")] == "function"
         
     def is_function_end(self, line):
-        return line[0:1] == "}" or line[-1] == "}"
+        if line[0:1] == "}":
+            return True
+        else:
+            #This split for erasing comments on the end of line
+            pom_list = shlex.split(line, True, True)
+            if pom_list[-1][-1] == "}":
+                return True
+            else:
+                return False
         
 
 class phase_clean:
@@ -292,7 +320,7 @@ class phase_clean:
         
     def search_data(self,parser_ref, variable_copy):
         self.variables = variable_copy
-        command_translator = statement_automata(parser_ref)
+        command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
             
@@ -325,7 +353,7 @@ class phase_test:
     
     def search_data(self, parser_ref, variable_copy):
         self.variables = variable_copy
-        command_translator = statement_automata(parser_ref)
+        command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
             
@@ -358,7 +386,7 @@ class phase_setup:
         
     def search_data(self,parser_ref, variable_copy):
         self.variables = variable_copy
-        command_translator = statement_automata(parser_ref)
+        command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
             self.statement_classes.append(command_translator.parse_command(statement))
             
@@ -372,14 +400,17 @@ class phase_setup:
 class statement_automata:
     parsed_param_ref = ""
     parser_ref = ""
+    phase_ref = ""
     
-    def __init__(self,parser_ref):
+    def __init__(self,parser_ref, phase_ref):
         self.parser_ref = parser_ref
+        self.phase_ref = phase_ref
         
     def parse_command(self,statement_line):
         #Spliting statement using shlex lexicator
         pom_list = []
-        pom_list = shlex.split(statement_line,True,posix = True)
+        pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
+        pom_list = shlex.split(pom_statement_line,True,posix = True)
         first = pom_list[0]
     
         if self.is_beakerLib_command(first,self.parser_ref):
@@ -500,25 +531,58 @@ class statement_automata:
                 self.rlVirtualX_xxx(pom_list)
             
         else:
-            self.unknown_command(pom_list)
+            self.unknown_command(pom_list, pom_statement_line)
         
-        return self.parsed_param_ref;
-        
+        return self.parsed_param_ref
+
+    def find_and_replace_variable(self, statement):
+        pass
+
+    def is_variable_assignment(self, statement):
+        #searching variables in statement line
+        readed = shlex.shlex(statement)
+        list_of_statement = shlex.split(statement,True, True)
+        member = readed.get_token()
+        equal_to = readed.get_token()
+
+        # condition to handle assign to random value
+        # setting variable list
+        if equal_to == '=':
+             #This 7 lines are here for erasing comments and for reading whole line
+            pom_i = statement.find("=", len(member)) + 1
+            list_of_statement = shlex.split(statement[pom_i:],True, True)
+            value = ""
+            for value_member in list_of_statement:
+                if not value == "":
+                    value += " "
+                value += value_member
+
+            regular = re.compile("\"(\/.*\/)(.*)\"")
+            match = regular.match(value)
+            if match:
+                self.phase_ref.variables.add_variable(member,match.group(1) + match.group(2))
+                #TODO keyword from not outside phases
+                #self.keywords_list.append(match.group(2))
+            else:
+                self.phase_ref.variables.add_variable(member,value)
+
+        return
+
     def rlJournalPrint(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         parser.add_argument("type", type=str,nargs = "?")
-        parser.add_argument('--full-journal', dest='full_journal',\
+        parser.add_argument('--full-journal', dest='full_journal',
          action='store_true', default=False)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
         
-    def rlShowPackageVersion(self,pom_param_list):
+    def rlShowPackageVersion(self, pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         parser.add_argument("package", type=str,nargs = "+")
         self.parsed_param_ref = parser.parse_args(pom_param_list)
         
-    def rlFileSubmit(self,pom_param_list):
+    def rlFileSubmit(self, pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         parser.add_argument("-s", type=str, help="sets separator")
@@ -546,7 +610,7 @@ class statement_automata:
         parser.add_argument("message", type=str)
         parser.add_argument("logfile", type=str,nargs = "?")
         parser.add_argument("priority", type=str,nargs = "?")
-        parser.add_argument('--prio-label', dest='prio_label',\
+        parser.add_argument('--prio-label', dest='prio_label',
          action='store_true', default=False)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
         
@@ -565,11 +629,12 @@ class statement_automata:
         parser.add_argument("argname", type=str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
         
-    def unknown_command(self,pom_param_list):
+    def unknown_command(self,pom_param_list, statement_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         self.parsed_param_ref = parser.parse_args(["UNKNOWN"])
-        #print pom_param_list
+        #Trying to find variable assignment in statement line
+        self.is_variable_assignment(statement_list)
         
     def rlWatchdog(self,pom_param_list):
         parser = argparse.ArgumentParser()
@@ -678,7 +743,7 @@ class statement_automata:
         parser.add_argument("service", type=str, nargs = '+')
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
-    def rlFileRestore(self,pom_param_list):
+    def rlFile_Restore(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         parser.add_argument("--namespace", type=str,
@@ -1188,7 +1253,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(self.information,\
         self.link_information,self.importance,self.connection)
             
-    def rlFileRestore(self,argparse_data):
+    def rlFile_Restore(self,argparse_data):
         self.importance = self.medium
         if argparse_data.namespace:
             self.information = "Restore backed up file with namespace: "
