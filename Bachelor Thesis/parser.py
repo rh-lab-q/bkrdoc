@@ -1192,204 +1192,221 @@ class documentation_translator:
         self.inf_ref = rlImport_information(inf_units, importance)
             
     def rlPerfTime_RunsInTime(self,argparse_data):
-        importance = self.low
-        self.information = "Measures, how many runs of command "
-        self.information += argparse_data.command + " in " 
-        self.information += argparse_data.time + " second(s)"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #importance = self.low
+        #self.information = "Measures, how many runs of command "
+        #self.information += argparse_data.command + " in "
+        #self.information += argparse_data.time + " second(s)"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def rlPerfTime_AvgFromRuns(self,argparse_data):
-        self.importance = self.low
-        self.information = "Measures the average time of running command "
-        self.information += argparse_data.command
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.low
+        #self.information = "Measures the average time of running command "
+        #self.information += argparse_data.command
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def rlCleanup_Apend_or_Prepend(self, argparse_data):
-        self.importance = self.medium
-        if argparse_data.argname == "rlCleanupAppend":
-            self.information = "Appends string: " + argparse_data.string 
-            self.information += " to the cleanup buffer"
-            self.information += " and recreates the cleanup script" 
-        else:
-            self.information = "Prepends string: " + argparse_data.string
-            self.information += " to the cleanup buffer"
-            self.information += " and recreates the cleanup script"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.medium
+        #if argparse_data.argname == "rlCleanupAppend":
+        #    self.information = "Appends string: " + argparse_data.string
+        #    self.information += " to the cleanup buffer"
+        #    self.information += " and recreates the cleanup script"
+        #else:
+        #    self.information = "Prepends string: " + argparse_data.string
+        #    self.information += " to the cleanup buffer"
+        #    self.information += " and recreates the cleanup script"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def SEBooleanxxx(self,argparse_data):
-        self.importance = self.medium
-        if argparse_data.argname == "rlSEBooleanOn":
-            self.information = "Sets boolean(s) "
-            self.information += self.connect_multiple_facts(argparse_data.boolean,3)
-            self.information += " to true"
-        elif argparse_data.argname == "rlSEBooleanOff":
-            self.information = "Sets boolean(s) "
-            self.information += self.connect_multiple_facts(argparse_data.boolean,3)
-            self.information += " to false"
-        else:
-            self.information = "Restore boolean(s) "
-            self.information += self.connect_multiple_facts(argparse_data.boolean,3)
-            self.information += " into original state"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.medium
+        #if argparse_data.argname == "rlSEBooleanOn":
+        #    self.information = "Sets boolean(s) "
+        #    self.information += self.connect_multiple_facts(argparse_data.boolean,3)
+        #    self.information += " to true"
+        #elif argparse_data.argname == "rlSEBooleanOff":
+        #    self.information = "Sets boolean(s) "
+        #    self.information += self.connect_multiple_facts(argparse_data.boolean,3)
+        #    self.information += " to false"
+        #else:
+        ##    self.information = "Restore boolean(s) "
+        #    self.information += self.connect_multiple_facts(argparse_data.boolean,3)
+        #    self.information += " into original state"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def rlServicexxx(self,argparse_data):
-        self.importance = self.medium
-        if argparse_data.argname == "rlServiceStart":
-            self.information = "Service(s) "
-            self.information += self.connect_multiple_facts(argparse_data.service,3)
-            self.information += " must be running"
-        elif argparse_data.argname == "rlServiceStop":
-            self.information = "Service(s) "
-            self.information += self.connect_multiple_facts(argparse_data.service,3)
-            self.information += " must be stopped"
-        else:
-            self.information = "Service(s) "
-            self.information += self.connect_multiple_facts(argparse_data.service,3)
-            self.information += " will be restored into original atate"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.medium
+        #if argparse_data.argname == "rlServiceStart":
+        #    self.information = "Service(s) "
+        #    self.information += self.connect_multiple_facts(argparse_data.service,3)
+        #    self.information += " must be running"
+        #elif argparse_data.argname == "rlServiceStop":
+        #    self.information = "Service(s) "
+        #    self.information += self.connect_multiple_facts(argparse_data.service,3)
+        #    self.information += " must be stopped"
+        #else:
+        #    self.information = "Service(s) "
+        #    self.information += self.connect_multiple_facts(argparse_data.service,3)
+        #    self.information += " will be restored into original atate"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def rlFile_Restore(self,argparse_data):
-        self.importance = self.medium
-        if argparse_data.namespace:
-            self.information = "Restore backed up file with namespace: "
-            self.information += argparse_data.namespace 
-            self.information += "to their original state"   
-        else:
-            self.information = "Restore backed up files to their "
-            self.information += "original location"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)    
+        pass
+        #
+        # self.importance = self.medium
+        #if argparse_data.namespace:
+        #    self.information = "Restore backed up file with namespace: "
+        #    self.information += argparse_data.namespace
+        #    self.information += "to their original state"
+        #else:
+        #    self.information = "Restore backed up files to their "
+        #    self.information += "original location"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
         
     def rlFileBackup(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Backing up file(s) or directory(ies): "
-        self.information += self.connect_multiple_facts(argparse_data.file,2) 
-        self.link_information = "backed up"
-        self.connection = argparse_data.file
-        if argparse_data.namespace:
-            self.information += "with namespace " + argparse_data.namespace
+        pass
+        #self.importance = self.medium
+        #self.information = "Backing up file(s) or directory(ies): "
+        #self.information += self.connect_multiple_facts(argparse_data.file,2)
+        #self.link_information = "backed up"
+        #self.connection = argparse_data.file
+        #if argparse_data.namespace:
+        #    self.information += "with namespace " + argparse_data.namespace
             
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection) 
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
         
     def rlHash_or_rlUnhash(self,argparse_data):
-        self.importance = self.medium
-        if argparse_data.argname == "rlUnhas" or argparse_data.decode:
-            self.information = "Unhashing string "
-            self.information += argparse_data.stdin_STRING
-        else:
-            self.information = "Hashing string "
-            self.information += argparse_data.stdin_STRING
+        pass
+        #self.importance = self.medium
+        #
+        #if argparse_data.argname == "rlUnhas" or argparse_data.decode:
+        #    self.information = "Unhashing string "
+        #    self.information += argparse_data.stdin_STRING
+        #else:
+        #    self.information = "Hashing string "
+        #    self.information += argparse_data.stdin_STRING
         
-        if argparse_data.algorithm:
-            self.information += " with hashing algorithm "
-            self.information += argparse_data.algorithm
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection) 
+        #if argparse_data.algorithm:
+        #    self.information += " with hashing algorithm "
+        #    self.information += argparse_data.algorithm
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
         
         
     def check_or_assert_mount(self,argparse_data):
-        self.importance = self.low
-        if argparse_data.argname == "rlCheckMount":
-            self.information = "Check if directory " 
-            self.information += argparse_data.mountpoint
-            self.information += "is a mountpoint"
-        else:
-            self.information = "Directory " 
-            self.information += argparse_data.mountpoint
-            self.information += "must be a mountpoint"
+        pass
+        #self.importance = self.low
+        #if argparse_data.argname == "rlCheckMount":
+        #    self.information = "Check if directory "
+        #    self.information += argparse_data.mountpoint
+        #    self.information += "is a mountpoint"
+        #else:
+        #    self.information = "Directory "
+        #    self.information += argparse_data.mountpoint
+        #    self.information += "must be a mountpoint"
         
-        if argparse_data.server and argparse_data.mountpoint:
-            self.information += " to server " + argparse_data.server 
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        #if argparse_data.server and argparse_data.mountpoint:
+        #    self.information += " to server " + argparse_data.server
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
         
             
     def rl_mount(self,argparse_data):
-        self.importance = self.low
-        self.information = "Creating mount point " + argparse_data.mountpoint
-        self.information += " and mount NFS " + argparse_data.server 
-        self.information += " share"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.low
+        ##self.information = "Creating mount point " + argparse_data.mountpoint
+        #self.information += " and mount NFS " + argparse_data.server
+        #self.information += " share"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def assert_binary_origin(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Binary " + argparse_data.binary + "must be"
-        self.information += " owned by package(s) " 
-        self.information += self.connect_multiple_facts(argparse_data.package, 4)
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.medium
+        #self.information = "Binary " + argparse_data.binary + "must be"
+        #self.information += " owned by package(s) "
+        #self.information += self.connect_multiple_facts(argparse_data.package, 4)
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
             
     def rpm_command(self,argparse_data):
-        self.importance = self.medium
-        self.connection.append(argparse_data.name)
-        if argparse_data.argname == "rlCheckRpm":
-            self.information = "Check if package " + argparse_data.name
-            self.information += " is installed"
-            self.link_information = "check if is it installed"
-        elif argparse_data.argname == "rlAssertRpm":
-            if argparse_data.all:
-                self.information = "Packages in $PACKAGES, $REQUIRES" 
-                self.information += " and $COLLECTIONS must be installed"
-            else:
-                self.information = "Package " + argparse_data.name
-                self.information += " must be installed"
-                self.link_information = " must be installed"
-        else:
-            self.information = "Package " + argparse_data.name
-            self.information += " must not be installed"
-            self.link_information = " must not be installed"
+        pass
+        #self.importance = self.medium
+        #self.connection.append(argparse_data.name)
+        #if argparse_data.argname == "rlCheckRpm":
+        #    self.information = "Check if package " + argparse_data.name
+        #    self.information += " is installed"
+        #    self.link_information = "check if is it installed"
+        #elif argparse_data.argname == "rlAssertRpm":
+        #    if argparse_data.all:
+        #        self.information = "Packages in $PACKAGES, $REQUIRES"
+        #        self.information += " and $COLLECTIONS must be installed"
+        #    else:
+        #        self.information = "Package " + argparse_data.name
+        #        self.information += " must be installed"
+        #        self.link_information = " must be installed"
+        #else:
+        #    self.information = "Package " + argparse_data.name
+        #    self.information += " must not be installed"
+        #    self.link_information = " must not be installed"
             
-        if argparse_data.version or argparse_data.release or \
-        argparse_data.arch:
-            self.information += " with"
-            self.link_information += " with"
-            if argparse_data.version:
-                self.information += " version: " + argparse_data.version
-                self.link_information += " version: " + argparse_data.version 
+        #if argparse_data.version or argparse_data.release or \
+        #argparse_data.arch:
+        #    self.information += " with"
+        #    self.link_information += " with"
+        #    if argparse_data.version:
+        #        self.information += " version: " + argparse_data.version
+        #        self.link_information += " version: " + argparse_data.version
             
-            if argparse_data.release:
-                self.information += " release: " + argparse_data.release
-                self.link_information += " release: " + argparse_data.release
+        #    if argparse_data.release:
+        #        self.information += " release: " + argparse_data.release
+        #        self.link_information += " release: " + argparse_data.release
                 
-            if argparse_data.arch:
-                self.information += " architecture: " + argparse_data.arch
-                self.link_information += " architecture: " + argparse_data.arch
-                
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        #    if argparse_data.arch:
+        #        self.information += " architecture: " + argparse_data.arch
+        #        self.link_information += " architecture: " + argparse_data.arch
+        #
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
         
     def IsRHEL_or_Is_Fedora(self,argparse_data):
-        self.importance = self.medium
-        self.information += "Check if we'are running on"
-        if argparse_data.argname == "rlIsRHEL":
-            self.information += " RHEL "
-        else:
-            self.information += " Fedora "
+        pass
+        #self.importance = self.medium
+        #self.information += "Check if we'are running on"
+        #if argparse_data.argname == "rlIsRHEL":
+        #    self.information += " RHEL "
+        #else:
+        #    self.information += " Fedora "
         
-        if len(argparse_data.type):
-            self.information += self.connect_multiple_facts(argparse_data.type)
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        #if len(argparse_data.type):
+        #    self.information += self.connect_multiple_facts(argparse_data.type)
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
         
     def assert_differ(self,argparse_data):
-        self.importance = self.medium
-        self.importance = "File1 " + argparse_data.file1 + " and File2 "
-        self.importance += argparse_data.file2
-        if argparse_data.argname == "rlAssertDiffer":
-            self.importance += " must be different"
-        else:
-            self.importance += " must be identical"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
-            
+        pass
+        #self.importance = self.medium
+        ##self.importance = "File1 " + argparse_data.file1 + " and File2 "
+        #self.importance += argparse_data.file2
+        #if argparse_data.argname == "rlAssertDiffer":
+        #    self.importance += " must be different"
+        #else:
+        #    self.importance += " must be identical"
+        #self.link_information,self.importance,self.connection)
+        #self.inf_ref = documentation_information(self.information,\
+
     def assert_exits(self,argparse_data):
+        pass
         importance = self.medium
         unit = []
         pom = []
@@ -1415,28 +1432,30 @@ class documentation_translator:
         self.link_information,self.importance,self.connection)"""
             
     def assert_comparasion(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Value1 " + argparse_data.value1
-        if argparse_data.argname == "rlAssertEquals":
-            self.information += " must be equal to Value2 "
-            self.information += argparse_data.value2
-        elif argparse_data.argname == "rlAssertNotEquals":
-            self.information += " must not be equal to Value2 "
-            self.information += argparse_data.value2
-        elif argparse_data.argname == "rlAssertGreater":
-            self.information += " must be greater to Value2 "
-            self.information += argparse_data.value2
-        else:
-            self.information += " must be greater or equal to Value2 "
-            self.information += argparse_data.value2
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.medium
+        #self.information = "Value1 " + argparse_data.value1
+        #if argparse_data.argname == "rlAssertEquals":
+        #    self.information += " must be equal to Value2 "
+        #    self.information += argparse_data.value2
+        #elif argparse_data.argname == "rlAssertNotEquals":
+        #    self.information += " must not be equal to Value2 "
+        #    self.information += argparse_data.value2
+        #elif argparse_data.argname == "rlAssertGreater":
+        #    self.information += " must be greater to Value2 "
+        #    self.information += argparse_data.value2
+        #else:
+        #    self.information += " must be greater or equal to Value2 "
+        #    self.information += argparse_data.value2
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
     
     def assert0(self,argparse_data):
-        self.importance = self.medium
-        self.information = "Value " + argparse_data.value + " must be 0"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)
+        pass
+        #self.importance = self.medium
+        #self.information = "Value " + argparse_data.value + " must be 0"
+        #self.inf_ref = documentation_information(self.information,\
+        #self.link_information,self.importance,self.connection)
     
     def rlPass_or_rlFail(self,argparse_data):
         pass
@@ -1995,137 +2014,6 @@ class rlImport_information(documentation_information):
         out += self.connect_multiple_facts(self.information_units,2)
         out += "  library(ies) into the test namespace"
 
-class rlPerfTime_RunsInTime_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlPerfTime_AvgFromRuns_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlCleanup_Append_or_Prepend_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlSEBooleanxxx_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlServicexxx_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlFileRestore_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlFileBackup_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlHash_or_rlUnhash_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlCheck_or_assert_mount_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlMount_nformation(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlAssert_binary_origin_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlRpm_command_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlIsRHEL_or_rlIsFedora_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlAssert_differ_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlAssert_exists_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlAssert_comparison_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlAssert0_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlPass_or_rlFail_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-
-class rlAssert_grep_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
 
 
 class conditions_for_commands:
