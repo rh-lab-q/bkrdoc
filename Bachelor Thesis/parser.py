@@ -1074,23 +1074,22 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlFileSubmit(self,argparse_data):
-        pass
-
-        '''
         importance = self.low
-        inf_units = []
-        inf_units.append(argparse_data.path_to_file)
+        subject = []
+        subject.append(argparse_data.path_to_file)
         if not len(argparse_data.s) and not len(argparse_data.required_name):
-            inf_units.append('-')
+            subject.append('-')
             
         elif len(argparse_data.s) and not len(argparse_data.required_name):
-            inf_units.append(argparse_data.s)
+            subject.append(argparse_data.s)
             
         elif len(argparse_data.s) and len(argparse_data.required_name):
-            inf_units.append(argparse_data.s)
-            inf_units.append( argparse_data.required_name)
-        self.inf_ref = rlFileSubmit_information(inf_units, importance)
-        '''
+            subject.append(argparse_data.s)
+            subject.append( argparse_data.required_name)
+        topic_obj = topic("FILE", subject)
+        action = []
+        action.append("resolve")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
         
     def rlBundleLogs(self, argparse_data):
         pass
@@ -1706,6 +1705,17 @@ class information_PACKAGE_print(information_unit):
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(),4)
         self.information += " version"
 
+class information_FILE_resolve(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Resolves absolute path " + subjects[0]
+        if len(subjects) == 3:
+            self.information += ", replaces / for " + subjects[1]
+            self.information += " and rename file to " + subjects[2]
+        else:
+            self.information += " and replaces / for " + subjects[1]
+
 
 class get_information(object):
 
@@ -1714,6 +1724,7 @@ class get_information(object):
                 [  information_FILE_not_exists,  0,           0,                           0],  # not exists
                 [  information_FILE_contain,     0,           0,                           0],  # contain
                 [           0,                   0, information_PACKAGE_print, information_JOURNAL_print],   # print(show)
+                [  information_FILE_resolve,     0,           0,                           0],  # resolve
         ]
 
 
@@ -1740,6 +1751,8 @@ class get_information(object):
             return 2
         elif self.is_action_print(action):
             return 3
+        elif self.is_action_resolve(action):
+            return 4
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1775,21 +1788,10 @@ class get_information(object):
     def is_action_print(self, action):
         return action == "print"
 
+    def is_action_resolve(self, action):
+        return action == "resolve"
 
-class rlFileSubmit_information(documentation_information):
 
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Resolves absolute path " + self.information_units[0]
-        if len(self.information_units) == 3:
-            out += ", replaces / for " + self.information_units[1]
-            out += " and rename file to " + self.information_units[2]
-        else:
-            out += " and replaces / for " + self.information_units[1]
-        return out
 
 class rlBundleLogs_information(documentation_information):
 
