@@ -1046,31 +1046,32 @@ class documentation_translator:
 
 
     def rlJournalPrint(self, argparse_data):
-        pass
-
-        '''
         importance = self.low
-        inf_units = []
+        subject = []
+        option = []
         if argparse_data.argname == "rlJournalPrint":
             if len(argparse_data.type):
-                inf_units.append(argparse_data.type)
+                subject.append(argparse_data.type)
             else:
-                inf_units.append("xml")
+                subject.append("xml")
         else:
+            subject.append("text")
             if argparse_data.full_journal:
-                inf_units.append("pretty text")
-                inf_units.append("additional information")
-            else:
-                inf_units.append("pretty text")
-        self.inf_ref = rlJournalPrint_information(inf_units, importance)
-        '''
+                option.append("additional information")
+
+        topic_obj = topic("JOURNAL", subject)
+        action = []
+        action.append("print")
+
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
         
     def rlShowPackageVersion(self, argparse_data):
-        pass
-
-        #importance = self.low
-        #inf_units = argparse_data.package
-        #self.inf_ref = rlShowPackageVersion_information(inf_units,importance)
+        importance = self.low
+        action = []
+        action.append("print")
+        subject = argparse_data.package
+        topic_obj = topic("PACKAGE", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlFileSubmit(self,argparse_data):
         pass
@@ -1500,16 +1501,7 @@ class documentation_translator:
             action.append("not exists")
 
         self.inf_ref = documentation_information(topic_obj, action, importance)
-        """self.information = "File or directory " + argparse_data.file_directory
-        self.connection.append(argparse_data.file_directory)
-        if argparse_data.argname == "rlAssertExists":
-            self.information += " must exists"
-            self.link_information += " must exists"
-        else:
-            self.information += " must not exists"
-            self.link_information += " must not exists"
-        self.inf_ref = documentation_information(self.information,\
-        self.link_information,self.importance,self.connection)"""
+
             
     def assert_comparasion(self,argparse_data):
         pass
@@ -1551,24 +1543,6 @@ class documentation_translator:
             action.append("contain")
         else:
             action.append("not contain")
-        """self.information = "File " + argparse_data.file
-        self.connection.append(argparse_data.file)
-        if argparse_data.argname == "rlAssertGrep":
-            self.information += " must contain"
-            self.link_information = "must contain"
-        else:
-            self.information += " must not contain"
-            self.link_information = "must not contain"
-        self.information += " pattern " + argparse_data.pattern
-        self.link_information += " pattern " + argparse_data.pattern
-        """"""
-        if argparse_data.text_in:
-            self.information += " matches with insensitive option"
-        elif argparse_data.moin_in:
-            self.information += " matches with extended option"
-        elif argparse_data.out_in:
-            self.information += " matches with perl regular expressions"
-        """
         option = ""
         if argparse_data.text_in:
             option = "text_in"
@@ -1669,9 +1643,6 @@ class information_unit(object):
     def set_information(self,inf):
         pass
 
-    def print_information(self):
-        pass
-
     def connect_multiple_facts(self,facts ,max_size = 5):
         pom_inf = ""
         if len(facts) == 1:
@@ -1695,44 +1666,54 @@ class information_unit(object):
             pom_inf += "..."
         return pom_inf
 
+    def print_information(self):
+        print self.information
+
 
 class information_FILE_exists(information_unit):
-
-    information = ""
 
     def set_information(self, information_obj):
         self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
 
-    def print_information(self):
-        print self.information
+
 
 class information_FILE_not_exists(information_unit):
-
-    information = ""
 
     def set_information(self, information_obj):
         self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must not exist"
 
-    def print_information(self):
-        print self.information
 
 class information_FILE_contain(information_unit):
-
-    information = ""
 
     def set_information(self, information_obj):
         self.information = "File " + information_obj.get_topic_subject()[0]\
                            + " must contain pattern " + information_obj.get_topic_subject()[1]
 
-    def print_information(self):
-        print self.information
+
+
+class information_JOURNAL_print(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Prints the content of the journal in pretty " + information_obj.get_topic_subject()[0]
+        self.information += " format"
+        if len(information_obj.get_option()):
+            self.information += " with additional information"
+
+class information_PACKAGE_print(information_unit):
+
+    def set_information(self, information_obj):
+        self.information =  "Shows information about "
+        self.information += self.connect_multiple_facts(information_obj.get_topic_subject(),4)
+        self.information += " version"
+
 
 class get_information(object):
 
-    array = [#topic: FILE,                   PATTERN, PACKAGE# ACTIONS
-                [  information_FILE_exists,     0,      0],  # exists
-                [  information_FILE_not_exists,     0,      0],  # not exists
-                [  information_FILE_contain,     0,      0]   # contain
+    array = [#topic: FILE,                    PATTERN,      PACKAGE                  JOURNAL # ACTIONS
+                [  information_FILE_exists,      0,           0,                           0],  # exists
+                [  information_FILE_not_exists,  0,           0,                           0],  # not exists
+                [  information_FILE_contain,     0,           0,                           0],  # contain
+                [           0,                   0, information_PACKAGE_print, information_JOURNAL_print],   # print(show)
         ]
 
 
@@ -1750,7 +1731,6 @@ class get_information(object):
         return information
 
 
-
     def get_action_number(self, action):
         if self.is_action_exists(action):
             return 0
@@ -1758,17 +1738,18 @@ class get_information(object):
             return 1
         elif self.is_action_contain(action):
             return 2
-
+        elif self.is_action_print(action):
+            return 3
 
     def get_topic_number(self,topic):
-
         if self.is_topic_FILE(topic):
             return 0
         elif self.is_topic_PATTERN(topic):
             return 1
         elif self.is_topic_PACKAGE(topic):
             return 2
-
+        elif self.is_topic_JOURNAL(topic):
+            return 3
 
     def is_topic_FILE(self, topic):
         return topic == "FILE"
@@ -1779,6 +1760,9 @@ class get_information(object):
     def is_topic_PACKAGE(self, topic):
         return  topic == "PACKAGE"
 
+    def is_topic_JOURNAL(self, topic):
+        return topic == "JOURNAL"
+
     def is_action_exists(self, action):
         return action == "exists"
 
@@ -1788,71 +1772,9 @@ class get_information(object):
     def is_action_contain(self, action):
         return action == "contain"
 
-'''
-class documentation_information(object):
-    """ Class made as a output of class documentation translator """
-    
-    information_units = []
+    def is_action_print(self, action):
+        return action == "print"
 
-    cmd_name = ""
-
-    importance = ""
-    
-    def __init__(self, name):
-        self.cmd_name = name
-        self.information_units = []
-        self.importance = ""
-
-    def generate_information(self):
-        pass
-
-    def connect_multiple_facts(self,facts ,max_size = 5):
-        pom_inf = ""
-        if len(facts) == 1:
-            pom_inf = facts[0]
-        elif len(facts) == 2:
-            pom_inf = facts[0] + " and " + facts[1]
-        else:
-            i = 0
-            while(i < max_size):
-                pom_inf += facts[i]
-                if len(facts) > (i + 2) and (i + 2) < max_size:
-                    pom_inf += ", "
-                elif (i + 1) == len(facts):
-                    return pom_inf
-                elif (i + 1) == max_size:
-                    pom_inf += "..."
-                    return pom_inf
-                else:
-                    pom_inf += " and "
-                i += 1
-            pom_inf += "..."
-        return pom_inf'''
-
-class rlJournalPrint_information(documentation_information):
-    """ Class doc """
-
-    def __init__ (self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Prints content of the journal in " + self.information_units[0] + " format"
-        if len(self.information_units) > 1:
-            out += " with additional information"
-        return out
-
-class rlShowPackageVersion_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out =  "Shows information about "
-        out += self.connect_multiple_facts(self.information_units,4)
-        out += " version"
-        return out
 
 class rlFileSubmit_information(documentation_information):
 
@@ -2205,109 +2127,109 @@ class conditions_for_commands:
     def is_rlPerfTime_AvgFromRuns(self, command):
         return command == "rlPerfTime_AvgFromRuns"
         
-    def is_rlCleanup_Apend_or_Prepend(self,command):
+    def is_rlCleanup_Apend_or_Prepend(self, command):
         return command == "rlCleanupAppend" or command == "rlCleanupPrepend"
         
-    def is_SEBooleanxxx(self,command):
+    def is_SEBooleanxxx(self, command):
         pom_list = ["rlSEBooleanOn", "rlSEBooleanOff", "rlSEBooleanRestore"]
         return command in pom_list
         
-    def is_rlservicexxx(self,command):
+    def is_rlservicexxx(self, command):
         pom_list = ["rlServiceStart", "rlServiceStop", "rlServiceRestore"]
         return command in pom_list
         
-    def is_rlFileBackup(self,command):
+    def is_rlFileBackup(self, command):
         return command == "rlFileBackup"
         
-    def is_rlFileRestore(self,command):
+    def is_rlFileRestore(self, command):
         return command == "rlFileRestore"
         
-    def is_rlHash_or_rlUnhash(self,command):
+    def is_rlHash_or_rlUnhash(self, command):
         return command == "rlHash" or command == "rlUnhash"
         
-    def is_check_or_assert_mount(self,command):
+    def is_check_or_assert_mount(self, command):
         return command == "rlCheckMount" or command == "rlAssertMount"
         
-    def is_get_or_check_makefile_requires(self,command):
+    def is_get_or_check_makefile_requires(self, command):
         return command == "rlCheckMakefileRequires" or command == \
         "rlGetMakefileRequires"
         
-    def is_rlmount(self,command):
+    def is_rlmount(self, command):
         return command == "rlMount"    
     
-    def is_assert_binary_origin(self,command):
+    def is_assert_binary_origin(self, command):
         return command == "rlAssertBinaryOrigin"
         
-    def is_rlIsRHEL_or_rlISFedora(self,command):
+    def is_rlIsRHEL_or_rlISFedora(self, command):
         return command == "rlIsRHEL" or command == "rlIsFedora"
         
-    def is_assert_differ(self,command):
+    def is_assert_differ(self, command):
         return command == "rlAssertDiffer" or command == "rlAssertNotDiffer"
         
-    def is_assert_exists(self,command):
+    def is_assert_exists(self, command):
         return command == "rlAssertExists" or command == "rlAssertNotExists"
     
-    def is_assert_comparasion(self,command):
+    def is_assert_comparasion(self, command):
         pom = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",\
         "rlAssertGreaterOrEqual"]
         return command in pom
         
-    def is_rlPass_or_rlFail(self,command):
+    def is_rlPass_or_rlFail(self, command):
         return command == "rlPass" or command == "rlFail"
         
-    def is_assert_grep(self,command):
+    def is_assert_grep(self, command):
         return command == "rlAssertGrep" or command == "rlAssertNotGrep"
         
-    def is_assert0(self,command):
+    def is_assert0(self, command):
         return command == "rlAssert0"
     
-    def is_assert_command(self,line):
+    def is_assert_command(self, line):
         return line[0:len("rlAssert")] == "rlAssert"
         
-    def is_Rpm_command(self,command):
+    def is_Rpm_command(self, command):
         return command[-3:] == "Rpm"
         
-    def is_rlrun_command(self,line):
+    def is_rlrun_command(self, line):
         return line[0:len("rlRun")] == "rlRun"
         
-    def is_rlJournalPrint(self,command):
+    def is_rlJournalPrint(self, command):
         pom = ["rlJournalPrint", "rlJournalPrintText"]
         return command in pom
         
-    def is_rlGetPhase_or_Test_State(self,command):
+    def is_rlGetPhase_or_Test_State(self, command):
         pom = ["rlGetPhaseState", "rlGetTestState"]
         return command in pom
     
-    def is_rlLog(self,command):
+    def is_rlLog(self, command):
         pom = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",\
          "rlLogDebug", "rlLog"]
         return command in pom
         
-    def is_rlLogMetric(self,command):
+    def is_rlLogMetric(self, command):
         pom = ["rlLogMetricLow", "rlLogMetricHigh"]
         return command in pom
         
-    def is_rlDie(self,command):
+    def is_rlDie(self, command):
         return command[0:len("rlDie")] == "rlDie"
         
-    def is_rlBundleLogs(self,command):
+    def is_rlBundleLogs(self, command):
         return command[0:len("rlBundleLogs")] == "rlBundleLogs"
 
-    def is_rlFileSubmit(self,command):
+    def is_rlFileSubmit(self, command):
         return command[0:len("rlFileSubmit")] == "rlFileSubmit"
         
-    def is_rlShowPackageVersion (self,command):
+    def is_rlShowPackageVersion (self, command):
         return command[0:len("rlShowPackageVersion")] == "rlShowPackageVersion"
         
-    def is_rlGet_x_Arch(self,command):
+    def is_rlGet_x_Arch(self, command):
         pom = ["rlGetArch","rlGetPrimaryArch","rlGetSecondaryArch"]
         return command in pom
         
-    def is_rlGetDistro(self,command):
+    def is_rlGetDistro(self, command):
         pom = ["rlGetDistroRelease","rlGetDistroVariant"]
         return command in pom
 
-    def is_rlShowRunningKernel(self,command):
+    def is_rlShowRunningKernel(self, command):
         return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
 
             
