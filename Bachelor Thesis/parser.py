@@ -117,6 +117,11 @@ class parser(object):
         for member in self.phases:
             if not self.is_phase_outside(member):
                 member.translate_data(self)
+
+    def generate_documentation(self):
+        for member in self.phases:
+            if not self.is_phase_outside(member):
+                member.generate_documentation()
         
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
@@ -330,6 +335,14 @@ class phase_clean:
             if data.argname != "UNKNOWN":
                 self.documentation_information.append(data_translator.translate_data(data))
 
+    def generate_documentation(self):
+        print self.phase_name
+        information_translator = get_information()
+        for information in self.documentation_information:
+            if information:
+               print  information_translator.get_information_from_facts(information)
+        print ""
+
 
 class phase_test:
     """Class for store information in test phase"""
@@ -363,6 +376,14 @@ class phase_test:
             if data.argname != "UNKNOWN":
                 self.documentation_information.append(data_translator.translate_data(data))
 
+    def generate_documentation(self):
+        print self.phase_name
+        information_translator = get_information()
+        for information in self.documentation_information:
+            if information:
+               print  information_translator.get_information_from_facts(information)
+        print ""
+
 
 class phase_setup:
     """Class for store information in setup phase"""
@@ -395,6 +416,14 @@ class phase_setup:
         for data in self.statement_classes:
             if data.argname != "UNKNOWN":
                 self.documentation_information.append(data_translator.translate_data(data))
+
+    def generate_documentation(self):
+        print self.phase_name
+        information_translator = get_information()
+        for information in self.documentation_information:
+            if information:
+               print  information_translator.get_information_from_facts(information)
+        print ""
 
 
 class statement_automata:
@@ -1014,6 +1043,9 @@ class documentation_translator:
 
 
     def rlJournalPrint(self, argparse_data):
+        pass
+
+        '''
         importance = self.low
         inf_units = []
         if argparse_data.argname == "rlJournalPrint":
@@ -1028,13 +1060,19 @@ class documentation_translator:
             else:
                 inf_units.append("pretty text")
         self.inf_ref = rlJournalPrint_information(inf_units, importance)
+        '''
         
     def rlShowPackageVersion(self, argparse_data):
-        importance = self.low
-        inf_units = argparse_data.package
-        self.inf_ref = rlShowPackageVersion_information(inf_units,importance)
+        pass
+
+        #importance = self.low
+        #inf_units = argparse_data.package
+        #self.inf_ref = rlShowPackageVersion_information(inf_units,importance)
         
     def rlFileSubmit(self,argparse_data):
+        pass
+
+        '''
         importance = self.low
         inf_units = []
         inf_units.append(argparse_data.path_to_file)
@@ -1048,39 +1086,54 @@ class documentation_translator:
             inf_units.append(argparse_data.s)
             inf_units.append( argparse_data.required_name)
         self.inf_ref = rlFileSubmit_information(inf_units, importance)
+        '''
         
     def rlBundleLogs(self, argparse_data):
-        importance = self.low
-        inf_units = argparse_data.file
-        self.inf_ref = rlBundleLogs_information(inf_units, importance)
+        pass
+
+        #importance = self.low
+        #inf_units = argparse_data.file
+        #self.inf_ref = rlBundleLogs_information(inf_units, importance)
         
     def rlDie(self, argparse_data):
+        pass
+        '''
         importance = self.low
         inf_units = []
         inf_units.append(argparse_data.message)
         inf_units += argparse_data.file
         self.inf_ref = rlDie_information(inf_units, importance)
-        
+        '''
+
     def rlLog(self,argparse_data):
+        pass
+        '''
         importance = self.low
         inf_units = []
         inf_units.append(argparse_data.message)
         if argparse_data.logfile:
             inf_units.append(argparse_data.logfile)
         self.inf_ref = rlLog_information(inf_units, importance)
+        '''
         
     def rlShowRunningKernel(self,argparse_data):
-        importance = self.low
-        self.inf_ref = rlShowRunningKernel_information("", importance)
+        pass
+        #importance = self.low
+        #self.inf_ref = rlShowRunningKernel_information("", importance)
         
     def rlGet_or_rlCheck_MakefileRequeries(self,argparse_data):
+        pass
+        '''
         importance = self.low
         if argparse_data.argname == "rlGetMakefileRequires":
             self.inf_ref = rlGetMakefileRequires_information("", importance)
         else:
             self.inf_ref = rlCheckMakefileRequires_information("", importance)
+            '''
         
     def rlGet_command(self, argparse_data):
+        pass
+        '''
         importance = self.low
         if conditions_for_commands().is_rlGetPhase_or_Test_State(argparse_data.argname):
             if argparse_data.argname == "rlGetTestState":
@@ -1099,8 +1152,11 @@ class documentation_translator:
         
         else:
             self.inf_ref = rlGetSecondaryArch_information([""], importance)
+        '''
         
     def rlWatchdog(self,argparse_data):
+        pass
+        '''
         importance = self.medium
         inf_unit = []
         inf_unit.append(argparse_data.command)
@@ -1109,15 +1165,21 @@ class documentation_translator:
             inf_unit.append(argparse_data.signal)
         
         self.inf_ref = rlWatchdog_information(inf_unit, importance)
+        '''
             
     def rlReport(self,argparse_data):
+        pass
+        '''
         importance = self.medium
         inf_units = []
         inf_units.append(argparse_data.name)
         inf_units.append(argparse_data.result)
         self.inf_ref = rlReport_information(inf_units, importance)
+        '''
         
     def rlRun(self,argparse_data):
+        pass
+        '''
         importance = self.medium
         inf_units = []
         inf_units.append(argparse_data.command)
@@ -1136,8 +1198,11 @@ class documentation_translator:
             option += " and stdout and stderr will be stored"
         
         self.inf_ref = rlRun_information(inf_units, importance, option)
+        '''
     
     def rlVirtualX_xxx(self, argparse_data):
+        pass
+        '''
         importance = self.medium
         inf_units = []
         inf_units.append(argparse_data.name)
@@ -1147,17 +1212,23 @@ class documentation_translator:
             self.inf_ref = rlVirtualXStart_information(inf_units, importance)
         else:
             self.inf_ref = rlVirtualXGetDisplay_information(inf_units, importance)
+        '''
         
     def rlWaitFor(self,argparse_data):
+        pass
+        '''
         importance = self.low
         if len(argparse_data.n):
             inf_units = argparse_data.n
             self.inf_ref = rlWaitFor_information(inf_units, importance)
         else:
             self.inf_ref = rlWaitFor_information([""], importance)
+        '''
 
         
     def rlWaitForSocket(self,argparse_data):
+        pass
+        '''
         importance = self.low
         inf_units = []
         inf_units.append(argparse_data.port_path)
@@ -1168,16 +1239,22 @@ class documentation_translator:
         elif argparse_data.p:
             pid = argparse_data.p
         self.inf_ref = rlWaitForSocket_information(inf_units, importance, close, pid)
+        '''
         
     def rlWaitForFile(self,argparse_data):
+        pass
+        '''
         importance = self.low
         inf_units = []
         inf_units.append(argparse_data.path)
         if argparse_data.p:
             inf_units.append(argparse_data.p)
         self.inf_ref = rlWaitForFile_information(inf_units, importance)
+        '''
         
     def rlWaitForCmd(self,argparse_data):
+        pass
+        '''
         importance = self.low
         inf_units = []
         inf_units.append(argparse_data.command)
@@ -1185,11 +1262,14 @@ class documentation_translator:
         if argparse_data.p:
             inf_units.append(argparse_data.p)
         self.inf_ref = rlWaitForCmd_information(inf_units, importance)
-            
+        '''    
     def rlImport(self,argparse_data):
+        pass
+        '''
         importance = self.medium
         inf_units = argparse_data.LIBRARY
         self.inf_ref = rlImport_information(inf_units, importance)
+        '''
             
     def rlPerfTime_RunsInTime(self,argparse_data):
         pass
@@ -1406,20 +1486,17 @@ class documentation_translator:
         #self.inf_ref = documentation_information(self.information,\
 
     def assert_exits(self,argparse_data):
-        pass
         importance = self.medium
-        unit = []
-        pom = []
-        pom.append("FILE")
-        pom.append(argparse_data.file_directory)
-        unit.append(pom)
+        subject = []
+        subject.append(argparse_data.file_directory)
+        topic_obj = topic("FILE", subject)
         action = []
         if argparse_data.argname == "rlAssertExists":
             action.append("exists")
         else:
             action.append("not exists")
 
-        self.inf_ref = documentation_information_sec(unit, action, importance)
+        self.inf_ref = documentation_information_sec(topic_obj, action, importance)
         """self.information = "File or directory " + argparse_data.file_directory
         self.connection.append(argparse_data.file_directory)
         if argparse_data.argname == "rlAssertExists":
@@ -1462,17 +1539,10 @@ class documentation_translator:
     
     def assert_grep(self,argparse_data):        
         importance = self.medium
-        unit = []
-        pom = []
-        pom.append("FILE")
-        pom.append(argparse_data.file)
-        pom.append(argparse_data.pattern)
-        unit.append(pom)
-        pom = []
-        pom.append("PATTERN")
-        pom.append(argparse_data.pattern)
-        pom.append(argparse_data.file)
-        unit.append(pom)
+        subject = []
+        subject.append(argparse_data.file)
+        subject.append(argparse_data.pattern)
+        topic_obj = topic("FILE", subject)
         action = []
         if argparse_data.argname == "rlAssertGrep":
             action.append("contain")
@@ -1504,7 +1574,7 @@ class documentation_translator:
         elif argparse_data.out_in:
             option = "out_in"
 
-        self.inf_ref = documentation_information_sec(unit, action, importance, option)
+        self.inf_ref = documentation_information_sec(topic_obj, action, importance, option)
 
     """
     def connect_multiple_facts(self,facts ,max_size = 5):
@@ -1537,9 +1607,26 @@ array = [#topic: FILE, PATTERN, PACKAGE# ACTIONS
         ]"""
 
 
+class topic(object):
+
+    topic = ""
+
+    subject = []
+
+    def __init__(self, topic, subject):
+        self.topic = topic
+        self.subject = subject
+
+    def get_topic(self):
+        return self.topic
+
+    def get_subject(self):
+        return self.subject
+
+
 class documentation_information_sec(object):
 
-    topic = []
+    topic = ""
 
     options = []
 
@@ -1553,11 +1640,23 @@ class documentation_information_sec(object):
         self.action = action
         self.importance = importance
 
-    def get_information_line(self):
-        #TODO return to something !
-        generate_information().get_information_from_facts(self.topic, self.action, self.options)
+    def get_topic(self):
+        return self.topic.get_topic()
 
-class generate_information(object):
+    def get_topic_subject(self):
+        return self.topic.get_subject()
+
+    def get_action(self):
+        return self.action
+
+    def get_importance(self):
+        return self.importance
+
+    def get_option(self):
+        return  self.options
+
+
+class get_information(object):
 
     array = [#topic: FILE, PATTERN, PACKAGE# ACTIONS
                 [  1,     0,      0],  # exists
@@ -1566,16 +1665,17 @@ class generate_information(object):
         ]
 
 
-    def get_information_from_facts(self, topics, actions, options):
+    def get_information_from_facts(self, information_obj):
         information = ""
-        for topic in topics:
-            for action in actions:
-                column = self.get_topic_number(topic[0])
-                row = self.get_action_number(action)
-                rule = self.array[row][column]
-                if rule:
-                    information = information_unit().get_information(rule,topic, options)
-                    print information
+        topic = information_obj.get_topic()
+        for action in information_obj.get_action():
+            column = self.get_topic_number(topic)
+            row = self.get_action_number(action)
+            rule = self.array[row][column]
+            if rule:
+                information = information_unit().get_information(rule, information_obj)
+
+        return information
 
 
 
@@ -1619,15 +1719,15 @@ class generate_information(object):
 
 class information_unit:
 
-    def get_information(self, rule, unit, options):
+    def get_information(self, rule, information_obj):
         if self.is_rule_one(rule):
-            return "File or directory " + unit[1] + " must exist"
+            return "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
 
         elif self.is_rule_two(rule):
-            return "File or directory " + unit[1] + " must not exist"
+            return "File or directory " + information_obj.get_topic_subject()[0] + " must not exist"
 
         elif self.is_rule_three(rule):
-            return "File " + unit[1] + " must contain pattern " + unit[2]
+            return "File " + information_obj.get_topic_subject()[0] + " must contain pattern " + information_obj.get_topic_subject()[1]
 
     def is_rule_one(self, rule):
         return rule == 1
@@ -2167,4 +2267,4 @@ for arg in sys.argv[1:len(sys.argv)]:
     #pom.print_statement()
     pom.get_doc_data()
     pom.get_documentation_information()
-    
+    pom.generate_documentation()
