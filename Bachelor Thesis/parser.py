@@ -1089,14 +1089,15 @@ class documentation_translator:
         topic_obj = topic("FILE", subject)
         action = []
         action.append("resolve")
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlBundleLogs(self, argparse_data):
-        pass
-
-        #importance = self.low
-        #inf_units = argparse_data.file
-        #self.inf_ref = rlBundleLogs_information(inf_units, importance)
+        importance = self.low
+        subject = argparse_data.file
+        topic_obj = topic("FILE", subject)
+        action = []
+        action.append("create")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlDie(self, argparse_data):
         pass
@@ -1549,38 +1550,7 @@ class documentation_translator:
             option = "moin_in"
         elif argparse_data.out_in:
             option = "out_in"
-
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
-
-    """
-    def connect_multiple_facts(self,facts ,max_size = 5):
-        pom_inf = ""
-        if len(facts) == 1:
-            pom_inf = facts[0]
-        elif len(facts) == 2:
-            pom_inf = facts[0] + " and " + facts[1]
-        else:
-            i = 0
-            while(i < max_size):
-                pom_inf += facts[i]
-                if len(facts) > (i + 2) and (i + 2) < max_size:
-                    pom_inf += ", "
-                elif (i + 1) == len(facts):
-                    return pom_inf
-                elif (i + 1) == max_size:
-                    pom_inf += "..."
-                    return pom_inf
-                else:
-                    pom_inf += " and "
-                i += 1
-            pom_inf += "..."
-        return pom_inf"""
-"""
-array = [#topic: FILE, PATTERN, PACKAGE# ACTIONS
-                [  1,     0,      0],  # exists
-                [  2,     0,      0],  # not exists
-                [  3,     0,      0]   # contain
-        ]"""
 
 
 class topic(object):
@@ -1675,7 +1645,6 @@ class information_FILE_exists(information_unit):
         self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
 
 
-
 class information_FILE_not_exists(information_unit):
 
     def set_information(self, information_obj):
@@ -1689,6 +1658,12 @@ class information_FILE_contain(information_unit):
                            + " must contain pattern " + information_obj.get_topic_subject()[1]
 
 
+class information_FILE_not_contain(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "File " + information_obj.get_topic_subject()[0]\
+                           + " mustn't contain pattern " + information_obj.get_topic_subject()[1]
+
 
 class information_JOURNAL_print(information_unit):
 
@@ -1697,6 +1672,7 @@ class information_JOURNAL_print(information_unit):
         self.information += " format"
         if len(information_obj.get_option()):
             self.information += " with additional information"
+
 
 class information_PACKAGE_print(information_unit):
 
@@ -1716,6 +1692,12 @@ class information_FILE_resolve(information_unit):
         else:
             self.information += " and replaces / for " + subjects[1]
 
+class information_FILE_create(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Creates a tarball of file(s) " + self.connect_multiple_facts(information_obj.get_topic_subject,3)
+        self.information += " and attached it/them to test result"
+
 
 class get_information(object):
 
@@ -1723,8 +1705,10 @@ class get_information(object):
                 [  information_FILE_exists,      0,           0,                           0],  # exists
                 [  information_FILE_not_exists,  0,           0,                           0],  # not exists
                 [  information_FILE_contain,     0,           0,                           0],  # contain
+                [  information_FILE_not_contain, 0,           0,                           0],  # mot contain
                 [           0,                   0, information_PACKAGE_print, information_JOURNAL_print],   # print(show)
                 [  information_FILE_resolve,     0,           0,                           0],  # resolve
+                [  information_FILE_create,      0,           0,                           0],  # create
         ]
 
 
@@ -1749,10 +1733,14 @@ class get_information(object):
             return 1
         elif self.is_action_contain(action):
             return 2
-        elif self.is_action_print(action):
+        elif self.is_action_not_contain(action):
             return 3
-        elif self.is_action_resolve(action):
+        elif self.is_action_print(action):
             return 4
+        elif self.is_action_resolve(action):
+            return 5
+        elif self.is_action_create(action):
+            return 6
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1785,24 +1773,19 @@ class get_information(object):
     def is_action_contain(self, action):
         return action == "contain"
 
+    def is_action_not_contain(self, action):
+        return action == "not contain"
+
     def is_action_print(self, action):
         return action == "print"
 
     def is_action_resolve(self, action):
         return action == "resolve"
 
+    def is_action_create(self, action):
+        return action == "create"
 
 
-class rlBundleLogs_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Creates a tarball of file(s) " + self.connect_multiple_facts(self.information_units,3)
-        out += " and attached it/them to test result"
-        return out
 
 class rlDie_information(documentation_information):
 
