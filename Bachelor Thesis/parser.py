@@ -340,7 +340,8 @@ class phase_clean:
         information_translator = get_information()
         for information in self.documentation_information:
             if information:
-               print  information_translator.get_information_from_facts(information)
+                inf =  information_translator.get_information_from_facts(information)
+                inf.print_information()
         print ""
 
 
@@ -381,7 +382,8 @@ class phase_test:
         information_translator = get_information()
         for information in self.documentation_information:
             if information:
-               print  information_translator.get_information_from_facts(information)
+                inf =  information_translator.get_information_from_facts(information)
+                inf.print_information()
         print ""
 
 
@@ -422,7 +424,8 @@ class phase_setup:
         information_translator = get_information()
         for information in self.documentation_information:
             if information:
-               print  information_translator.get_information_from_facts(information)
+               inf =  information_translator.get_information_from_facts(information)
+               inf.print_information()
         print ""
 
 
@@ -1496,7 +1499,7 @@ class documentation_translator:
         else:
             action.append("not exists")
 
-        self.inf_ref = documentation_information_sec(topic_obj, action, importance)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         """self.information = "File or directory " + argparse_data.file_directory
         self.connection.append(argparse_data.file_directory)
         if argparse_data.argname == "rlAssertExists":
@@ -1574,7 +1577,7 @@ class documentation_translator:
         elif argparse_data.out_in:
             option = "out_in"
 
-        self.inf_ref = documentation_information_sec(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
 
     """
     def connect_multiple_facts(self,facts ,max_size = 5):
@@ -1624,7 +1627,7 @@ class topic(object):
         return self.subject
 
 
-class documentation_information_sec(object):
+class documentation_information(object):
 
     topic = ""
 
@@ -1656,12 +1659,80 @@ class documentation_information_sec(object):
         return  self.options
 
 
+class information_unit(object):
+
+    information = ""
+
+    def __init__(self):
+        self.information = ""
+
+    def set_information(self,inf):
+        pass
+
+    def print_information(self):
+        pass
+
+    def connect_multiple_facts(self,facts ,max_size = 5):
+        pom_inf = ""
+        if len(facts) == 1:
+            pom_inf = facts[0]
+        elif len(facts) == 2:
+            pom_inf = facts[0] + " and " + facts[1]
+        else:
+            i = 0
+            while(i < max_size):
+                pom_inf += facts[i]
+                if len(facts) > (i + 2) and (i + 2) < max_size:
+                    pom_inf += ", "
+                elif (i + 1) == len(facts):
+                    return pom_inf
+                elif (i + 1) == max_size:
+                    pom_inf += "..."
+                    return pom_inf
+                else:
+                    pom_inf += " and "
+                i += 1
+            pom_inf += "..."
+        return pom_inf
+
+
+class information_FILE_exists(information_unit):
+
+    information = ""
+
+    def set_information(self, information_obj):
+        self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
+
+    def print_information(self):
+        print self.information
+
+class information_FILE_not_exists(information_unit):
+
+    information = ""
+
+    def set_information(self, information_obj):
+        self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must not exist"
+
+    def print_information(self):
+        print self.information
+
+class information_FILE_contain(information_unit):
+
+    information = ""
+
+    def set_information(self, information_obj):
+        self.information = "File " + information_obj.get_topic_subject()[0]\
+                           + " must contain pattern " + information_obj.get_topic_subject()[1]
+
+    def print_information(self):
+        print self.information
+
 class get_information(object):
 
-    array = [#topic: FILE, PATTERN, PACKAGE# ACTIONS
-                [  1,     0,      0],  # exists
-                [  2,     0,      0],  # not exists
-                [  3,     0,      0]   # contain
+    array = [#topic: FILE,                   PATTERN, PACKAGE# ACTIONS
+                [  information_FILE_exists,     0,      0],  # exists
+                [  information_FILE_not_exists,     0,      0],  # not exists
+                [  information_FILE_contain,     0,      0]   # contain
         ]
 
 
@@ -1671,9 +1742,10 @@ class get_information(object):
         for action in information_obj.get_action():
             column = self.get_topic_number(topic)
             row = self.get_action_number(action)
-            rule = self.array[row][column]
-            if rule:
-                information = information_unit().get_information(rule, information_obj)
+            information_class = self.array[row][column]
+            if information_class:
+                information = information_class()
+                information.set_information(information_obj)
 
         return information
 
@@ -1716,29 +1788,7 @@ class get_information(object):
     def is_action_contain(self, action):
         return action == "contain"
 
-
-class information_unit:
-
-    def get_information(self, rule, information_obj):
-        if self.is_rule_one(rule):
-            return "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
-
-        elif self.is_rule_two(rule):
-            return "File or directory " + information_obj.get_topic_subject()[0] + " must not exist"
-
-        elif self.is_rule_three(rule):
-            return "File " + information_obj.get_topic_subject()[0] + " must contain pattern " + information_obj.get_topic_subject()[1]
-
-    def is_rule_one(self, rule):
-        return rule == 1
-
-    def is_rule_two(self, rule):
-        return rule == 2
-
-    def is_rule_three(self, rule):
-        return rule == 3
-
-
+'''
 class documentation_information(object):
     """ Class made as a output of class documentation translator """
     
@@ -1777,7 +1827,7 @@ class documentation_information(object):
                     pom_inf += " and "
                 i += 1
             pom_inf += "..."
-        return pom_inf
+        return pom_inf'''
 
 class rlJournalPrint_information(documentation_information):
     """ Class doc """
