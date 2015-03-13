@@ -1100,25 +1100,26 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlDie(self, argparse_data):
-        pass
-        '''
         importance = self.low
-        inf_units = []
-        inf_units.append(argparse_data.message)
-        inf_units += argparse_data.file
-        self.inf_ref = rlDie_information(inf_units, importance)
-        '''
+        subject = []
+        subject.append(argparse_data.message)
+        subject += argparse_data.file
+        topic_obj = topic("MESSAGE", subject)
+        action = []
+        action.append("create")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
 
     def rlLog(self,argparse_data):
-        pass
-        '''
         importance = self.low
-        inf_units = []
-        inf_units.append(argparse_data.message)
+        subject = []
+        subject.append(argparse_data.message)
+        topic_obj = topic("MESSAGE", subject)
+        action = []
+        action.append("create")
+        option = []
         if argparse_data.logfile:
-            inf_units.append(argparse_data.logfile)
-        self.inf_ref = rlLog_information(inf_units, importance)
-        '''
+            option.append(argparse_data.logfile)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
         
     def rlShowRunningKernel(self,argparse_data):
         pass
@@ -1698,17 +1699,33 @@ class information_FILE_create(information_unit):
         self.information = "Creates a tarball of file(s) " + self.connect_multiple_facts(information_obj.get_topic_subject,3)
         self.information += " and attached it/them to test result"
 
+class information_MESSAGE_create(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Message \"" + subjects[0]
+        if len(subjects) > 1:
+            self.information += "\" will be created in to log and file(s) "
+            self.information += self.connect_multiple_facts(subjects[1:],3)
+            self.information += "\" will be uploaded"
+        else:
+            if len(information_obj.get_option()):
+                self.information += "\" will be created in to logfile "
+                self.information += self.information_obj.get_option()[0]
+            else:
+                self.information += "\" will be created in to log"
+
 
 class get_information(object):
 
-    array = [#topic: FILE,                    PATTERN,      PACKAGE                  JOURNAL # ACTIONS
-                [  information_FILE_exists,      0,           0,                           0],  # exists
-                [  information_FILE_not_exists,  0,           0,                           0],  # not exists
-                [  information_FILE_contain,     0,           0,                           0],  # contain
-                [  information_FILE_not_contain, 0,           0,                           0],  # mot contain
-                [           0,                   0, information_PACKAGE_print, information_JOURNAL_print],   # print(show)
-                [  information_FILE_resolve,     0,           0,                           0],  # resolve
-                [  information_FILE_create,      0,           0,                           0],  # create
+    array = [#topic: FILE,                    PATTERN,      PACKAGE                  JOURNAL            MESSAGE # ACTIONS
+                [  information_FILE_exists,      0,           0,                           0,             0],  # exists
+                [  information_FILE_not_exists,  0,           0,                           0,             0],  # not exists
+                [  information_FILE_contain,     0,           0,                           0,             0],  # contain
+                [  information_FILE_not_contain, 0,           0,                           0,             0],  # mot contain
+                [           0,                   0, information_PACKAGE_print, information_JOURNAL_print, 0],   # print(show)
+                [  information_FILE_resolve,     0,           0,                           0,             0],  # resolve
+                [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create],  # create
         ]
 
 
@@ -1751,6 +1768,8 @@ class get_information(object):
             return 2
         elif self.is_topic_JOURNAL(topic):
             return 3
+        elif self.is_topic_MESSAGE(topic):
+            return 4
 
     def is_topic_FILE(self, topic):
         return topic == "FILE"
@@ -1763,6 +1782,9 @@ class get_information(object):
 
     def is_topic_JOURNAL(self, topic):
         return topic == "JOURNAL"
+
+    def is_topic_MESSAGE(self, topic):
+        return topic == "MESSAGE"
 
     def is_action_exists(self, action):
         return action == "exists"
@@ -1786,38 +1808,6 @@ class get_information(object):
         return action == "create"
 
 
-
-class rlDie_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Message " + self.information_units[0]
-        if len(self.information_units) > 1:
-            out += " will be created in to log and file(s) "
-            out += self.connect_multiple_facts(self.information_units[1:],3)
-            out += " will be uploaded"
-        else:
-            out += " will be created in to log"
-        return out
-
-
-class rlLog_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Message " + self.information_units[0]
-        if len(self.information_units) == 2:
-            out += " will be created in to logfile "
-            out += self.information_units[1]
-        else:
-            out += " will be created in to log"
-        return out
 
 class rlShowRunningKernel_information(documentation_information):
 
