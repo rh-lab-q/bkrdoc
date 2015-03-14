@@ -1309,18 +1309,15 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def rlCleanup_Apend_or_Prepend(self, argparse_data):
-        pass
-        #self.importance = self.medium
-        #if argparse_data.argname == "rlCleanupAppend":
-        #    self.information = "Appends string: " + argparse_data.string
-        #    self.information += " to the cleanup buffer"
-        #    self.information += " and recreates the cleanup script"
-        #else:
-        #    self.information = "Prepends string: " + argparse_data.string
-        #    self.information += " to the cleanup buffer"
-        #    self.information += " and recreates the cleanup script"
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.medium
+        subject = []
+        if argparse_data.argname == "rlCleanupAppend":
+            subject.append("append")
+        subject.append(argparse_data.string)
+        topic_obj = topic("PATTERN", subject)
+        action = []
+        action.append("create")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def SEBooleanxxx(self,argparse_data):
         pass
@@ -1906,24 +1903,37 @@ class information_COMMAND_measures(information_unit):
             self.information += subjects[0]
 
 
+class information_PATTERN_create(information_unit):
+
+    def set_information(self, information_obj):
+        if information_obj.get_topic_subject()[0] == "append":
+            self.information = "Appends string: " + information_obj.get_topic_subject()[1]
+            self.information += " to the cleanup buffer"
+            self.information += " and recreates the cleanup script"
+        else:
+            self.information = "Prepends string: " + information_obj.get_topic_subject()[0]
+            self.information += " to the cleanup buffer"
+            self.information += " and recreates the cleanup script"
+
+
 class get_information(object):
 
-    array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE        COMMAND                SERVER    # ACTIONS
-                [  information_FILE_exists,      0,           0,                           0,             0,              0,                   0],  # exists
-                [  information_FILE_not_exists,  0,           0,                           0,             0,              0,                   0],  # not exists
-                [  information_FILE_contain,     0,           0,                           0,             0,              0,                   0],  # contain
-                [  information_FILE_not_contain, 0,           0,                           0,             0,              0,                   0],  # mot contain
-                [  information_FILE_print,       0, information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0],  # print(show)
-                [  information_FILE_resolve,     0,           0,                           0,             0,              0,                   0],  # resolve
-                [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create, 0,                   0],  # create
-                [  information_FILE_check,       0,           0,                           0,             0,              0,                   0],  # check
-                [         0,                     0,           0,              information_JOURNAL_return, 0,              0,        information_SERVER_return],  # return
-                [         0,                     0,           0,                           0,             0, information_COMMAND_run, information_SERVER_run],  # run
-                [         0,                     0,           0,              information_JOURNAL_report, 0,              0,                   0],  # report
-                [         0,                     0,           0,                           0,             0,              0,        information_SERVER_kill],  # kill
-                [  information_FILE_wait,        0,           0,                           0,             0, information_COMMAND_wait,         0],  # wait
-                [         0,                     0, information_PACKAGE_import,            0,             0,              0,                   0],  # import
-                [         0,                     0,           0,                           0,             0, information_COMMAND_measures,     0],  # measures
+    array = [#topic: FILE,                PATTERN(STRING),               PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER    # ACTIONS
+                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0],  # exists
+                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0],  # not exists
+                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0],  # contain
+                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0],  # mot contain
+                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0],  # print(show)
+                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0],  # resolve
+                [  information_FILE_create, information_PATTERN_create,     0,                           0, information_MESSAGE_create, 0,                   0],  # create
+                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0],  # check
+                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return],  # return
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run],  # run
+                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0],  # report
+                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill],  # kill
+                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0],  # wait
+                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0],  # import
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0],  # measures
         ]
 
 
