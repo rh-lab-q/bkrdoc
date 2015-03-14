@@ -1233,43 +1233,52 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
 
         
-    def rlWaitForSocket(self,argparse_data):
-        pass
-        '''
+    def rlWaitForSocket(self, argparse_data):
         importance = self.low
-        inf_units = []
-        inf_units.append(argparse_data.port_path)
-        close = False
-        pid = ""
+        subject = []
+        subject.append(argparse_data.port_path)
+        option = []
         if argparse_data.close:
-            close = True
+            option.append("close")
         elif argparse_data.p:
-            pid = argparse_data.p
-        self.inf_ref = rlWaitForSocket_information(inf_units, importance, close, pid)
-        '''
+            option.append("p")
+
+        topic_obj = topic("FILE", subject)
+        action = []
+        action.append("wait")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
         
-    def rlWaitForFile(self,argparse_data):
-        pass
-        '''
+    def rlWaitForFile(self, argparse_data):
         importance = self.low
-        inf_units = []
-        inf_units.append(argparse_data.path)
+        subject = []
+        subject.append("file")
+        subject.append(argparse_data.path)
+        option = []
         if argparse_data.p:
-            inf_units.append(argparse_data.p)
-        self.inf_ref = rlWaitForFile_information(inf_units, importance)
-        '''
+            option.append(argparse_data.p)
+        topic_obj = topic("FILE", subject)
+        action = []
+        action.append("wait")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
         
-    def rlWaitForCmd(self,argparse_data):
-        pass
-        '''
+    def rlWaitForCmd(self, argparse_data):
         importance = self.low
-        inf_units = []
-        inf_units.append(argparse_data.command)
-        inf_units.append(argparse_data.r)
+        subject = []
+        subject.append("cmd")
+        subject.append(argparse_data.command)
+        option = []
+        if argparse_data.r:
+            option.append(argparse_data.r)
+
         if argparse_data.p:
-            inf_units.append(argparse_data.p)
-        self.inf_ref = rlWaitForCmd_information(inf_units, importance)
-        '''    
+            option.append(argparse_data.p)
+
+        topic_obj = topic("COMMAND", subject)
+        action = []
+        action.append("wait")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
     def rlImport(self,argparse_data):
         pass
         '''
@@ -1822,11 +1831,53 @@ class information_COMMAND_wait(information_unit):
 
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
-        if subjects:
-            self.information = "Wait for "  + self.connect_multiple_facts(subjects,3)
-        else:
-            self.information = "All currently active child processes are"
-            self.information += " waited for, and the return status is zero"
+        if subjects[0] == "cmd": #rlWaitForCmd
+            option = information_obj.get_option()
+            self.information = "Pauses script execution until command " + subjects[1]
+            if option[0] == "0":
+                self.information +=  " exit status is successful"
+            elif option[0] == "1":
+                self.information +=  " exit status is unsuccessful"
+            else:
+                self.information += " exit status match " + option[0]
+
+            if len(option) == 2:
+                self.information += "\n and process with this PID " + option[1]
+                self.information += " must be running"
+        else:    #rlWait
+            if subjects:
+                self.information = "Wait for "  + self.connect_multiple_facts(subjects,3)
+            else:
+                self.information = "All currently active child processes are"
+                self.information += " waited for, and the return status is zero"
+
+
+class information_FILE_wait(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        if information_obj.get_topic_subject()[0] == "file": #rlWaitForFile
+            if option:
+                self.information = "Pauses script until file or directory with this path "
+                self.information += information_obj.get_topic_subject()[1]  + " starts existing"
+                self.information += "\n and process with this PID " + option[0]
+                self.information += " must be running"
+            else:
+                self.information = "Pauses script until file or directory with this path "
+                self.information += information_obj.get_topic_subject()[0]  + " starts listening"
+        else: #rlWaitForScript
+            if option:
+                if option[0] == "close":
+                    self.information = "Wait for the socket with this path"
+                    self.information += information_obj.get_topic_subject()[0] + "to stop listening"
+                elif option[0] == "p":
+                    self.information = "Pauses script until socket with this path or port "
+                    self.information += information_obj.get_topic_subject()[0]  + " starts listening"
+                    self.information += "\n and process with this PID " + option[0]
+                    self.information += " must be running"
+            else:
+                self.information = "Pauses script until socket with this path or port "
+                self.information += information_obj.get_topic_subject()[0]  + " starts listening"
 
 class get_information(object):
 
@@ -1843,7 +1894,7 @@ class get_information(object):
                 [         0,                     0,           0,                           0,             0, information_COMMAND_run, information_SERVER_run],  # run
                 [         0,                     0,           0,              information_JOURNAL_report, 0,              0,                   0],  # report
                 [         0,                     0,           0,                           0,             0,              0,        information_SERVER_kill],  # kill
-                [         0,                     0,           0,                           0,             0, information_COMMAND_wait,         0],  # wait
+                [  information_FILE_wait,        0,           0,                           0,             0, information_COMMAND_wait,         0],  # wait
         ]
 
 
@@ -1967,66 +2018,6 @@ class get_information(object):
         return action == "wait"
 
 
-
-class rlWaitForSocket_information(documentation_information):
-
-    def __init__(self, units, information_importance, close, pid):
-        self.information_units = units
-        self.importance = information_importance
-        self.close = close
-        self.pid = pid
-
-    def generate_information(self):
-        out = ""
-        if self.close:
-            out = "Wait for the socket with this path"
-            out += self.information_units[0] + "to stop listening"
-        elif not self.pid == "":
-            out = "Pauses script until socket with this path or port "
-            out += self.information_units[0]  + " starts listening"
-            out += "\n and process with this PID " + self.pid
-            out += " must be running"
-        else:
-            out = "Pauses script until socket with this path or port "
-            out += self.information_units[0]  + " starts listening"
-        return  out
-
-class rlWaitForFile_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        if len(self.information_units) == 2:
-            out = "Pauses script until file or directory with this path "
-            out += self.information_units[0]  + " starts existing"
-            out += "\n and process with this PID " + self.information_units[1]
-            out += " must be running"
-        else:
-            out = "Pauses script until file or directory with this path "
-            out += self.information_units[0]  + " starts listening"
-        return out
-
-class rlWaitForCmd_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Pauses script execution until command " + self.information_units[0]
-        if self.information_units[1] == "0":
-            out +=  " exit status is successful"
-        elif self.information_units[1] == "1":
-            out +=  " exit status is unsuccessful"
-        else:
-            out += " exit status match " + self.information_units[1]
-
-        if len(self.information_units) == 3:
-            out += "\n and process with this PID " + self.information_units[2]
-            out += " must be running"
-        return  out
 
 class rlImport_information(documentation_information):
 
