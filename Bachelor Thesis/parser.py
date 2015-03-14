@@ -1209,18 +1209,18 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
     
     def rlVirtualX_xxx(self, argparse_data):
-        pass
-        '''
         importance = self.medium
-        inf_units = []
-        inf_units.append(argparse_data.name)
+        subject = []
+        subject.append(argparse_data.name)
+        action = []
         if argparse_data.argname == "rlVirtualXStop":
-            self.inf_ref = rlVirtualXStop_information(inf_units, importance)
+            action.append("kill")
         elif argparse_data.argname == "rlVirtualXStart":
-            self.inf_ref = rlVirtualXStart_information(inf_units, importance)
+            action.append("run")
         else:
-            self.inf_ref = rlVirtualXGetDisplay_information(inf_units, importance)
-        '''
+            action.append("return")
+        topic_obj = topic("SERVER", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlWaitFor(self,argparse_data):
         pass
@@ -1792,6 +1792,25 @@ class information_COMMAND_run(information_unit):
                 elif option[0] == "s":
                     self.information += " and stdout and stderr will be stored"
 
+
+class information_SERVER_run(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Starts virtual X " + information_obj.get_topic_subject()[0] + " server on a first free display"
+
+
+class information_SERVER_kill(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Kills virtual X " + information_obj.get_topic_subject()[0] + " server"
+
+
+class information_SERVER_return(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Shows number of display where virtual X " + information_obj.get_topic_subject()[0] + " is running"
+
+
 class information_JOURNAL_report(information_unit):
 
     def set_information(self, information_obj):
@@ -1801,18 +1820,19 @@ class information_JOURNAL_report(information_unit):
 
 class get_information(object):
 
-    array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE        RUN      # ACTIONS
-                [  information_FILE_exists,      0,           0,                           0,             0,              0],  # exists
-                [  information_FILE_not_exists,  0,           0,                           0,             0,              0],  # not exists
-                [  information_FILE_contain,     0,           0,                           0,             0,              0],  # contain
-                [  information_FILE_not_contain, 0,           0,                           0,             0,              0],  # mot contain
-                [  information_FILE_print,       0, information_PACKAGE_print, information_JOURNAL_print, 0,              0],  # print(show)
-                [  information_FILE_resolve,     0,           0,                           0,             0,              0],  # resolve
-                [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create, 0],  # create
-                [  information_FILE_check,       0,           0,                           0,             0,              0],  # check
-                [         0,                     0,           0,              information_JOURNAL_return, 0,              0],  # return
-                [         0,                     0,           0,                           0,             0, information_COMMAND_run],  # run
-                [         0,                     0,           0,              information_JOURNAL_report, 0,              0],  # report
+    array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE           RUN                SERVER    # ACTIONS
+                [  information_FILE_exists,      0,           0,                           0,             0,              0,                   0],  # exists
+                [  information_FILE_not_exists,  0,           0,                           0,             0,              0,                   0],  # not exists
+                [  information_FILE_contain,     0,           0,                           0,             0,              0,                   0],  # contain
+                [  information_FILE_not_contain, 0,           0,                           0,             0,              0,                   0],  # mot contain
+                [  information_FILE_print,       0, information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0],  # print(show)
+                [  information_FILE_resolve,     0,           0,                           0,             0,              0,                   0],  # resolve
+                [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create, 0,                   0],  # create
+                [  information_FILE_check,       0,           0,                           0,             0,              0,                   0],  # check
+                [         0,                     0,           0,              information_JOURNAL_return, 0,              0,        information_SERVER_return],  # return
+                [         0,                     0,           0,                           0,             0, information_COMMAND_run, information_SERVER_run],  # run
+                [         0,                     0,           0,              information_JOURNAL_report, 0,              0,                   0],  # report
+                [         0,                     0,           0,                           0,             0,              0,        information_SERVER_kill],  # kill
         ]
 
 
@@ -1853,6 +1873,8 @@ class get_information(object):
             return 9
         elif self.is_action_report(action):
             return 10
+        elif self.is_action_kill(action):
+            return 11
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1867,6 +1889,8 @@ class get_information(object):
             return 4
         elif self.is_topic_COMMAND(topic):
             return 5
+        elif self.is_topic_SERVER(topic):
+            return 6
 
 
     def is_topic_FILE(self, topic):
@@ -1886,6 +1910,9 @@ class get_information(object):
 
     def is_topic_COMMAND(self, topic):
         return topic == "COMMAND"
+
+    def is_topic_SERVER(self, topic):
+        return topic == "SERVER"
 
     def is_action_exists(self, action):
         return action == "exists"
@@ -1920,68 +1947,9 @@ class get_information(object):
     def is_action_report(self, action):
         return action == "report"
 
+    def is_action_kill(self, action):
+        return action == "kill"
 
-class rlReport_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Test " + self.information_units[0]
-        out += " with result " + self.information_units[1]
-        return out
-
-
-class rlRun_information(documentation_information):
-
-    def __init__(self, units, information_importance, option):
-        self.information_units = units
-        self.importance = information_importance
-        self.option = option
-
-    def generate_information(self):
-        out = "Command " + self.information_units[0]
-        if self.information_units[1] == "0":
-            out += " must run successfully"
-        elif self.information_units[1] == "1":
-            out += " must run unsuccessfully"
-        else:
-            out += " exit code must match " + self.information_units[1]
-
-        if not self.option == "" :
-            out += self.option
-        return out
-
-
-class rlVirtualXStart_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Starts virtual X " + self.information_units[0] + " server on a first free display"
-
-
-class rlVirtualXStop_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Kills virtual X " + self.information_units[0] + " server"
-
-
-class rlVirtualXGetDisplay_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Shows number of display where virtual X " + self.information_units[0] + " is running"
 
 
 class rlWaitFor_information(documentation_information):
