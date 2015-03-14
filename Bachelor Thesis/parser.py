@@ -1280,29 +1280,33 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
 
     def rlImport(self,argparse_data):
-        pass
-        '''
         importance = self.medium
-        inf_units = argparse_data.LIBRARY
-        self.inf_ref = rlImport_information(inf_units, importance)
-        '''
+        subject = argparse_data.LIBRARY
+        topic_obj = topic("PACKAGE", subject)
+        action = []
+        action.append("import")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
+
             
     def rlPerfTime_RunsInTime(self,argparse_data):
-        pass
-        #importance = self.low
-        #self.information = "Measures, how many runs of command "
-        #self.information += argparse_data.command + " in "
-        #self.information += argparse_data.time + " second(s)"
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.low
+        subject = []
+        subject.append(argparse_data.command)
+        option = []
+        option.append(argparse_data.time)
+        topic_obj = topic("COMMAND", subject)
+        action = []
+        action.append("measures")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
             
     def rlPerfTime_AvgFromRuns(self,argparse_data):
-        pass
-        #self.importance = self.low
-        #self.information = "Measures the average time of running command "
-        #self.information += argparse_data.command
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.low
+        subject = []
+        subject.append(argparse_data.command)
+        topic_obj = topic("COMMAND", subject)
+        action = []
+        action.append("measures")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def rlCleanup_Apend_or_Prepend(self, argparse_data):
         pass
@@ -1879,6 +1883,29 @@ class information_FILE_wait(information_unit):
                 self.information = "Pauses script until socket with this path or port "
                 self.information += information_obj.get_topic_subject()[0]  + " starts listening"
 
+
+class information_PACKAGE_import(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Imports code provided by "
+        self.information += self.connect_multiple_facts(information_obj.get_topic_subject(),2)
+        self.information += "  library(ies) into the test namespace"
+
+
+class information_COMMAND_measures(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        option = information_obj.get_option()
+        if option:
+            self.information = "Measures, how many runs of command "
+            self.information += subjects[0] + " in "
+            self.information += option[0] + " second(s)"
+        else:
+            self.information = "Measures the average time of running command "
+            self.information += subjects[0]
+
+
 class get_information(object):
 
     array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE        COMMAND                SERVER    # ACTIONS
@@ -1895,6 +1922,8 @@ class get_information(object):
                 [         0,                     0,           0,              information_JOURNAL_report, 0,              0,                   0],  # report
                 [         0,                     0,           0,                           0,             0,              0,        information_SERVER_kill],  # kill
                 [  information_FILE_wait,        0,           0,                           0,             0, information_COMMAND_wait,         0],  # wait
+                [         0,                     0, information_PACKAGE_import,            0,             0,              0,                   0],  # import
+                [         0,                     0,           0,                           0,             0, information_COMMAND_measures,     0],  # measures
         ]
 
 
@@ -1939,6 +1968,10 @@ class get_information(object):
             return 11
         elif self.is_action_wait(action):
             return 12
+        elif self.is_action_import(action):
+            return 13
+        elif self.is_action_measures(action):
+            return 14
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -2017,18 +2050,11 @@ class get_information(object):
     def is_action_wait(self, action):
         return action == "wait"
 
+    def is_action_import(self, action):
+        return action == "import"
 
-
-class rlImport_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Imports code provided by "
-        out += self.connect_multiple_facts(self.information_units,2)
-        out += "  library(ies) into the test namespace"
+    def is_action_measures(self, action):
+        return action == "measures"
 
 
 
