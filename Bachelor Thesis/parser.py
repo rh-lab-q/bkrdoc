@@ -1141,40 +1141,42 @@ class documentation_translator:
 
         
     def rlGet_command(self, argparse_data):
-        pass
-        '''
         importance = self.low
+        subject = []
+        action = []
         if conditions_for_commands().is_rlGetPhase_or_Test_State(argparse_data.argname):
             if argparse_data.argname == "rlGetTestState":
-                self.inf_ref = rlGetTestState_information([""], importance)
+                subject.append("test")
             else:
-                self.inf_ref = rlGetPhaseState_information([""], importance)
-
+                subject.append("phase")
         elif conditions_for_commands().is_rlGetDistro(argparse_data.argname):
             if argparse_data.argname == "rlGetDistroRelease":
-                self.inf_ref = rlGetDistroRelease_information([""], importance)
+                subject.append("release")
             else:
-                self.inf_ref = rlGetDistroVariant_information([""], importance)
-        
+                subject.append("variant")
         elif argparse_data.argname == "rlGetPrimaryArch":
-            self.inf_ref = rlGetPrimaryArch_information([""], importance)
-        
+            subject.append("primary")
         else:
-            self.inf_ref = rlGetSecondaryArch_information([""], importance)
-        '''
+            subject.append("secondary")
+        topic_obj = topic("JOURNAL", subject)
+        action.append("return")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
+
         
     def rlWatchdog(self,argparse_data):
-        pass
-        '''
         importance = self.medium
-        inf_unit = []
-        inf_unit.append(argparse_data.command)
-        inf_unit.append(argparse_data.timeout)
+        subject = []
+        subject.append("watchdog")
+        subject.append(argparse_data.command)
+        subject.append(argparse_data.timeout)
+        option = []
         if argparse_data.signal:
-            inf_unit.append(argparse_data.signal)
-        
-        self.inf_ref = rlWatchdog_information(inf_unit, importance)
-        '''
+            option.append(argparse_data.signal)
+        topic_obj = topic("COMMAND", subject)
+        action = []
+        action.append("run")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
             
     def rlReport(self,argparse_data):
         pass
@@ -1730,6 +1732,7 @@ class information_FILE_print(information_unit):
         else:
             self.information = "Prints file content"
 
+
 class information_FILE_check(information_unit):
 
     def set_information(self, information_obj):
@@ -1739,20 +1742,50 @@ class information_FILE_check(information_unit):
             self.information = "Checking file " + information_obj.get_topic_subject()[0]
 
 
+class information_JOURNAL_return(information_unit):
 
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        if subjects[0] ==  "phase":
+            self.information = "Returns number of failed asserts in current phase"
+        elif subjects[0] ==  "test":
+            self.information = "Returns number of failed asserts"
+        elif subjects[0] ==  "variant":
+            self.information = "Return variant of the distribution on the system"
+        elif subjects[0] ==  "release":
+            self.information = "Return release of the distribution on the system"
+        elif subjects[0] ==  "primary":
+            self.information = "Return primary arch for the current system"
+        elif subjects[0] ==  "secondary":
+            self.information = "Return base arch for the current system"
+        else:
+            self.information = "Returns data from Journal"
 
+class information_COMMAND_run(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        if subjects[0] == "watchdog":
+            self.information = "Run command " + subjects[1]
+            self.information += " for " + subjects[2]
+            self.information += " seconds"
+            if len(information_obj.get_option()):
+                self.information += " and killed with signal "
+                self.information += information_obj.get_option()[0]
 
 class get_information(object):
 
-    array = [#topic: FILE,                    PATTERN,      PACKAGE                  JOURNAL            MESSAGE # ACTIONS
-                [  information_FILE_exists,      0,           0,                           0,             0],  # exists
-                [  information_FILE_not_exists,  0,           0,                           0,             0],  # not exists
-                [  information_FILE_contain,     0,           0,                           0,             0],  # contain
-                [  information_FILE_not_contain, 0,           0,                           0,             0],  # mot contain
-                [  information_FILE_print,       0, information_PACKAGE_print, information_JOURNAL_print, 0],  # print(show)
-                [  information_FILE_resolve,     0,           0,                           0,             0],  # resolve
-                [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create],  # create
-                [  information_FILE_check,       0,           0,                           0,             0],  # check
+    array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE        RUN      # ACTIONS
+                [  information_FILE_exists,      0,           0,                           0,             0,              0],  # exists
+                [  information_FILE_not_exists,  0,           0,                           0,             0,              0],  # not exists
+                [  information_FILE_contain,     0,           0,                           0,             0,              0],  # contain
+                [  information_FILE_not_contain, 0,           0,                           0,             0,              0],  # mot contain
+                [  information_FILE_print,       0, information_PACKAGE_print, information_JOURNAL_print, 0,              0],  # print(show)
+                [  information_FILE_resolve,     0,           0,                           0,             0,              0],  # resolve
+                [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create, 0],  # create
+                [  information_FILE_check,       0,           0,                           0,             0,              0],  # check
+                [         0,                     0,           0,              information_JOURNAL_return, 0,              0],  # return
+                [         0,                     0,           0,                           0,             0, information_COMMAND_run],  # run
         ]
 
 
@@ -1815,6 +1848,9 @@ class get_information(object):
     def is_topic_MESSAGE(self, topic):
         return topic == "MESSAGE"
 
+    def is_topic_COMMAND(self, topic):
+        return topic == "COMMAND"
+
     def is_action_exists(self, action):
         return action == "exists"
 
@@ -1839,81 +1875,12 @@ class get_information(object):
     def is_action_check(self, action):
         return action == "check"
 
+    def is_action_return(self, action):
+        return action == "return"
 
+    def is_action_run(self, action):
+        return action == "run"
 
-
-class rlGetPrimaryArch_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Return primary arch for the current system"
-
-class rlGetSecondaryArch_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Return base arch for the current system"
-
-class rlGetDistroRelease_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Return release of the distribution on the system"
-
-
-class rlGetDistroVariant_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Return variant of the distribution on the system"
-
-
-class rlGetTestState_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Returns number of failed asserts"
-
-
-class rlGetPhaseState_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Returns number of failed asserts in current phase"
-
-
-class rlWatchdog_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = "Run command " + self.information_units[0]
-        out += " for " + self.information_units[1]
-        out += " seconds"
-        if len(self.information_units) == 3:
-            out += " and killed with signal "
-            out += self.information_units[2]
-        return out
 
 
 class rlReport_information(documentation_information):
