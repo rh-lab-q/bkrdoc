@@ -1222,16 +1222,15 @@ class documentation_translator:
         topic_obj = topic("SERVER", subject)
         self.inf_ref = documentation_information(topic_obj, action, importance)
         
-    def rlWaitFor(self,argparse_data):
-        pass
-        '''
+    def rlWaitFor(self, argparse_data):
         importance = self.low
+        subject = []
         if len(argparse_data.n):
-            inf_units = argparse_data.n
-            self.inf_ref = rlWaitFor_information(inf_units, importance)
-        else:
-            self.inf_ref = rlWaitFor_information([""], importance)
-        '''
+            subject = argparse_data.n
+        topic_obj = topic("COMMAND", subject)
+        action = []
+        action.append("wait")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
 
         
     def rlWaitForSocket(self,argparse_data):
@@ -1818,9 +1817,20 @@ class information_JOURNAL_report(information_unit):
         self.information = "Report test \"" + subjects[0]
         self.information += "\" with result " + subjects[1]
 
+
+class information_COMMAND_wait(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        if subjects:
+            self.information = "Wait for "  + self.connect_multiple_facts(subjects,3)
+        else:
+            self.information = "All currently active child processes are"
+            self.information += " waited for, and the return status is zero"
+
 class get_information(object):
 
-    array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE           RUN                SERVER    # ACTIONS
+    array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE        COMMAND                SERVER    # ACTIONS
                 [  information_FILE_exists,      0,           0,                           0,             0,              0,                   0],  # exists
                 [  information_FILE_not_exists,  0,           0,                           0,             0,              0,                   0],  # not exists
                 [  information_FILE_contain,     0,           0,                           0,             0,              0,                   0],  # contain
@@ -1833,6 +1843,7 @@ class get_information(object):
                 [         0,                     0,           0,                           0,             0, information_COMMAND_run, information_SERVER_run],  # run
                 [         0,                     0,           0,              information_JOURNAL_report, 0,              0,                   0],  # report
                 [         0,                     0,           0,                           0,             0,              0,        information_SERVER_kill],  # kill
+                [         0,                     0,           0,                           0,             0, information_COMMAND_wait,         0],  # wait
         ]
 
 
@@ -1875,6 +1886,8 @@ class get_information(object):
             return 10
         elif self.is_action_kill(action):
             return 11
+        elif self.is_action_wait(action):
+            return 12
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1950,22 +1963,10 @@ class get_information(object):
     def is_action_kill(self, action):
         return action == "kill"
 
+    def is_action_wait(self, action):
+        return action == "wait"
 
 
-class rlWaitFor_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        out = ""
-        if self.information_units[0]:
-            out = "Wait for "  + self.connect_multiple_facts(self.information_units,3)
-        else:
-            out = "All currently active child processes are"
-            out += " waited for, and the return status is zero"
-        return out
 
 class rlWaitForSocket_information(documentation_information):
 
