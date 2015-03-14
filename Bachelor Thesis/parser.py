@@ -1073,7 +1073,7 @@ class documentation_translator:
         topic_obj = topic("PACKAGE", subject)
         self.inf_ref = documentation_information(topic_obj, action, importance)
         
-    def rlFileSubmit(self,argparse_data):
+    def rlFileSubmit(self, argparse_data):
         importance = self.low
         subject = []
         subject.append(argparse_data.path_to_file)
@@ -1109,7 +1109,7 @@ class documentation_translator:
         action.append("create")
         self.inf_ref = documentation_information(topic_obj, action, importance)
 
-    def rlLog(self,argparse_data):
+    def rlLog(self, argparse_data):
         importance = self.low
         subject = []
         subject.append(argparse_data.message)
@@ -1122,19 +1122,23 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
         
     def rlShowRunningKernel(self,argparse_data):
-        pass
-        #importance = self.low
-        #self.inf_ref = rlShowRunningKernel_information("", importance)
+        importance = self.low
+        topic_obj = topic("MESSAGE", ["kernel"])
+        action = []
+        action.append("create")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlGet_or_rlCheck_MakefileRequeries(self,argparse_data):
-        pass
-        '''
+
         importance = self.low
+        topic_obj = topic("FILE", ["makefile"])
+        action = []
         if argparse_data.argname == "rlGetMakefileRequires":
-            self.inf_ref = rlGetMakefileRequires_information("", importance)
+            action.append("print")
         else:
-            self.inf_ref = rlCheckMakefileRequires_information("", importance)
-            '''
+            action.append("check")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
+
         
     def rlGet_command(self, argparse_data):
         pass
@@ -1703,17 +1707,39 @@ class information_MESSAGE_create(information_unit):
 
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
-        self.information = "Message \"" + subjects[0]
-        if len(subjects) > 1:
-            self.information += "\" will be created in to log and file(s) "
-            self.information += self.connect_multiple_facts(subjects[1:],3)
-            self.information += "\" will be uploaded"
-        else:
-            if len(information_obj.get_option()):
-                self.information += "\" will be created in to logfile "
-                self.information += self.information_obj.get_option()[0]
+        if subjects[0] == "kernel": # rlShowRunningKernel
+           self.information = "Log a message with version of the currently running kernel"
+        else: # rlDie & rlLog
+            self.information = "Message \"" + subjects[0]
+            if len(subjects) > 1:
+                self.information += "\" will be created in to log and file(s) "
+                self.information += self.connect_multiple_facts(subjects[1:],3)
+                self.information += "\" will be uploaded"
             else:
-                self.information += "\" will be created in to log"
+                if len(information_obj.get_option()):
+                    self.information += "\" will be created in to logfile "
+                    self.information += information_obj.get_option()[0]
+                else:
+                    self.information += "\" will be created in to log"
+
+class information_FILE_print(information_unit):
+
+    def set_information(self, information_obj):
+        if information_obj.get_topic_subject()[0] == "makefile":
+            self.information = "Prints comma separated list of requirements defined in Makefile"
+        else:
+            self.information = "Prints file content"
+
+class information_FILE_check(information_unit):
+
+    def set_information(self, information_obj):
+        if information_obj.get_topic_subject()[0] == "makefile":
+            self.information = "Checking requirements in Makefile and returns number of compliance"
+        else:
+            self.information = "Checking file " + information_obj.get_topic_subject()[0]
+
+
+
 
 
 class get_information(object):
@@ -1723,9 +1749,10 @@ class get_information(object):
                 [  information_FILE_not_exists,  0,           0,                           0,             0],  # not exists
                 [  information_FILE_contain,     0,           0,                           0,             0],  # contain
                 [  information_FILE_not_contain, 0,           0,                           0,             0],  # mot contain
-                [           0,                   0, information_PACKAGE_print, information_JOURNAL_print, 0],   # print(show)
+                [  information_FILE_print,       0, information_PACKAGE_print, information_JOURNAL_print, 0],  # print(show)
                 [  information_FILE_resolve,     0,           0,                           0,             0],  # resolve
                 [  information_FILE_create,      0,           0,                           0, information_MESSAGE_create],  # create
+                [  information_FILE_check,       0,           0,                           0,             0],  # check
         ]
 
 
@@ -1758,6 +1785,8 @@ class get_information(object):
             return 5
         elif self.is_action_create(action):
             return 6
+        elif self.is_action_check(action):
+            return 7
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1807,35 +1836,10 @@ class get_information(object):
     def is_action_create(self, action):
         return action == "create"
 
+    def is_action_check(self, action):
+        return action == "check"
 
 
-class rlShowRunningKernel_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Log a message with version of the currently running kernel"
-
-
-class rlCheckMakefileRequires_information(documentation_information):
-
-    def __init__(self, units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Checking requirements in Makefile and returns number of compliance"
-
-class rlGetMakefileRequires_information(documentation_information):
-
-    def __init__(self,units, information_importance):
-        self.information_units = units
-        self.importance = information_importance
-
-    def generate_information(self):
-        return "Prints comma separated list of requirements defined in Makefile"
 
 
 class rlGetPrimaryArch_information(documentation_information):
@@ -2064,7 +2068,7 @@ class rlImport_information(documentation_information):
 
 
 class conditions_for_commands:
-    """ Class consits of conditions for testing commands used in 
+    """ Class consists of conditions for testing commands used in
     parser_automata and documentation translator """        
         
     def is_rlWatchdog(self,command):
