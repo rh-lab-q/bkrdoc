@@ -1320,22 +1320,17 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def SEBooleanxxx(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #if argparse_data.argname == "rlSEBooleanOn":
-        #    self.information = "Sets boolean(s) "
-        #    self.information += self.connect_multiple_facts(argparse_data.boolean,3)
-        #    self.information += " to true"
-        #elif argparse_data.argname == "rlSEBooleanOff":
-        #    self.information = "Sets boolean(s) "
-        #    self.information += self.connect_multiple_facts(argparse_data.boolean,3)
-        #    self.information += " to false"
-        #else:
-        ##    self.information = "Restore boolean(s) "
-        #    self.information += self.connect_multiple_facts(argparse_data.boolean,3)
-        #    self.information += " into original state"
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.medium
+        subject = []
+        if argparse_data.argname == "rlSEBooleanOn":
+            subject.append("on")
+        elif argparse_data.argname == "rlSEBooleanOff":
+            subject.append("off")
+        subject += argparse_data.boolean
+        topic_obj = topic("BOOLEAN", subject)
+        action = []
+        action.append("set")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def rlServicexxx(self,argparse_data):
         pass
@@ -1351,7 +1346,7 @@ class documentation_translator:
         #else:
         #    self.information = "Service(s) "
         #    self.information += self.connect_multiple_facts(argparse_data.service,3)
-        #    self.information += " will be restored into original atate"
+        #    self.information += " will be restored into original state"
         #self.inf_ref = documentation_information(self.information,\
         #self.link_information,self.importance,self.connection)
             
@@ -1916,24 +1911,42 @@ class information_PATTERN_create(information_unit):
             self.information += " and recreates the cleanup script"
 
 
+class information_BOOLEAN_set(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        if subjects[0] == "on":
+            self.information = "Sets boolean(s) "
+            self.information += self.connect_multiple_facts(subjects[1:],3)
+            self.information += " to true"
+        elif subjects[0] == "off":
+            self.information = "Sets boolean(s) "
+            self.information += self.connect_multiple_facts(subjects[1:],3)
+            self.information += " to false"
+        else:
+            self.information = "Restore boolean(s) "
+            self.information += self.connect_multiple_facts(subjects,3)
+            self.information += " into original state"
+
 class get_information(object):
 
-    array = [#topic: FILE,                PATTERN(STRING),               PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER    # ACTIONS
-                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0],  # exists
-                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0],  # not exists
-                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0],  # contain
-                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0],  # mot contain
-                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0],  # print(show)
-                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0],  # resolve
-                [  information_FILE_create, information_PATTERN_create,     0,                           0, information_MESSAGE_create, 0,                   0],  # create
-                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0],  # check
-                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return],  # return
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run],  # run
-                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0],  # report
-                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill],  # kill
-                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0],  # wait
-                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0],  # import
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0],  # measures
+    array = [#topic: FILE,                PATTERN(STRING),               PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN  # ACTIONS
+                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0],  # exists
+                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0],  # not exists
+                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0],  # contain
+                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0],  # not contain
+                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0],  # print(show)
+                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0],  # resolve
+                [  information_FILE_create, information_PATTERN_create,     0,                           0, information_MESSAGE_create, 0,                   0,                  0],  # create
+                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0],  # check
+                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0],  # return
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0],  # run
+                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0],  # report
+                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0],  # kill
+                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0],  # wait
+                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0],  # import
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0],  # measures
+                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set],  # set
         ]
 
 
@@ -1982,6 +1995,8 @@ class get_information(object):
             return 13
         elif self.is_action_measures(action):
             return 14
+        elif self.is_action_set(action):
+            return 15
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1998,6 +2013,8 @@ class get_information(object):
             return 5
         elif self.is_topic_SERVER(topic):
             return 6
+        elif self.is_topic_BOOLEAN(topic):
+            return 7
 
 
     def is_topic_FILE(self, topic):
@@ -2020,6 +2037,9 @@ class get_information(object):
 
     def is_topic_SERVER(self, topic):
         return topic == "SERVER"
+
+    def is_topic_BOOLEAN(self, topic):
+        return topic == "BOOLEAN"
 
     def is_action_exists(self, action):
         return action == "exists"
@@ -2066,6 +2086,8 @@ class get_information(object):
     def is_action_measures(self, action):
         return action == "measures"
 
+    def is_action_set(self, action):
+        return action == "set"
 
 
 class conditions_for_commands:
