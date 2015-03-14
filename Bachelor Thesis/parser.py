@@ -1162,8 +1162,7 @@ class documentation_translator:
         action.append("return")
         self.inf_ref = documentation_information(topic_obj, action, importance)
 
-        
-    def rlWatchdog(self,argparse_data):
+    def rlWatchdog(self, argparse_data):
         importance = self.medium
         subject = []
         subject.append("watchdog")
@@ -1177,39 +1176,37 @@ class documentation_translator:
         action.append("run")
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
 
-            
-    def rlReport(self,argparse_data):
-        pass
-        '''
+    def rlReport(self, argparse_data):
         importance = self.medium
-        inf_units = []
-        inf_units.append(argparse_data.name)
-        inf_units.append(argparse_data.result)
-        self.inf_ref = rlReport_information(inf_units, importance)
-        '''
+        subject = []
+        subject.append(argparse_data.name)
+        subject.append(argparse_data.result)
+        topic_obj = topic("JOURNAL", subject)
+        action = []
+        action.append("report")
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def rlRun(self,argparse_data):
-        pass
-        '''
         importance = self.medium
-        inf_units = []
-        inf_units.append(argparse_data.command)
-        inf_units.append(argparse_data.status)
-
-        option = ""
+        subject = []
+        subject.append(argparse_data.command)
+        subject.append(argparse_data.status)
+        option = []
         if argparse_data.l:
-            option = " and output will be stored in to log"
+            option.append("l")
         elif argparse_data.c:
-            option = " and failed output will be stored in to log"
+            option.append("c")
         elif argparse_data.t and argparse_data.s:
-            option= " and stdout and stderr will be tagged and stored"
+            option.append("s")
+            option.append("t")
         elif argparse_data.t:
-            option += " and stdout and stderr will be tagged"
+            option.append("t")
         elif argparse_data.s:
-            option += " and stdout and stderr will be stored"
-        
-        self.inf_ref = rlRun_information(inf_units, importance, option)
-        '''
+            option.append("s")
+        topic_obj = topic("COMMAND", subject)
+        action = []
+        action.append("run")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
     
     def rlVirtualX_xxx(self, argparse_data):
         pass
@@ -1643,7 +1640,7 @@ class information_unit(object):
         return pom_inf
 
     def print_information(self):
-        print self.information
+        print "   " + self.information
 
 
 class information_FILE_exists(information_unit):
@@ -1773,6 +1770,35 @@ class information_COMMAND_run(information_unit):
                 self.information += " and killed with signal "
                 self.information += information_obj.get_option()[0]
 
+        else:# rlRun
+            self.information = "Command \"" + subjects[0]
+            if subjects[1] == "0":
+                self.information += "\" must run successfully"
+            elif subjects[1] == "1":
+                self.information += "\" must run unsuccessfully"
+            else:
+                self.information += "\" exit code must match " + subjects[1]
+
+            option = information_obj.get_option()
+            if option:
+                if option[0] == "l":
+                    self.information += " and output will be stored in to log"
+                elif option[0] == "c":
+                    self.information += " and failed output will be stored in to log"
+                elif len(option) > 1:
+                    self.information += " and stdout and stderr will be tagged and stored"
+                elif option[0] == "t":
+                    self.information += " and stdout and stderr will be tagged"
+                elif option[0] == "s":
+                    self.information += " and stdout and stderr will be stored"
+
+class information_JOURNAL_report(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Report test \"" + subjects[0]
+        self.information += "\" with result " + subjects[1]
+
 class get_information(object):
 
     array = [#topic: FILE,                    PATTERN,      PACKAGE               JOURNAL,PHASE,TEST   MESSAGE        RUN      # ACTIONS
@@ -1786,6 +1812,7 @@ class get_information(object):
                 [  information_FILE_check,       0,           0,                           0,             0,              0],  # check
                 [         0,                     0,           0,              information_JOURNAL_return, 0,              0],  # return
                 [         0,                     0,           0,                           0,             0, information_COMMAND_run],  # run
+                [         0,                     0,           0,              information_JOURNAL_report, 0,              0],  # report
         ]
 
 
@@ -1820,6 +1847,12 @@ class get_information(object):
             return 6
         elif self.is_action_check(action):
             return 7
+        elif self.is_action_return(action):
+            return 8
+        elif self.is_action_run(action):
+            return 9
+        elif self.is_action_report(action):
+            return 10
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -1832,6 +1865,9 @@ class get_information(object):
             return 3
         elif self.is_topic_MESSAGE(topic):
             return 4
+        elif self.is_topic_COMMAND(topic):
+            return 5
+
 
     def is_topic_FILE(self, topic):
         return topic == "FILE"
@@ -1881,6 +1917,8 @@ class get_information(object):
     def is_action_run(self, action):
         return action == "run"
 
+    def is_action_report(self, action):
+        return action == "report"
 
 
 class rlReport_information(documentation_information):
