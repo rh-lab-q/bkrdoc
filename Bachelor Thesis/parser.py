@@ -1314,7 +1314,7 @@ class documentation_translator:
         if argparse_data.argname == "rlCleanupAppend":
             subject.append("append")
         subject.append(argparse_data.string)
-        topic_obj = topic("PATTERN", subject)
+        topic_obj = topic("STRING", subject)
         action = []
         action.append("create")
         self.inf_ref = documentation_information(topic_obj, action, importance)
@@ -1332,7 +1332,7 @@ class documentation_translator:
         action.append("set")
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
-    def rlServicexxx(self,argparse_data):
+    def rlServicexxx(self, argparse_data):
         importance = self.medium
         subject = argparse_data.service
         action = []
@@ -1345,7 +1345,7 @@ class documentation_translator:
         topic_obj = topic("SERVICE", subject)
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
-    def rlFile_Restore(self,argparse_data):
+    def rlFile_Restore(self, argparse_data):
         importance = self.medium
         option = []
         if argparse_data.namespace:
@@ -1354,7 +1354,7 @@ class documentation_translator:
         action = ["restore"]
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
 
-    def rlFileBackup(self,argparse_data):
+    def rlFileBackup(self, argparse_data):
         importance = self.medium
         option = []
         subject = argparse_data.file
@@ -1364,50 +1364,46 @@ class documentation_translator:
         action = ["backup"]
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
 
-    def rlHash_or_rlUnhash(self,argparse_data):
+    def rlHash_or_rlUnhash(self, argparse_data):
+        importance = self.medium
+        option = []
+        subject = []
+        subject.append(argparse_data.stdin_STRING)
+        action = []
+        if argparse_data.argname == "rlUnhas" or argparse_data.decode:
+            action.append("unhash")
+        else:
+            action.append("hash")
+        if argparse_data.algorithm:
+            option.append(argparse_data.algorithm)
+        topic_obj = topic("STRING", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
+        
+    def check_or_assert_mount(self, argparse_data):
         pass
-        #self.importance = self.medium
-        #
-        #if argparse_data.argname == "rlUnhas" or argparse_data.decode:
-        #    self.information = "Unhashing string "
-        #    self.information += argparse_data.stdin_STRING
-        #else:
-        #    self.information = "Hashing string "
-        #    self.information += argparse_data.stdin_STRING
-        
-        #if argparse_data.algorithm:
-        #    self.information += " with hashing algorithm "
-        #    self.information += argparse_data.algorithm
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
-        
-        
-    def check_or_assert_mount(self,argparse_data):
-        pass
-        #self.importance = self.low
-        #if argparse_data.argname == "rlCheckMount":
-        #    self.information = "Check if directory "
-        #    self.information += argparse_data.mountpoint
-        #    self.information += "is a mountpoint"
-        #else:
-        #    self.information = "Directory "
-        #    self.information += argparse_data.mountpoint
-        #    self.information += "must be a mountpoint"
-        
-        #if argparse_data.server and argparse_data.mountpoint:
-        #    self.information += " to server " + argparse_data.server
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.low
+        subject = []
+        subject.append(argparse_data.mountpoint)
+        action = []
+        if argparse_data.argname == "rlCheckMount":
+            action.append("check")
+        else:
+            action.append("exists")
+        if argparse_data.server and argparse_data.mountpoint:
+            subject.append(argparse_data.server)
+        topic_obj = topic("MOUNTPOINT", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
             
     def rl_mount(self,argparse_data):
-        pass
-        #self.importance = self.low
-        ##self.information = "Creating mount point " + argparse_data.mountpoint
-        #self.information += " and mount NFS " + argparse_data.server
-        #self.information += " share"
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.low
+        subject = []
+        subject.append(argparse_data.mountpoint)
+        subject.append(argparse_data.server)
+        topic_obj = topic("MOUNTPOINT", subject)
+        action = ["create"]
+        self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def assert_binary_origin(self,argparse_data):
         pass
@@ -1885,7 +1881,7 @@ class information_COMMAND_measures(information_unit):
             self.information += subjects[0]
 
 
-class information_PATTERN_create(information_unit):
+class information_STRING_create(information_unit):
 
     def set_information(self, information_obj):
         if information_obj.get_topic_subject()[0] == "append":
@@ -1959,32 +1955,91 @@ class information_FILE_backup(information_unit):
     def set_information(self, information_obj):
         option = information_obj.get_option()
         self.information = "Backing up file(s) or directory(ies): "
-        self.information += self.connect_multiple_facts(argparse_data.file,2)
+        self.information += self.connect_multiple_facts(information_obj.get_topic_subject(),2)
         if option:
             self.information += "with namespace " + option[0]
 
 
+class information_STRING_hash(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        self.information = "Hashing string "
+        self.information += information_obj.get_topic_subject()[0]
+        if option:
+            self.information += " with hashing algorithm "
+            self.information += option[0]
+
+
+class information_STRING_unhash(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        self.information = "Unhashing string "
+        self.information += information_obj.get_topic_subject()[0]
+
+        if option:
+            self.information += " with hashing algorithm "
+            self.information += option[0]
+
+
+class information_MOUNTPOINT_exists(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Directory "
+        self.information += subjects[0]
+        self.information += "must be a mountpoint"
+
+        if subjects[1]:
+            self.information += " to server " + subjects[1]
+
+
+class information_MOUNTPOINT_create(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Creating mount point " + subjects[0]
+        if subjects[1]:
+            self.information += " and mount NFS " + subjects[1]
+
+
+class information_MOUNTPOINT_check(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Check if directory "
+        self.information += subjects[0]
+        self.information += "is a mountpoint"
+
+        if subjects[1]:
+            self.information += " to server " + subjects[1]
+
+
+
 class get_information(object):
 
-    array = [#topic: FILE,                PATTERN(STRING),               PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE# ACTIONS
-                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # exists
-                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # not exists
-                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # contain
-                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # not contain
-                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0],  # print(show)
-                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # resolve
-                [  information_FILE_create, information_PATTERN_create,     0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0],  # create
-                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # check
-                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0],  # return
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run],  # run
-                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0],  # report
-                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0,        information_SERVICE_kill],  # kill
-                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0,                    0],  # wait
-                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0],  # import
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0],  # measures
-                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0],  # set
-                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore],  # restore
-                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # backup
+    array = [#topic: FILE(DIRECTORY),           STRING                   PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT# ACTIONS
+                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists],  # exists
+                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # not exists
+                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # contain
+                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # not contain
+                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0],  # print(show)
+                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # resolve
+                [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create],  # create
+                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check],  # check
+                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0],  # return
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0],  # run
+                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0],  # report
+                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0,        information_SERVICE_kill,       0],  # kill
+                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0,                    0,                  0],  # wait
+                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0,                  0],  # import
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0,                  0],  # measures
+                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0,                  0],  # set
+                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore,    0],  # restore
+                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # backup
+                [         0,                information_STRING_hash,        0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # hash
+                [         0,                information_STRING_unhash,      0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # unhash
         ]
 
 
@@ -2039,11 +2094,15 @@ class get_information(object):
             return 16
         elif self.is_action_backup(action):
             return 17
+        elif self.is_action_hash(action):
+            return 18
+        elif self.is_action_unhash(action):
+            return 19
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
             return 0
-        elif self.is_topic_PATTERN(topic):
+        elif self.is_topic_STRING(topic):
             return 1
         elif self.is_topic_PACKAGE(topic):
             return 2
@@ -2059,13 +2118,15 @@ class get_information(object):
             return 7
         elif self.is_topic_SERVICE(topic):
             return 8
+        elif self.is_topic_MOUNTPOINT(topic):
+            return 9
 
 
     def is_topic_FILE(self, topic):
         return topic == "FILE"
 
-    def is_topic_PATTERN(self, topic):
-        return topic == "PATTERN"
+    def is_topic_STRING(self, topic):
+        return topic == "STRING"
 
     def is_topic_PACKAGE(self, topic):
         return  topic == "PACKAGE"
@@ -2087,6 +2148,9 @@ class get_information(object):
 
     def is_topic_SERVICE(self, topic):
         return topic == "SERVICE"
+
+    def is_topic_MOUNTPOINT(self, topic):
+        return topic == "MOUNTPOINT"
 
     def is_action_exists(self, action):
         return action == "exists"
@@ -2141,6 +2205,12 @@ class get_information(object):
 
     def is_action_backup(self, action):
         return action == "backup"
+
+    def is_action_hash(self, action):
+        return action == "hash"
+
+    def is_action_unhash(self, action):
+        return action == "unhash"
 
 
 
