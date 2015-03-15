@@ -15,7 +15,7 @@ class parser(object):
     file_test = ""
     
     description = ""
-    
+
     all_commands = ["rlAssert0", "rlAssertEquals", "rlAssertNotEquals",
     "rlAssertGreater", "rlAssertGreaterOrEqual", "rlAssertExists", "rlAssertNotExists",
     "rlAssertGrep", "rlAssertNotGrep", "rlAssertDiffer", "rlAssertNotDiffer", "rlRun",
@@ -1346,32 +1346,24 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def rlFile_Restore(self,argparse_data):
-        pass
-        #
-        # self.importance = self.medium
-        #if argparse_data.namespace:
-        #    self.information = "Restore backed up file with namespace: "
-        #    self.information += argparse_data.namespace
-        #    self.information += "to their original state"
-        #else:
-        #    self.information = "Restore backed up files to their "
-        #    self.information += "original location"
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
-        
+        importance = self.medium
+        option = []
+        if argparse_data.namespace:
+            option.append(argparse_data.namespace)
+        topic_obj = topic("FILE", [""])
+        action = ["restore"]
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
     def rlFileBackup(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #self.information = "Backing up file(s) or directory(ies): "
-        #self.information += self.connect_multiple_facts(argparse_data.file,2)
-        #self.link_information = "backed up"
-        #self.connection = argparse_data.file
-        #if argparse_data.namespace:
-        #    self.information += "with namespace " + argparse_data.namespace
-            
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
-        
+        importance = self.medium
+        option = []
+        subject = argparse_data.file
+        if argparse_data.namespace:
+            option.append(argparse_data.namespace)
+        topic_obj = topic("FILE", subject)
+        action = ["backup"]
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
     def rlHash_or_rlUnhash(self,argparse_data):
         pass
         #self.importance = self.medium
@@ -1949,6 +1941,29 @@ class information_SERVICE_restore(information_unit):
         self.information += " will be restored into original state"
 
 
+class information_FILE_restore(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        if option:
+            self.information = "Restore backed up file with namespace: "
+            self.information += option[0]
+            self.information += "to their original state"
+        else:
+            self.information = "Restore backed up files to their "
+            self.information += "original location"
+
+
+class information_FILE_backup(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        self.information = "Backing up file(s) or directory(ies): "
+        self.information += self.connect_multiple_facts(argparse_data.file,2)
+        if option:
+            self.information += "with namespace " + option[0]
+
+
 class get_information(object):
 
     array = [#topic: FILE,                PATTERN(STRING),               PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE# ACTIONS
@@ -1968,7 +1983,8 @@ class get_information(object):
                 [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0],  # import
                 [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0],  # measures
                 [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0],  # set
-                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore],  # restore
+                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore],  # restore
+                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0],  # backup
         ]
 
 
@@ -2019,6 +2035,10 @@ class get_information(object):
             return 14
         elif self.is_action_set(action):
             return 15
+        elif self.is_action_restore(action):
+            return 16
+        elif self.is_action_backup(action):
+            return 17
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -2116,6 +2136,13 @@ class get_information(object):
     def is_action_set(self, action):
         return action == "set"
 
+    def is_action_restore(self, action):
+        return action == "restore"
+
+    def is_action_backup(self, action):
+        return action == "backup"
+
+
 
 class conditions_for_commands:
     """ Class consists of conditions for testing commands used in
@@ -2199,7 +2226,7 @@ class conditions_for_commands:
         return command == "rlAssertExists" or command == "rlAssertNotExists"
     
     def is_assert_comparasion(self, command):
-        pom = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",\
+        pom = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",
         "rlAssertGreaterOrEqual"]
         return command in pom
         
@@ -2230,7 +2257,7 @@ class conditions_for_commands:
         return command in pom
     
     def is_rlLog(self, command):
-        pom = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",\
+        pom = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",
          "rlLogDebug", "rlLog"]
         return command in pom
         
