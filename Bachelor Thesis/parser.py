@@ -1468,16 +1468,17 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def assert_differ(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        ##self.importance = "File1 " + argparse_data.file1 + " and File2 "
-        #self.importance += argparse_data.file2
-        #if argparse_data.argname == "rlAssertDiffer":
-        #    self.importance += " must be different"
-        #else:
-        #    self.importance += " must be identical"
-        #self.link_information,self.importance,self.connection)
-        #self.inf_ref = documentation_information(self.information,\
+        importance = self.medium
+        action = []
+        if argparse_data.argname == "rlAssertDiffer":
+            action.append("differ")
+        else:
+            action.append("not differ")
+        subject = []
+        subject.append(argparse_data.file1)
+        subject.append(argparse_data.file2)
+        topic_obj = topic("FILE", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
 
     def assert_exits(self,argparse_data):
         importance = self.medium
@@ -1489,28 +1490,25 @@ class documentation_translator:
             action.append("exists")
         else:
             action.append("not exists")
-
         self.inf_ref = documentation_information(topic_obj, action, importance)
 
             
     def assert_comparasion(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #self.information = "Value1 " + argparse_data.value1
-        #if argparse_data.argname == "rlAssertEquals":
-        #    self.information += " must be equal to Value2 "
-        #    self.information += argparse_data.value2
-        #elif argparse_data.argname == "rlAssertNotEquals":
-        #    self.information += " must not be equal to Value2 "
-        #    self.information += argparse_data.value2
-        #elif argparse_data.argname == "rlAssertGreater":
-        #    self.information += " must be greater to Value2 "
-        #    self.information += argparse_data.value2
-        #else:
-        #    self.information += " must be greater or equal to Value2 "
-        #    self.information += argparse_data.value2
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.medium
+        action = []
+        subject = []
+        subject.append(argparse_data.value1)
+        subject.append(argparse_data.value2)
+        if argparse_data.argname == "rlAssertEquals":
+            action.append("equal")
+        elif argparse_data.argname == "rlAssertNotEquals":
+            action.append("not equal")
+        elif argparse_data.argname == "rlAssertGreater":
+            action.append("greater")
+        else:
+            action.append("greater or equal")
+        topic_obj = topic("VALUE", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
     
     def assert0(self,argparse_data):
         pass
@@ -2046,35 +2044,93 @@ class information_SYSTEM_is_Fedora(information_unit):
             self.information += self.connect_multiple_facts(subjects)
 
 
+class information_FILE_differ(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "File1 " + subjects[0] + " and File2 "
+        self.information += subjects[1]
+        self.information += " must be different"
+
+
+class information_FILE_not_differ(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "File1 " + subjects[0] + " and File2 "
+        self.information += subjects[1]
+        self.information += " must be identical"
+
+
+class information_VALUE_equal(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Value1 " + subjects[0]
+        self.information += " must be equal to Value2 "
+        self.information += subjects[1]
+
+
+class information_VALUE_not_equal(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Value1 " + subjects[0]
+        self.information += " must not be equal to Value2 "
+        self.information += subjects[1]
+
+
+class information_VALUE_greater(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Value1 " + subjects[0]
+        self.information += " must be greater to Value2 "
+        self.information += subjects[1]
+
+
+class information_VALUE_greater_or_equal(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Value1 " + subjects[0]
+        self.information += " must be greater or equal to Value2 "
+        self.information += subjects[1]
+
+
 #knapsack problem
 class get_information(object):
 
-    array = [#topic: FILE(DIRECTORY),           STRING                   PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM # ACTIONS
-                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists,     0],  # exists
-                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # not exists
-                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # contain
-                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # not contain
-                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0,                    0],  # print(show)
-                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # resolve
-                [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create,    0],  # create
-                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0],  # check
-                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0,                    0],  # return
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0,                    0],  # run
-                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0,                    0],  # report
-                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0,        information_SERVICE_kill,       0,                    0],  # kill
-                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0,                    0,                  0,                    0],  # wait
-                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # import
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0,                  0,                    0],  # measures
-                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0,                  0,                    0],  # set
-                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore,    0,                    0],  # restore
-                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # backup
-                [         0,                information_STRING_hash,        0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # hash
-                [         0,                information_STRING_unhash,      0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # unhash
-                [         0,                     0,            information_PACKAGE_owned_by,             0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # owned by
-                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,      information_SYSTEM_is_RHEL],  # is RHEL
-                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,      information_SYSTEM_is_Fedora],  # is Fedora
-
-
+    array = [#topic: FILE(DIRECTORY),           STRING                   PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
+                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists,     0,                     0],  # exists
+                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # not exists
+                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # contain
+                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # not contain
+                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # print(show)
+                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # resolve
+                [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create,    0,                     0],  # create
+                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0,                     0],  # check
+                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0,                    0,                     0],  # return
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0,                    0,                     0],  # run
+                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # report
+                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0,        information_SERVICE_kill,       0,                    0,                     0],  # kill
+                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0,                    0,                  0,                    0,                     0],  # wait
+                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # import
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0,                  0,                    0,                     0],  # measures
+                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0,                  0,                    0,                     0],  # set
+                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore,    0,                    0,                     0],  # restore
+                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # backup
+                [         0,                information_STRING_hash,        0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # hash
+                [         0,                information_STRING_unhash,      0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # unhash
+                [         0,                     0,            information_PACKAGE_owned_by,             0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # owned by
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,      information_SYSTEM_is_RHEL,          0],  # is RHEL
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,      information_SYSTEM_is_Fedora,        0],  # is Fedora
+                [  information_FILE_differ,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # differ
+                [  information_FILE_not_differ,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # not differ
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,      information_VALUE_equal],  # equal
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,    information_VALUE_not_equal],  # not equal
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,      information_VALUE_greater],  # greater
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0, information_VALUE_greater_or_equal],  # greater or equal
         ]
 
 
@@ -2135,6 +2191,18 @@ class get_information(object):
             return 19
         elif self.is_action_owned_by(action):
             return 20
+        elif self.is_action_differ(action):
+            return 21
+        elif self.is_action_not_differ(action):
+            return 22
+        elif self.is_action_equal(action):
+            return 23
+        elif self.is_action_not_equal(action):
+            return 24
+        elif self.is_action_greater(action):
+            return 25
+        elif self.is_action_greater_or_equal(action):
+            return 26
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -2157,6 +2225,10 @@ class get_information(object):
             return 8
         elif self.is_topic_MOUNTPOINT(topic):
             return 9
+        elif self.is_topic_SYSTEM(topic):
+            return 10
+        elif self.is_topic_VALUE(topic):
+            return 11
 
 
     def is_topic_FILE(self, topic):
@@ -2188,6 +2260,12 @@ class get_information(object):
 
     def is_topic_MOUNTPOINT(self, topic):
         return topic == "MOUNTPOINT"
+
+    def is_topic_SYSTEM(self, topic):
+        return topic == "SYSTEM"
+
+    def is_topic_VALUE(self, topic):
+        return topic == "VALUE"
 
     def is_action_exists(self, action):
         return action == "exists"
@@ -2257,6 +2335,24 @@ class get_information(object):
 
     def is_action_is_Fedora(self, action):
         return action == "Fedora"
+
+    def is_action_differ(self, action):
+        return action == "differ"
+
+    def is_action_not_differ(self, action):
+        return action == "not differ"
+
+    def is_action_equal(self, action):
+        return action == "equal"
+
+    def is_action_not_equal(self, action):
+        return action == "not equal"
+
+    def is_action_greater(self, action):
+        return action == "greater"
+
+    def is_action_greater_or_equal(self, action):
+        return action == "greater or equal"
 
 
 class conditions_for_commands:
