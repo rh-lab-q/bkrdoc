@@ -1406,13 +1406,13 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def assert_binary_origin(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #self.information = "Binary " + argparse_data.binary + "must be"
-        #self.information += " owned by package(s) "
-        #self.information += self.connect_multiple_facts(argparse_data.package, 4)
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.medium
+        subject = []
+        subject.append(argparse_data.binary)
+        subject += argparse_data.package
+        topic_obj = topic("PACKAGE", subject)
+        action = ["owned by"]
+        self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def rpm_command(self,argparse_data):
         pass
@@ -1455,18 +1455,17 @@ class documentation_translator:
         #self.link_information,self.importance,self.connection)
         
     def IsRHEL_or_Is_Fedora(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #self.information += "Check if we'are running on"
-        #if argparse_data.argname == "rlIsRHEL":
-        #    self.information += " RHEL "
-        #else:
-        #    self.information += " Fedora "
-        
-        #if len(argparse_data.type):
-        #    self.information += self.connect_multiple_facts(argparse_data.type)
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.medium
+        action = []
+        subject = []
+        if argparse_data.argname == "rlIsRHEL":
+            action.append("RHEL")
+        else:
+            action.append("Fedora")
+        if len(argparse_data.type):
+            subject = argparse_data.type
+        topic_obj = topic("SYSTEM", subject)
+        self.inf_ref = documentation_information(topic_obj, action, importance)
         
     def assert_differ(self,argparse_data):
         pass
@@ -1536,11 +1535,11 @@ class documentation_translator:
             action.append("not contain")
         option = ""
         if argparse_data.text_in:
-            option = "text_in"
+            option.append("text_in")
         elif argparse_data.moin_in:
-            option = "moin_in"
+            option.append("moin_in")
         elif argparse_data.out_in:
-            option = "out_in"
+            option.append("out_in")
         self.inf_ref = documentation_information(topic_obj, action, importance, option)
 
 
@@ -1810,7 +1809,9 @@ class information_COMMAND_wait(information_unit):
 
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
-        if subjects[0] == "cmd": #rlWaitForCmd
+        if subjects[0] == "cmd":
+
+         #rlWaitForCmd
             option = information_obj.get_option()
             self.information = "Pauses script execution until command " + subjects[1]
             if option[0] == "0":
@@ -2016,30 +2017,64 @@ class information_MOUNTPOINT_check(information_unit):
             self.information += " to server " + subjects[1]
 
 
+class information_PACKAGE_owned_by(information_unit):
 
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information = "Binary " + subjects[0] + "must be"
+        self.information += " owned by package(s) "
+        self.information += self.connect_multiple_facts(subjects[1:], 4)
+
+
+class information_SYSTEM_is_RHEL(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information += "Check if we are running on"
+        self.information += " RHEL "
+        if subjects:
+            self.information += self.connect_multiple_facts(subjects)
+
+
+class information_SYSTEM_is_Fedora(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        self.information += "Check if we are running on"
+        self.information += " Fedora "
+        if subjects:
+            self.information += self.connect_multiple_facts(subjects)
+
+
+#knapsack problem
 class get_information(object):
 
-    array = [#topic: FILE(DIRECTORY),           STRING                   PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT# ACTIONS
-                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists],  # exists
-                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # not exists
-                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # contain
-                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # not contain
-                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0],  # print(show)
-                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # resolve
-                [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create],  # create
-                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check],  # check
-                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0],  # return
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0],  # run
-                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0],  # report
-                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0,        information_SERVICE_kill,       0],  # kill
-                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0,                    0,                  0],  # wait
-                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0,                  0],  # import
-                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0,                  0],  # measures
-                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0,                  0],  # set
-                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore,    0],  # restore
-                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # backup
-                [         0,                information_STRING_hash,        0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # hash
-                [         0,                information_STRING_unhash,      0,                           0,             0,              0,                   0,                  0,                    0,                  0],  # unhash
+    array = [#topic: FILE(DIRECTORY),           STRING                   PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM # ACTIONS
+                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists,     0],  # exists
+                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # not exists
+                [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # contain
+                [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # not contain
+                [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0,                    0],  # print(show)
+                [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # resolve
+                [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create,    0],  # create
+                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0],  # check
+                [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0,                    0],  # return
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0,                    0],  # run
+                [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0,                    0],  # report
+                [         0,                     0,                         0,                           0,             0,              0,        information_SERVER_kill,       0,        information_SERVICE_kill,       0,                    0],  # kill
+                [  information_FILE_wait,        0,                         0,                           0,             0, information_COMMAND_wait,         0,                  0,                    0,                  0,                    0],  # wait
+                [         0,                     0,               information_PACKAGE_import,            0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # import
+                [         0,                     0,                         0,                           0,             0, information_COMMAND_measures,     0,                  0,                    0,                  0,                    0],  # measures
+                [         0,                     0,                         0,                           0,             0,              0,                   0,    information_BOOLEAN_set,            0,                  0,                    0],  # set
+                [  information_FILE_restore,     0,                         0,                           0,             0,              0,                   0,                  0,        information_SERVICE_restore,    0,                    0],  # restore
+                [  information_FILE_backup,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # backup
+                [         0,                information_STRING_hash,        0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # hash
+                [         0,                information_STRING_unhash,      0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # unhash
+                [         0,                     0,            information_PACKAGE_owned_by,             0,             0,              0,                   0,                  0,                    0,                  0,                    0],  # owned by
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,      information_SYSTEM_is_RHEL],  # is RHEL
+                [         0,                     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,      information_SYSTEM_is_Fedora],  # is Fedora
+
+
         ]
 
 
@@ -2098,6 +2133,8 @@ class get_information(object):
             return 18
         elif self.is_action_unhash(action):
             return 19
+        elif self.is_action_owned_by(action):
+            return 20
 
     def get_topic_number(self,topic):
         if self.is_topic_FILE(topic):
@@ -2212,6 +2249,14 @@ class get_information(object):
     def is_action_unhash(self, action):
         return action == "unhash"
 
+    def is_action_owned_by(self, action):
+        return action == "owned_by"
+
+    def is_action_is_RHEL(self, action):
+        return action == "RHEL"
+
+    def is_action_is_Fedora(self, action):
+        return action == "Fedora"
 
 
 class conditions_for_commands:
