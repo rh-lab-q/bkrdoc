@@ -1,0 +1,12 @@
+- Extraction extra information from rlRun commands
+- Implementation remaining information units
+- Dropping less important information units (knapsack problem)
+- Connecting information units
+- Shortening information units 
+- Dynamic analysis
+- Searching for parameters important for launching tests
+- Adding information about credibility of generated documentation 
+- templates of documentation
+- Information units as data in extra config file
+- Extraction of keywords from test for documentation
+- Automatic generation of test summary
