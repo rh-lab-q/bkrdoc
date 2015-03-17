@@ -470,7 +470,7 @@ class statement_automata:
                     self.assert0(pom_list)
                     
                 elif condition.is_assert_comparasion(first):
-                    self.assert_comparasion(pom_list)
+                    self.assert_comparison(pom_list)
                     
                 elif condition.is_assert_exists(first):
                     self.assert_exits(pom_list)
@@ -864,7 +864,7 @@ class statement_automata:
         parser.add_argument('file_directory', type = str)
         self.parsed_param_ref = parser.parse_args(pom_param_list)
             
-    def assert_comparasion(self,pom_param_list):
+    def assert_comparison(self,pom_param_list):
         parser = argparse.ArgumentParser()
         parser.add_argument("argname", type=str)
         parser.add_argument('comment', type = str)
@@ -944,7 +944,7 @@ class documentation_translator:
                 self.assert0(argparse_data)
                 
             elif condition.is_assert_comparasion(argname):
-                self.assert_comparasion(argparse_data)
+                self.assert_comparison(argparse_data)
                     
             elif condition.is_assert_exists(argname):
                 self.assert_exits(argparse_data)
@@ -1493,7 +1493,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
 
             
-    def assert_comparasion(self,argparse_data):
+    def assert_comparison(self,argparse_data):
         importance = self.medium
         action = []
         subject = []
@@ -1511,11 +1511,10 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
     
     def assert0(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #self.information = "Value " + argparse_data.value + " must be 0"
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+        importance = self.medium
+        topic_obj = topic("VALUE", [argparse_data.value])
+        action = ["check"]
+        self.inf_ref = documentation_information(topic_obj, action, importance)
     
     def rlPass_or_rlFail(self,argparse_data):
         pass
@@ -2098,6 +2097,12 @@ class information_VALUE_greater_or_equal(information_unit):
         self.information += subjects[1]
 
 
+class information_VALUE_check(information_unit):
+
+    def set_information(self, information_obj):
+        self.information = "Value " + information_obj.get_topic_subject()[0] + " must be 0"
+
+
 #knapsack problem
 class get_information(object):
 
@@ -2109,7 +2114,7 @@ class get_information(object):
                 [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # print(show)
                 [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # resolve
                 [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create,    0,                     0],  # create
-                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0,                     0],  # check
+                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0,      information_VALUE_check],  # check
                 [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0,                    0,                     0],  # return
                 [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0,                    0,                     0],  # run
                 [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # report
