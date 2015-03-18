@@ -1415,44 +1415,33 @@ class documentation_translator:
         self.inf_ref = documentation_information(topic_obj, action, importance)
             
     def rpm_command(self,argparse_data):
-        pass
-        #self.importance = self.medium
-        #self.connection.append(argparse_data.name)
-        #if argparse_data.argname == "rlCheckRpm":
-        #    self.information = "Check if package " + argparse_data.name
-        #    self.information += " is installed"
-        #    self.link_information = "check if is it installed"
-        #elif argparse_data.argname == "rlAssertRpm":
-        #    if argparse_data.all:
-        #        self.information = "Packages in $PACKAGES, $REQUIRES"
-        #        self.information += " and $COLLECTIONS must be installed"
-        #    else:
-        #        self.information = "Package " + argparse_data.name
-        #        self.information += " must be installed"
-        #        self.link_information = " must be installed"
-        #else:
-        #    self.information = "Package " + argparse_data.name
-        #    self.information += " must not be installed"
-        #    self.link_information = " must not be installed"
+        importance = self.medium
+        subject = []
+        action = []
+        subject.append(argparse_data.name)
+        if argparse_data.argname == "rlCheckRpm":
+            action.append("check")
+        elif argparse_data.argname == "rlAssertRpm":
+            action.append("exists")
+            if argparse_data.all:
+                subject.append("all")
+        else:
+            action.append("not exists")
+        topic_obj = topic("PACKAGE", subject)
+        option = ["","",""]
+        if argparse_data.version or argparse_data.release or \
+        argparse_data.arch:
+            if argparse_data.version:
+                option[0] = argparse_data.version
             
-        #if argparse_data.version or argparse_data.release or \
-        #argparse_data.arch:
-        #    self.information += " with"
-        #    self.link_information += " with"
-        #    if argparse_data.version:
-        #        self.information += " version: " + argparse_data.version
-        #        self.link_information += " version: " + argparse_data.version
-            
-        #    if argparse_data.release:
-        #        self.information += " release: " + argparse_data.release
-        #        self.link_information += " release: " + argparse_data.release
+            if argparse_data.release:
+                option[1] = argparse_data.release
                 
-        #    if argparse_data.arch:
-        #        self.information += " architecture: " + argparse_data.arch
-        #        self.link_information += " architecture: " + argparse_data.arch
-        #
-        #self.inf_ref = documentation_information(self.information,\
-        #self.link_information,self.importance,self.connection)
+            if argparse_data.arch:
+                option[2] = argparse_data.arch
+
+        #TODO test correction of generation of information unit for this commands
+        self.inf_ref = documentation_information(topic_obj, action, importance, option)
         
     def IsRHEL_or_Is_Fedora(self,argparse_data):
         importance = self.medium
@@ -1530,7 +1519,7 @@ class documentation_translator:
             action.append("contain")
         else:
             action.append("not contain")
-        option = ""
+        option = []
         if argparse_data.text_in:
             option.append("text_in")
         elif argparse_data.moin_in:
@@ -2103,18 +2092,85 @@ class information_VALUE_check(information_unit):
         self.information = "Value " + information_obj.get_topic_subject()[0] + " must be 0"
 
 
+class information_PACKAGE_check(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        self.information = "Check if package " + information_obj.get_topic_subject()[0]
+        self.information += " is installed"
+        self.link_information = "check if is it installed"
+
+        if option:
+            self.information += " with"
+            if option[0]:
+                self.information += " version: " + option[0]
+
+            if option[1]:
+                self.information += " release: " + option[1]
+
+            if option[2]:
+                self.information += " architecture: " + option[2]
+
+
+class information_PACKAGE_exists(information_unit):
+
+    def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
+        option = information_obj.get_option()
+        if subjects[0] == "all":
+            self.information = "Packages in $PACKAGES, $REQUIRES"
+            self.information += " and $COLLECTIONS must be installed"
+        else:
+            self.information = "Package " + subjects[0]
+            self.information += " must be installed"
+            self.link_information = " must be installed"
+
+        if option:
+            self.information += " with"
+            if option[0]:
+                self.information += " version: " + option[0]
+
+            if option[1]:
+                self.information += " release: " + option[1]
+
+            if option[2]:
+                self.information += " architecture: " + option[2]
+
+
+class information_PACKAGE_not_exists(information_unit):
+
+    def set_information(self, information_obj):
+        option = information_obj.get_option()
+        self.information = "Package " + information_obj.get_topic_subject()[0]
+        self.information += " must not be installed"
+        self.link_information = " must not be installed"
+
+        if option:
+            self.information += " with"
+            if option[0]:
+                self.information += " version: " + option[0]
+
+            if option[1]:
+                self.information += " release: " + option[1]
+
+            if option[2]:
+                self.information += " architecture: " + option[2]
+
+#TODO TEST options from rlRmp commands
+
+
 #knapsack problem
 class get_information(object):
 
     array = [#topic: FILE(DIRECTORY),           STRING                   PACKAGE               JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
-                [  information_FILE_exists,      0,                         0,                           0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists,     0,                     0],  # exists
-                [  information_FILE_not_exists,  0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # not exists
+                [  information_FILE_exists,      0,               information_PACKAGE_exists,            0,             0,              0,                   0,                  0,                    0,     information_MOUNTPOINT_exists,     0,                     0],  # exists
+                [  information_FILE_not_exists,  0,               information_PACKAGE_not_exists,        0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # not exists
                 [  information_FILE_contain,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # contain
                 [  information_FILE_not_contain, 0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # not contain
                 [  information_FILE_print,       0,               information_PACKAGE_print, information_JOURNAL_print, 0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # print(show)
                 [  information_FILE_resolve,     0,                         0,                           0,             0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # resolve
                 [  information_FILE_create, information_STRING_create,      0,                           0, information_MESSAGE_create, 0,                   0,                  0,                    0,      information_MOUNTPOINT_create,    0,                     0],  # create
-                [  information_FILE_check,       0,                         0,                           0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0,      information_VALUE_check],  # check
+                [  information_FILE_check,       0,               information_PACKAGE_check,             0,             0,              0,                   0,                  0,                    0,      information_MOUNTPOINT_check,     0,      information_VALUE_check],  # check
                 [         0,                     0,                         0,              information_JOURNAL_return, 0,              0,        information_SERVER_return,     0,                    0,                  0,                    0,                     0],  # return
                 [         0,                     0,                         0,                           0,             0, information_COMMAND_run, information_SERVER_run,      0,        information_SERVICE_run,        0,                    0,                     0],  # run
                 [         0,                     0,                         0,              information_JOURNAL_report, 0,              0,                   0,                  0,                    0,                  0,                    0,                     0],  # report
