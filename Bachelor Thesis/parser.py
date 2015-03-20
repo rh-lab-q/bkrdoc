@@ -782,8 +782,6 @@ class statement_automata:
 
     def rlHash_or_rlUnhash(self, pom_param_list):
         parser_arg = argparse.ArgumentParser()
-        print(pom_param_list)
-        print("-----------------------------------")
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('--decode', dest='decode', action='store_true',
                                 default=False, help='unhash given string')
@@ -791,7 +789,6 @@ class statement_automata:
                                 help="given hash algorithm")
         parser_arg.add_argument("STRING", type=str, nargs='?')
         parser_arg.add_argument('--stdin', action='store_true', default=False)
-        parser_arg.print_usage()
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def check_or_assert_mount(self, pom_param_list):
@@ -1597,7 +1594,7 @@ class information_FILE_resolve(information_unit):
 class information_FILE_create(information_unit):
     def set_information(self, information_obj):
         self.information = "Creates a tarball of file(s) " + self.connect_multiple_facts(
-            information_obj.get_topic_subject, 3)
+            information_obj.get_topic_subject(), 3)
         self.information += " and attached it/them to test result"
 
 
@@ -1750,20 +1747,20 @@ class information_FILE_wait(information_unit):
                 self.information += " must be running"
             else:
                 self.information = "Pauses script until file or directory with this path "
-                self.information += information_obj.get_topic_subject()[0] + " starts listening"
+                self.information += information_obj.get_topic_subject()[1] + " starts listening"
         else:  # rlWaitForScript
             if option:
                 if option[0] == "close":
                     self.information = "Wait for the socket with this path"
-                    self.information += information_obj.get_topic_subject()[0] + "to stop listening"
+                    self.information += information_obj.get_topic_subject()[1] + "to stop listening"
                 elif option[0] == "p":
                     self.information = "Pauses script until socket with this path or port "
-                    self.information += information_obj.get_topic_subject()[0] + " starts listening"
+                    self.information += information_obj.get_topic_subject()[1] + " starts listening"
                     self.information += "\n and process with this PID " + option[0]
                     self.information += " must be running"
             else:
                 self.information = "Pauses script until socket with this path or port "
-                self.information += information_obj.get_topic_subject()[0] + " starts listening"
+                self.information += information_obj.get_topic_subject()[1] + " starts listening"
 
 
 class information_PACKAGE_import(information_unit):
