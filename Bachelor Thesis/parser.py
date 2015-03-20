@@ -8,7 +8,7 @@ import re
 import argparse
 
 
-class parser(object):
+class Parser(object):
     lexer = shlex
 
     file_test = ""
@@ -50,7 +50,7 @@ class parser(object):
                 sys.exit(1)
 
         else:
-            print "ERROR: Not a script file. (.sh)"
+            print("ERROR: Not a script file. (*.sh)")
             sys.exit(1)
 
     def parse_data(self):
@@ -87,8 +87,8 @@ class parser(object):
 
     def print_statement(self):
         for i in self.phases:
-            print i.statement_list
-            print "\n"
+            print(i.statement_list)
+            print("\n")
 
     def is_end_back_slash(self, line):
         return line[-1:] == '\\'
@@ -157,7 +157,7 @@ class parser(object):
 
             elif member == phase_ref:
                 if pom_variable == "":
-                    print "UNKNOWN VARIABLE !!!"
+                    print("UNKNOWN VARIABLE !!!")
                 return pom_variable
 
 
@@ -329,13 +329,13 @@ class phase_clean:
                 self.documentation_information.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        print self.phase_name
+        print(self.phase_name)
         information_translator = get_information()
         for information in self.documentation_information:
             if information:
                 inf = information_translator.get_information_from_facts(information)
                 inf.print_information()
-        print ""
+        print("")
 
 
 class phase_test:
@@ -371,13 +371,13 @@ class phase_test:
                 self.documentation_information.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        print self.phase_name
+        print(self.phase_name)
         information_translator = get_information()
         for information in self.documentation_information:
             if information:
                 inf = information_translator.get_information_from_facts(information)
                 inf.print_information()
-        print ""
+        print("")
 
 
 class phase_setup:
@@ -413,13 +413,13 @@ class phase_setup:
                 self.documentation_information.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        print self.phase_name
+        print(self.phase_name)
         information_translator = get_information()
         for information in self.documentation_information:
             if information:
                 inf = information_translator.get_information_from_facts(information)
                 inf.print_information()
-        print ""
+        print("")
 
 
 class statement_automata:
@@ -591,297 +591,301 @@ class statement_automata:
         return
 
     def rlJournalPrint(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("type", type=str, nargs="?")
-        parser.add_argument('--full-journal', dest='full_journal',
-                            action='store_true', default=False)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("type", type=str, nargs="?")
+        parser_arg.add_argument('--full-journal', dest='full_journal',
+                                action='store_true', default=False)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlShowPackageVersion(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("package", type=str, nargs="+")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("package", type=str, nargs="+")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlFileSubmit(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("-s", type=str, help="sets separator")
-        parser.add_argument("path_to_file", type=str)
-        parser.add_argument("required_name", type=str, nargs="?")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("-s", type=str, help="sets separator")
+        parser_arg.add_argument("path_to_file", type=str)
+        parser_arg.add_argument("required_name", type=str, nargs="?")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlBundleLogs(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("package", type=str)
-        parser.add_argument("file", type=str, nargs="+")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("package", type=str)
+        parser_arg.add_argument("file", type=str, nargs="+")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlDie(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("message", type=str)
-        parser.add_argument("file", type=str, nargs="*")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("message", type=str)
+        parser_arg.add_argument("file", type=str, nargs="*")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlLog(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("message", type=str)
-        parser.add_argument("logfile", type=str, nargs="?")
-        parser.add_argument("priority", type=str, nargs="?")
-        parser.add_argument('--prio-label', dest='prio_label',
-                            action='store_true', default=False)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("message", type=str)
+        parser_arg.add_argument("logfile", type=str, nargs="?")
+        parser_arg.add_argument("priority", type=str, nargs="?")
+        parser_arg.add_argument('--prio-label', dest='prio_label',
+                                action='store_true', default=False)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlShowRunningKernel(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlGet_or_rlCheck_MakefileRequeries(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlGet_command(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def unknown_command(self, pom_param_list, statement_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        self.parsed_param_ref = parser.parse_args(["UNKNOWN"])
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"])
         # Trying to find variable assignment in statement line
         self.is_variable_assignment(statement_list)
 
     def rlWatchdog(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("command", type=str)
-        parser.add_argument("timeout", type=str)
-        parser.add_argument("signal", type=str, nargs='?', default="KILL")
-        parser.add_argument("callback", type=str, nargs='?')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("command", type=str)
+        parser_arg.add_argument("timeout", type=str)
+        parser_arg.add_argument("signal", type=str, nargs='?', default="KILL")
+        parser_arg.add_argument("callback", type=str, nargs='?')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlReport(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("name", type=str)
-        parser.add_argument("result", type=str)
-        parser.add_argument("score", type=str, nargs='?')
-        parser.add_argument("log", type=str, nargs='?')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("name", type=str)
+        parser_arg.add_argument("result", type=str)
+        parser_arg.add_argument("score", type=str, nargs='?')
+        parser_arg.add_argument("log", type=str, nargs='?')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlRun(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('-t', dest='t', action='store_true', default=False)
-        parser.add_argument('-l', dest='l', action='store_true', default=False)
-        parser.add_argument('-c', dest='c', action='store_true', default=False)
-        parser.add_argument('-s', dest='s', action='store_true', default=False)
-        parser.add_argument("command", type=str)
-        parser.add_argument("status", type=str, nargs='?', default="0")
-        parser.add_argument("comment", type=str, nargs='?')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('-t', dest='t', action='store_true', default=False)
+        parser_arg.add_argument('-l', dest='l', action='store_true', default=False)
+        parser_arg.add_argument('-c', dest='c', action='store_true', default=False)
+        parser_arg.add_argument('-s', dest='s', action='store_true', default=False)
+        parser_arg.add_argument("command", type=str)
+        parser_arg.add_argument("status", type=str, nargs='?', default="0")
+        parser_arg.add_argument("comment", type=str, nargs='?')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlVirtualX_xxx(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("name", type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("name", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlWaitFor(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('n', type=str, nargs='*')
-        parser.add_argument("-t", type=int, help="time")
-        parser.add_argument("-s", type=str, help="SIGNAL", default="SIGTERM")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('n', type=str, nargs='*')
+        parser_arg.add_argument("-t", type=int, help="time")
+        parser_arg.add_argument("-s", type=str, help="SIGNAL", default="SIGTERM")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlWaitForxxx(self, pom_param_list, command):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("-p", type=str, help="PID")
-        parser.add_argument("-t", type=str, help="time")
-        parser.add_argument("-d", type=int, help="delay", default=1)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("-p", type=str, help="PID")
+        parser_arg.add_argument("-t", type=str, help="time")
+        parser_arg.add_argument("-d", type=int, help="delay", default=1)
 
         if conditions_for_commands().is_rlWaitForCmd(command):
-            parser.add_argument("command", type=str)
-            parser.add_argument("-m", type=str, help="count")
-            parser.add_argument("-r", type=str, help="retrval", default="0")
+            parser_arg.add_argument("command", type=str)
+            parser_arg.add_argument("-m", type=str, help="count")
+            parser_arg.add_argument("-r", type=str, help="retrval", default="0")
 
         elif conditions_for_commands().is_rlWaitForFile(command):
-            parser.add_argument("path", type=str)
+            parser_arg.add_argument("path", type=str)
 
         elif conditions_for_commands().is_rlWaitForSocket(command):
-            parser.add_argument("port_path", type=str)
-            parser.add_argument('--close', dest='close', action='store_true',
-                                default=False)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+            parser_arg.add_argument("port_path", type=str)
+            parser_arg.add_argument('--close', dest='close', action='store_true',
+                                    default=False)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlImport(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("LIBRARY", type=str, nargs='+')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("LIBRARY", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlPerfTime_RunsInTime(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("command", type=str)
-        parser.add_argument("time", type=int, nargs='?', default=30)
-        parser.add_argument("runs", type=int, nargs='?', default=3)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("command", type=str)
+        parser_arg.add_argument("time", type=int, nargs='?', default=30)
+        parser_arg.add_argument("runs", type=int, nargs='?', default=3)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlPerfTime_AvgFromRuns(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("command", type=str)
-        parser.add_argument("count", type=int, nargs='?', default=3)
-        parser.add_argument("warmup", type=str, nargs='?', default="warmup")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("command", type=str)
+        parser_arg.add_argument("count", type=int, nargs='?', default=3)
+        parser_arg.add_argument("warmup", type=str, nargs='?', default="warmup")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlCleanup_Apend_or_Prepend(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("string", type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("string", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def SEBooleanxxx(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("boolean", type=str, nargs='+')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("boolean", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlServicexxx(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("service", type=str, nargs='+')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("service", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlFile_Restore(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument("--namespace", type=str,
-                            help="specified namespace to use")
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("--namespace", type=str,
+                                help="specified namespace to use")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlFileBackup(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('--clean', dest='clean', action='store_true',
-                            default=False)
-        parser.add_argument("--namespace", type=str,
-                            help="specified namespace to use")
-        parser.add_argument('file', type=str, nargs='+')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('--clean', dest='clean', action='store_true',
+                                default=False)
+        parser_arg.add_argument("--namespace", type=str,
+                                help="specified namespace to use")
+        parser_arg.add_argument('file', type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlHash_or_rlUnhash(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('--decode', dest='decode', action='store_true',
-                            default=False, help='unhash given string')
-        parser.add_argument("--algorithm", type=str,
-                            help="given hash algorithm")
-        parser.add_argument('stdin_STRING', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        print(pom_param_list)
+        print("-----------------------------------")
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('--decode', dest='decode', action='store_true',
+                                default=False, help='unhash given string')
+        parser_arg.add_argument("--algorithm", type=str,
+                                help="given hash algorithm")
+        parser_arg.add_argument("STRING", type=str, nargs='?')
+        parser_arg.add_argument('--stdin', action='store_true', default=False)
+        parser_arg.print_usage()
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def check_or_assert_mount(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('server', type=str, nargs='?')
-        parser.add_argument('share', type=str, nargs='?')
-        parser.add_argument('mountpoint', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('server', type=str, nargs='?')
+        parser_arg.add_argument('share', type=str, nargs='?')
+        parser_arg.add_argument('mountpoint', type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rl_mount(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('server', type=str)
-        parser.add_argument('share', type=str)
-        parser.add_argument('mountpoint', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('server', type=str)
+        parser_arg.add_argument('share', type=str)
+        parser_arg.add_argument('mountpoint', type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert_binary_origin(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('binary', type=str)
-        parser.add_argument('package', type=str, nargs='*')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('binary', type=str)
+        parser_arg.add_argument('package', type=str, nargs='*')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rpm_command(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
         if len(pom_param_list) == 2 and pom_param_list[1] == "--all":
-            parser.add_argument('--all', dest='all', action='store_true',
-                                default=False, help='assert all packages')
-            self.parsed_param_ref = parser.parse_args(pom_param_list)
+            parser_arg.add_argument('--all', dest='all', action='store_true',
+                                    default=False, help='assert all packages')
+            self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
         else:
-            parser.add_argument('name', type=str)
-            parser.add_argument('version', type=str, nargs='?')
-            parser.add_argument('release', type=str, nargs='?')
-            parser.add_argument('arch', type=str, nargs='?')
+            parser_arg.add_argument('name', type=str)
+            parser_arg.add_argument('version', type=str, nargs='?')
+            parser_arg.add_argument('release', type=str, nargs='?')
+            parser_arg.add_argument('arch', type=str, nargs='?')
             # this line is for information translator
-            parser.add_argument('--all', dest='all', action='store_true',
-                                default=False, help='assert all packages')
-            self.parsed_param_ref = parser.parse_args(pom_param_list)
+            parser_arg.add_argument('--all', dest='all', action='store_true',
+                                    default=False, help='assert all packages')
+            self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def IsRHEL_or_Is_Fedora(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('type', type=str, nargs='*')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('type', type=str, nargs='*')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert_differ(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('file1', type=str)
-        parser.add_argument('file2', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('file1', type=str)
+        parser_arg.add_argument('file2', type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert_exits(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('file_directory', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('file_directory', type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert_comparison(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('comment', type=str)
-        parser.add_argument('value1', type=int)
-        parser.add_argument('value2', type=int)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('comment', type=str)
+        parser_arg.add_argument('value1', type=int)
+        parser_arg.add_argument('value2', type=int)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert0(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('comment', type=str)
-        parser.add_argument('value', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('comment', type=str)
+        parser_arg.add_argument('value', type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlPass_or_rlFail(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('comment', type=str)
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('comment', type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert_grep(self, pom_param_list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("argname", type=str)
-        parser.add_argument('pattern', type=str)
-        parser.add_argument('file', type=str)
-        parser.add_argument('-i', '-I', dest='text_in', action='store_true',
-                            default=False, help='insensitive matches')
-        parser.add_argument('-e', '-E', dest='moin_in', action='store_true',
-                            default=False, help='Extended grep')
-        parser.add_argument('-p', '-P', dest='out_in', action='store_true',
-                            default=False, help='perl regular expression')
-        self.parsed_param_ref = parser.parse_args(pom_param_list)
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument('pattern', type=str)
+        parser_arg.add_argument('file', type=str)
+        parser_arg.add_argument('-i', '-I', dest='text_in', action='store_true',
+                                default=False, help='insensitive matches')
+        parser_arg.add_argument('-e', '-E', dest='moin_in', action='store_true',
+                                default=False, help='Extended grep')
+        parser_arg.add_argument('-p', '-P', dest='out_in', action='store_true',
+                                default=False, help='perl regular expression')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def is_beakerLib_command(self, testing_command, parser_ref):
         return parser_ref.is_beakerLib_command(testing_command)
@@ -1306,9 +1310,13 @@ class documentation_translator:
     def rlHash_or_rlUnhash(self, argparse_data):
         importance = self.medium
         option = []
-        subject = [argparse_data.stdin_STRING]
+        subject = []
+        if argparse_data.stdin:
+            subject.append(argparse_data.stdin)
+        else:
+            subject.append(argparse_data.STRING)
         action = []
-        if argparse_data.argname == "rlUnhas" or argparse_data.decode:
+        if argparse_data.argname == "rlUnhash" or argparse_data.decode:
             action.append("unhash")
         else:
             action.append("hash")
@@ -1458,8 +1466,8 @@ class topic(object):
 
     subject = []
 
-    def __init__(self, topic, subject):
-        self.topic = topic
+    def __init__(self, Topic, subject):
+        self.topic = Topic
         self.subject = subject
 
     def get_topic(self):
@@ -1478,10 +1486,10 @@ class documentation_information(object):
 
     importance = ""
 
-    def __init__(self, topic, action, importance, options=None):
+    def __init__(self, Topic, action, importance, options=None):
         if not options:
             options = []
-        self.topic = topic
+        self.topic = Topic
         self.options = options
         self.action = action
         self.importance = importance
@@ -1535,7 +1543,7 @@ class information_unit(object):
         return pom_inf
 
     def print_information(self):
-        print "   " + self.information
+        print("   " + self.information)
 
 
 class information_FILE_exists(information_unit):
@@ -1851,9 +1859,13 @@ class information_FILE_backup(information_unit):
 
 class information_STRING_hash(information_unit):
     def set_information(self, information_obj):
+        subjects = information_obj.get_topic_subject()
         option = information_obj.get_option()
         self.information = "Hashing string "
-        self.information += information_obj.get_topic_subject()[0]
+        if subjects[0] == True:
+            self.information += "from input"
+        else:
+            self.information += subjects[0]
         if option:
             self.information += " with hashing algorithm "
             self.information += option[0]
@@ -1862,8 +1874,12 @@ class information_STRING_hash(information_unit):
 class information_STRING_unhash(information_unit):
     def set_information(self, information_obj):
         option = information_obj.get_option()
+        subjects = information_obj.get_topic_subject()
         self.information = "Unhashing string "
-        self.information += information_obj.get_topic_subject()[0]
+        if subjects[0] == True:
+            self.information += "from input"
+        else:
+            self.information += subjects[0]
 
         if option:
             self.information += " with hashing algorithm "
@@ -2008,7 +2024,8 @@ class information_PACKAGE_exists(information_unit):
             self.information = "Package " + subjects[0]
             self.information += " must be installed"
 
-        if option:
+        if option[0] or option[1] or option[2]:
+            print(len(option))
             self.information += " with"
             if option[0]:
                 self.information += " version: " + option[0]
@@ -2042,14 +2059,15 @@ class information_PACKAGE_not_exists(information_unit):
 
 
 # knapsack problem
+# noinspection PyShadowingNames
 class get_information(object):
     array = [
         # topic: FILE(DIRECTORY),           STRING                   PACKAGE          JOURNAL,PHASE,TEST       MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
-        [information_FILE_exists,           0,           information_PACKAGE_exists,              0,              0,              0,                     0,                  0,                  0,  information_MOUNTPOINT_exists,         0,                     0], # exists
+        [information_FILE_exists,           0,           information_PACKAGE_exists,              0,              0,              0,                     0,                  0,                  0,  information_MOUNTPOINT_exists,         0,                     0],  # exists
         [information_FILE_not_exists,       0,           information_PACKAGE_not_exists,          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not exists
         [information_FILE_contain,          0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # contain
         [information_FILE_not_contain,      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not contain
-        [information_FILE_print,            0,           information_PACKAGE_print,   information_JOURNAL_print,  0,              0,                     0,                  0,                  0,                   0,                    0,                     0], # print(show)
+        [information_FILE_print,            0,           information_PACKAGE_print,   information_JOURNAL_print,  0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # print(show)
         [information_FILE_resolve,          0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # resolve
         [information_FILE_create, information_STRING_create,        0,                            0, information_MESSAGE_create,  0,                     0,                  0,                  0,  information_MOUNTPOINT_create,         0,                     0],  # create
         [information_FILE_check,            0,           information_PACKAGE_check,               0,              0,              0,                     0,                  0,                  0,  information_MOUNTPOINT_check,          0,         information_VALUE_check],  # check
@@ -2377,9 +2395,9 @@ class conditions_for_commands:
         return command == "rlAssertExists" or command == "rlAssertNotExists"
 
     def is_assert_comparasion(self, command):
-        pom = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",
-               "rlAssertGreaterOrEqual"]
-        return command in pom
+        pom_list = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",
+                    "rlAssertGreaterOrEqual"]
+        return command in pom_list
 
     def is_rlPass_or_rlFail(self, command):
         return command == "rlPass" or command == "rlFail"
@@ -2400,21 +2418,21 @@ class conditions_for_commands:
         return line[0:len("rlRun")] == "rlRun"
 
     def is_rlJournalPrint(self, command):
-        pom = ["rlJournalPrint", "rlJournalPrintText"]
-        return command in pom
+        pom_list = ["rlJournalPrint", "rlJournalPrintText"]
+        return command in pom_list
 
     def is_rlGetPhase_or_Test_State(self, command):
-        pom = ["rlGetPhaseState", "rlGetTestState"]
-        return command in pom
+        pom_list = ["rlGetPhaseState", "rlGetTestState"]
+        return command in pom_list
 
     def is_rlLog(self, command):
-        pom = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",
-               "rlLogDebug", "rlLog"]
-        return command in pom
+        pom_list = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",
+                    "rlLogDebug", "rlLog"]
+        return command in pom_list
 
     def is_rlLogMetric(self, command):
-        pom = ["rlLogMetricLow", "rlLogMetricHigh"]
-        return command in pom
+        pom_list = ["rlLogMetricLow", "rlLogMetricHigh"]
+        return command in pom_list
 
     def is_rlDie(self, command):
         return command[0:len("rlDie")] == "rlDie"
@@ -2429,12 +2447,12 @@ class conditions_for_commands:
         return command[0:len("rlShowPackageVersion")] == "rlShowPackageVersion"
 
     def is_rlGet_x_Arch(self, command):
-        pom = ["rlGetArch", "rlGetPrimaryArch", "rlGetSecondaryArch"]
-        return command in pom
+        pom_list = ["rlGetArch", "rlGetPrimaryArch", "rlGetSecondaryArch"]
+        return command in pom_list
 
     def is_rlGetDistro(self, command):
-        pom = ["rlGetDistroRelease", "rlGetDistroVariant"]
-        return command in pom
+        pom_list = ["rlGetDistroRelease", "rlGetDistroVariant"]
+        return command in pom_list
 
     def is_rlShowRunningKernel(self, command):
         return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
@@ -2442,7 +2460,7 @@ class conditions_for_commands:
 
 # ***************** MAIN ******************
 for arg in sys.argv[1:len(sys.argv)]:
-    pom = parser(arg)
+    pom = Parser(arg)
     # pom.print_statement()
     pom.get_doc_data()
     pom.get_documentation_information()
