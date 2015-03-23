@@ -437,121 +437,121 @@ class statement_automata:
         pom_list = shlex.split(pom_statement_line, True, posix=True)
         first = pom_list[0]
 
-        if self.is_beakerLib_command(first, self.parser_ref):
-            condition = conditions_for_commands()
+        # if self.is_beakerLib_command(first, self.parser_ref):
+        condition = conditions_for_commands()
 
-            if condition.is_rlrun_command(first):
-                self.rlRun(pom_list)
+        if condition.is_rlrun_command(first):
+            self.rlRun(pom_list)
 
-            elif condition.is_Rpm_command(first):
-                self.rpm_command(pom_list)
+        elif condition.is_Rpm_command(first):
+            self.rpm_command(pom_list)
 
-            elif condition.is_check_or_assert_mount(first):
-                self.check_or_assert_mount(pom_list)
+        elif condition.is_check_or_assert_mount(first):
+            self.check_or_assert_mount(pom_list)
 
-            elif condition.is_assert_command(first):
+        elif condition.is_assert_command(first):
 
-                if condition.is_assert_grep(first):
-                    self.assert_grep(pom_list)
+            if condition.is_assert_grep(first):
+                self.assert_grep(pom_list)
 
-                elif condition.is_rlPass_or_rlFail(first):
-                    self.rlPass_or_rlFail(pom_list)
+            elif condition.is_rlPass_or_rlFail(first):
+                self.rlPass_or_rlFail(pom_list)
 
-                elif condition.is_assert0(first):
-                    self.assert0(pom_list)
+            elif condition.is_assert0(first):
+                self.assert0(pom_list)
 
-                elif condition.is_assert_comparasion(first):
-                    self.assert_comparison(pom_list)
+            elif condition.is_assert_comparasion(first):
+                self.assert_comparison(pom_list)
 
-                elif condition.is_assert_exists(first):
-                    self.assert_exits(pom_list)
+            elif condition.is_assert_exists(first):
+                self.assert_exits(pom_list)
 
-                elif condition.is_assert_differ(first):
-                    self.assert_differ(pom_list)
+            elif condition.is_assert_differ(first):
+                self.assert_differ(pom_list)
 
-                elif condition.is_assert_binary_origin(first):
-                    self.assert_binary_origin(pom_list)
+            elif condition.is_assert_binary_origin(first):
+                self.assert_binary_origin(pom_list)
 
-            elif condition.is_rlFileBackup(first):
-                self.rlFileBackup(pom_list)
+        elif condition.is_rlFileBackup(first):
+            self.rlFileBackup(pom_list)
 
-            elif condition.is_rlFileRestore(first):
-                self.rlFile_Restore(pom_list)
+        elif condition.is_rlFileRestore(first):
+            self.rlFile_Restore(pom_list)
 
-            elif condition.is_rlIsRHEL_or_rlISFedora(first):
-                self.IsRHEL_or_Is_Fedora(pom_list)
+        elif condition.is_rlIsRHEL_or_rlISFedora(first):
+            self.IsRHEL_or_Is_Fedora(pom_list)
 
-            elif condition.is_rlmount(first):
-                self.rl_mount(pom_list)
+        elif condition.is_rlmount(first):
+            self.rl_mount(pom_list)
 
-            elif condition.is_rlHash_or_rlUnhash(first):
-                self.rlHash_or_rlUnhash(pom_list)
+        elif condition.is_rlHash_or_rlUnhash(first):
+            self.rlHash_or_rlUnhash(pom_list)
 
-            elif condition.is_rlLog(first):
-                self.rlLog(pom_list)
+        elif condition.is_rlLog(first):
+            self.rlLog(pom_list)
 
-            elif condition.is_rlDie(first):
-                self.rlDie(pom_list)
+        elif condition.is_rlDie(first):
+            self.rlDie(pom_list)
 
-            elif condition.is_rlGet_x_Arch(first):
-                self.rlGet_command(pom_list)
+        elif condition.is_rlGet_x_Arch(first):
+            self.rlGet_command(pom_list)
 
-            elif condition.is_rlGetDistro(first):
-                self.rlGet_command(pom_list)
+        elif condition.is_rlGetDistro(first):
+            self.rlGet_command(pom_list)
 
-            elif condition.is_rlGetPhase_or_Test_State(first):
-                self.rlGet_command(pom_list)
+        elif condition.is_rlGetPhase_or_Test_State(first):
+            self.rlGet_command(pom_list)
 
-            elif condition.is_rlReport(first):
-                self.rlReport(pom_list)
+        elif condition.is_rlReport(first):
+            self.rlReport(pom_list)
 
-            elif condition.is_rlWatchdog(first):
-                self.rlWatchdog(pom_list)
+        elif condition.is_rlWatchdog(first):
+            self.rlWatchdog(pom_list)
 
-            elif condition.is_rlBundleLogs(first):
-                self.rlBundleLogs(pom_list)
+        elif condition.is_rlBundleLogs(first):
+            self.rlBundleLogs(pom_list)
 
-            elif condition.is_rlservicexxx(first):
-                self.rlServicexxx(pom_list)
+        elif condition.is_rlservicexxx(first):
+            self.rlServicexxx(pom_list)
 
-            elif condition.is_SEBooleanxxx(first):
-                self.SEBooleanxxx(pom_list)
+        elif condition.is_SEBooleanxxx(first):
+            self.SEBooleanxxx(pom_list)
 
-            elif condition.is_rlShowRunningKernel(first):
-                self.rlShowRunningKernel(pom_list)
+        elif condition.is_rlShowRunningKernel(first):
+            self.rlShowRunningKernel(pom_list)
 
-            elif condition.is_get_or_check_makefile_requires(first):
-                self.rlGet_or_rlCheck_MakefileRequeries(pom_list)
+        elif condition.is_get_or_check_makefile_requires(first):
+            self.rlGet_or_rlCheck_MakefileRequeries(pom_list)
 
-            elif condition.is_rlCleanup_Apend_or_Prepend(first):
-                self.rlCleanup_Apend_or_Prepend(pom_list)
+        elif condition.is_rlCleanup_Apend_or_Prepend(first):
+            self.rlCleanup_Apend_or_Prepend(pom_list)
 
-            elif condition.is_rlFileSubmit(first):
-                self.rlFileSubmit(pom_list)
+        elif condition.is_rlFileSubmit(first):
+            self.rlFileSubmit(pom_list)
 
-            elif condition.is_rlPerfTime_RunsInTime(first):
-                self.rlPerfTime_RunsInTime(pom_list)
+        elif condition.is_rlPerfTime_RunsInTime(first):
+            self.rlPerfTime_RunsInTime(pom_list)
 
-            elif condition.is_rlPerfTime_AvgFromRuns(first):
-                self.rlPerfTime_AvgFromRuns(pom_list)
+        elif condition.is_rlPerfTime_AvgFromRuns(first):
+            self.rlPerfTime_AvgFromRuns(pom_list)
 
-            elif condition.is_rlShowPackageVersion(first):
-                self.rlShowPackageVersion(pom_list)
+        elif condition.is_rlShowPackageVersion(first):
+            self.rlShowPackageVersion(pom_list)
 
-            elif condition.is_rlJournalPrint(first):
-                self.rlJournalPrint(pom_list)
+        elif condition.is_rlJournalPrint(first):
+            self.rlJournalPrint(pom_list)
 
-            elif condition.is_rlImport(first):
-                self.rlImport(pom_list)
+        elif condition.is_rlImport(first):
+            self.rlImport(pom_list)
 
-            elif condition.is_rlWaitForxxx(first):
-                self.rlWaitForxxx(pom_list, first)
+        elif condition.is_rlWaitForxxx(first):
+            self.rlWaitForxxx(pom_list, first)
 
-            elif condition.is_rlWaitFor(first):
-                self.rlWaitFor(pom_list)
+        elif condition.is_rlWaitFor(first):
+            self.rlWaitFor(pom_list)
 
-            elif condition.is_VirtualXxxx(first):
-                self.rlVirtualX_xxx(pom_list)
+        elif condition.is_VirtualXxxx(first):
+            self.rlVirtualX_xxx(pom_list)
 
         else:
             self.unknown_command(pom_list, pom_statement_line)
@@ -687,6 +687,14 @@ class statement_automata:
         parser_arg.add_argument("status", type=str, nargs='?', default="0")
         parser_arg.add_argument("comment", type=str, nargs='?')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        ref = self.parsed_param_ref
+        self.parse_command(self.parsed_param_ref.command) # for getting variables from command
+        self.parsed_param_ref = ref
+        #if beakerlib.argname == "UNKNOWN":
+        #    self.parsed_param_ref = ref
+        #elif self.parsed_param_ref.argname == "rlFileBackup":
+            # saving rlRun status to rlFileBackup command
+        #    self.parsed_param_ref.status = ref.status
 
     def rlVirtualX_xxx(self, pom_param_list):
         parser_arg = argparse.ArgumentParser()
@@ -778,6 +786,7 @@ class statement_automata:
         parser_arg.add_argument("--namespace", type=str,
                                 help="specified namespace to use")
         parser_arg.add_argument('file', type=str, nargs='+')
+        parser_arg.add_argument('status', type=str, nargs='?', default="-")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def rlHash_or_rlUnhash(self, pom_param_list):
@@ -1153,21 +1162,34 @@ class documentation_translator:
     def rlRun(self, argparse_data):
         importance = self.medium
         subject = [argparse_data.command, argparse_data.status]
-        option = []
-        if argparse_data.l:
-            option.append("l")
-        elif argparse_data.c:
-            option.append("c")
-        elif argparse_data.t and argparse_data.s:
-            option.append("s")
-            option.append("t")
-        elif argparse_data.t:
-            option.append("t")
-        elif argparse_data.s:
-            option.append("s")
-        topic_obj = topic("COMMAND", subject)
-        action = ["run"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        possibleBeakerLibCommand = self.Get_argparse_of_command(argparse_data.command)
+
+        if not possibleBeakerLibCommand.argname == "UNKNOWN":
+            beakerLibInformationUnit = self.translate_data(possibleBeakerLibCommand)
+            print(beakerLibInformationUnit.action)
+            beakerLibInformationUnit.options.set_status(argparse_data.status)
+
+
+        else:
+            option = []
+            if argparse_data.l:
+                option.append("l")
+            elif argparse_data.c:
+                option.append("c")
+            elif argparse_data.t and argparse_data.s:
+                option.append("s")
+                option.append("t")
+            elif argparse_data.t:
+                option.append("t")
+            elif argparse_data.s:
+                option.append("s")
+            topic_obj = topic("COMMAND", subject)
+            action = ["run"]
+            self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
+    def Get_argparse_of_command(self, command):
+        pomPhase = phase_test("Helpful phase")
+        return statement_automata(self.parser_ref,pomPhase).parse_command(command)
 
     def rlVirtualX_xxx(self, argparse_data):
         importance = self.medium
@@ -1283,26 +1305,28 @@ class documentation_translator:
         else:
             action.append("restore")
         topic_obj = topic("SERVICE", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(topic_obj, action, importance,option(None))
 
     def rlFile_Restore(self, argparse_data):
         importance = self.medium
-        option = []
+        pom_option = []
         if argparse_data.namespace:
-            option.append(argparse_data.namespace)
+            pom_option.append(argparse_data.namespace)
         topic_obj = topic("FILE", [""])
         action = ["restore"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(pom_option))
 
     def rlFileBackup(self, argparse_data):
         importance = self.medium
-        option = []
+        pom_option = []
+        status = argparse_data.status
         subject = argparse_data.file
         if argparse_data.namespace:
-            option.append(argparse_data.namespace)
+            pom_option.append(argparse_data.namespace)
+
         topic_obj = topic("FILE", subject)
         action = ["backup"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(pom_option), status)
 
     def rlHash_or_rlUnhash(self, argparse_data):
         importance = self.medium
@@ -1474,22 +1498,44 @@ class topic(object):
         return self.subject
 
 
+class option(object):
+    option = []
+
+    status = []
+
+    def __init__(self, Option, Status = "-"):
+        self.option = Option
+        self.status = Status
+
+
+    def get_option(self):
+        return self.option
+
+    def get_status(self):
+        return self.status
+
+    def set_status(self, new_status):
+        self.status = new_status
+
 class documentation_information(object):
     topic = ""
 
-    options = []
+    options = option
 
     action = []
 
     importance = ""
 
-    def __init__(self, Topic, action, importance, options=None):
+    status = ""
+
+    def __init__(self, Topic, action, importance, options=None, Status=None):
         if not options:
-            options = []
+            self.options = []
         self.topic = Topic
         self.options = options
         self.action = action
         self.importance = importance
+        self.status = Status
 
     def get_topic(self):
         return self.topic.get_topic()
@@ -1506,6 +1552,8 @@ class documentation_information(object):
     def get_option(self):
         return self.options
 
+    def get_status(self):
+        return self.status
 
 class information_unit(object):
     information = ""
@@ -1610,7 +1658,7 @@ class information_MESSAGE_create(information_unit):
                 self.information += self.connect_multiple_facts(subjects[1:], 3)
                 self.information += "\" will be uploaded"
             else:
-                if len(information_obj.get_option()):
+                if not information_obj.get_option() is None and len(information_obj.get_option()):
                     self.information += "\" will be created in to logfile "
                     self.information += information_obj.get_option()[0]
                 else:
@@ -1835,7 +1883,8 @@ class information_SERVICE_restore(information_unit):
 
 class information_FILE_restore(information_unit):
     def set_information(self, information_obj):
-        option = information_obj.get_option()
+        pom_option = information_obj.get_option()
+        option = pom_option.get_option()
         if option:
             self.information = "Restore backed up file with namespace: "
             self.information += option[0]
@@ -1847,11 +1896,17 @@ class information_FILE_restore(information_unit):
 
 class information_FILE_backup(information_unit):
     def set_information(self, information_obj):
-        option = information_obj.get_option()
+        pom_option = information_obj.get_option()
+        option = pom_option.get_option()
+        status = pom_option.get_status()
         self.information = "Backing up file(s) or directory(ies): "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 2)
         if option:
+            print "hm " +option
             self.information += "with namespace " + option[0]
+        if status == "1":
+            self.information += " unsuccessfully"
+
 
 
 class information_STRING_hash(information_unit):
