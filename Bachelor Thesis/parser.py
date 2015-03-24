@@ -1164,13 +1164,7 @@ class documentation_translator:
         subject = [argparse_data.command, argparse_data.status]
         possibleBeakerLibCommand = self.Get_argparse_of_command(argparse_data.command)
 
-        if not possibleBeakerLibCommand.argname == "UNKNOWN":
-            beakerLibInformationUnit = self.translate_data(possibleBeakerLibCommand)
-            print(beakerLibInformationUnit.action)
-            beakerLibInformationUnit.options.set_status(argparse_data.status)
-
-
-        else:
+        if possibleBeakerLibCommand.argname == "UNKNOWN":
             option = []
             if argparse_data.l:
                 option.append("l")
@@ -1186,6 +1180,10 @@ class documentation_translator:
             topic_obj = topic("COMMAND", subject)
             action = ["run"]
             self.inf_ref = documentation_information(topic_obj, action, importance, option)
+
+        else:
+            beakerLibInformationUnit = self.translate_data(possibleBeakerLibCommand)
+            beakerLibInformationUnit.options.set_status(argparse_data.status)
 
     def Get_argparse_of_command(self, command):
         pomPhase = phase_test("Helpful phase")
