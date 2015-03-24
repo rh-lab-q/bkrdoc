@@ -1,6 +1,5 @@
-- Extraction extra information from rlRun commands
-- Implementation remaining information units
-- Dropping less important information units (knapsack problem)
+* Extraction extra information from rlRun commands for remaining BeakerLib commands
+* Dropping less important information units (knapsack problem)
 - Connecting information units
 - Shortening information units 
 - Dynamic analysis
@@ -10,3 +9,4 @@
 - Information units as data in extra config file
 - Extraction of keywords from test for documentation
 - Automatic generation of test summary
+- Implementation of rlWatchdog command extension.
