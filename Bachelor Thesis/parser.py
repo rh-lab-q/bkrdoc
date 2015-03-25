@@ -1040,7 +1040,7 @@ class documentation_translator:
     def rlJournalPrint(self, argparse_data):
         importance = self.low
         subject = []
-        option = []
+        paramOption = []
         if argparse_data.argname == "rlJournalPrint":
             if len(argparse_data.type):
                 subject.append(argparse_data.type)
@@ -1049,11 +1049,11 @@ class documentation_translator:
         else:
             subject.append("text")
             if argparse_data.full_journal:
-                option.append("additional information")
+                paramOption.append("additional information")
 
         topic_obj = topic("JOURNAL", subject)
         action = ["print"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlShowPackageVersion(self, argparse_data):
         importance = self.low
@@ -1098,10 +1098,10 @@ class documentation_translator:
         subject = [argparse_data.message]
         topic_obj = topic("MESSAGE", subject)
         action = ["create"]
-        option = []
+        paramOption = []
         if argparse_data.logfile:
-            option.append(argparse_data.logfile)
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+            paramOption.append(argparse_data.logfile)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlShowRunningKernel(self):
         importance = self.low
@@ -1145,12 +1145,12 @@ class documentation_translator:
     def rlWatchdog(self, argparse_data):
         importance = self.medium
         subject = ["watchdog", argparse_data.command, argparse_data.timeout]
-        option = []
+        paramOption = []
         if argparse_data.signal:
-            option.append(argparse_data.signal)
+            paramOption.append(argparse_data.signal)
         topic_obj = topic("COMMAND", subject)
         action = ["run"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlReport(self, argparse_data):
         importance = self.medium
@@ -1165,21 +1165,21 @@ class documentation_translator:
         possibleBeakerLibCommand = self.Get_argparse_of_command(argparse_data.command)
 
         if possibleBeakerLibCommand.argname == "UNKNOWN":
-            option = []
+            paramOption = []
             if argparse_data.l:
-                option.append("l")
+                paramOption.append("l")
             elif argparse_data.c:
-                option.append("c")
+                paramOption.append("c")
             elif argparse_data.t and argparse_data.s:
-                option.append("s")
-                option.append("t")
+                paramOption.append("s")
+                paramOption.append("t")
             elif argparse_data.t:
-                option.append("t")
+                paramOption.append("t")
             elif argparse_data.s:
-                option.append("s")
+                paramOption.append("s")
             topic_obj = topic("COMMAND", subject)
             action = ["run"]
-            self.inf_ref = documentation_information(topic_obj, action, importance, option)
+            self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
         else:
             beakerLibInformationUnit = self.translate_data(possibleBeakerLibCommand)
@@ -1214,39 +1214,39 @@ class documentation_translator:
     def rlWaitForSocket(self, argparse_data):
         importance = self.low
         subject = [argparse_data.port_path]
-        option = []
+        paramOption = []
         if argparse_data.close:
-            option.append("close")
+            paramOption.append("close")
         elif argparse_data.p:
-            option.append("p")
+            paramOption.append("p")
 
         topic_obj = topic("FILE", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlWaitForFile(self, argparse_data):
         importance = self.low
         subject = ["file", argparse_data.path]
-        option = []
+        paramOption = []
         if argparse_data.p:
-            option.append(argparse_data.p)
+            paramOption.append(argparse_data.p)
         topic_obj = topic("FILE", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlWaitForCmd(self, argparse_data):
         importance = self.low
         subject = ["cmd", argparse_data.command]
-        option = []
+        paramOption = ["",""]
         if argparse_data.r:
-            option.append(argparse_data.r)
+            paramOption[0] = argparse_data.r
 
         if argparse_data.p:
-            option.append(argparse_data.p)
+            paramOption[1] = argparse_data.p
 
         topic_obj = topic("COMMAND", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlImport(self, argparse_data):
         importance = self.medium
@@ -1258,10 +1258,10 @@ class documentation_translator:
     def rlPerfTime_RunsInTime(self, argparse_data):
         importance = self.low
         subject = [argparse_data.command]
-        option = [argparse_data.time]
+        paramOption = [argparse_data.time]
         topic_obj = topic("COMMAND", subject)
         action = ["measures"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlPerfTime_AvgFromRuns(self, argparse_data):
         importance = self.low
@@ -1303,32 +1303,31 @@ class documentation_translator:
         else:
             action.append("restore")
         topic_obj = topic("SERVICE", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance,option(None))
+        self.inf_ref = documentation_information(topic_obj, action, importance)
 
     def rlFile_Restore(self, argparse_data):
         importance = self.medium
-        pom_option = []
+        paramOption = []
         if argparse_data.namespace:
-            pom_option.append(argparse_data.namespace)
+            paramOption.append(argparse_data.namespace)
         topic_obj = topic("FILE", [""])
         action = ["restore"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(pom_option))
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlFileBackup(self, argparse_data):
         importance = self.medium
-        pom_option = []
-        status = argparse_data.status
+        paramOption = []
         subject = argparse_data.file
         if argparse_data.namespace:
-            pom_option.append(argparse_data.namespace)
+            paramOption.append(argparse_data.namespace)
 
         topic_obj = topic("FILE", subject)
         action = ["backup"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(pom_option), status)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def rlHash_or_rlUnhash(self, argparse_data):
         importance = self.medium
-        option = []
+        paramOption = []
         subject = []
         if argparse_data.stdin:
             subject.append(argparse_data.stdin)
@@ -1340,12 +1339,11 @@ class documentation_translator:
         else:
             action.append("hash")
         if argparse_data.algorithm:
-            option.append(argparse_data.algorithm)
+            paramOption.append(argparse_data.algorithm)
         topic_obj = topic("STRING", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def check_or_assert_mount(self, argparse_data):
-        pass
         importance = self.low
         subject = [argparse_data.mountpoint]
         action = []
@@ -1387,20 +1385,20 @@ class documentation_translator:
         else:
             action.append("not exists")
         topic_obj = topic("PACKAGE", subject)
-        option = ["", "", ""]
+        paramOption = ["", "", ""]
         if argparse_data.version or argparse_data.release or \
                 argparse_data.arch:
             if argparse_data.version:
-                option[0] = argparse_data.version
+                paramOption[0] = argparse_data.version
 
             if argparse_data.release:
-                option[1] = argparse_data.release
+                paramOption[1] = argparse_data.release
 
             if argparse_data.arch:
-                option[2] = argparse_data.arch
+                paramOption[2] = argparse_data.arch
 
         # TODO test correction of generation of information unit for this commands
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
     def IsRHEL_or_Is_Fedora(self, argparse_data):
         importance = self.medium
@@ -1470,14 +1468,14 @@ class documentation_translator:
             action.append("contain")
         else:
             action.append("not contain")
-        option = []
+        paramOption = []
         if argparse_data.text_in:
-            option.append("text_in")
+            paramOption.append("text_in")
         elif argparse_data.moin_in:
-            option.append("moin_in")
+            paramOption.append("moin_in")
         elif argparse_data.out_in:
-            option.append("out_in")
-        self.inf_ref = documentation_information(topic_obj, action, importance, option)
+            paramOption.append("out_in")
+        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
 
 
 class topic(object):
@@ -1501,10 +1499,12 @@ class option(object):
 
     status = []
 
-    def __init__(self, Option, Status = "-"):
-        self.option = Option
+    def __init__(self, Option = None, Status = "0"):
+        if Option is None:
+            self.option = []
+        else:
+            self.option = Option
         self.status = Status
-
 
     def get_option(self):
         return self.option
@@ -1524,16 +1524,15 @@ class documentation_information(object):
 
     importance = ""
 
-    status = ""
 
-    def __init__(self, Topic, action, importance, options=None, Status=None):
-        if not options:
-            self.options = []
+    def __init__(self, Topic, action, importance, options=None ):
+        if options is None:
+            self.options = option()
+        else:
+            self.options = options
         self.topic = Topic
-        self.options = options
         self.action = action
         self.importance = importance
-        self.status = Status
 
     def get_topic(self):
         return self.topic.get_topic()
@@ -1547,11 +1546,12 @@ class documentation_information(object):
     def get_importance(self):
         return self.importance
 
-    def get_option(self):
-        return self.options
-
     def get_status(self):
-        return self.status
+        return self.options.get_status()
+
+    def get_option(self):
+        return self.options.get_option()
+
 
 class information_unit(object):
     information = ""
@@ -1587,6 +1587,15 @@ class information_unit(object):
 
     def print_information(self):
         print("   " + self.information)
+
+    def is_list_empty(self, tested_list):
+        return len(tested_list) == 0
+
+    def check_status_and_add_information(self, status):
+        if status == "1":
+            self.information += " and must finished unsuccessfully"
+        elif not status == "0":
+            self.information += " and must finished with return code matching: " + status
 
 
 class information_FILE_exists(information_unit):
@@ -1647,6 +1656,7 @@ class information_FILE_create(information_unit):
 class information_MESSAGE_create(information_unit):
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
+        option = information_obj.get_option()
         if subjects[0] == "kernel":  # rlShowRunningKernel
             self.information = "Log a message with version of the currently running kernel"
         else:  # rlDie & rlLog
@@ -1656,9 +1666,9 @@ class information_MESSAGE_create(information_unit):
                 self.information += self.connect_multiple_facts(subjects[1:], 3)
                 self.information += "\" will be uploaded"
             else:
-                if not information_obj.get_option() is None and len(information_obj.get_option()):
+                if not self.is_list_empty(option):
                     self.information += "\" will be created in to logfile "
-                    self.information += information_obj.get_option()[0]
+                    self.information += option[0]
                 else:
                     self.information += "\" will be created in to log"
 
@@ -1705,7 +1715,7 @@ class information_COMMAND_run(information_unit):
             self.information = "Run command " + subjects[1]
             self.information += " for " + subjects[2]
             self.information += " seconds"
-            if len(information_obj.get_option()):
+            if not self.is_list_empty(information_obj.get_option()):
                 self.information += " and killed with signal "
                 self.information += information_obj.get_option()[0]
 
@@ -1719,7 +1729,7 @@ class information_COMMAND_run(information_unit):
                 self.information += "\" exit code must match " + subjects[1]
 
             option = information_obj.get_option()
-            if option:
+            if not self.is_list_empty(option):
                 if option[0] == "l":
                     self.information += " and output will be stored in to log"
                 elif option[0] == "c":
@@ -1760,7 +1770,6 @@ class information_COMMAND_wait(information_unit):
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
         if subjects[0] == "cmd":
-
             # rlWaitForCmd
             option = information_obj.get_option()
             self.information = "Pauses script execution until command " + subjects[1]
@@ -1771,7 +1780,7 @@ class information_COMMAND_wait(information_unit):
             else:
                 self.information += " exit status match " + option[0]
 
-            if len(option) == 2:
+            if option[1]:
                 self.information += "\n and process with this PID " + option[1]
                 self.information += " must be running"
         else:  # rlWait
@@ -1786,7 +1795,7 @@ class information_FILE_wait(information_unit):
     def set_information(self, information_obj):
         option = information_obj.get_option()
         if information_obj.get_topic_subject()[0] == "file":  # rlWaitForFile
-            if option:
+            if not self.is_list_empty(option):
                 self.information = "Pauses script until file or directory with this path "
                 self.information += information_obj.get_topic_subject()[1] + " starts existing"
                 self.information += "\n and process with this PID " + option[0]
@@ -1795,7 +1804,7 @@ class information_FILE_wait(information_unit):
                 self.information = "Pauses script until file or directory with this path "
                 self.information += information_obj.get_topic_subject()[1] + " starts listening"
         else:  # rlWaitForScript
-            if option:
+            if not self.is_list_empty(option):
                 if option[0] == "close":
                     self.information = "Wait for the socket with this path"
                     self.information += information_obj.get_topic_subject()[1] + "to stop listening"
@@ -1820,7 +1829,7 @@ class information_COMMAND_measures(information_unit):
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
         option = information_obj.get_option()
-        if option:
+        if not self.is_list_empty(option):
             self.information = "Measures, how many runs of command "
             self.information += subjects[0] + " in "
             self.information += option[0] + " second(s)"
@@ -1881,9 +1890,8 @@ class information_SERVICE_restore(information_unit):
 
 class information_FILE_restore(information_unit):
     def set_information(self, information_obj):
-        pom_option = information_obj.get_option()
-        option = pom_option.get_option()
-        if option:
+        option = information_obj.get_option()
+        if not self.is_list_empty(option):
             self.information = "Restore backed up file with namespace: "
             self.information += option[0]
             self.information += "to their original state"
@@ -1894,16 +1902,13 @@ class information_FILE_restore(information_unit):
 
 class information_FILE_backup(information_unit):
     def set_information(self, information_obj):
-        pom_option = information_obj.get_option()
-        option = pom_option.get_option()
-        status = pom_option.get_status()
+        option = information_obj.get_option()
+        status = information_obj.get_status()
         self.information = "Backing up file(s) or directory(ies): "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 2)
-        if option:
-            print "hm " +option
+        if not self.is_list_empty(option):
             self.information += "with namespace " + option[0]
-        if status == "1":
-            self.information += " unsuccessfully"
+        self.check_status_and_add_information(status)
 
 
 
@@ -1916,7 +1921,7 @@ class information_STRING_hash(information_unit):
             self.information += "from input"
         else:
             self.information += subjects[0]
-        if option:
+        if not self.is_list_empty(option):
             self.information += " with hashing algorithm "
             self.information += option[0]
 
@@ -1931,7 +1936,7 @@ class information_STRING_unhash(information_unit):
         else:
             self.information += subjects[0]
 
-        if option:
+        if not self.is_list_empty(option):
             self.information += " with hashing algorithm "
             self.information += option[0]
 
@@ -2051,7 +2056,7 @@ class information_PACKAGE_check(information_unit):
         self.information = "Check if package " + information_obj.get_topic_subject()[0]
         self.information += " is installed"
 
-        if option:
+        if not self.is_list_empty(option):
             self.information += " with"
             if option[0]:
                 self.information += " version: " + option[0]
@@ -2093,7 +2098,7 @@ class information_PACKAGE_not_exists(information_unit):
         self.information = "Package " + information_obj.get_topic_subject()[0]
         self.information += " must not be installed"
 
-        if option:
+        if not self.is_list_empty(option):
             self.information += " with"
             if option[0]:
                 self.information += " version: " + option[0]
