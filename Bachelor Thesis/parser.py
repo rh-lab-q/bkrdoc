@@ -1603,23 +1603,27 @@ class information_unit(object):
 class information_FILE_exists(information_unit):
     def set_information(self, information_obj):
         self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_not_exists(information_unit):
     def set_information(self, information_obj):
         self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must not exist"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_contain(information_unit):
     def set_information(self, information_obj):
         self.information = "File " + information_obj.get_topic_subject()[0] \
                            + " must contain pattern " + information_obj.get_topic_subject()[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_not_contain(information_unit):
     def set_information(self, information_obj):
         self.information = "File " + information_obj.get_topic_subject()[0] \
                            + " mustn't contain pattern " + information_obj.get_topic_subject()[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_JOURNAL_print(information_unit):
@@ -1628,6 +1632,7 @@ class information_JOURNAL_print(information_unit):
         self.information += " format"
         if len(information_obj.get_option()):
             self.information += " with additional information"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_PACKAGE_print(information_unit):
@@ -1635,6 +1640,7 @@ class information_PACKAGE_print(information_unit):
         self.information = "Shows information about "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 4)
         self.information += " version"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_resolve(information_unit):
@@ -1646,6 +1652,7 @@ class information_FILE_resolve(information_unit):
             self.information += " and rename file to " + subjects[2]
         else:
             self.information += " and replaces / for " + subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_create(information_unit):
@@ -1653,6 +1660,7 @@ class information_FILE_create(information_unit):
         self.information = "Creates a tarball of file(s) " + self.connect_multiple_facts(
             information_obj.get_topic_subject(), 3)
         self.information += " and attached it/them to test result"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_MESSAGE_create(information_unit):
@@ -1673,6 +1681,7 @@ class information_MESSAGE_create(information_unit):
                     self.information += option[0]
                 else:
                     self.information += "\" will be created in to log"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_print(information_unit):
@@ -1681,6 +1690,7 @@ class information_FILE_print(information_unit):
             self.information = "Prints comma separated list of requirements defined in Makefile"
         else:
             self.information = "Prints file content"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_check(information_unit):
@@ -1689,6 +1699,7 @@ class information_FILE_check(information_unit):
             self.information = "Checking requirements in Makefile and returns number of compliance"
         else:
             self.information = "Checking file " + information_obj.get_topic_subject()[0]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_JOURNAL_return(information_unit):
@@ -1708,6 +1719,7 @@ class information_JOURNAL_return(information_unit):
             self.information = "Return base arch for the current system"
         else:
             self.information = "Returns data from Journal"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_COMMAND_run(information_unit):
@@ -1728,7 +1740,7 @@ class information_COMMAND_run(information_unit):
             elif subjects[1] == "1":
                 self.information += "\" must run unsuccessfully"
             else:
-                self.information += "\" exit code must match " + subjects[1]
+                self.information += "\" exit code must match: " + subjects[1]
 
             option = information_obj.get_option()
             if not self.is_list_empty(option):
@@ -1748,17 +1760,20 @@ class information_SERVER_run(information_unit):
     def set_information(self, information_obj):
         self.information = "Starts virtual X " + information_obj.get_topic_subject()[
             0] + " server on a first free display"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVER_kill(information_unit):
     def set_information(self, information_obj):
         self.information = "Kills virtual X " + information_obj.get_topic_subject()[0] + " server"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVER_return(information_unit):
     def set_information(self, information_obj):
         self.information = "Shows number of display where virtual X " + information_obj.get_topic_subject()[
             0] + " is running"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_JOURNAL_report(information_unit):
@@ -1766,6 +1781,7 @@ class information_JOURNAL_report(information_unit):
         subjects = information_obj.get_topic_subject()
         self.information = "Report test \"" + subjects[0]
         self.information += "\" with result " + subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_COMMAND_wait(information_unit):
@@ -1791,6 +1807,7 @@ class information_COMMAND_wait(information_unit):
             else:
                 self.information = "All currently active child processes are"
                 self.information += " waited for, and the return status is zero"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_wait(information_unit):
@@ -1818,6 +1835,7 @@ class information_FILE_wait(information_unit):
             else:
                 self.information = "Pauses script until socket with this path or port "
                 self.information += information_obj.get_topic_subject()[1] + " starts listening"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_PACKAGE_import(information_unit):
@@ -1825,6 +1843,7 @@ class information_PACKAGE_import(information_unit):
         self.information = "Imports code provided by "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 2)
         self.information += "  library(ies) into the test namespace"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_COMMAND_measures(information_unit):
@@ -1838,6 +1857,7 @@ class information_COMMAND_measures(information_unit):
         else:
             self.information = "Measures the average time of running command "
             self.information += subjects[0]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_STRING_create(information_unit):
@@ -1850,6 +1870,7 @@ class information_STRING_create(information_unit):
             self.information = "Prepends string: " + information_obj.get_topic_subject()[0]
             self.information += " to the cleanup buffer"
             self.information += " and recreates the cleanup script"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_BOOLEAN_set(information_unit):
@@ -1867,6 +1888,7 @@ class information_BOOLEAN_set(information_unit):
             self.information = "Restore boolean(s) "
             self.information += self.connect_multiple_facts(subjects, 3)
             self.information += " into original state"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVICE_run(information_unit):
@@ -1874,6 +1896,7 @@ class information_SERVICE_run(information_unit):
         self.information = "Service(s) "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 3)
         self.information += " must be running"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVICE_kill(information_unit):
@@ -1881,6 +1904,7 @@ class information_SERVICE_kill(information_unit):
         self.information = "Service(s) "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 3)
         self.information += " must be stopped"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVICE_restore(information_unit):
@@ -1888,6 +1912,7 @@ class information_SERVICE_restore(information_unit):
         self.information = "Service(s) "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 3)
         self.information += " will be restored into original state"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_restore(information_unit):
@@ -1900,6 +1925,7 @@ class information_FILE_restore(information_unit):
         else:
             self.information = "Restore backed up files to their "
             self.information += "original location"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_backup(information_unit):
@@ -1911,7 +1937,7 @@ class information_FILE_backup(information_unit):
         if not self.is_list_empty(option):
             self.information += "with namespace " + option[0]
         self.check_status_and_add_information(status)
-
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_STRING_hash(information_unit):
@@ -1926,6 +1952,7 @@ class information_STRING_hash(information_unit):
         if not self.is_list_empty(option):
             self.information += " with hashing algorithm "
             self.information += option[0]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_STRING_unhash(information_unit):
@@ -1941,6 +1968,7 @@ class information_STRING_unhash(information_unit):
         if not self.is_list_empty(option):
             self.information += " with hashing algorithm "
             self.information += option[0]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_MOUNTPOINT_exists(information_unit):
@@ -1952,6 +1980,7 @@ class information_MOUNTPOINT_exists(information_unit):
 
         if subjects[1]:
             self.information += " to server " + subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_MOUNTPOINT_create(information_unit):
@@ -1960,6 +1989,7 @@ class information_MOUNTPOINT_create(information_unit):
         self.information = "Creating mount point " + subjects[0]
         if subjects[1]:
             self.information += " and mount NFS " + subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_MOUNTPOINT_check(information_unit):
@@ -1971,6 +2001,7 @@ class information_MOUNTPOINT_check(information_unit):
 
         if subjects[1]:
             self.information += " to server " + subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_PACKAGE_owned_by(information_unit):
@@ -1979,6 +2010,7 @@ class information_PACKAGE_owned_by(information_unit):
         self.information = "Binary " + subjects[0] + "must be"
         self.information += " owned by package(s) "
         self.information += self.connect_multiple_facts(subjects[1:], 4)
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SYSTEM_is_RHEL(information_unit):
@@ -1988,6 +2020,7 @@ class information_SYSTEM_is_RHEL(information_unit):
         self.information += " RHEL "
         if subjects:
             self.information += self.connect_multiple_facts(subjects)
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SYSTEM_is_Fedora(information_unit):
@@ -1997,6 +2030,7 @@ class information_SYSTEM_is_Fedora(information_unit):
         self.information += " Fedora "
         if subjects:
             self.information += self.connect_multiple_facts(subjects)
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_differ(information_unit):
@@ -2005,6 +2039,7 @@ class information_FILE_differ(information_unit):
         self.information = "File1 " + subjects[0] + " and File2 "
         self.information += subjects[1]
         self.information += " must be different"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_not_differ(information_unit):
@@ -2013,6 +2048,7 @@ class information_FILE_not_differ(information_unit):
         self.information = "File1 " + subjects[0] + " and File2 "
         self.information += subjects[1]
         self.information += " must be identical"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_VALUE_equal(information_unit):
@@ -2021,6 +2057,7 @@ class information_VALUE_equal(information_unit):
         self.information = "Value1 " + subjects[0]
         self.information += " must be equal to Value2 "
         self.information += subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_VALUE_not_equal(information_unit):
@@ -2029,6 +2066,7 @@ class information_VALUE_not_equal(information_unit):
         self.information = "Value1 " + subjects[0]
         self.information += " must not be equal to Value2 "
         self.information += subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_VALUE_greater(information_unit):
@@ -2037,6 +2075,7 @@ class information_VALUE_greater(information_unit):
         self.information = "Value1 " + subjects[0]
         self.information += " must be greater to Value2 "
         self.information += subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_VALUE_greater_or_equal(information_unit):
@@ -2045,11 +2084,13 @@ class information_VALUE_greater_or_equal(information_unit):
         self.information = "Value1 " + subjects[0]
         self.information += " must be greater or equal to Value2 "
         self.information += subjects[1]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_VALUE_check(information_unit):
     def set_information(self, information_obj):
         self.information = "Value " + information_obj.get_topic_subject()[0] + " must be 0"
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_PACKAGE_check(information_unit):
@@ -2068,6 +2109,7 @@ class information_PACKAGE_check(information_unit):
 
             if option[2]:
                 self.information += " architecture: " + option[2]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_PACKAGE_exists(information_unit):
@@ -2092,6 +2134,7 @@ class information_PACKAGE_exists(information_unit):
 
             if option[2]:
                 self.information += " architecture: " + option[2]
+        self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_PACKAGE_not_exists(information_unit):
@@ -2110,7 +2153,7 @@ class information_PACKAGE_not_exists(information_unit):
 
             if option[2]:
                 self.information += " architecture: " + option[2]
-
+        self.check_status_and_add_information(information_obj.get_status())
 
 # TODO TEST options from rlRmp commands
 
