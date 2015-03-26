@@ -1183,7 +1183,7 @@ class documentation_translator:
 
         else:
             beakerLibInformationUnit = self.translate_data(possibleBeakerLibCommand)
-            beakerLibInformationUnit.options.set_status(argparse_data.status)
+            beakerLibInformationUnit.set_status(argparse_data.status)
 
     def Get_argparse_of_command(self, command):
         pomPhase = phase_test("Helpful phase")
@@ -1552,6 +1552,8 @@ class documentation_information(object):
     def get_option(self):
         return self.options.get_option()
 
+    def set_status(self, status):
+        self.options.set_status(status)
 
 class information_unit(object):
     information = ""
