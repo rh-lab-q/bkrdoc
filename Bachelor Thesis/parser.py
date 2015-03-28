@@ -1602,21 +1602,45 @@ class information_unit(object):
 
 class information_FILE_exists(information_unit):
     def set_information(self, information_obj):
-        self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must exist"
-        self.check_status_and_add_information(information_obj.get_status())
+        self.information = "Checking existence of file(directory): \"" + information_obj.get_topic_subject()[0] + "\""
+        self.check_status_and_add_information( information_obj.get_status())
+
+    def check_status_and_add_information(self, status):
+        if status == "0":
+            self.information += " and file(directory) must exist"
+        elif status == "1":
+            self.information += " and file(directory) must not exist"
+        else:
+            self.information += " and exit code must match " + status
 
 
 class information_FILE_not_exists(information_unit):
     def set_information(self, information_obj):
-        self.information = "File or directory " + information_obj.get_topic_subject()[0] + " must not exist"
+        self.information = "Checking non existence of file(directory): \"" + information_obj.get_topic_subject()[0] + "\""
         self.check_status_and_add_information(information_obj.get_status())
+
+    def check_status_and_add_information(self, status):
+        if status == "0":
+            self.information += " and file(directory) must not exist"
+        elif status == "1":
+            self.information += " and file(directory) must exist"
+        else:
+            self.information += " and exit code must match " + status
 
 
 class information_FILE_contain(information_unit):
     def set_information(self, information_obj):
-        self.information = "File " + information_obj.get_topic_subject()[0] \
-                           + " must contain pattern " + information_obj.get_topic_subject()[1]
+        self.information = "Checking if File: \"" + information_obj.get_topic_subject()[0] \
+                           + "\" contain pattern: \"" + information_obj.get_topic_subject()[1] + "\""
         self.check_status_and_add_information(information_obj.get_status())
+
+    def check_status_and_add_information(self, status):
+        if status == "0":
+            self.information += " and file must contain this pattern"
+        elif status == "1":
+            self.information += " and file must not contain this pattern"
+        else:
+            self.information += " and exit code must match " + status
 
 
 class information_FILE_not_contain(information_unit):
@@ -1624,6 +1648,14 @@ class information_FILE_not_contain(information_unit):
         self.information = "File " + information_obj.get_topic_subject()[0] \
                            + " mustn't contain pattern " + information_obj.get_topic_subject()[1]
         self.check_status_and_add_information(information_obj.get_status())
+
+    def check_status_and_add_information(self, status):
+        if status == "0":
+            self.information += " and file must not contain this pattern"
+        elif status == "1":
+            self.information += " and file must contain this pattern"
+        else:
+            self.information += " and exit code must match " + status
 
 
 class information_JOURNAL_print(information_unit):
