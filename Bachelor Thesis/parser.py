@@ -1607,9 +1607,9 @@ class information_FILE_exists(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and as a result file(directory) must exist"
+            self.information += " and file(directory) must exist"
         elif status == "1":
-            self.information += " and as a result file(directory) must not exist"
+            self.information += " and file(directory) must not exist"
         else:
             self.information += " and exit code must match " + status
 
@@ -1621,9 +1621,9 @@ class information_FILE_not_exists(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and as a result file(directory) must not exist"
+            self.information += " and file(directory) must not exist"
         elif status == "1":
-            self.information += " and as a result file(directory) must exist"
+            self.information += " and file(directory) must exist"
         else:
             self.information += " and exit code must match " + status
 
@@ -1636,9 +1636,9 @@ class information_FILE_contain(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and as a result file must contain this pattern"
+            self.information += " and file must contain this pattern"
         elif status == "1":
-            self.information += " and as a result file must not contain this pattern"
+            self.information += " and file must not contain this pattern"
         else:
             self.information += " and exit code must match " + status
 
@@ -1651,9 +1651,9 @@ class information_FILE_not_contain(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and as a result file must not contain this pattern"
+            self.information += " and file must not contain this pattern"
         elif status == "1":
-            self.information += " and as a result file must contain this pattern"
+            self.information += " and file must contain this pattern"
         else:
             self.information += " and exit code must match " + status
 
