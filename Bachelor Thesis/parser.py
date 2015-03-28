@@ -1655,10 +1655,10 @@ class information_FILE_not_contain(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += "File: \"" + self.information_obj.get_topic_subject()[0] \
+            self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                              + "\" must not contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
         elif status == "1":
-            self.information += "File: \"" + self.information_obj.get_topic_subject()[0] \
+            self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                              + "\" must contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
         else:
             self.information += " and exit code must match " + status
@@ -1937,9 +1937,11 @@ class information_SERVICE_run(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and as a result service(s) must be running"
+            self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+                                " must be running"
         elif status == "1":
-            self.information += " and as a result service(s) must not be running "
+            self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+                                " must not be running"
         else:
             self.information += " and exit code must match " + status
 
@@ -1952,9 +1954,11 @@ class information_SERVICE_kill(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and as a result service(s) must not be running"
+            self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+                                " must not be running"
         elif status == "1":
-            self.information += " and as a result service(s) must be running "
+            self.information += "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+                                " must be running"
         else:
             self.information += " and exit code must match " + status
 
