@@ -1607,9 +1607,9 @@ class information_FILE_exists(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and file(directory) must exist"
+            self.information += " and as a result file(directory) must exist"
         elif status == "1":
-            self.information += " and file(directory) must not exist"
+            self.information += " and as a result file(directory) must not exist"
         else:
             self.information += " and exit code must match " + status
 
@@ -1621,9 +1621,9 @@ class information_FILE_not_exists(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and file(directory) must not exist"
+            self.information += " and as a result file(directory) must not exist"
         elif status == "1":
-            self.information += " and file(directory) must exist"
+            self.information += " and as a result file(directory) must exist"
         else:
             self.information += " and exit code must match " + status
 
@@ -1636,9 +1636,9 @@ class information_FILE_contain(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and file must contain this pattern"
+            self.information += " and as a result file must contain this pattern"
         elif status == "1":
-            self.information += " and file must not contain this pattern"
+            self.information += " and as a result file must not contain this pattern"
         else:
             self.information += " and exit code must match " + status
 
@@ -1651,9 +1651,9 @@ class information_FILE_not_contain(information_unit):
 
     def check_status_and_add_information(self, status):
         if status == "0":
-            self.information += " and file must not contain this pattern"
+            self.information += " and as a result file must not contain this pattern"
         elif status == "1":
-            self.information += " and file must contain this pattern"
+            self.information += " and as a result file must contain this pattern"
         else:
             self.information += " and exit code must match " + status
 
@@ -1790,28 +1790,28 @@ class information_COMMAND_run(information_unit):
 
 class information_SERVER_run(information_unit):
     def set_information(self, information_obj):
-        self.information = "Starts virtual X " + information_obj.get_topic_subject()[
-            0] + " server on a first free display"
+        self.information = "Starting virtual X " + information_obj.get_topic_subject()[0] + \
+                           " server on a first free display"
         self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVER_kill(information_unit):
     def set_information(self, information_obj):
-        self.information = "Kills virtual X " + information_obj.get_topic_subject()[0] + " server"
+        self.information = "Killing virtual X " + information_obj.get_topic_subject()[0] + " server"
         self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_SERVER_return(information_unit):
     def set_information(self, information_obj):
-        self.information = "Shows number of display where virtual X " + information_obj.get_topic_subject()[
-            0] + " is running"
+        self.information = "Showing number of display where virtual X " + information_obj.get_topic_subject()[0] + \
+                           " is running"
         self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_JOURNAL_report(information_unit):
     def set_information(self, information_obj):
         subjects = information_obj.get_topic_subject()
-        self.information = "Report test \"" + subjects[0]
+        self.information = "Reporting test \"" + subjects[0]
         self.information += "\" with result " + subjects[1]
         self.check_status_and_add_information(information_obj.get_status())
 
@@ -1839,7 +1839,7 @@ class information_COMMAND_wait(information_unit):
             else:
                 self.information = "All currently active child processes are"
                 self.information += " waited for, and the return status is zero"
-        self.check_status_and_add_information(information_obj.get_status())
+            self.check_status_and_add_information(information_obj.get_status())
 
 
 class information_FILE_wait(information_unit):
@@ -1925,18 +1925,32 @@ class information_BOOLEAN_set(information_unit):
 
 class information_SERVICE_run(information_unit):
     def set_information(self, information_obj):
-        self.information = "Service(s) "
+        self.information = "Launching service(s) "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 3)
-        self.information += " must be running"
         self.check_status_and_add_information(information_obj.get_status())
+
+    def check_status_and_add_information(self, status):
+        if status == "0":
+            self.information += " and as a result service(s) must be running"
+        elif status == "1":
+            self.information += " and as a result service(s) must not be running "
+        else:
+            self.information += " and exit code must match " + status
 
 
 class information_SERVICE_kill(information_unit):
     def set_information(self, information_obj):
-        self.information = "Service(s) "
+        self.information = "Killing service(s) "
         self.information += self.connect_multiple_facts(information_obj.get_topic_subject(), 3)
-        self.information += " must be stopped"
         self.check_status_and_add_information(information_obj.get_status())
+
+    def check_status_and_add_information(self, status):
+        if status == "0":
+            self.information += " and as a result service(s) must not be running"
+        elif status == "1":
+            self.information += " and as a result service(s) must be running "
+        else:
+            self.information += " and exit code must match " + status
 
 
 class information_SERVICE_restore(information_unit):
@@ -1951,11 +1965,11 @@ class information_FILE_restore(information_unit):
     def set_information(self, information_obj):
         option = information_obj.get_option()
         if not self.is_list_empty(option):
-            self.information = "Restore backed up file with namespace: "
+            self.information = "Restoring backed up file with namespace: "
             self.information += option[0]
             self.information += "to their original state"
         else:
-            self.information = "Restore backed up files to their "
+            self.information = "Restoring backed up files to their "
             self.information += "original location"
         self.check_status_and_add_information(information_obj.get_status())
 
