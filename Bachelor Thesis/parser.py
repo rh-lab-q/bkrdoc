@@ -121,7 +121,7 @@ class Parser(object):
     def print_documentation(self, cmd_options):
         for member in self.phases:
             if not self.is_phase_outside(member):
-                member.print_phase_documentation()
+                member.print_phase_documentation(cmd_options)
                 print("")
 
     def is_phase_clean(self, line):
@@ -342,10 +342,15 @@ class phase_clean:
             if information:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
-    def print_phase_documentation(self):
+    def print_phase_documentation(self, cmd_options):
         print(self.phase_name)
+        conditions = conditions_for_commands()
+
         for information in self.phase_documentation_information:
-            information.print_information()
+            if cmd_options.log_in:
+                information.print_information()
+            elif not conditions.is_rlLog(information.get_command_name()):
+                information.print_information()
 
 class phase_test:
     """Class for store information in test phase"""
@@ -387,10 +392,15 @@ class phase_test:
             if information:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
-    def print_phase_documentation(self):
+    def print_phase_documentation(self, cmd_options):
         print(self.phase_name)
+        conditions = conditions_for_commands()
+
         for information in self.phase_documentation_information:
-            information.print_information()
+            if cmd_options.log_in:
+                information.print_information()
+            elif not conditions.is_rlLog(information.get_command_name()):
+                information.print_information()
 
 class phase_setup:
     """Class for store information in setup phase"""
@@ -432,10 +442,16 @@ class phase_setup:
             if information:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
-    def print_phase_documentation(self):
+    def print_phase_documentation(self, cmd_options):
         print(self.phase_name)
+        conditions = conditions_for_commands()
+
         for information in self.phase_documentation_information:
-            information.print_information()
+            if cmd_options.log_in:
+                information.print_information()
+            elif not conditions.is_rlLog(information.get_command_name()):
+                information.print_information()
+
 
 class statement_automata:
     parsed_param_ref = ""
@@ -705,11 +721,6 @@ class statement_automata:
         ref = self.parsed_param_ref
         self.parse_command(self.parsed_param_ref.command) # for getting variables from command
         self.parsed_param_ref = ref
-        #if beakerlib.argname == "UNKNOWN":
-        #    self.parsed_param_ref = ref
-        #elif self.parsed_param_ref.argname == "rlFileBackup":
-            # saving rlRun status to rlFileBackup command
-        #    self.parsed_param_ref.status = ref.status
 
     def rlVirtualX_xxx(self, pom_param_list):
         parser_arg = argparse.ArgumentParser()
@@ -1068,14 +1079,14 @@ class documentation_translator:
 
         topic_obj = topic("JOURNAL", subject)
         action = ["print"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlShowPackageVersion(self, argparse_data):
         importance = self.low
         action = ["print"]
         subject = argparse_data.package
         topic_obj = topic("PACKAGE", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlFileSubmit(self, argparse_data):
         importance = self.low
@@ -1091,14 +1102,14 @@ class documentation_translator:
             subject.append(argparse_data.required_name)
         topic_obj = topic("FILE", subject)
         action = ["resolve"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlBundleLogs(self, argparse_data):
         importance = self.low
         subject = argparse_data.file
         topic_obj = topic("FILE", subject)
         action = ["create"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlDie(self, argparse_data):
         importance = self.low
@@ -1106,7 +1117,7 @@ class documentation_translator:
         subject += argparse_data.file
         topic_obj = topic("MESSAGE", subject)
         action = ["create"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlLog(self, argparse_data):
         importance = self.low
@@ -1116,13 +1127,13 @@ class documentation_translator:
         paramOption = []
         if argparse_data.logfile:
             paramOption.append(argparse_data.logfile)
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlShowRunningKernel(self):
         importance = self.low
         topic_obj = topic("MESSAGE", ["kernel"])
         action = ["create"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information("rlShowRunningKernel", topic_obj, action, importance)
 
     def rlGet_or_rlCheck_MakefileRequeries(self, argparse_data):
 
@@ -1133,7 +1144,7 @@ class documentation_translator:
             action.append("print")
         else:
             action.append("check")
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlGet_command(self, argparse_data):
         importance = self.low
@@ -1155,7 +1166,7 @@ class documentation_translator:
             subject.append("secondary")
         topic_obj = topic("JOURNAL", subject)
         action.append("return")
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlWatchdog(self, argparse_data):
         importance = self.medium
@@ -1165,14 +1176,14 @@ class documentation_translator:
             paramOption.append(argparse_data.signal)
         topic_obj = topic("COMMAND", subject)
         action = ["run"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlReport(self, argparse_data):
         importance = self.medium
         subject = [argparse_data.name, argparse_data.result]
         topic_obj = topic("JOURNAL", subject)
         action = ["report"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlRun(self, argparse_data):
         importance = self.medium
@@ -1194,7 +1205,7 @@ class documentation_translator:
                 paramOption.append("s")
             topic_obj = topic("COMMAND", subject)
             action = ["run"]
-            self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+            self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
         else:
             beakerLibInformationUnit = self.translate_data(possibleBeakerLibCommand)
@@ -1215,7 +1226,7 @@ class documentation_translator:
         else:
             action.append("return")
         topic_obj = topic("SERVER", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlWaitFor(self, argparse_data):
         importance = self.low
@@ -1224,7 +1235,7 @@ class documentation_translator:
             subject = argparse_data.n
         topic_obj = topic("COMMAND", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlWaitForSocket(self, argparse_data):
         importance = self.low
@@ -1237,7 +1248,7 @@ class documentation_translator:
 
         topic_obj = topic("FILE", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlWaitForFile(self, argparse_data):
         importance = self.low
@@ -1247,7 +1258,7 @@ class documentation_translator:
             paramOption.append(argparse_data.p)
         topic_obj = topic("FILE", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlWaitForCmd(self, argparse_data):
         importance = self.low
@@ -1261,14 +1272,14 @@ class documentation_translator:
 
         topic_obj = topic("COMMAND", subject)
         action = ["wait"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlImport(self, argparse_data):
         importance = self.medium
         subject = argparse_data.LIBRARY
         topic_obj = topic("PACKAGE", subject)
         action = ["import"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlPerfTime_RunsInTime(self, argparse_data):
         importance = self.low
@@ -1276,14 +1287,14 @@ class documentation_translator:
         paramOption = [argparse_data.time]
         topic_obj = topic("COMMAND", subject)
         action = ["measures"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlPerfTime_AvgFromRuns(self, argparse_data):
         importance = self.low
         subject = [argparse_data.command]
         topic_obj = topic("COMMAND", subject)
         action = ["measures"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlCleanup_Apend_or_Prepend(self, argparse_data):
         importance = self.medium
@@ -1293,7 +1304,7 @@ class documentation_translator:
         subject.append(argparse_data.string)
         topic_obj = topic("STRING", subject)
         action = ["create"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def SEBooleanxxx(self, argparse_data):
         importance = self.medium
@@ -1305,7 +1316,7 @@ class documentation_translator:
         subject += argparse_data.boolean
         topic_obj = topic("BOOLEAN", subject)
         action = ["set"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlServicexxx(self, argparse_data):
         importance = self.medium
@@ -1318,7 +1329,7 @@ class documentation_translator:
         else:
             action.append("restore")
         topic_obj = topic("SERVICE", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlFile_Restore(self, argparse_data):
         importance = self.medium
@@ -1327,7 +1338,7 @@ class documentation_translator:
             paramOption.append(argparse_data.namespace)
         topic_obj = topic("FILE", [""])
         action = ["restore"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlFileBackup(self, argparse_data):
         importance = self.medium
@@ -1338,7 +1349,7 @@ class documentation_translator:
 
         topic_obj = topic("FILE", subject)
         action = ["backup"]
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlHash_or_rlUnhash(self, argparse_data):
         importance = self.medium
@@ -1356,7 +1367,7 @@ class documentation_translator:
         if argparse_data.algorithm:
             paramOption.append(argparse_data.algorithm)
         topic_obj = topic("STRING", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def check_or_assert_mount(self, argparse_data):
         importance = self.low
@@ -1369,14 +1380,14 @@ class documentation_translator:
         if argparse_data.server and argparse_data.mountpoint:
             subject.append(argparse_data.server)
         topic_obj = topic("MOUNTPOINT", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rl_mount(self, argparse_data):
         importance = self.low
         subject = [argparse_data.mountpoint, argparse_data.server]
         topic_obj = topic("MOUNTPOINT", subject)
         action = ["create"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_binary_origin(self, argparse_data):
         importance = self.medium
@@ -1384,7 +1395,7 @@ class documentation_translator:
         subject += argparse_data.package
         topic_obj = topic("PACKAGE", subject)
         action = ["owned by"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rpm_command(self, argparse_data):
         importance = self.medium
@@ -1413,7 +1424,7 @@ class documentation_translator:
                 paramOption[2] = argparse_data.arch
 
         # TODO test correction of generation of information unit for this commands
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def IsRHEL_or_Is_Fedora(self, argparse_data):
         importance = self.medium
@@ -1426,7 +1437,7 @@ class documentation_translator:
         if len(argparse_data.type):
             subject = argparse_data.type
         topic_obj = topic("SYSTEM", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_differ(self, argparse_data):
         importance = self.medium
@@ -1437,7 +1448,7 @@ class documentation_translator:
             action.append("not differ")
         subject = [argparse_data.file1, argparse_data.file2]
         topic_obj = topic("FILE", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_exits(self, argparse_data):
         importance = self.medium
@@ -1448,7 +1459,7 @@ class documentation_translator:
             action.append("exists")
         else:
             action.append("not exists")
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_comparison(self, argparse_data):
         importance = self.medium
@@ -1463,19 +1474,20 @@ class documentation_translator:
         else:
             action.append("greater or equal")
         topic_obj = topic("VALUE", subject)
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert0(self, argparse_data):
         importance = self.medium
         topic_obj = topic("VALUE", [argparse_data.value])
         action = ["check"]
-        self.inf_ref = documentation_information(topic_obj, action, importance)
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlPass_or_rlFail(self, argparse_data):
         pass
 
     def assert_grep(self, argparse_data):
         importance = self.medium
+        name = argparse_data.argname
         subject = [argparse_data.file, argparse_data.pattern]
         topic_obj = topic("FILE", subject)
         action = []
@@ -1490,7 +1502,7 @@ class documentation_translator:
             paramOption.append("moin_in")
         elif argparse_data.out_in:
             paramOption.append("out_in")
-        self.inf_ref = documentation_information(topic_obj, action, importance, option(paramOption))
+        self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
 
 class topic(object):
@@ -1532,6 +1544,8 @@ class option(object):
 
 
 class documentation_information(object):
+    command_name = ""
+
     topic = ""
 
     options = option
@@ -1540,11 +1554,12 @@ class documentation_information(object):
 
     importance = ""
 
-    def __init__(self, Topic, action, importance, options=None ):
+    def __init__(self,cmd_name, Topic, action, importance, options=None ):
         if options is None:
             self.options = option()
         else:
             self.options = options
+        self.command_name = cmd_name
         self.topic = Topic
         self.action = action
         self.importance = importance
@@ -1570,6 +1585,9 @@ class documentation_information(object):
     def set_status(self, status):
         self.options.set_status(status)
 
+    def get_command_name(self):
+        return self.command_name
+
 
 class information_unit(object):
     information = ""
@@ -1581,9 +1599,9 @@ class information_unit(object):
 
     def set_information(self):
         pass
-    #
-    # def get_command_name(self):
-    #     return self.
+
+    def get_command_name(self):
+         return self.information_obj.get_command_name()
 
     def connect_multiple_facts(self, facts, max_size=5):
         pom_inf = ""
