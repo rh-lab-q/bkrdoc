@@ -118,6 +118,12 @@ class Parser(object):
             if not self.is_phase_outside(member):
                 member.generate_documentation()
 
+    def print_documentation(self, cmd_options):
+        for member in self.phases:
+            if not self.is_phase_outside(member):
+                member.print_phase_documentation()
+                print("")
+
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
 
@@ -303,7 +309,8 @@ class phase_clean:
     doc_ref = ""
     variables = ""
     statement_classes = []
-    documentation_information = []
+    documentation_units = []
+    phase_documentation_information = []
 
     def __init__(self, name):
         self.phase_name = name
@@ -311,7 +318,8 @@ class phase_clean:
         self.doc = []
         self.variables = test_variables()
         self.statement_classes = []
-        self.documentation_information = []
+        self.documentation_units = []
+        self.phase_documentation_information = []
 
     def setup_statement(self, line):
         self.statement_list.append(line)
@@ -326,17 +334,18 @@ class phase_clean:
         data_translator = documentation_translator(parser_ref)
         for data in self.statement_classes:
             if data.argname != "UNKNOWN":
-                self.documentation_information.append(data_translator.translate_data(data))
+                self.documentation_units.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        print(self.phase_name)
         information_translator = get_information()
-        for information in self.documentation_information:
+        for information in self.documentation_units:
             if information:
-                inf = information_translator.get_information_from_facts(information)
-                inf.print_information()
-        print("")
+                self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
+    def print_phase_documentation(self):
+        print(self.phase_name)
+        for information in self.phase_documentation_information:
+            information.print_information()
 
 class phase_test:
     """Class for store information in test phase"""
@@ -345,7 +354,8 @@ class phase_test:
     doc_ref = ""
     variables = ""
     statement_classes = []
-    documentation_information = []
+    documentation_units = []
+    phase_documentation_information = []
 
     def __init__(self, name):
         self.phase_name = name
@@ -353,7 +363,8 @@ class phase_test:
         self.doc = []
         self.variables = test_variables()
         self.statement_classes = []
-        self.documentation_information = []
+        self.documentation_units = []
+        self.phase_documentation_information = []
 
     def setup_statement(self, line):
         self.statement_list.append(line)
@@ -368,17 +379,18 @@ class phase_test:
         data_translator = documentation_translator(parser_ref)
         for data in self.statement_classes:
             if data.argname != "UNKNOWN":
-                self.documentation_information.append(data_translator.translate_data(data))
+                self.documentation_units.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        print(self.phase_name)
         information_translator = get_information()
-        for information in self.documentation_information:
+        for information in self.documentation_units:
             if information:
-                inf = information_translator.get_information_from_facts(information)
-                inf.print_information()
-        print("")
+                self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
+    def print_phase_documentation(self):
+        print(self.phase_name)
+        for information in self.phase_documentation_information:
+            information.print_information()
 
 class phase_setup:
     """Class for store information in setup phase"""
@@ -387,7 +399,8 @@ class phase_setup:
     variables = ""
     statement_list = []
     statement_classes = []
-    documentation_information = []
+    documentation_units = []
+    phase_documentation_information = []
 
     def __init__(self, name):
         self.phase_name = name
@@ -395,7 +408,8 @@ class phase_setup:
         self.doc = []
         self.variables = test_variables()
         self.statement_classes = []
-        self.documentation_information = []
+        self.documentation_units = []
+        self.phase_documentation_information = []
 
     def setup_statement(self, line):
         self.statement_list.append(line)
@@ -410,17 +424,18 @@ class phase_setup:
         data_translator = documentation_translator(parser_ref)
         for data in self.statement_classes:
             if data.argname != "UNKNOWN":
-                self.documentation_information.append(data_translator.translate_data(data))
+                self.documentation_units.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        print(self.phase_name)
         information_translator = get_information()
-        for information in self.documentation_information:
+        for information in self.documentation_units:
             if information:
-                inf = information_translator.get_information_from_facts(information)
-                inf.print_information()
-        print("")
+                self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
+    def print_phase_documentation(self):
+        print(self.phase_name)
+        for information in self.phase_documentation_information:
+            information.print_information()
 
 class statement_automata:
     parsed_param_ref = ""
@@ -1515,6 +1530,7 @@ class option(object):
     def set_status(self, new_status):
         self.status = new_status
 
+
 class documentation_information(object):
     topic = ""
 
@@ -1523,7 +1539,6 @@ class documentation_information(object):
     action = []
 
     importance = ""
-
 
     def __init__(self, Topic, action, importance, options=None ):
         if options is None:
@@ -1555,6 +1570,7 @@ class documentation_information(object):
     def set_status(self, status):
         self.options.set_status(status)
 
+
 class information_unit(object):
     information = ""
     information_obj = ""
@@ -1565,6 +1581,9 @@ class information_unit(object):
 
     def set_information(self):
         pass
+    #
+    # def get_command_name(self):
+    #     return self.
 
     def connect_multiple_facts(self, facts, max_size=5):
         pom_inf = ""
@@ -2614,10 +2633,20 @@ class conditions_for_commands:
         return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
 
 
+pom_parser = argparse.ArgumentParser(description= \
+                                     'Parse arguments in cmd line for generator')
+pom_parser.add_argument('files', metavar='file', type=str, nargs='+',
+                    help='script file')
+pom_parser.add_argument('-l', '--log', dest='log_in', action='store_true',
+                   default=False, help='Show log data if they are possible')
+pom_parser.add_argument('-s', '--size', type=int, help="Size of output documentation in lines, default is 32 lines(A4) per documentation", default=32)
+parser_arg = pom_parser.parse_args()
+
+
 # ***************** MAIN ******************
-for arg in sys.argv[1:len(sys.argv)]:
-    pom = Parser(arg)
-    # pom.print_statement()
+for file in parser_arg.files:
+    pom = Parser(file)
     pom.get_doc_data()
     pom.get_documentation_information()
     pom.generate_documentation()
+    pom.print_documentation(parser_arg)
