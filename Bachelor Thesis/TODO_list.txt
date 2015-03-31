@@ -1,12 +1,15 @@
-* Extraction extra information from rlRun commands for remaining BeakerLib commands
-* Dropping less important information units (knapsack problem)
+* Adding information about credibility of generated documentation
 - Connecting information units
 - Shortening information units 
 - Dynamic analysis
 - Searching for parameters important for launching tests
-- Adding information about credibility of generated documentation 
 - templates of documentation
 - Information units as data in extra config file
 - Extraction of keywords from test for documentation
 - Automatic generation of test summary
 - Implementation of rlWatchdog command extension.
+- consistent presentation of actions and assertions
+- correctly present singulars and plurals
+- adding removing information by set up priority
+- understanding non BeakerLib bash commands
+- show better information during errors
