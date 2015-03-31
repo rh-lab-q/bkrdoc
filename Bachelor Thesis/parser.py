@@ -953,8 +953,10 @@ class documentation_translator:
     inf_ref = ""
 
     low = 1
-    medium = 2
-    high = 3
+    lowMedium = 2
+    medium = 3
+    high = 4
+    highest = 5
 
     def __init__(self, parser_ref):
         self.parser_ref = parser_ref
@@ -1106,14 +1108,14 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlShowPackageVersion(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         action = ["print"]
         subject = argparse_data.package
         topic_obj = topic("PACKAGE", subject)
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlFileSubmit(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = [argparse_data.path_to_file]
         if not len(argparse_data.s) and not len(argparse_data.required_name):
             subject.append('-')
@@ -1154,14 +1156,14 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlShowRunningKernel(self):
-        importance = self.low
+        importance = self.lowMedium
         topic_obj = topic("MESSAGE", ["kernel"])
         action = ["create"]
         self.inf_ref = documentation_information("rlShowRunningKernel", topic_obj, action, importance)
 
     def rlGet_or_rlCheck_MakefileRequeries(self, argparse_data):
 
-        importance = self.low
+        importance = self.lowMedium
         topic_obj = topic("FILE", ["makefile"])
         action = []
         if argparse_data.argname == "rlGetMakefileRequires":
@@ -1171,7 +1173,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlGet_command(self, argparse_data):
-        importance = self.low
+        importance = self.medium
         subject = []
         action = []
         if conditions_for_commands().is_rlGetPhase_or_Test_State(argparse_data.argname):
@@ -1193,7 +1195,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlWatchdog(self, argparse_data):
-        importance = self.medium
+        importance = self.highest
         subject = ["watchdog", argparse_data.command, argparse_data.timeout]
         paramOption = []
         if argparse_data.signal:
@@ -1203,14 +1205,14 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlReport(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         subject = [argparse_data.name, argparse_data.result]
         topic_obj = topic("JOURNAL", subject)
         action = ["report"]
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlRun(self, argparse_data):
-        importance = self.medium
+        importance = self.highest
         subject = [argparse_data.command, argparse_data.status]
         possibleBeakerLibCommand = self.Get_argparse_of_command(argparse_data.command)
 
@@ -1253,7 +1255,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlWaitFor(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = []
         if len(argparse_data.n):
             subject = argparse_data.n
@@ -1262,7 +1264,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlWaitForSocket(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = [argparse_data.port_path]
         paramOption = []
         if argparse_data.close:
@@ -1275,7 +1277,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlWaitForFile(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = ["file", argparse_data.path]
         paramOption = []
         if argparse_data.p:
@@ -1285,7 +1287,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlWaitForCmd(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = ["cmd", argparse_data.command]
         paramOption = ["",""]
         if argparse_data.r:
@@ -1306,7 +1308,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlPerfTime_RunsInTime(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = [argparse_data.command]
         paramOption = [argparse_data.time]
         topic_obj = topic("COMMAND", subject)
@@ -1314,7 +1316,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def rlPerfTime_AvgFromRuns(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = [argparse_data.command]
         topic_obj = topic("COMMAND", subject)
         action = ["measures"]
@@ -1356,7 +1358,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rlFile_Restore(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         paramOption = []
         if argparse_data.namespace:
             paramOption.append(argparse_data.namespace)
@@ -1394,7 +1396,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
 
     def check_or_assert_mount(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = [argparse_data.mountpoint]
         action = []
         if argparse_data.argname == "rlCheckMount":
@@ -1407,7 +1409,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rl_mount(self, argparse_data):
-        importance = self.low
+        importance = self.lowMedium
         subject = [argparse_data.mountpoint, argparse_data.server]
         topic_obj = topic("MOUNTPOINT", subject)
         action = ["create"]
@@ -1422,7 +1424,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def rpm_command(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         subject = []
         action = []
         subject.append(argparse_data.name)
@@ -1464,7 +1466,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_differ(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         action = []
         if argparse_data.argname == "rlAssertDiffer":
             action.append("differ")
@@ -1475,7 +1477,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_exits(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         subject = [argparse_data.file_directory]
         topic_obj = topic("FILE", subject)
         action = []
@@ -1486,7 +1488,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert_comparison(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         action = []
         subject = [argparse_data.value1, argparse_data.value2]
         if argparse_data.argname == "rlAssertEquals":
@@ -1501,7 +1503,7 @@ class documentation_translator:
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
 
     def assert0(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         topic_obj = topic("VALUE", [argparse_data.value])
         action = ["check"]
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance)
@@ -1510,7 +1512,7 @@ class documentation_translator:
         pass
 
     def assert_grep(self, argparse_data):
-        importance = self.medium
+        importance = self.high
         name = argparse_data.argname
         subject = [argparse_data.file, argparse_data.pattern]
         topic_obj = topic("FILE", subject)
