@@ -194,7 +194,7 @@ class Parser(object):
     def is_beakerLib_command(self, testing_command):
         return testing_command in self.all_commands
 
-    # items in [["information", weigh, value], ...]
+    # items in [["information", weigh, value], ...] format
     def solve_knapsack_dp(self, items, limit):
         table = [[0 for w in range(limit + 1)] for j in xrange(len(items) + 1)]  # initialization of table
 
