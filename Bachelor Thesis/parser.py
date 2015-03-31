@@ -1743,13 +1743,14 @@ class information_unit(object):
 
     def get_information_weigh(self):
         line_size = 60  # char per line
-        extended_line_size = 80  # char per extended line
         weigh = (len(self.information)/line_size)
-        e_weigh = (len(self.information)/extended_line_size)
-        if weigh > e_weigh:
-            return weigh
-        else:
+        mod_weigh = (len(self.information)%line_size)
+        if weigh == 0:
+            return 1
+        elif mod_weigh >= 20:  # tolerance
             return weigh + 1
+        else:
+            return weigh
 
     def get_information_value(self):
         return self.information_obj.get_importance()
