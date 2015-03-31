@@ -118,7 +118,49 @@ class Parser(object):
             if not self.is_phase_outside(member):
                 member.generate_documentation()
 
+    def get_test_weigh(self):
+        weigh = 0
+        for member in self.phases:
+            if not self.is_phase_outside(member):
+                weigh += member.get_phase_weigh()
+        return weigh
+
+    def setup_phases_lists_for_knapsack(self):
+        phases_list = self.get_phases_information_lists()
+        whole_setuped_list =[]
+        for element in phases_list:
+            pom_list = []
+            pom_list.append(element)
+            pom_list.append(element.get_information_weigh())
+            pom_list.append(element.get_information_value())
+            whole_setuped_list.append(pom_list)
+        return whole_setuped_list
+
+    def get_phases_information_lists(self):
+        phases_lists = []
+        for member in self.phases:
+            if not self.is_phase_outside(member):
+                phases_lists += member.get_information_list()
+        return phases_lists
+
+    def set_phases_information_lists(self, finished_knapsack_list):
+        pom_phases_lists = []
+        for member in self.phases:
+            if not self.is_phase_outside(member):
+                pom = member.get_information_list()
+                for element in finished_knapsack_list:
+                    if element[0] in pom:
+                        pom_phases_lists.insert(0, element[0])
+                member.set_information_list(pom_phases_lists)
+                pom_phases_lists = []
+
     def print_documentation(self, cmd_options):
+        test_weigh  = self.get_test_weigh()
+        if test_weigh > cmd_options.size:
+            knapsack_list = self.setup_phases_lists_for_knapsack()
+            finished_knapsack = self.solve_knapsack_dp(knapsack_list, cmd_options.size)
+            self.set_phases_information_lists(finished_knapsack)
+
         for member in self.phases:
             if not self.is_phase_outside(member):
                 member.print_phase_documentation(cmd_options)
@@ -376,6 +418,19 @@ class phase_clean:
             elif not conditions.is_rlLog(information.get_command_name()):
                 information.print_information()
 
+    def get_information_list(self):
+        return self.phase_documentation_information
+
+    def set_information_list(self, inf_list):
+        self.phase_documentation_information = inf_list
+
+    def get_phase_weigh(self):
+        phase_weigh = 0
+        for inf in self.phase_documentation_information:
+            phase_weigh += inf.get_information_weigh()
+        return phase_weigh
+
+
 class phase_test:
     """Class for store information in test phase"""
     phase_name = ""
@@ -426,6 +481,22 @@ class phase_test:
             elif not conditions.is_rlLog(information.get_command_name()):
                 information.print_information()
 
+    def get_information_list(self):
+        return self.phase_documentation_information
+
+    def set_information_list(self, inf_list):
+        self.phase_documentation_information = inf_list
+
+    def get_information_list_size(self):
+        return len(self.phase_documentation_information)
+
+    def get_phase_weigh(self):
+        phase_weigh = 0
+        for inf in self.phase_documentation_information:
+            phase_weigh += inf.get_information_weigh()
+        return phase_weigh
+
+
 class phase_setup:
     """Class for store information in setup phase"""
     phase_name = ""
@@ -475,6 +546,21 @@ class phase_setup:
                 information.print_information()
             elif not conditions.is_rlLog(information.get_command_name()):
                 information.print_information()
+
+    def get_information_list(self):
+        return self.phase_documentation_information
+
+    def set_information_list(self, inf_list):
+        self.phase_documentation_information = inf_list
+
+    def get_information_list_size(self):
+        return len(self.phase_documentation_information)
+
+    def get_phase_weigh(self):
+        phase_weigh = 0
+        for inf in self.phase_documentation_information:
+            phase_weigh += inf.get_information_weigh()
+        return phase_weigh
 
 
 class statement_automata:
@@ -1552,7 +1638,7 @@ class option(object):
 
     status = []
 
-    def __init__(self, Option = None, Status = "0"):
+    def __init__(self, Option = None, Status = "-"):
         if Option is None:
             self.option = []
         else:
@@ -1655,14 +1741,28 @@ class information_unit(object):
     def print_information(self):
         print("   " + self.information)
 
+    def get_information_weigh(self):
+        line_size = 60  # char per line
+        extended_line_size = 80  # char per extended line
+        weigh = (len(self.information)/line_size)
+        e_weigh = (len(self.information)/extended_line_size)
+        if weigh > e_weigh:
+            return weigh
+        else:
+            return weigh + 1
+
+    def get_information_value(self):
+        return self.information_obj.get_importance()
+
     def is_list_empty(self, tested_list):
         return len(tested_list) == 0
 
     def check_status_and_add_information(self, status):
-        if status == "1":
-            self.information += " and must finished unsuccessfully"
-        elif not status == "0":
-            self.information += " and must finished with return code matching: " + status
+        if not status == "-":
+            if status == "1":
+                self.information += " and must finished unsuccessfully"
+            elif not status == "0":
+                self.information += " and must finished with return code matching: " + status
 
 
 class information_FILE_exists(information_unit):
@@ -1675,7 +1775,7 @@ class information_FILE_exists(information_unit):
             self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\" must exist"
         elif status == "1":
             self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\" must not exist"
-        else:
+        elif not status == "-":
             self.information += " and exit code must match " + status
 
 
@@ -1689,7 +1789,7 @@ class information_FILE_not_exists(information_unit):
             self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\" must not exist"
         elif status == "1":
             self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\" must exist"
-        else:
+        elif not status == "-":
             self.information += " and exit code must match " + status
 
 
@@ -1706,7 +1806,7 @@ class information_FILE_contain(information_unit):
         elif status == "1":
             self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                              + "\" must not contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
-        else:
+        elif not status == "-":
             self.information += " and exit code must match " + status
 
 
@@ -1723,7 +1823,7 @@ class information_FILE_not_contain(information_unit):
         elif status == "1":
             self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                              + "\" must contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
-        else:
+        elif not status == "-":
             self.information += " and exit code must match " + status
 
 
@@ -2005,7 +2105,7 @@ class information_SERVICE_run(information_unit):
         elif status == "1":
             self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
                                 " must not be running"
-        else:
+        elif not status == "-":
             self.information += " and exit code must match " + status
 
 
@@ -2022,7 +2122,7 @@ class information_SERVICE_kill(information_unit):
         elif status == "1":
             self.information += "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
                                 " must be running"
-        else:
+        elif not status == "-":
             self.information += " and exit code must match " + status
 
 
