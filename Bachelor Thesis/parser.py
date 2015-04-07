@@ -73,7 +73,7 @@ class Parser(object):
                     self.phases.append(phase_clean(line[len("rlphasestart"):]))
 
                 elif self.is_end_back_slash(line):
-                    pom_line = line[0:-1]
+                    pom_line += line[0:-1]
 
                 elif len(self.phases) > 0:
                     if pom_line != "":
@@ -196,8 +196,12 @@ class Parser(object):
 
     # items in [["information", weigh, value], ...] format
     def solve_knapsack_dp(self, items, limit):
-        table = [[0 for w in range(limit + 1)] for j in xrange(len(items) + 1)]  # initialization of table
+        try:
+            xrange
+        except NameError:
+            xrange = range
 
+        table = [[0 for w in range(limit + 1)] for j in xrange(len(items) + 1)]  # initialization of table
         for j in xrange(1, len(items) + 1):
             item, wt, val = items[j-1]
             for w in xrange(1, limit + 1):
