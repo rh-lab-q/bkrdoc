@@ -333,25 +333,29 @@ class phase_outside:
                 member = readed.get_token()
                 equal_to = readed.get_token()
 
+                while(equal_to):
+
                 # condition to handle assign to random value
                 # setting variable list
-                if equal_to == '=':
-                    # This 7 lines are here for erasing comments and for reading whole line
-                    pom_i = statement.find("=", len(member)) + 1
-                    list_of_statement = shlex.split(statement[pom_i:], True, True)
-                    value = ""
-                    for value_member in list_of_statement:
-                        if not value == "":
-                            value += " "
-                        value += value_member
+                    if equal_to == '=':
+                        # This 7 lines are here for erasing comments and for reading whole line
+                        pom_i = statement.find("=", len(member)) + 1
+                        list_of_statement = shlex.split(statement[pom_i:], True, True)
+                        value = ""
+                        for value_member in list_of_statement:
+                            if not value == "":
+                                value += " "
+                            value += value_member
 
-                    regular = re.compile("\"(/.*/)(.*)\"")
-                    match = regular.match(value)
-                    if match:
-                        self.variables.add_variable(member, match.group(1) + match.group(2))
-                        self.keywords_list.append(match.group(2))
-                    else:
-                        self.variables.add_variable(member, value)
+                        regular = re.compile("\"(/.*/)(.*)\"")
+                        match = regular.match(value)
+                        if match:
+                            self.variables.add_variable(member, match.group(1) + match.group(2))
+                            self.keywords_list.append(match.group(2))
+                        else:
+                            self.variables.add_variable(member, value)
+                    member = equal_to
+                    equal_to = readed.get_token()
 
     def is_function(self, line):
         return line[0:len("function")] == "function"
@@ -394,7 +398,11 @@ class phase_clean:
         self.variables = variable_copy
         command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
-            self.statement_classes.append(command_translator.parse_command(statement))
+            try:
+                self.statement_classes.append(command_translator.parse_command(statement))
+            except SystemExit:
+                print("ERROR in line: " + str(statement))
+                print("Can be problem with variables substitutions")
 
     def translate_data(self, parser_ref):
         data_translator = documentation_translator(parser_ref)
@@ -462,7 +470,11 @@ class phase_test:
         self.variables = variable_copy
         command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
-            self.statement_classes.append(command_translator.parse_command(statement))
+            try:
+                self.statement_classes.append(command_translator.parse_command(statement))
+            except SystemExit:
+                print("ERROR in line: " + str(statement))
+                print("Can be problem with variables substitutions")
 
     def translate_data(self, parser_ref):
         data_translator = documentation_translator(parser_ref)
@@ -533,7 +545,11 @@ class phase_setup:
         self.variables = variable_copy
         command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
-            self.statement_classes.append(command_translator.parse_command(statement))
+            try:
+                self.statement_classes.append(command_translator.parse_command(statement))
+            except SystemExit:
+                print("ERROR in line: " + str(statement))
+                print("Can be problem with variables substitutions")
 
     def translate_data(self, parser_ref):
         data_translator = documentation_translator(parser_ref)
