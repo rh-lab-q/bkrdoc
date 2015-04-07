@@ -1073,11 +1073,11 @@ class documentation_translator:
     Generated information are focused on BeakerLib commands"""
     inf_ref = ""
 
-    low = 1
-    lowMedium = 2
-    medium = 3
-    high = 4
-    highest = 5
+    low = 1.0
+    lowMedium = 2.0
+    medium = 3.0
+    high = 4.0
+    highest = 5.0
 
     def __init__(self, parser_ref):
         self.parser_ref = parser_ref
@@ -1778,7 +1778,7 @@ class information_unit(object):
 
     def get_information_weigh(self):
         line_size = 60  # char per line
-        weigh = (len(self.information)/line_size)
+        weigh = (len(self.information)//line_size)
         mod_weigh = (len(self.information)%line_size)
         if weigh == 0:
             return 1
