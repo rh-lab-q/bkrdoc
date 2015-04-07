@@ -409,7 +409,7 @@ class phase_clean:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
     def print_phase_documentation(self, cmd_options):
-        print(self.phase_name)
+        self.print_phase_name_with_documentation_credibility()
         conditions = conditions_for_commands()
 
         for information in self.phase_documentation_information:
@@ -417,6 +417,11 @@ class phase_clean:
                 information.print_information()
             elif not conditions.is_rlLog(information.get_command_name()):
                 information.print_information()
+
+    def print_phase_name_with_documentation_credibility(self):
+        credibility = len(self.statement_list) - len(self.phase_documentation_information)
+        inf = self.phase_name + " [ Unknown commands: " + str(credibility) + ", Total: " + str(len(self.statement_list)) + " ]"
+        print(inf)
 
     def get_information_list(self):
         return self.phase_documentation_information
@@ -472,7 +477,7 @@ class phase_test:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
     def print_phase_documentation(self, cmd_options):
-        print(self.phase_name)
+        self.print_phase_name_with_documentation_credibility()
         conditions = conditions_for_commands()
 
         for information in self.phase_documentation_information:
@@ -480,6 +485,11 @@ class phase_test:
                 information.print_information()
             elif not conditions.is_rlLog(information.get_command_name()):
                 information.print_information()
+
+    def print_phase_name_with_documentation_credibility(self):
+        credibility = len(self.statement_list) - len(self.phase_documentation_information)
+        inf = self.phase_name + " [ Unknown commands: " + str(credibility) + ", Total: " + str(len(self.statement_list)) + " ]"
+        print(inf)
 
     def get_information_list(self):
         return self.phase_documentation_information
@@ -538,7 +548,7 @@ class phase_setup:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
     def print_phase_documentation(self, cmd_options):
-        print(self.phase_name)
+        self.print_phase_name_with_documentation_credibility()
         conditions = conditions_for_commands()
 
         for information in self.phase_documentation_information:
@@ -546,6 +556,11 @@ class phase_setup:
                 information.print_information()
             elif not conditions.is_rlLog(information.get_command_name()):
                 information.print_information()
+
+    def print_phase_name_with_documentation_credibility(self):
+        credibility = len(self.statement_list) - len(self.phase_documentation_information)
+        inf = self.phase_name + " [ Unknown commands: " + str(credibility) + ", Total: " + str(len(self.statement_list)) + " ]"
+        print(inf)
 
     def get_information_list(self):
         return self.phase_documentation_information
