@@ -1034,8 +1034,8 @@ class statement_automata:
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
-        parser_arg.add_argument('value1', type=int)
-        parser_arg.add_argument('value2', type=int)
+        parser_arg.add_argument('value1', type=str)
+        parser_arg.add_argument('value2', type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def assert0(self, pom_param_list):
@@ -1073,11 +1073,11 @@ class documentation_translator:
     Generated information are focused on BeakerLib commands"""
     inf_ref = ""
 
-    low = 1.0
-    lowMedium = 2.0
-    medium = 3.0
-    high = 4.0
-    highest = 5.0
+    low = 1
+    lowMedium = 2
+    medium = 3
+    high = 4
+    highest = 5
 
     def __init__(self, parser_ref):
         self.parser_ref = parser_ref
@@ -2192,7 +2192,6 @@ class information_FILE_backup(information_unit):
         if not self.is_list_empty(option):
             self.information += "with namespace " + option[0]
         self.check_status_and_add_information(status)
-        self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_STRING_hash(information_unit):
@@ -2459,7 +2458,6 @@ class get_information(object):
             if information_class:
                 information = information_class(information_obj)
                 information.set_information()
-
         return information
 
     def get_action_number(self, action):
@@ -2505,18 +2503,22 @@ class get_information(object):
             return 19
         elif self.is_action_owned_by(action):
             return 20
-        elif self.is_action_differ(action):
+        elif self.is_action_is_RHEL(action):
             return 21
-        elif self.is_action_not_differ(action):
+        elif self.is_action_is_Fedora(action):
             return 22
-        elif self.is_action_equal(action):
+        elif self.is_action_differ(action):
             return 23
-        elif self.is_action_not_equal(action):
+        elif self.is_action_not_differ(action):
             return 24
-        elif self.is_action_greater(action):
+        elif self.is_action_equal(action):
             return 25
-        elif self.is_action_greater_or_equal(action):
+        elif self.is_action_not_equal(action):
             return 26
+        elif self.is_action_greater(action):
+            return 27
+        elif self.is_action_greater_or_equal(action):
+            return 28
 
     def get_topic_number(self, topic):
         if self.is_topic_FILE(topic):
@@ -2813,20 +2815,27 @@ class conditions_for_commands:
         return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
 
 
-pom_parser = argparse.ArgumentParser(description= \
+#  ***************** MAIN ******************
+def set_cmd_arguments():
+    pom_parser = argparse.ArgumentParser(description= \
                                      'Parse arguments in cmd line for generator')
-pom_parser.add_argument('files', metavar='file', type=str, nargs='+',
+    pom_parser.add_argument('files', metavar='file', type=str, nargs='+',
                     help='script file')
-pom_parser.add_argument('-l', '--log', dest='log_in', action='store_true',
+    pom_parser.add_argument('-l', '--log', dest='log_in', action='store_true',
                    default=False, help='Show log data if they are possible')
-pom_parser.add_argument('-s', '--size', type=int, help="Size of output documentation in lines, default is 32 lines(A4) per documentation", default=32)
-parser_arg = pom_parser.parse_args()
+    pom_parser.add_argument('-s', '--size', type=int, help="Size of output documentation in lines, default is 32 lines(A4) per documentation", default=32)
+    parser_arg = pom_parser.parse_args()
+    return parser_arg
 
 
-# ***************** MAIN ******************
-for file in parser_arg.files:
-    pom = Parser(file)
-    pom.get_doc_data()
-    pom.get_documentation_information()
-    pom.generate_documentation()
-    pom.print_documentation(parser_arg)
+def run_doc_generator(parser_arg):
+    for file in parser_arg.files:
+        pom = Parser(file)
+        pom.get_doc_data()
+        pom.get_documentation_information()
+        pom.generate_documentation()
+        pom.print_documentation(parser_arg)
+
+if __name__ == "__main__":
+    cmd_args = set_cmd_arguments()
+    run_doc_generator(cmd_args)
