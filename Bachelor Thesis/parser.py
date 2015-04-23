@@ -1814,6 +1814,24 @@ class information_unit(object):
             elif not status == "0":
                 self.information += " and must finished with return code matching: " + status
 
+    def set_correct_singulars_or_plurals(self, word, number_of_subject, ending="s", verb=False):
+        pom_word = word
+        if number_of_subject >= 2:
+            if pom_word[-1] == "y" and ending == "ies":
+                pom_word = word[:-1] + ending
+            else:
+                pom_word += ending
+
+            if  verb:
+                pom_word += " are"
+        elif verb:
+            pom_word += " is"
+
+        if not verb:
+            pom_word += " "
+        return pom_word
+
+
 
 class information_FILE_exists(information_unit):
     def set_information(self):
@@ -1908,8 +1926,9 @@ class information_FILE_resolve(information_unit):
 
 class information_FILE_create(information_unit):
     def set_information(self):
-        self.information = "Creates a tarball of file(s) " + self.connect_multiple_facts(
-            self.information_obj.get_topic_subject(), 3)
+        subject = self.information_obj.get_topic_subject()
+        self.information = "Creates a tarball of " + self.set_correct_singulars_or_plurals("file",len(subject))
+        self.information += self.connect_multiple_facts(subject, 3)
         self.information += " and attached it/them to test result"
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -1923,7 +1942,8 @@ class information_MESSAGE_create(information_unit):
         else:  # rlDie & rlLog
             self.information = "Message \"" + subjects[0]
             if len(subjects) > 1:
-                self.information += "\" will be created in to log and file(s) "
+                self.information += "\" will be created in to log and "
+                self.information += self.set_correct_singulars_or_plurals("file",len(subjects[1:]))
                 self.information += self.connect_multiple_facts(subjects[1:], 3)
                 self.information += "\" will be uploaded"
             else:
@@ -2091,8 +2111,10 @@ class information_FILE_wait(information_unit):
 
 class information_PACKAGE_import(information_unit):
     def set_information(self):
+        subject = self.information_obj.get_topic_subject()
         self.information = "Imports code provided by "
-        self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 2)
+        self.information += self.connect_multiple_facts(subject, 2)
+        self.information += self.set_correct_singulars_or_plurals(" library",len(subject), "ies")
         self.information += "  library(ies) into the test namespace"
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2128,15 +2150,18 @@ class information_BOOLEAN_set(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "on":
-            self.information = "Sets boolean(s) "
+            self.information = "Sets "
+            self.information += self.set_correct_singulars_or_plurals("boolean",len(subjects[1:]))
             self.information += self.connect_multiple_facts(subjects[1:], 3)
             self.information += " to true"
         elif subjects[0] == "off":
-            self.information = "Sets boolean(s) "
+            self.information = "Sets "
+            self.information += self.set_correct_singulars_or_plurals("boolean",len(subjects[1:]))
             self.information += self.connect_multiple_facts(subjects[1:], 3)
             self.information += " to false"
         else:
-            self.information = "Restore boolean(s) "
+            self.information = "Restore "
+            self.information += self.set_correct_singulars_or_plurals("boolean",len(subjects))
             self.information += self.connect_multiple_facts(subjects, 3)
             self.information += " into original state"
         self.check_status_and_add_information(self.information_obj.get_status())
@@ -2144,16 +2169,23 @@ class information_BOOLEAN_set(information_unit):
 
 class information_SERVICE_run(information_unit):
     def set_information(self):
-        self.information = "Launching service(s) "
-        self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3)
+        subject = self.information_obj.get_topic_subject()
+        self.information = "Launching "
+        self.information += self.set_correct_singulars_or_plurals("service",len(subject))
+        self.information += self.connect_multiple_facts(subject, 3)
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
+        """self.information[-1] is here because method set_correct_singulars... adds one space on the end of the word"""
+        subject = self.information_obj.get_topic_subject()
         if status == "0":
-            self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+            self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
+            print self.information
+            self.information = self.information[:-1] + ": " + self.connect_multiple_facts(subject, 3) + \
                                 " must be running"
         elif status == "1":
-            self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+            self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
+            self.information = self.information[:-1] +  ": " + self.connect_multiple_facts(subject, 3) + \
                                 " must not be running"
         elif not status == "-":
             self.information += " and exit code must match " + status
@@ -2161,16 +2193,22 @@ class information_SERVICE_run(information_unit):
 
 class information_SERVICE_kill(information_unit):
     def set_information(self):
-        self.information = "Killing service(s) "
-        self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3)
+        subject = self.information_obj.get_topic_subject()
+        self.information = "Killing "
+        self.information += self.set_correct_singulars_or_plurals("service",len(subject))
+        self.information += self.connect_multiple_facts(subject, 3)
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
+        """self.information[-1] is here because method set_correct_singulars... adds one space on the end of the word"""
+        subject = self.information_obj.get_topic_subject()
         if status == "0":
-            self.information = "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+            self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
+            self.information= self.information[:-1] +  ": " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
                                 " must not be running"
         elif status == "1":
-            self.information += "Service(s): " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
+            self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
+            self.information = self.information[:-1] +  ": " + self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3) + \
                                 " must be running"
         elif not status == "-":
             self.information += " and exit code must match " + status
@@ -2178,8 +2216,9 @@ class information_SERVICE_kill(information_unit):
 
 class information_SERVICE_restore(information_unit):
     def set_information(self):
-        self.information = "Service(s) "
-        self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 3)
+        subject = self.information_obj.get_topic_subject()
+        self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
+        self.information += self.connect_multiple_facts(subject, 3)
         self.information += " will be restored into original state"
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2201,8 +2240,14 @@ class information_FILE_backup(information_unit):
     def set_information(self):
         option = self.information_obj.get_option()
         status = self.information_obj.get_status()
-        self.information = "Backing up file(s) or directory(ies): "
-        self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 2)
+        subject = self.information_obj.get_topic_subject()
+        self.information = self.set_correct_singulars_or_plurals("File",len(subject))
+        self.information += "or " + self.set_correct_singulars_or_plurals("directory",len(subject), "ies")
+        self.information += self.connect_multiple_facts(subject, 2)
+        if len(subject) >= 2:
+            self.information += " are backed up"
+        else:
+            self.information += " is backed up"
         if not self.is_list_empty(option):
             self.information += "with namespace " + option[0]
         self.check_status_and_add_information(status)
@@ -2276,7 +2321,8 @@ class information_PACKAGE_owned_by(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Binary " + subjects[0] + "must be"
-        self.information += " owned by package(s) "
+        self.information += " owned by "
+        self.information += self.set_correct_singulars_or_plurals("package",len(subjects[1:]))
         self.information += self.connect_multiple_facts(subjects[1:], 4)
         self.check_status_and_add_information(self.information_obj.get_status())
 
