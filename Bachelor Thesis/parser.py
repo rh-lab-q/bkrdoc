@@ -34,13 +34,18 @@ class Parser(object):
 
     phases = []
     outside = ""
+    file_name = ""
+
+    test_launch = ""
 
     def __init__(self, file_in):
         self.phases = []
+        self.test_launch = 0
         file_in = file_in.strip()
         if file_in[(len(file_in) - 3):len(file_in)] == ".sh":
             try:
                 with open(file_in, "r") as inputfile:
+                    self.file_name = file_in
                     self.description = file_in[0:(len(file_in) - 3)]
                     self.file_test = inputfile.read()
                     self.parse_data()
@@ -93,6 +98,10 @@ class Parser(object):
     def is_end_back_slash(self, line):
         return line[-1:] == '\\'
 
+    def set_test_launch(self, number_of_variables):
+        if number_of_variables > self.test_launch:
+            self.test_launch = number_of_variables
+
     def get_doc_data(self):
         pom_var = test_variables()
         for member in self.phases:
@@ -107,6 +116,11 @@ class Parser(object):
             for var in member.variables.variable_names_list:
                 pom_value = member.variables.get_variable_value(var)
                 pom_var.add_variable(var, pom_value)
+
+            # copying keywords to new variable instance
+            for key in member.variables.keywords:
+                pom_var.add_keyword(key)
+
 
     def get_documentation_information(self):
         for member in self.phases:
@@ -154,7 +168,13 @@ class Parser(object):
                 member.set_information_list(pom_phases_lists)
                 pom_phases_lists = []
 
+    def print_test_launch(self):
+        inf = "Test launch: " + self.file_name
+        inf += " with " + str(self.test_launch) + " command line arguments"
+        print(inf)
+
     def print_documentation(self, cmd_options):
+        self.print_test_launch()
         test_weigh  = self.get_test_weigh()
         if test_weigh > cmd_options.size:
             knapsack_list = self.setup_phases_lists_for_knapsack()
@@ -242,6 +262,8 @@ class test_variables:
     variable_names_list = []
     variable_values_list = []
 
+    keywords = []
+
     def __init__(self):
         self.variable_names_list = []
         self.variable_values_list = []
@@ -253,6 +275,13 @@ class test_variables:
         else:
             self.variable_names_list.append(name)
             self.variable_values_list.append(value)
+
+    def add_keyword(self, keyword):
+        if not self.is_existing_keyword(keyword):
+            self.keywords.append(keyword)
+
+    def is_existing_keyword(self, keyword):
+        return keyword in self.keywords
 
     def is_existing_variable(self, name):
         return name in self.variable_names_list
@@ -298,7 +327,6 @@ class phase_outside:
     phase_name = ""
     statement_list = []
     variables = ""
-    keywords_list = []
     func_list = []
 
     def __init__(self):
@@ -306,7 +334,6 @@ class phase_outside:
         self.phase_name = "Outside phase"
         self.statement_list = []
         self.variables = test_variables()
-        self.keywords_list = []
         self.func_list = []
 
     def setup_statement(self, line):
@@ -356,7 +383,7 @@ class phase_outside:
                             match = regular.match(value)
                             if match:
                                 self.variables.add_variable(member, match.group(1) + match.group(2))
-                                self.keywords_list.append(match.group(2))
+                                self.variables.add_keyword(match.group(2))
                             else:
                                 self.variables.add_variable(member, value)
 
@@ -624,6 +651,7 @@ class statement_automata:
     def parse_command(self, statement_line):
         # Spliting statement using shlex lexicator
         pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
+        self.get_cmd_line_params(pom_statement_line)
         pom_list = shlex.split(pom_statement_line, True, posix=True)
         first = pom_list[0]
 
@@ -750,6 +778,12 @@ class statement_automata:
 
     def find_and_replace_variable(self, statement):
         pass
+
+    def get_cmd_line_params(self, line):
+        regular = re.compile("(.*)(\$(\d+))(.*)")
+        match = regular.match(line)
+        if match:
+            self.parser_ref.set_test_launch(match.group(3))
 
     def is_variable_assignment(self, statement):
         # searching variables in statement line
@@ -2180,7 +2214,6 @@ class information_SERVICE_run(information_unit):
         subject = self.information_obj.get_topic_subject()
         if status == "0":
             self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
-            print self.information
             self.information = self.information[:-1] + ": " + self.connect_multiple_facts(subject, 3) + \
                                 " must be running"
         elif status == "1":
