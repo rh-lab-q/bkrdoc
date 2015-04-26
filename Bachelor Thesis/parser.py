@@ -170,7 +170,11 @@ class Parser(object):
 
     def print_test_launch(self):
         inf = "Test launch: " + self.file_name
-        inf += " with " + str(self.test_launch) + " command line arguments"
+        i = 0
+        while(int(i) < int(self.test_launch)):
+            inf += " [VARIABLE]"
+            i += 1
+        #inf += " with " + str(self.test_launch) + " command line arguments"
         print(inf)
 
     def print_documentation(self, cmd_options):
