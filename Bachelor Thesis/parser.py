@@ -1873,7 +1873,7 @@ class information_unit(object):
 
 class information_FILE_exists(information_unit):
     def set_information(self):
-        self.information = "Checking existence of file(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
+        self.information = "Checks existence of file(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
         self.check_status_and_add_information( self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1887,7 +1887,7 @@ class information_FILE_exists(information_unit):
 
 class information_FILE_not_exists(information_unit):
     def set_information(self):
-        self.information = "Checking non existence of file(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
+        self.information = "Checks non existence of file(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1901,8 +1901,8 @@ class information_FILE_not_exists(information_unit):
 
 class information_FILE_contain(information_unit):
     def set_information(self):
-        self.information = "Checking if File: \"" + self.information_obj.get_topic_subject()[0] \
-                           + "\" contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
+        self.information = "Checks if file: \"" + self.information_obj.get_topic_subject()[0] \
+                           + "\" contains pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1918,8 +1918,8 @@ class information_FILE_contain(information_unit):
 
 class information_FILE_not_contain(information_unit):
     def set_information(self):
-        self.information = "File " + self.information_obj.get_topic_subject()[0] \
-                           + " mustn't contain pattern " + self.information_obj.get_topic_subject()[1]
+        self.information = "Checks if File " + self.information_obj.get_topic_subject()[0] \
+                           + " not contains pattern " + self.information_obj.get_topic_subject()[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1980,16 +1980,19 @@ class information_MESSAGE_create(information_unit):
         else:  # rlDie & rlLog
             self.information = "Message \"" + subjects[0]
             if len(subjects) > 1:
-                self.information += "\" will be created in to log and "
+                self.information += "\" is created in to log and "
                 self.information += self.set_correct_singulars_or_plurals("file",len(subjects[1:]))
                 self.information += self.connect_multiple_facts(subjects[1:], 3)
-                self.information += "\" will be uploaded"
+                if len(subjects[1:]) > 1:
+                    self.information += "\" are uploaded"
+                else:
+                    self.information += "\" is uploaded"
             else:
                 if not self.is_list_empty(option):
-                    self.information += "\" will be created in to logfile "
+                    self.information += "\" is created in to logfile "
                     self.information += option[0]
                 else:
-                    self.information += "\" will be created in to log"
+                    self.information += "\" is created in to log"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
@@ -2005,9 +2008,9 @@ class information_FILE_print(information_unit):
 class information_FILE_check(information_unit):
     def set_information(self):
         if self.information_obj.get_topic_subject()[0] == "makefile":
-            self.information = "Checking requirements in Makefile and returns number of compliance"
+            self.information = "Checks requirements in Makefile and returns number of compliance"
         else:
-            self.information = "Checking file " + self.information_obj.get_topic_subject()[0]
+            self.information = "Checks file " + self.information_obj.get_topic_subject()[0]
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
@@ -2019,13 +2022,13 @@ class information_JOURNAL_return(information_unit):
         elif subjects[0] == "test":
             self.information = "Returns number of failed asserts"
         elif subjects[0] == "variant":
-            self.information = "Return variant of the distribution on the system"
+            self.information = "Returns variant of the distribution on the system"
         elif subjects[0] == "release":
-            self.information = "Return release of the distribution on the system"
+            self.information = "Returns release of the distribution on the system"
         elif subjects[0] == "primary":
-            self.information = "Return primary arch for the current system"
+            self.information = "Returns primary arch for the current system"
         elif subjects[0] == "secondary":
-            self.information = "Return base arch for the current system"
+            self.information = "Returns base arch for the current system"
         else:
             self.information = "Returns data from Journal"
         self.check_status_and_add_information(self.information_obj.get_status())
@@ -2035,7 +2038,7 @@ class information_COMMAND_run(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "watchdog":
-            self.information = "Run command " + subjects[1]
+            self.information = "Runs command " + subjects[1]
             self.information += " for " + subjects[2]
             self.information += " seconds"
             if not self.is_list_empty(self.information_obj.get_option()):
@@ -2054,33 +2057,33 @@ class information_COMMAND_run(information_unit):
             option = self.information_obj.get_option()
             if not self.is_list_empty(option):
                 if option[0] == "l":
-                    self.information += " and output will be stored in to log"
+                    self.information += " and output is stored in to log"
                 elif option[0] == "c":
-                    self.information += " and failed output will be stored in to log"
+                    self.information += " and failed output is stored in to log"
                 elif len(option) > 1:
-                    self.information += " and stdout and stderr will be tagged and stored"
+                    self.information += " and stdout and stderr are tagged and stored"
                 elif option[0] == "t":
-                    self.information += " and stdout and stderr will be tagged"
+                    self.information += " and stdout and stderr are tagged"
                 elif option[0] == "s":
-                    self.information += " and stdout and stderr will be stored"
+                    self.information += " and stdout and stderr are stored"
 
 
 class information_SERVER_run(information_unit):
     def set_information(self):
-        self.information = "Starting virtual X " + self.information_obj.get_topic_subject()[0] + \
+        self.information = "Starts virtual X " + self.information_obj.get_topic_subject()[0] + \
                            " server on a first free display"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_SERVER_kill(information_unit):
     def set_information(self):
-        self.information = "Killing virtual X " + self.information_obj.get_topic_subject()[0] + " server"
+        self.information = "Kills virtual X " + self.information_obj.get_topic_subject()[0] + " server"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_SERVER_return(information_unit):
     def set_information(self):
-        self.information = "Showing number of display where virtual X " + self.information_obj.get_topic_subject()[0] + \
+        self.information = "Shows number of displays where virtual X " + self.information_obj.get_topic_subject()[0] + \
                            " is running"
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2088,7 +2091,7 @@ class information_SERVER_return(information_unit):
 class information_JOURNAL_report(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Reporting test \"" + subjects[0]
+        self.information = "Reports test \"" + subjects[0]
         self.information += "\" with result " + subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2134,7 +2137,7 @@ class information_FILE_wait(information_unit):
         else:  # rlWaitForScript
             if not self.is_list_empty(option):
                 if option[0] == "close":
-                    self.information = "Wait for the socket with this path"
+                    self.information = "Waits for the socket with this path"
                     self.information += self.information_obj.get_topic_subject()[1] + "to stop listening"
                 elif option[0] == "p":
                     self.information = "Pauses script until socket with this path or port "
@@ -2208,7 +2211,7 @@ class information_BOOLEAN_set(information_unit):
 class information_SERVICE_run(information_unit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
-        self.information = "Launching "
+        self.information = "Starts "
         self.information += self.set_correct_singulars_or_plurals("service",len(subject))
         self.information += self.connect_multiple_facts(subject, 3)
         self.check_status_and_add_information(self.information_obj.get_status())
@@ -2231,7 +2234,7 @@ class information_SERVICE_run(information_unit):
 class information_SERVICE_kill(information_unit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
-        self.information = "Killing "
+        self.information = "Kills "
         self.information += self.set_correct_singulars_or_plurals("service",len(subject))
         self.information += self.connect_multiple_facts(subject, 3)
         self.check_status_and_add_information(self.information_obj.get_status())
@@ -2256,7 +2259,10 @@ class information_SERVICE_restore(information_unit):
         subject = self.information_obj.get_topic_subject()
         self.information = self.set_correct_singulars_or_plurals("Service",len(subject))
         self.information += self.connect_multiple_facts(subject, 3)
-        self.information += " will be restored into original state"
+        if len(subject) > 1:
+            self.information += " are restored into original state"
+        else:
+            self.information += " is restored into original state"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
@@ -2264,11 +2270,11 @@ class information_FILE_restore(information_unit):
     def set_information(self):
         option = self.information_obj.get_option()
         if not self.is_list_empty(option):
-            self.information = "Restoring backed up file with namespace: "
+            self.information = "Restores backed up file with namespace: "
             self.information += option[0]
-            self.information += "to their original state"
+            self.information += "to original state"
         else:
-            self.information = "Restoring backed up files to their "
+            self.information = "Restores backed up files to their "
             self.information += "original location"
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2294,7 +2300,7 @@ class information_STRING_hash(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
-        self.information = "Hashing string "
+        self.information = "Hashes string "
         if subjects[0] == True:
             self.information += "from input"
         else:
@@ -2309,7 +2315,7 @@ class information_STRING_unhash(information_unit):
     def set_information(self):
         option = self.information_obj.get_option()
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Unhashing string "
+        self.information = "Unhashes string "
         if subjects[0] == True:
             self.information += "from input"
         else:
@@ -2336,7 +2342,7 @@ class information_MOUNTPOINT_exists(information_unit):
 class information_MOUNTPOINT_create(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Creating mount point " + subjects[0]
+        self.information = "Creates mount point " + subjects[0]
         if subjects[1]:
             self.information += " and mount NFS " + subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
@@ -2345,7 +2351,7 @@ class information_MOUNTPOINT_create(information_unit):
 class information_MOUNTPOINT_check(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Check if directory "
+        self.information = "Checks if directory "
         self.information += subjects[0]
         self.information += "is a mountpoint"
 
@@ -2367,7 +2373,7 @@ class information_PACKAGE_owned_by(information_unit):
 class information_SYSTEM_is_RHEL(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information += "Check if we are running on"
+        self.information += "Checks if we are running on"
         self.information += " RHEL "
         if subjects:
             self.information += self.connect_multiple_facts(subjects)
@@ -2377,7 +2383,7 @@ class information_SYSTEM_is_RHEL(information_unit):
 class information_SYSTEM_is_Fedora(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information += "Check if we are running on"
+        self.information += "Checks if we are running on"
         self.information += " Fedora "
         if subjects:
             self.information += self.connect_multiple_facts(subjects)
@@ -2387,26 +2393,26 @@ class information_SYSTEM_is_Fedora(information_unit):
 class information_FILE_differ(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "File1 " + subjects[0] + " and File2 "
+        self.information = "Checks if file1 " + subjects[0] + " and file2 "
         self.information += subjects[1]
-        self.information += " must be different"
+        self.information += " are different"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_FILE_not_differ(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "File1 " + subjects[0] + " and File2 "
+        self.information = "Checks if file1 " + subjects[0] + " and file2 "
         self.information += subjects[1]
-        self.information += " must be identical"
+        self.information += " are identical"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_VALUE_equal(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Value1 " + subjects[0]
-        self.information += " must be equal to Value2 "
+        self.information = "Checks if value1 " + subjects[0]
+        self.information += " is equal to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2414,8 +2420,8 @@ class information_VALUE_equal(information_unit):
 class information_VALUE_not_equal(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Value1 " + subjects[0]
-        self.information += " must not be equal to Value2 "
+        self.information = "Checks if value1 " + subjects[0]
+        self.information += " is not equal to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2423,8 +2429,8 @@ class information_VALUE_not_equal(information_unit):
 class information_VALUE_greater(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Value1 " + subjects[0]
-        self.information += " must be greater to Value2 "
+        self.information = "Checks if value1 " + subjects[0]
+        self.information += " is greater to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2432,22 +2438,22 @@ class information_VALUE_greater(information_unit):
 class information_VALUE_greater_or_equal(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Value1 " + subjects[0]
-        self.information += " must be greater or equal to Value2 "
+        self.information = "Checks if value1 " + subjects[0]
+        self.information += " is greater or equal to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_VALUE_check(information_unit):
     def set_information(self):
-        self.information = "Value " + self.information_obj.get_topic_subject()[0] + " must be 0"
+        self.information = "Checks if value " + self.information_obj.get_topic_subject()[0] + " must be 0"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_PACKAGE_check(information_unit):
     def set_information(self):
         option = self.information_obj.get_option()
-        self.information = "Check if package " + self.information_obj.get_topic_subject()[0]
+        self.information = "Checks if package " + self.information_obj.get_topic_subject()[0]
         self.information += " is installed"
 
         if not self.is_list_empty(option):
