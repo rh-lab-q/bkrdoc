@@ -653,7 +653,7 @@ class statement_automata:
             match = regular.match(value)
             if match:
                 self.phase_ref.variables.add_variable(member, match.group(1) + match.group(2))
-                # TODO keyword from not outside phases
+                # TODO keywords from not outside phases
                 # self.keywords_list.append(match.group(2))
             else:
                 self.phase_ref.variables.add_variable(member, value)
@@ -1452,17 +1452,17 @@ class documentation_translator:
         else:
             action.append("not exists")
         topic_obj = topic("PACKAGE", subject)
-        paramOption = ["", "", ""]
+        paramOption = []
         if argparse_data.version or argparse_data.release or \
                 argparse_data.arch:
             if argparse_data.version:
-                paramOption[0] = argparse_data.version
+                paramOption.append(argparse_data.version)
 
             if argparse_data.release:
-                paramOption[1] = argparse_data.release
+                paramOption.append(argparse_data.release)
 
             if argparse_data.arch:
-                paramOption[2] = argparse_data.arch
+                paramOption.append(argparse_data.arch)
 
         # TODO test correction of generation of information unit for this commands
         self.inf_ref = documentation_information(argparse_data.argname, topic_obj, action, importance, option(paramOption))
@@ -1715,7 +1715,8 @@ class information_unit(object):
 
 class information_FILE_exists(information_unit):
     def set_information(self):
-        self.information = "Checks existence of file(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
+        self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
+        self.information += " must exist"
         self.check_status_and_add_information( self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1729,7 +1730,8 @@ class information_FILE_exists(information_unit):
 
 class information_FILE_not_exists(information_unit):
     def set_information(self):
-        self.information = "Checks non existence of file(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
+        self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
+        self.information += " must not exist"
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1743,8 +1745,8 @@ class information_FILE_not_exists(information_unit):
 
 class information_FILE_contain(information_unit):
     def set_information(self):
-        self.information = "Checks if file: \"" + self.information_obj.get_topic_subject()[0] \
-                           + "\" contains pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
+        self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
+                           + "\" must contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -1760,8 +1762,8 @@ class information_FILE_contain(information_unit):
 
 class information_FILE_not_contain(information_unit):
     def set_information(self):
-        self.information = "Checks if File " + self.information_obj.get_topic_subject()[0] \
-                           + " not contains pattern " + self.information_obj.get_topic_subject()[1]
+        self.information = "File " + self.information_obj.get_topic_subject()[0] \
+                           + " must not contain pattern " + self.information_obj.get_topic_subject()[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
@@ -2235,26 +2237,26 @@ class information_SYSTEM_is_Fedora(information_unit):
 class information_FILE_differ(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Checks if file1 " + subjects[0] + " and file2 "
+        self.information = "File1 " + subjects[0] + " and file2 "
         self.information += subjects[1]
-        self.information += " are different"
+        self.information += " must be different"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_FILE_not_differ(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Checks if file1 " + subjects[0] + " and file2 "
+        self.information = "File1 " + subjects[0] + " and file2 "
         self.information += subjects[1]
-        self.information += " are identical"
+        self.information += " must be identical"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_VALUE_equal(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Checks if value1 " + subjects[0]
-        self.information += " is equal to value2 "
+        self.information = "Value1 " + subjects[0]
+        self.information += " must be equal to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2262,8 +2264,8 @@ class information_VALUE_equal(information_unit):
 class information_VALUE_not_equal(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Checks if value1 " + subjects[0]
-        self.information += " is not equal to value2 "
+        self.information = "Value1 " + subjects[0]
+        self.information += " must not be equal to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2271,8 +2273,8 @@ class information_VALUE_not_equal(information_unit):
 class information_VALUE_greater(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Checks if value1 " + subjects[0]
-        self.information += " is greater to value2 "
+        self.information = "Value1 " + subjects[0]
+        self.information += " must be greater than value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
@@ -2280,34 +2282,37 @@ class information_VALUE_greater(information_unit):
 class information_VALUE_greater_or_equal(information_unit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
-        self.information = "Checks if value1 " + subjects[0]
-        self.information += " is greater or equal to value2 "
+        self.information = "Value1 " + subjects[0]
+        self.information += " must be greater or equal to value2 "
         self.information += subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_VALUE_check(information_unit):
     def set_information(self):
-        self.information = "Checks if value " + self.information_obj.get_topic_subject()[0] + " must be 0"
+        self.information = "Value " + self.information_obj.get_topic_subject()[0] + " must be 0"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class information_PACKAGE_check(information_unit):
     def set_information(self):
         option = self.information_obj.get_option()
-        self.information = "Checks if package " + self.information_obj.get_topic_subject()[0]
-        self.information += " is installed"
+        self.information = "Package " + self.information_obj.get_topic_subject()[0]
+        self.information += " must be installed"
 
         if not self.is_list_empty(option):
             self.information += " with"
-            if option[0]:
+            if len(option) == 1:
                 self.information += " version: " + option[0]
 
-            if option[1]:
-                self.information += " release: " + option[1]
+            elif len(option) == 2:
+                self.information += " version: " + option[0]
+                self.information += " and release: " + option[1]
 
-            if option[2]:
-                self.information += " architecture: " + option[2]
+            else:
+                self.information += " version: " + option[0]
+                self.information += ", release: " + option[1]
+                self.information += " and architecture: " + option[2]
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
@@ -2322,17 +2327,19 @@ class information_PACKAGE_exists(information_unit):
             self.information = "Package " + subjects[0]
             self.information += " must be installed"
 
-        if option[0] or option[1] or option[2]:
-            print(len(option))
+        if not self.is_list_empty(option):
             self.information += " with"
-            if option[0]:
+            if len(option) == 1:
                 self.information += " version: " + option[0]
 
-            if option[1]:
-                self.information += " release: " + option[1]
+            elif len(option) == 2:
+                self.information += " version: " + option[0]
+                self.information += " and release: " + option[1]
 
-            if option[2]:
-                self.information += " architecture: " + option[2]
+            else:
+                self.information += " version: " + option[0]
+                self.information += ", release: " + option[1]
+                self.information += " and architecture: " + option[2]
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
@@ -2344,21 +2351,20 @@ class information_PACKAGE_not_exists(information_unit):
 
         if not self.is_list_empty(option):
             self.information += " with"
-            if option[0]:
+            if len(option) == 1:
                 self.information += " version: " + option[0]
 
-            if option[1]:
-                self.information += " release: " + option[1]
+            elif len(option) == 2:
+                self.information += " version: " + option[0]
+                self.information += " and release: " + option[1]
 
-            if option[2]:
-                self.information += " architecture: " + option[2]
+            else:
+                self.information += " version: " + option[0]
+                self.information += ", release: " + option[1]
+                self.information += " and architecture: " + option[2]
         self.check_status_and_add_information(self.information_obj.get_status())
 
-# TODO TEST options from rlRmp commands
 
-
-# knapsack problem
-# noinspection PyShadowingNames
 class get_information(object):
     array = [
         # topic: FILE(DIRECTORY),           STRING                   PACKAGE          JOURNAL,PHASE,TEST       MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
