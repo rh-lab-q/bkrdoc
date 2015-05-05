@@ -68,14 +68,8 @@ class Parser(object):
             if line[0:1] != '#' and len(line) >= 1 and \
                     not self.is_phase_journal_end(line):
 
-                if self.is_phase_setup(line):
-                    self.phases.append(phase_setup(line[len("rlphasestart"):]))
-
-                elif self.is_phase_test(line):
-                    self.phases.append(phase_test(line[len("rlphasestart"):]))
-
-                elif self.is_phase_clean(line):
-                    self.phases.append(phase_clean(line[len("rlphasestart"):]))
+                if self.is_phase(line):
+                    self.phases.append(phase_container(line[len("rlphasestart"):]))
 
                 elif self.is_end_back_slash(line):
                     pom_line += line[0:-1]
@@ -189,6 +183,9 @@ class Parser(object):
             if not self.is_phase_outside(member):
                 member.print_phase_documentation(cmd_options)
                 print("")
+
+    def is_phase(self, line):
+        return line[0:len("rlphasestart")].lower() == "rlphasestart"
 
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
@@ -412,7 +409,7 @@ class phase_outside:
                 return False
 
 
-class phase_clean:
+class phase_container:
     """Class for store information in test phase"""
     phase_name = ""
     statement_list = []
@@ -486,161 +483,6 @@ class phase_clean:
             phase_weigh += inf.get_information_weigh()
         return phase_weigh
 
-
-class phase_test:
-    """Class for store information in test phase"""
-    phase_name = ""
-    statement_list = []
-    doc_ref = ""
-    variables = ""
-    statement_classes = []
-    documentation_units = []
-    phase_documentation_information = []
-
-    def __init__(self, name):
-        self.phase_name = name
-        self.statement_list = []
-        self.doc = []
-        self.variables = test_variables()
-        self.statement_classes = []
-        self.documentation_units = []
-        self.phase_documentation_information = []
-
-    def setup_statement(self, line):
-        self.statement_list.append(line)
-
-    def search_data(self, parser_ref, variable_copy):
-        self.variables = variable_copy
-        command_translator = statement_automata(parser_ref, self)
-        for statement in self.statement_list:
-            try:
-                self.statement_classes.append(command_translator.parse_command(statement))
-            except ValueError:
-                print("ERROR in line: " + str(statement))
-                print(ValueError.message)
-            except SystemExit:
-                print("ERROR in line: " + str(statement))
-                print("Can be problem with variables substitutions")
-
-    def translate_data(self, parser_ref):
-        data_translator = documentation_translator(parser_ref)
-        for data in self.statement_classes:
-            if data.argname != "UNKNOWN":
-                self.documentation_units.append(data_translator.translate_data(data))
-
-    def generate_documentation(self):
-        information_translator = get_information()
-        for information in self.documentation_units:
-            if information:
-                self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
-
-    def print_phase_documentation(self, cmd_options):
-        self.print_phase_name_with_documentation_credibility()
-        conditions = conditions_for_commands()
-
-        for information in self.phase_documentation_information:
-            if cmd_options.log_in:
-                information.print_information()
-            elif not conditions.is_rlLog(information.get_command_name()):
-                information.print_information()
-
-    def print_phase_name_with_documentation_credibility(self):
-        credibility = len(self.statement_list) - len(self.phase_documentation_information)
-        inf = self.phase_name + " [ Unknown commands: " + str(credibility) + ", Total: " + str(len(self.statement_list)) + " ]"
-        print(inf)
-
-    def get_information_list(self):
-        return self.phase_documentation_information
-
-    def set_information_list(self, inf_list):
-        self.phase_documentation_information = inf_list
-
-    def get_information_list_size(self):
-        return len(self.phase_documentation_information)
-
-    def get_phase_weigh(self):
-        phase_weigh = 0
-        for inf in self.phase_documentation_information:
-            phase_weigh += inf.get_information_weigh()
-        return phase_weigh
-
-
-class phase_setup:
-    """Class for store information in setup phase"""
-    phase_name = ""
-    doc_ref = ""
-    variables = ""
-    statement_list = []
-    statement_classes = []
-    documentation_units = []
-    phase_documentation_information = []
-
-    def __init__(self, name):
-        self.phase_name = name
-        self.statement_list = []
-        self.doc = []
-        self.variables = test_variables()
-        self.statement_classes = []
-        self.documentation_units = []
-        self.phase_documentation_information = []
-
-    def setup_statement(self, line):
-        self.statement_list.append(line)
-
-    def search_data(self, parser_ref, variable_copy):
-        self.variables = variable_copy
-        command_translator = statement_automata(parser_ref, self)
-        for statement in self.statement_list:
-            try:
-                self.statement_classes.append(command_translator.parse_command(statement))
-            except ValueError:
-                print("ERROR in line: " + str(statement))
-                print(ValueError.message)
-            except SystemExit:
-                print("ERROR in line: " + str(statement))
-                print("Can be problem with variables substitutions")
-
-    def translate_data(self, parser_ref):
-        data_translator = documentation_translator(parser_ref)
-        for data in self.statement_classes:
-            if data.argname != "UNKNOWN":
-                self.documentation_units.append(data_translator.translate_data(data))
-
-    def generate_documentation(self):
-        information_translator = get_information()
-        for information in self.documentation_units:
-            if information:
-                self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
-
-    def print_phase_documentation(self, cmd_options):
-        self.print_phase_name_with_documentation_credibility()
-        conditions = conditions_for_commands()
-
-        for information in self.phase_documentation_information:
-            if cmd_options.log_in:
-                information.print_information()
-            elif not conditions.is_rlLog(information.get_command_name()):
-                information.print_information()
-
-    def print_phase_name_with_documentation_credibility(self):
-        credibility = len(self.statement_list) - len(self.phase_documentation_information)
-        inf = self.phase_name + " [ Unknown commands: " + str(credibility) + ", Total: " + str(len(self.statement_list)) + " ]"
-        print(inf)
-
-    def get_information_list(self):
-        return self.phase_documentation_information
-
-    def set_information_list(self, inf_list):
-        self.phase_documentation_information = inf_list
-
-    def get_information_list_size(self):
-        return len(self.phase_documentation_information)
-
-    def get_phase_weigh(self):
-        phase_weigh = 0
-        for inf in self.phase_documentation_information:
-            phase_weigh += inf.get_information_weigh()
-        return phase_weigh
 
 
 class statement_automata:
@@ -1411,7 +1253,7 @@ class documentation_translator:
             beakerLibInformationUnit.set_status(argparse_data.status)
 
     def Get_argparse_of_command(self, command):
-        pomPhase = phase_test("Helpful phase")
+        pomPhase = phase_container("Helpful phase")
         return statement_automata(self.parser_ref,pomPhase).parse_command(command)
 
     def rlVirtualX_xxx(self, argparse_data):
