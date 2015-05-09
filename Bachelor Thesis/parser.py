@@ -125,10 +125,9 @@ class Parser(object):
                 pom_var.add_keyword(key)
 
             #copying functions to new function list
-            for function in member.func_list:
-                pom_f = []
-                pom_f.append(function)
-                pom_func = pom_f
+            copy_func_list = []
+            copy_func_list = member.func_list
+            pom_func = copy_func_list
 
     def get_documentation_information(self):
         for member in self.phases:
@@ -342,15 +341,24 @@ class test_function:
 
     statement_list = []
 
+    data_list = []
+
     name = ""
 
     def __init__(self, fname):
         self.statement_list = []
-        self.name = fname
+        lex = shlex.shlex(fname)
+        self.name = lex.get_token()
+        self.data_list = []
 
     def add_line(self, line):
         self.statement_list.append(line)
 
+    def add_data(self,data):
+        self.data_list.append(data)
+
+    def is_function_data_empty(self):
+        return len(self.data_list) == 0
 
 class phase_outside:
     """Class for searching data outside of phases"""
@@ -448,6 +456,7 @@ class phase_container:
     documentation_units = []
     phase_documentation_information = []
     func_list = []
+    parser_ref = ""
 
     def __init__(self, name):
         self.phase_name = name
@@ -458,17 +467,32 @@ class phase_container:
         self.documentation_units = []
         self.phase_documentation_information = []
         self.func_list = []
+        self.parser_ref = ""
 
     def setup_statement(self, line):
         self.statement_list.append(line)
 
     def search_data(self, parser_ref, variable_copy, function_copy):
-        self.function_list = function_copy
+        self.func_list = function_copy
         self.variables = variable_copy
+        self.parser_ref = parser_ref
         command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
             try:
                 self.statement_classes.append(command_translator.parse_command(statement))
+            except ValueError:
+                print("ERROR in line: " + str(statement))
+                print(ValueError)
+            except SystemExit:
+                print("ERROR in line: " + str(statement))
+                print("Can be problem with variables substitutions")
+
+    def search_data_in_function(self,function):
+        command_translator = statement_automata(self.parser_ref, self)
+        function.data_list = []
+        for statement in function.statement_list:
+            try:
+                function.add_data(command_translator.parse_command(statement))
             except ValueError:
                 print("ERROR in line: " + str(statement))
                 print(ValueError)
@@ -515,6 +539,8 @@ class phase_container:
             phase_weigh += inf.get_information_weigh()
         return phase_weigh
 
+    def get_function_list(self):
+        return self.func_list
 
 
 class statement_automata:
@@ -687,27 +713,30 @@ class statement_automata:
         readed = shlex.shlex(statement)
         member = readed.get_token()
         equal_to = readed.get_token()
+        while(equal_to):
+            # condition to handle assign to random value
+            # setting variable list
+            if equal_to == '=':
+                # This 7 lines are here for erasing comments and for reading whole line
+                pom_i = statement.find("=", len(member)) + 1
+                list_of_statement = shlex.split(statement[pom_i:], True, True)
+                value = ""
+                for value_member in list_of_statement:
+                    if not value == "":
+                        value += " "
+                    value += value_member
 
-        # condition to handle assign to random value
-        # setting variable list
-        if equal_to == '=':
-            # This 7 lines are here for erasing comments and for reading whole line
-            pom_i = statement.find("=", len(member)) + 1
-            list_of_statement = shlex.split(statement[pom_i:], True, True)
-            value = ""
-            for value_member in list_of_statement:
-                if not value == "":
-                    value += " "
-                value += value_member
+                regular = re.compile("\"(/.*/)(.*)\"")
+                match = regular.match(value)
+                if match:
+                    self.phase_ref.variables.add_variable(member, match.group(1) + match.group(2))
+                    # TODO keywords from not outside phases
+                    # self.keywords_list.append(match.group(2))
+                else:
+                    self.phase_ref.variables.add_variable(member, value)
 
-            regular = re.compile("\"(/.*/)(.*)\"")
-            match = regular.match(value)
-            if match:
-                self.phase_ref.variables.add_variable(member, match.group(1) + match.group(2))
-                # TODO keywords from not outside phases
-                # self.keywords_list.append(match.group(2))
-            else:
-                self.phase_ref.variables.add_variable(member, value)
+            member = equal_to
+            equal_to = readed.get_token()
 
         return
 
@@ -778,6 +807,12 @@ class statement_automata:
         self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"])
         # Trying to find variable assignment in statement line
         self.is_variable_assignment(statement_list)
+        self.is_function_name_in_statement(statement_list)
+
+    def is_function_name_in_statement(self, line):
+        for function in self.phase_ref.get_function_list():
+            if function.name in line and function.is_function_data_empty():
+                self.phase_ref.search_data_in_function(function)
 
     def rlWatchdog(self, pom_param_list):
         parser_arg = argparse.ArgumentParser()
