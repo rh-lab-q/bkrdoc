@@ -38,9 +38,12 @@ class Parser(object):
 
     test_launch = ""
 
+    environmental_variable = []
+
     def __init__(self, file_in):
         self.phases = []
         self.test_launch = 0
+        self.environmental_variable = []
         file_in = file_in.strip()
         if file_in[(len(file_in) - 3):len(file_in)] == ".sh":
             try:
@@ -96,14 +99,20 @@ class Parser(object):
         if number_of_variables > self.test_launch:
             self.test_launch = number_of_variables
 
+    def set_environmental_variable_information(self, variable):
+        if not variable in self.environmental_variable:
+            self.environmental_variable.append(variable)
+
     def get_doc_data(self):
         pom_var = test_variables()
+        pom_func = []
         for member in self.phases:
             if not self.is_phase_outside(member):
-                member.search_data(self, pom_var)
+                member.search_data(self, pom_var, pom_func)
                 pom_var = test_variables()
+
             else:
-                member.search_data(pom_var)
+                member.search_data(pom_var, pom_func)
                 pom_var = test_variables()
 
             # copying variables to new variable instance
@@ -115,6 +124,11 @@ class Parser(object):
             for key in member.variables.keywords:
                 pom_var.add_keyword(key)
 
+            #copying functions to new function list
+            for function in member.func_list:
+                pom_f = []
+                pom_f.append(function)
+                pom_func = pom_f
 
     def get_documentation_information(self):
         for member in self.phases:
@@ -171,8 +185,20 @@ class Parser(object):
         #inf += " with " + str(self.test_launch) + " command line arguments"
         print(inf)
 
+    def print_test_environmental_variables_information(self):
+        inf = "Test environmental variables: "
+        if len(self.environmental_variable):
+            for env in self.environmental_variable:
+                inf += env + ", "
+            inf = inf[0:-2]
+        else:
+            inf += "-"
+        print(inf)
+
     def print_documentation(self, cmd_options):
         self.print_test_launch()
+        self.print_test_environmental_variables_information()
+        print("")
         test_weigh  = self.get_test_weigh()
         if test_weigh > cmd_options.size:
             knapsack_list = self.setup_phases_lists_for_knapsack()
@@ -316,8 +342,11 @@ class test_function:
 
     statement_list = []
 
-    def __init__(self):
+    name = ""
+
+    def __init__(self, fname):
         self.statement_list = []
+        self.name = fname
 
     def add_line(self, line):
         self.statement_list.append(line)
@@ -340,8 +369,9 @@ class phase_outside:
     def setup_statement(self, line):
         self.statement_list.append(line)
 
-    def search_data(self, variable_copy):
+    def search_data(self, variable_copy, function_copy):
         self.variables = variable_copy
+        self.func_list = function_copy
         func = False
         for statement in self.statement_list:
 
@@ -349,8 +379,7 @@ class phase_outside:
             # information from functions.
             if self.is_function(statement):
                 func = True
-                self.func_list.append(test_function())
-                self.func_list[-1].add_line(statement)
+                self.func_list.append(test_function(statement[len("function")+1:]))
 
             elif func and not self.is_function_end(statement):
                 self.func_list[-1].add_line(statement)
@@ -418,6 +447,7 @@ class phase_container:
     statement_classes = []
     documentation_units = []
     phase_documentation_information = []
+    func_list = []
 
     def __init__(self, name):
         self.phase_name = name
@@ -427,11 +457,13 @@ class phase_container:
         self.statement_classes = []
         self.documentation_units = []
         self.phase_documentation_information = []
+        self.func_list = []
 
     def setup_statement(self, line):
         self.statement_list.append(line)
 
-    def search_data(self, parser_ref, variable_copy):
+    def search_data(self, parser_ref, variable_copy, function_copy):
+        self.function_list = function_copy
         self.variables = variable_copy
         command_translator = statement_automata(parser_ref, self)
         for statement in self.statement_list:
@@ -439,7 +471,7 @@ class phase_container:
                 self.statement_classes.append(command_translator.parse_command(statement))
             except ValueError:
                 print("ERROR in line: " + str(statement))
-                print(ValueError.message)
+                print(ValueError)
             except SystemExit:
                 print("ERROR in line: " + str(statement))
                 print("Can be problem with variables substitutions")
@@ -490,14 +522,18 @@ class statement_automata:
     parser_ref = ""
     phase_ref = ""
 
+    minimum_variable_size = 4
+
     def __init__(self, parser_ref, phase_ref):
         self.parser_ref = parser_ref
         self.phase_ref = phase_ref
+        self.minimum_variable_size = 4
 
     def parse_command(self, statement_line):
         # Spliting statement using shlex lexicator
         pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
         self.get_cmd_line_params(pom_statement_line)
+        self.get_environmental_variable(pom_statement_line)
         pom_list = shlex.split(pom_statement_line, True, posix=True)
         first = pom_list[0]
 
@@ -626,10 +662,25 @@ class statement_automata:
         pass
 
     def get_cmd_line_params(self, line):
+        # This method searches for command line variables in code represented as $1 $2 ...
         regular = re.compile("(.*)(\$(\d+))(.*)")
         match = regular.match(line)
         if match:
             self.parser_ref.set_test_launch(match.group(3))
+
+    def get_environmental_variable(self,line):
+        lexer = shlex.shlex(line)
+        word = lexer.get_token()
+        while(word):
+            if word == "$":
+                word = lexer.get_token()
+                if not self.phase_ref.variables.is_existing_variable(word) and len(word) > self.minimum_variable_size:
+                    self.parser_ref.set_environmental_variable_information(word)
+
+            elif word[0:1] == '"':  # shelx doesn't returns whole string so for searching in strings I'm using recursion
+                self.get_environmental_variable(word[1:-1])
+            word = lexer.get_token()
+
 
     def is_variable_assignment(self, statement):
         # searching variables in statement line
