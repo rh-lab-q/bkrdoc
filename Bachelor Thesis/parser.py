@@ -96,7 +96,7 @@ class Parser(object):
         return line[-1:] == '\\'
 
     def set_test_launch(self, number_of_variables):
-        if number_of_variables > str(self.test_launch):
+        if int(number_of_variables) > int(self.test_launch):
             self.test_launch = number_of_variables
 
     def set_environmental_variable_information(self, variable):
