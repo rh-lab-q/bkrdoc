@@ -51,7 +51,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Value1 _enabled must be equal to value2 $CONF_VALUE"
         self.assertEqual(inf_data.information,inf)
@@ -70,7 +70,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Package httpd must be installed with version: 22, release: 23 and architecture: 44"
         self.assertEqual(inf_data.information,inf)
@@ -91,7 +91,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Command \"rm -r $TmpDir\" exit code must match: 2,3,4,26"
         self.assertEqual(inf_data.information,inf)
@@ -112,7 +112,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Hashes string text with hashing algorithm magic!"
         self.assertEqual(inf_data.information, inf)
@@ -124,7 +124,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Hashes string from input with hashing algorithm magic!"
         self.assertEqual(inf_data.information, inf)
@@ -139,7 +139,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(argparse_parsed_command)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "File or directory cleandir is backed up"
         self.assertEqual(inf_data.information, inf)
@@ -163,7 +163,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Starts services boolean, boool and asda"
         self.assertEqual(inf_data.information, inf)
@@ -173,7 +173,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Services boolean, boool and asda are restored into original state"
         self.assertEqual(inf_data.information, inf)
@@ -185,7 +185,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Sets booleans boolean, boool and asda to true"
         self.assertEqual(inf_data.information,inf)
@@ -195,7 +195,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Restore booleans boolean, boool and asda into original state"
         self.assertEqual(inf_data.information, inf)
@@ -210,7 +210,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Command \"rm -r $TmpDir\" must run successfully and output is stored in to log"
         self.assertEqual(inf_data.information, inf)
@@ -224,7 +224,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Files or directories $HttpdPages and $HttpdLogs are backed up and must finished with return code matching: 1-2"
         self.assertEqual(inf_data.information, inf)
@@ -238,7 +238,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Service: httpd must be running"
         self.assertEqual(inf_data.information, inf)
@@ -251,7 +251,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Returns primary arch for the current system"
         self.assertEqual(inf_data.information, inf)
@@ -262,7 +262,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Returns release of the distribution on the system"
         self.assertEqual(inf_data.information, inf)
@@ -273,7 +273,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Log a message with version of the currently running kernel"
         self.assertEqual(inf_data.information,inf)
@@ -284,7 +284,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Returns number of failed asserts"
         self.assertEqual(inf_data.information, inf)
@@ -300,7 +300,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Message \"ahoj\" is created in to logfile logfile"
         self.assertEqual(inf_data.information, inf)
@@ -311,7 +311,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Message \"message\" is created in to log"
         self.assertEqual(inf_data.information, inf)
@@ -325,7 +325,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Creates a tarball of files file1, file2 and file3... and attached it/them to test result"
         self.assertEqual(inf_data.information, inf)
@@ -341,7 +341,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Resolves absolute path path_to_file, replaces / for as and rename file to required"
         self.assertEqual(inf_data.information, inf)
@@ -355,7 +355,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         self.assertEqual(inf_data.information, "Shows information about as and km version")
         self.assertEqual(sec.inf_ref.importance,2)
@@ -368,7 +368,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         self.assertEqual(inf_data.information, "Prints the content of the journal in pretty text format with additional information")
         self.assertEqual(sec.inf_ref.importance,1)
@@ -379,7 +379,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Pauses script until file or directory with this path path starts listening"
         self.assertEqual(inf_data.information, inf)
@@ -390,7 +390,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Pauses script execution until command path exit status is unsuccessful\n and process with this PID TENTO must be running"
         self.assertEqual(inf_data.information, inf)
@@ -412,7 +412,7 @@ class TestSequenceFunctions(unittest.TestCase):
         pokus = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf = pokus.translate_data(test)
         inf_unit = pokus.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "File: \"stderr\" must contain pattern: \"Not Found\""
         self.assertEqual(inf_data.information, inf)
@@ -424,7 +424,7 @@ class TestSequenceFunctions(unittest.TestCase):
         pokus = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf = pokus.translate_data(test)
         inf_unit = pokus.translate_data(test)
-        ref = parser.get_information()
+        ref = parser.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "File(directory): \"gener.html\" must exist"
         self.assertEqual(inf_data.information, inf)

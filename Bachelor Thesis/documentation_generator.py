@@ -9,6 +9,11 @@ import argparse
 
 
 class Parser(object):
+    """
+    Parser is main class. It contains methods for running analysis and nature language information creation.
+    Also contains phases containers.
+    :param file_in: is path with name to file from which the documentation will be created.
+    """
     lexer = shlex
 
     file_test = ""
@@ -62,6 +67,9 @@ class Parser(object):
             sys.exit(1)
 
     def parse_data(self):
+        """
+        Method which divides lines of code into phase containers.
+        """
         self.phases.append(PhaseOutside())
 
         pom_line = ""
@@ -96,14 +104,28 @@ class Parser(object):
         return line[-1:] == '\\'
 
     def set_test_launch(self, number_of_variables):
+        """
+        This method sets up test launch variable, which indicates number of variables.
+        :param number_of_variables: number of command line variables in test
+        """
         if int(number_of_variables) > int(self.test_launch):
             self.test_launch = number_of_variables
 
     def set_environmental_variable_information(self, variable):
+        """
+        This method sets up test environmental variable information command. This command
+        contains names of environmental variables in test.
+        :param variable: founded environmental variable in test.
+        """
         if variable not in self.environmental_variable:
             self.environmental_variable.append(variable)
 
     def get_doc_data(self):
+        """
+        Method which is responsible for starting the first analysis of code lines.
+        After this method finishes all phase containers will have argparse object
+        with parsed data.
+        """
         pom_var = TestVariables()
         pom_func = []
         for member in self.phases:
@@ -129,16 +151,29 @@ class Parser(object):
             pom_func = copy_func_list
 
     def get_documentation_information(self):
+        """
+        This method is responsible for starting of replacement of argparse object to
+        DocumentationInformation object.
+        """
         for member in self.phases:
             if not self.is_phase_outside(member):
                 member.translate_data(self)
 
     def generate_documentation(self):
+        """
+        This method starts transformation from DocumentationInformation objects
+        to small object with nature language information
+        """
         for member in self.phases:
             if not self.is_phase_outside(member):
                 member.generate_documentation()
 
     def get_test_weigh(self):
+        """
+        This method calculates number of lines in test.
+
+        :return: number of lines where information will be placed.
+        """
         weigh = 0
         for member in self.phases:
             if not self.is_phase_outside(member):
@@ -146,6 +181,11 @@ class Parser(object):
         return weigh
 
     def setup_phases_lists_for_knapsack(self):
+        """
+        This method sets up list for knapsack algorithm.
+
+        :return: Set up list.
+        """
         phases_list = self.get_phases_information_lists()
         whole_set_uped_list = []
         for element in phases_list:
@@ -154,6 +194,11 @@ class Parser(object):
         return whole_set_uped_list
 
     def get_phases_information_lists(self):
+        """
+        This method gathers all information lists in phase containers into big one
+
+        :return: one big information list
+        """
         phases_lists = []
         for member in self.phases:
             if not self.is_phase_outside(member):
@@ -161,6 +206,11 @@ class Parser(object):
         return phases_lists
 
     def set_phases_information_lists(self, finished_knapsack_list):
+        """
+        This method checks number of lines in phases containers. If the lines are
+        bigger then this method will run prepared knapsack algorithm.
+        :param finished_knapsack_list: final list with information
+        """
         pom_phases_lists = []
         for member in self.phases:
             if not self.is_phase_outside(member):
@@ -172,6 +222,9 @@ class Parser(object):
                 pom_phases_lists = []
 
     def print_test_launch(self):
+        """
+        This method prints test launch information
+        """
         inf = "Test launch: " + self.file_name
         i = 0
         while int(i) < int(self.test_launch):
@@ -180,6 +233,9 @@ class Parser(object):
         print(inf)
 
     def print_test_environmental_variables_information(self):
+        """
+        This method prints environmental variables information
+        """
         inf = "Test environmental variables: "
         if len(self.environmental_variable):
             for env in self.environmental_variable:
@@ -190,6 +246,10 @@ class Parser(object):
         print(inf)
 
     def print_documentation(self, cmd_options):
+        """
+        This method is responsible for printing the final documentation to stdout
+        :param cmd_options: possible command line options
+        """
         self.print_test_launch()
         self.print_test_environmental_variables_information()
         print("")
@@ -237,6 +297,12 @@ class Parser(object):
 
     # items in [["information", weigh, value], ...] format
     def solve_knapsack_dp(self, items, limit):
+        """
+        Algorithm for solving the knapsack problem
+        :param items: set up list of information
+        :param limit: specified size limit
+        :return: final list with information with best value
+        """
         global xrange
         try:
             xrange
@@ -265,6 +331,11 @@ class Parser(object):
         return result
 
     def search_variable(self, phase_ref, searching_variable):
+        """
+        this method searches specified test variable
+        :param phase_ref: reference to phase container
+        :param searching_variable: <-
+        """
         pom_variable = ""
 
         for member in self.phases:
@@ -375,6 +446,12 @@ class PhaseOutside:
         self.statement_list.append(line)
 
     def search_data(self, variable_copy, function_copy):
+        """
+        This method searches variables in statements. Also when it finds function then this method
+        created TestFunction object with function data.
+        :param variable_copy: Copy of variables
+        :param function_copy: Copy of functions
+        """
         self.variables = variable_copy
         self.func_list = function_copy
         func = False
@@ -431,6 +508,11 @@ class PhaseOutside:
         return line[0:len("function")] == "function"
 
     def is_function_end(self, line):
+        """
+        Test end of line of function in statement line
+        :param line: statement line
+        :return: true or false
+        """
         if line[0:1] == "}":
             return True
         else:
@@ -469,6 +551,12 @@ class PhaseContainer:
         self.statement_list.append(line)
 
     def search_data(self, parser_ref, variable_copy, function_copy):
+        """
+        This method runs data searching in statement lines.
+        :param parser_ref: parser object reference
+        :param variable_copy: variable copy
+        :param function_copy: function copy
+        """
         self.func_list = function_copy
         self.variables = variable_copy
         self.parser_ref = parser_ref
@@ -484,6 +572,10 @@ class PhaseContainer:
                 print("Can be problem with variables substitutions")
 
     def search_data_in_function(self, function):
+        """
+        Searching data in function object
+        :param function: function object
+        """
         command_translator = StatementDataSearcher(self.parser_ref, self)
         function.data_list = []
         for statement in function.statement_list:
@@ -497,25 +589,36 @@ class PhaseContainer:
                 print("Can be problem with variables substitutions")
 
     def translate_data(self, parser_ref):
+        """
+        Translate data from argparse object to DocumentationInformation object
+        :param parser_ref: parser reference
+        """
         data_translator = DocumentationTranslator(parser_ref)
         for data in self.statement_classes:
             if data.argname != "UNKNOWN":
                 self.documentation_units.append(data_translator.translate_data(data))
 
     def generate_documentation(self):
-        information_translator = get_information()
+        """
+        Transforms DocumentationInformation into small classes using GetInformation
+        """
+        information_translator = GetInformation()
         for information in self.documentation_units:
             if information:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
 
     def print_phase_documentation(self, cmd_options):
+        """
+        Prints nature language information
+        :param cmd_options: possible command line options
+        """
         self.print_phase_name_with_documentation_credibility()
         conditions = ConditionsForCommands()
 
         for information in self.phase_documentation_information:
             if cmd_options.log_in:
                 information.print_information()
-            elif not conditions.is_rlLog(information.get_command_name()):
+            elif not conditions.is_rllog_command(information.get_command_name()):
                 information.print_information()
 
     def print_phase_name_with_documentation_credibility(self):
@@ -527,19 +630,38 @@ class PhaseContainer:
         return self.phase_documentation_information
 
     def set_information_list(self, inf_list):
+        """
+        Sets whole information list. This method is called after solving knapsack problem.
+        :param inf_list: list of information from finished knapsack algorithm
+        """
         self.phase_documentation_information = inf_list
 
     def get_phase_weigh(self):
+        """
+        this method returns number of lines on which information will be printed
+
+        :return: -//-
+        """
         phase_weigh = 0
         for inf in self.phase_documentation_information:
             phase_weigh += inf.get_information_weigh()
         return phase_weigh
 
     def get_function_list(self):
+        """
+        :return: list of functions
+        """
         return self.func_list
 
 
 class StatementDataSearcher:
+    """
+    This class is responsible for parsing data from statement lines. This parsing is done by
+    setting argparse modules for every BeakerLib command. These setting we can see under
+    big switch.
+    :param parser_ref: parser reference
+    :param phase_ref: reference to phase where was StatementDataSearcher instance made.
+    """
     parsed_param_ref = ""
     parser_ref = ""
     phase_ref = ""
@@ -553,6 +675,11 @@ class StatementDataSearcher:
 
     def parse_command(self, statement_line):
         # Splitting statement using shlex lexicator
+        """
+        Method contains big switch for division of statement line
+        :param statement_line: singe line of code from test
+        :return: argparse object with parsed data
+        """
         pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
         self.get_cmd_line_params(pom_statement_line)
         self.get_environmental_variable(pom_statement_line)
@@ -565,7 +692,7 @@ class StatementDataSearcher:
         if condition.is_rlrun_command(first):
             self.get_rlrun_data(pom_list)
 
-        elif condition.is_Rpm_command(first):
+        elif condition.is_rpm_command(first):
             self.get_rpmcommand_data(pom_list)
 
         elif condition.is_check_or_assert_mount(first):
@@ -576,7 +703,7 @@ class StatementDataSearcher:
             if condition.is_assert_grep(first):
                 self.get_assert_grep_data(pom_list)
 
-            elif condition.is_rlPass_or_rlFail(first):
+            elif condition.is_rlpass_or_rlfail_command(first):
                 self.get_rlpass_or_rlfail_data(pom_list)
 
             elif condition.is_assert0(first):
@@ -594,85 +721,85 @@ class StatementDataSearcher:
             elif condition.is_assert_binary_origin(first):
                 self.get_assertbinaryorigin_data(pom_list)
 
-        elif condition.is_rlFileBackup(first):
+        elif condition.is_rlfilebackup_command(first):
             self.get_rlfilebackup_data(pom_list)
 
-        elif condition.is_rlFileRestore(first):
+        elif condition.is_rlfilerestore_command(first):
             self.get_rlfile_restore_data(pom_list)
 
-        elif condition.is_rlIsRHEL_or_rlISFedora(first):
+        elif condition.is_rlisrhel_or_rlisfedora_command(first):
             self.get_isrhel_or_isfedora_data(pom_list)
 
         elif condition.is_rlmount(first):
             self.get_rlmount_data(pom_list)
 
-        elif condition.is_rlHash_or_rlUnhash(first):
+        elif condition.is_rlhash_or_rlunhash_command(first):
             self.get_rlhash_or_rlunhash_data(pom_list)
 
-        elif condition.is_rlLog(first):
+        elif condition.is_rllog_command(first):
             self.get_rllog_data(pom_list)
 
-        elif condition.is_rlDie(first):
+        elif condition.is_rldie_command(first):
             self.get_rldie_data(pom_list)
 
-        elif condition.is_rlGet_x_Arch(first):
+        elif condition.is_rlget_x_arch_command(first):
             self.get_rlget_commands_data(pom_list)
 
-        elif condition.is_rlGetDistro(first):
+        elif condition.is_rlgetdistro_command(first):
             self.get_rlget_commands_data(pom_list)
 
-        elif condition.is_rlGetPhase_or_Test_State(first):
+        elif condition.is_rlgetphase_or_test_state_command(first):
             self.get_rlget_commands_data(pom_list)
 
-        elif condition.is_rlReport(first):
+        elif condition.is_rlreport_command(first):
             self.get_rlreport_data(pom_list)
 
-        elif condition.is_rlWatchdog(first):
+        elif condition.is_rlwatchdog_command(first):
             self.get_rlwatchdog_data(pom_list)
 
-        elif condition.is_rlBundleLogs(first):
+        elif condition.is_rlbundlelogs_command(first):
             self.get_rlbundlelogs_data(pom_list)
 
         elif condition.is_rlservicexxx(first):
             self.get_rlservicexxx_data(pom_list)
 
-        elif condition.is_SEBooleanxxx(first):
+        elif condition.is_sebooleanxxx_command(first):
             self.get_sebooleanxxx_data(pom_list)
 
-        elif condition.is_rlShowRunningKernel(first):
+        elif condition.is_rlshowrunningkernel_command(first):
             self.get_rlshowrunningkernel_data(pom_list)
 
         elif condition.is_get_or_check_makefile_requires(first):
             self.get_rlget_or_rlcheck_makefilerequeries_data(pom_list)
 
-        elif condition.is_rlCleanup_Apend_or_Prepend(first):
+        elif condition.is_rlcleanup_apend_or_prepend_command(first):
             self.get_rlcleanup_apend_or_prepend_data(pom_list)
 
-        elif condition.is_rlFileSubmit(first):
+        elif condition.is_rlfilesubmit_command(first):
             self.get_rlfilesubmit_data(pom_list)
 
-        elif condition.is_rlPerfTime_RunsInTime(first):
+        elif condition.is_rlperftime_runsintime_command(first):
             self.get_rlperftime_runsintime_data(pom_list)
 
-        elif condition.is_rlPerfTime_AvgFromRuns(first):
+        elif condition.is_rlperftime_avgfromruns_command(first):
             self.get_rlperftime_avgfromruns_data(pom_list)
 
-        elif condition.is_rlShowPackageVersion(first):
+        elif condition.is_rlshowpackageversion_command(first):
             self.get_rlshowpackageversion_data(pom_list)
 
-        elif condition.is_rlJournalPrint(first):
+        elif condition.is_rljournalprint_command(first):
             self.get_rljournalprint_data(pom_list)
 
-        elif condition.is_rlImport(first):
+        elif condition.is_rlimport_command(first):
             self.get_rlimport_data(pom_list)
 
-        elif condition.is_rlWaitForxxx(first):
+        elif condition.is_rlwaitforxxx_command(first):
             self.get_rlwaitforxxx_data(pom_list, first)
 
-        elif condition.is_rlWaitFor(first):
+        elif condition.is_rlwaitfor_command(first):
             self.get_rlwaitfor_data(pom_list)
 
-        elif condition.is_VirtualXxxx(first):
+        elif condition.is_virtualxxx_command(first):
             self.get_rlvirtualx_xxx_data(pom_list)
 
         else:
@@ -684,13 +811,20 @@ class StatementDataSearcher:
         pass
 
     def get_cmd_line_params(self, line):
-        # This method searches for command line variables in code represented as $1 $2 ...
+        """
+        This method searches for command line variables in code represented as $1 $2 ...
+        :param line: statement line of code
+        """
         regular = re.compile("(.*)(\$(\d+))(.*)")
         match = regular.match(line)
         if match:
             self.parser_ref.set_test_launch(match.group(3))
 
     def get_environmental_variable(self, line):
+        """
+        Searches environmental variables in code line
+        :param line: code line
+        """
         lexer = shlex.shlex(line)
         word = lexer.get_token()
         while word:
@@ -704,7 +838,11 @@ class StatementDataSearcher:
             word = lexer.get_token()
 
     def is_variable_assignment(self, statement):
-        # searching variables in statement line
+        """
+        searching variables in statement line
+        :param statement: code line
+        :return: returns nothing
+        """
         read = shlex.shlex(statement)
         member = read.get_token()
         equal_to = read.get_token()
@@ -736,6 +874,10 @@ class StatementDataSearcher:
         return
 
     def get_rljournalprint_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("type", type=str, nargs="?")
@@ -744,12 +886,20 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlshowpackageversion_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("package", type=str, nargs="+")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlfilesubmit_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("-s", type=str, help="sets separator")
@@ -758,6 +908,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlbundlelogs_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("package", type=str)
@@ -765,6 +919,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rldie_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("message", type=str)
@@ -772,6 +930,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rllog_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("message", type=str)
@@ -782,16 +944,28 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlshowrunningkernel_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlget_or_rlcheck_makefilerequeries_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlget_commands_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -810,6 +984,10 @@ class StatementDataSearcher:
                 self.phase_ref.search_data_in_function(function)
 
     def get_rlwatchdog_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
@@ -819,6 +997,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlreport_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str)
@@ -828,6 +1010,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlrun_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('-t', dest='t', action='store_true', default=False)
@@ -843,12 +1029,20 @@ class StatementDataSearcher:
         self.parsed_param_ref = ref
 
     def get_rlvirtualx_xxx_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlwaitfor_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('n', type=str, nargs='*')
@@ -857,33 +1051,46 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlwaitforxxx_data(self, pom_param_list, command):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        :param command: command name
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("-p", type=str, help="PID")
         parser_arg.add_argument("-t", type=str, help="time")
         parser_arg.add_argument("-d", type=int, help="delay", default=1)
 
-        if ConditionsForCommands().is_rlWaitForCmd(command):
+        if ConditionsForCommands().is_rlwaitforcmd_command(command):
             parser_arg.add_argument("command", type=str)
             parser_arg.add_argument("-m", type=str, help="count")
             parser_arg.add_argument("-r", type=str, help="retrval", default="0")
 
-        elif ConditionsForCommands().is_rlWaitForFile(command):
+        elif ConditionsForCommands().is_rlwaitforfile_command(command):
             parser_arg.add_argument("path", type=str)
 
-        elif ConditionsForCommands().is_rlWaitForSocket(command):
+        elif ConditionsForCommands().is_rlwaitforsocket_command(command):
             parser_arg.add_argument("port_path", type=str)
             parser_arg.add_argument('--close', dest='close', action='store_true',
                                     default=False)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlimport_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("LIBRARY", type=str, nargs='+')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlperftime_runsintime_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
@@ -892,6 +1099,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlperftime_avgfromruns_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
@@ -900,24 +1111,40 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlcleanup_apend_or_prepend_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("string", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_sebooleanxxx_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("boolean", type=str, nargs='+')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlservicexxx_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("service", type=str, nargs='+')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlfile_restore_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("--namespace", type=str,
@@ -925,6 +1152,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlfilebackup_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('--clean', dest='clean', action='store_true',
@@ -936,6 +1167,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlhash_or_rlunhash_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('--decode', dest='decode', action='store_true',
@@ -947,6 +1182,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_check_or_assert_mount_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('server', type=str, nargs='?')
@@ -955,6 +1194,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlmount_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('server', type=str)
@@ -963,6 +1206,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assertbinaryorigin_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('binary', type=str)
@@ -970,6 +1217,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rpmcommand_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         if len(pom_param_list) == 2 and pom_param_list[1] == "--all":
@@ -987,12 +1238,20 @@ class StatementDataSearcher:
             self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_isrhel_or_isfedora_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('type', type=str, nargs='*')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_differ_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('file1', type=str)
@@ -1000,12 +1259,20 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_exits_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('file_directory', type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_comparison_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
@@ -1014,6 +1281,10 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert0_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
@@ -1021,12 +1292,20 @@ class StatementDataSearcher:
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlpass_or_rlfail_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_grep_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('pattern', type=str)
@@ -1059,6 +1338,11 @@ class DocumentationTranslator:
         self.inf_ref = ""
 
     def translate_data(self, argparse_data):
+        """
+        This method translate argparse object into DocumentationInformation object
+        :param argparse_data: argparse object
+        :return: DocumentationInformation object
+        """
         self.inf_ref = ""
 
         argname = argparse_data.argname
@@ -1067,7 +1351,7 @@ class DocumentationTranslator:
         if condition.is_rlrun_command(argname):
             self.set_rlrun_data(argparse_data)
 
-        elif condition.is_Rpm_command(argname):
+        elif condition.is_rpm_command(argname):
             self.set_rpmcommand_data(argparse_data)
 
         elif condition.is_check_or_assert_mount(argname):
@@ -1078,7 +1362,7 @@ class DocumentationTranslator:
             if condition.is_assert_grep(argname):
                 self.set_assert_grep_data(argparse_data)
 
-            elif condition.is_rlPass_or_rlFail(argname):
+            elif condition.is_rlpass_or_rlfail_command(argname):
                 self.set_rlpass_or_rlfail_data(argparse_data)
 
             elif condition.is_assert0(argname):
@@ -1096,96 +1380,100 @@ class DocumentationTranslator:
             elif condition.is_assert_binary_origin(argname):
                 self.set_assertbinaryorigin_data(argparse_data)
 
-        elif condition.is_rlFileBackup(argname):
+        elif condition.is_rlfilebackup_command(argname):
             self.set_rlfilebackup_data(argparse_data)
 
-        elif condition.is_rlFileRestore(argname):
+        elif condition.is_rlfilerestore_command(argname):
             self.set_rlfile_restore_data(argparse_data)
 
-        elif condition.is_rlIsRHEL_or_rlISFedora(argname):
+        elif condition.is_rlisrhel_or_rlisfedora_command(argname):
             self.set_isrhel_or_isfedora_data(argparse_data)
 
         elif condition.is_rlmount(argname):
             self.set_rlmount_data(argparse_data)
 
-        elif condition.is_rlHash_or_rlUnhash(argname):
+        elif condition.is_rlhash_or_rlunhash_command(argname):
             self.set_rlhash_or_rlunhash_data(argparse_data)
 
-        elif condition.is_rlLog(argname):
+        elif condition.is_rllog_command(argname):
             self.set_rllog_data(argparse_data)
 
-        elif condition.is_rlDie(argname):
+        elif condition.is_rldie_command(argname):
             self.set_rldie_data(argparse_data)
 
-        elif condition.is_rlGet_x_Arch(argname):
+        elif condition.is_rlget_x_arch_command(argname):
             self.set_rlget_commands_data(argparse_data)
 
-        elif condition.is_rlGetDistro(argname):
+        elif condition.is_rlgetdistro_command(argname):
             self.set_rlget_commands_data(argparse_data)
 
-        elif condition.is_rlGetPhase_or_Test_State(argname):
+        elif condition.is_rlgetphase_or_test_state_command(argname):
             self.set_rlget_commands_data(argparse_data)
 
-        elif condition.is_rlReport(argname):
+        elif condition.is_rlreport_command(argname):
             self.set_rlreport_data(argparse_data)
 
-        elif condition.is_rlWatchdog(argname):
+        elif condition.is_rlwatchdog_command(argname):
             self.set_rlwatchdog_data(argparse_data)
 
-        elif condition.is_rlBundleLogs(argname):
+        elif condition.is_rlbundlelogs_command(argname):
             self.set_rlbundlelogs_data(argparse_data)
 
         elif condition.is_rlservicexxx(argname):
             self.set_rlservicexxx_data(argparse_data)
 
-        elif condition.is_SEBooleanxxx(argname):
+        elif condition.is_sebooleanxxx_command(argname):
             self.set_sebooleanxxx_data(argparse_data)
 
-        elif condition.is_rlShowRunningKernel(argname):
+        elif condition.is_rlshowrunningkernel_command(argname):
             self.set_rlshowrunningkernel_data()
 
         elif condition.is_get_or_check_makefile_requires(argname):
             self.set_rlget_or_rlcheck_makefilerequeries_data(argparse_data)
 
-        elif condition.is_rlCleanup_Apend_or_Prepend(argname):
+        elif condition.is_rlcleanup_apend_or_prepend_command(argname):
             self.set_rlcleanup_apend_or_prepend_data(argparse_data)
 
-        elif condition.is_rlFileSubmit(argname):
+        elif condition.is_rlfilesubmit_command(argname):
             self.set_rlfilesubmit_data(argparse_data)
 
-        elif condition.is_rlPerfTime_RunsInTime(argname):
+        elif condition.is_rlperftime_runsintime_command(argname):
             self.set_rlperftime_runsintime_data(argparse_data)
 
-        elif condition.is_rlPerfTime_AvgFromRuns(argname):
+        elif condition.is_rlperftime_avgfromruns_command(argname):
             self.set_rlperftime_avgfromruns_data(argparse_data)
 
-        elif condition.is_rlShowPackageVersion(argname):
+        elif condition.is_rlshowpackageversion_command(argname):
             self.set_rlshowpackageversion_data(argparse_data)
 
-        elif condition.is_rlJournalPrint(argname):
+        elif condition.is_rljournalprint_command(argname):
             self.set_rljournalprint_data(argparse_data)
 
-        elif condition.is_rlImport(argname):
+        elif condition.is_rlimport_command(argname):
             self.set_rlimport_data(argparse_data)
 
-        elif condition.is_rlWaitFor(argname):
+        elif condition.is_rlwaitfor_command(argname):
             self.set_rlwaitfor_data(argparse_data)
 
-        elif condition.is_rlWaitForCmd(argname):
+        elif condition.is_rlwaitforcmd_command(argname):
             self.set_rlwaitforcmd_data(argparse_data)
 
-        elif condition.is_rlWaitForFile(argname):
+        elif condition.is_rlwaitforfile_command(argname):
             self.set_rlwaitforfile_data(argparse_data)
 
-        elif condition.is_rlWaitForSocket(argname):
+        elif condition.is_rlwaitforsocket_command(argname):
             self.set_rlwaitforsocket_data(argparse_data)
 
-        elif condition.is_VirtualXxxx(argname):
+        elif condition.is_virtualxxx_command(argname):
             self.set_rlvirtualx_xxx_data(argparse_data)
 
         return self.inf_ref
 
     def set_rljournalprint_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.low
         subject = []
         param_option = []
@@ -1204,6 +1492,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlshowpackageversion_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         action = ["print"]
         subject = argparse_data.package
@@ -1211,6 +1503,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlfilesubmit_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = [argparse_data.path_to_file]
         if not len(argparse_data.s) and not len(argparse_data.required_name):
@@ -1227,6 +1523,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlbundlelogs_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.low
         subject = argparse_data.file
         topic_obj = Topic("FILE", subject)
@@ -1234,6 +1534,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rldie_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.low
         subject = [argparse_data.message]
         subject += argparse_data.file
@@ -1242,6 +1546,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rllog_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.low
         subject = [argparse_data.message]
         topic_obj = Topic("MESSAGE", subject)
@@ -1252,13 +1560,19 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlshowrunningkernel_data(self):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        """
         importance = self.lowMedium
         topic_obj = Topic("MESSAGE", ["kernel"])
         action = ["create"]
         self.inf_ref = DocumentationInformation("rlShowRunningKernel", topic_obj, action, importance)
 
     def set_rlget_or_rlcheck_makefilerequeries_data(self, argparse_data):
-
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         topic_obj = Topic("FILE", ["makefile"])
         action = []
@@ -1269,15 +1583,19 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlget_commands_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = []
         action = []
-        if ConditionsForCommands().is_rlGetPhase_or_Test_State(argparse_data.argname):
+        if ConditionsForCommands().is_rlgetphase_or_test_state_command(argparse_data.argname):
             if argparse_data.argname == "rlGetTestState":
                 subject.append("test")
             else:
                 subject.append("phase")
-        elif ConditionsForCommands().is_rlGetDistro(argparse_data.argname):
+        elif ConditionsForCommands().is_rlgetdistro_command(argparse_data.argname):
             if argparse_data.argname == "rlGetDistroRelease":
                 subject.append("release")
             else:
@@ -1291,6 +1609,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlwatchdog_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.highest
         subject = ["watchdog", argparse_data.command, argparse_data.timeout]
         param_option = []
@@ -1301,6 +1623,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlreport_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         subject = [argparse_data.name, argparse_data.result]
         topic_obj = Topic("JOURNAL", subject)
@@ -1308,6 +1634,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlrun_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.highest
         subject = [argparse_data.command, argparse_data.status]
         possible_beakerlib_command = self.get_argparse_of_command(argparse_data.command)
@@ -1334,10 +1664,21 @@ class DocumentationTranslator:
             beakerlib_information_unit.set_status(argparse_data.status)
 
     def get_argparse_of_command(self, command):
+        """
+        Gets argparse from command. This method is called in few methods. It depends
+        on BeakerLib commands. If argparse of BeakerLib command contain command data,
+        then this method will be used.
+        :param command: command line
+        :return: argparse object
+        """
         pom_phase = PhaseContainer("Helpful phase")
         return StatementDataSearcher(self.parser_ref, pom_phase).parse_command(command)
 
     def set_rlvirtualx_xxx_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = [argparse_data.name]
         action = []
@@ -1351,6 +1692,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlwaitfor_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = []
         if len(argparse_data.n):
@@ -1360,6 +1705,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlwaitforsocket_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = [argparse_data.port_path]
         param_option = []
@@ -1373,6 +1722,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlwaitforfile_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = ["file", argparse_data.path]
         param_option = []
@@ -1383,6 +1736,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlwaitforcmd_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = ["cmd", argparse_data.command]
         param_option = ["", ""]
@@ -1397,6 +1754,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlimport_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = argparse_data.LIBRARY
         topic_obj = Topic("PACKAGE", subject)
@@ -1404,6 +1765,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlperftime_runsintime_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = [argparse_data.command]
         param_option = [argparse_data.time]
@@ -1412,6 +1777,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlperftime_avgfromruns_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = [argparse_data.command]
         topic_obj = Topic("COMMAND", subject)
@@ -1419,6 +1788,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlcleanup_apend_or_prepend_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = []
         if argparse_data.argname == "rlCleanupAppend":
@@ -1429,6 +1802,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_sebooleanxxx_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = []
         if argparse_data.argname == "rlSEBooleanOn":
@@ -1441,6 +1818,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlservicexxx_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = argparse_data.service
         action = []
@@ -1454,6 +1835,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlfile_restore_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         param_option = []
         if argparse_data.namespace:
@@ -1463,6 +1848,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlfilebackup_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         param_option = []
         subject = argparse_data.file
@@ -1474,6 +1863,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_rlhash_or_rlunhash_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         param_option = []
         subject = []
@@ -1492,6 +1885,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_check_or_assert_mount_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = [argparse_data.mountpoint]
         action = []
@@ -1505,6 +1902,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlmount_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.lowMedium
         subject = [argparse_data.mountpoint, argparse_data.server]
         topic_obj = Topic("MOUNTPOINT", subject)
@@ -1512,6 +1913,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_assertbinaryorigin_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         subject = [argparse_data.binary]
         subject += argparse_data.package
@@ -1520,6 +1925,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rpmcommand_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         subject = []
         action = []
@@ -1548,6 +1957,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance, Option(param_option))
 
     def set_isrhel_or_isfedora_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.medium
         action = []
         subject = []
@@ -1561,6 +1974,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_assert_differ_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         action = []
         if argparse_data.argname == "rlAssertDiffer":
@@ -1572,6 +1989,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_assert_exits_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         subject = [argparse_data.file_directory]
         topic_obj = Topic("FILE", subject)
@@ -1583,6 +2004,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_assert_comparison_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         action = []
         subject = [argparse_data.value1, argparse_data.value2]
@@ -1598,6 +2023,10 @@ class DocumentationTranslator:
         self.inf_ref = DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlassert0_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         topic_obj = Topic("VALUE", [argparse_data.value])
         action = ["check"]
@@ -1607,6 +2036,10 @@ class DocumentationTranslator:
         pass
 
     def set_assert_grep_data(self, argparse_data):
+        """
+        Sets DocumentationInformation object to specified BeakerLib command
+        :param argparse_data: argparse object
+        """
         importance = self.high
         subject = [argparse_data.file, argparse_data.pattern]
         topic_obj = Topic("FILE", subject)
@@ -1709,7 +2142,7 @@ class DocumentationInformation(object):
         return self.command_name
 
 
-class information_unit(object):
+class InformationUnit(object):
     information = ""
     information_obj = ""
 
@@ -1791,7 +2224,7 @@ class information_unit(object):
         return pom_word
 
 
-class information_FILE_exists(information_unit):
+class InformationFileExists(InformationUnit):
     def set_information(self):
         self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
         self.information += " must exist"
@@ -1806,7 +2239,7 @@ class information_FILE_exists(information_unit):
             self.information += " and exit code must match " + status
 
 
-class information_FILE_not_exists(information_unit):
+class InformationFileNotExists(InformationUnit):
     def set_information(self):
         self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
         self.information += " must not exist"
@@ -1821,7 +2254,7 @@ class information_FILE_not_exists(information_unit):
             self.information += " and exit code must match " + status
 
 
-class information_FILE_contain(information_unit):
+class InformationFileContain(InformationUnit):
     def set_information(self):
         self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                            + "\" must contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
@@ -1838,7 +2271,7 @@ class information_FILE_contain(information_unit):
             self.information += " and exit code must match " + status
 
 
-class information_FILE_not_contain(information_unit):
+class InformationFileNotContain(InformationUnit):
     def set_information(self):
         self.information = "File " + self.information_obj.get_topic_subject()[0] \
                            + " must not contain pattern " + self.information_obj.get_topic_subject()[1]
@@ -1855,7 +2288,7 @@ class information_FILE_not_contain(information_unit):
             self.information += " and exit code must match " + status
 
 
-class information_JOURNAL_print(information_unit):
+class InformationJournalPrint(InformationUnit):
     def set_information(self):
         self.information = "Prints the content of the journal in pretty " + self.information_obj.get_topic_subject()[0]
         self.information += " format"
@@ -1864,7 +2297,7 @@ class information_JOURNAL_print(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_PACKAGE_print(information_unit):
+class InformationPackagePrint(InformationUnit):
     def set_information(self):
         self.information = "Shows information about "
         self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 4)
@@ -1872,7 +2305,7 @@ class information_PACKAGE_print(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_resolve(information_unit):
+class InformationFileResolve(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Resolves absolute path " + subjects[0]
@@ -1884,7 +2317,7 @@ class information_FILE_resolve(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_create(information_unit):
+class InformationFileCreate(InformationUnit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
         self.information = "Creates a tarball of " + self.set_correct_singulars_or_plurals("file", len(subject))
@@ -1893,7 +2326,7 @@ class information_FILE_create(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_MESSAGE_create(information_unit):
+class InformationMessageCreate(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
@@ -1918,7 +2351,7 @@ class information_MESSAGE_create(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_print(information_unit):
+class InformationFilePrint(InformationUnit):
     def set_information(self):
         if self.information_obj.get_topic_subject()[0] == "makefile":
             self.information = "Prints comma separated list of requirements defined in Makefile"
@@ -1927,7 +2360,7 @@ class information_FILE_print(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_check(information_unit):
+class InformationFileCheck(InformationUnit):
     def set_information(self):
         if self.information_obj.get_topic_subject()[0] == "makefile":
             self.information = "Checks requirements in Makefile and returns number of compliance"
@@ -1936,7 +2369,7 @@ class information_FILE_check(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_JOURNAL_return(information_unit):
+class InformationJournalReturn(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "phase":
@@ -1956,7 +2389,7 @@ class information_JOURNAL_return(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_COMMAND_run(information_unit):
+class InformationCommandRun(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "watchdog":
@@ -1990,27 +2423,27 @@ class information_COMMAND_run(information_unit):
                     self.information += " and stdout and stderr are stored"
 
 
-class information_SERVER_run(information_unit):
+class InformationServerRun(InformationUnit):
     def set_information(self):
         self.information = "Starts virtual X " + self.information_obj.get_topic_subject()[0] + \
                            " server on a first free display"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_SERVER_kill(information_unit):
+class InformationServerKill(InformationUnit):
     def set_information(self):
         self.information = "Kills virtual X " + self.information_obj.get_topic_subject()[0] + " server"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_SERVER_return(information_unit):
+class InformationServerReturn(InformationUnit):
     def set_information(self):
         self.information = "Shows number of displays where virtual X " + self.information_obj.get_topic_subject()[0] + \
                            " is running"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_JOURNAL_report(information_unit):
+class InformationJournalReport(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Reports test \"" + subjects[0]
@@ -2018,7 +2451,7 @@ class information_JOURNAL_report(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_COMMAND_wait(information_unit):
+class InformationCommandWait(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "cmd":
@@ -2044,7 +2477,7 @@ class information_COMMAND_wait(information_unit):
             self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_wait(information_unit):
+class InformationFileWait(InformationUnit):
     def set_information(self):
         option = self.information_obj.get_option()
         if self.information_obj.get_topic_subject()[0] == "file":  # rlWaitForFile
@@ -2072,7 +2505,7 @@ class information_FILE_wait(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_PACKAGE_import(information_unit):
+class InformationPackageImport(InformationUnit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
         self.information = "Imports code provided by "
@@ -2082,7 +2515,7 @@ class information_PACKAGE_import(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_COMMAND_measures(information_unit):
+class InformationCommandMeasures(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
@@ -2096,7 +2529,7 @@ class information_COMMAND_measures(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_STRING_create(information_unit):
+class InformationStringCreate(InformationUnit):
     def set_information(self):
         if self.information_obj.get_topic_subject()[0] == "append":
             self.information = "Appends string: " + self.information_obj.get_topic_subject()[1]
@@ -2109,7 +2542,7 @@ class information_STRING_create(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_BOOLEAN_set(information_unit):
+class InformationBooleanSet(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "on":
@@ -2130,7 +2563,7 @@ class information_BOOLEAN_set(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_SERVICE_run(information_unit):
+class InformationServiceRun(InformationUnit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
         self.information = "Starts "
@@ -2153,7 +2586,7 @@ class information_SERVICE_run(information_unit):
             self.information += " and exit code must match " + status
 
 
-class information_SERVICE_kill(information_unit):
+class InformationServiceKill(InformationUnit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
         self.information = "Kills "
@@ -2176,7 +2609,7 @@ class information_SERVICE_kill(information_unit):
             self.information += " and exit code must match " + status
 
 
-class information_SERVICE_restore(information_unit):
+class InformationServiceRestore(InformationUnit):
     def set_information(self):
         subject = self.information_obj.get_topic_subject()
         self.information = self.set_correct_singulars_or_plurals("Service", len(subject))
@@ -2188,7 +2621,7 @@ class information_SERVICE_restore(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_restore(information_unit):
+class InformationFileRestore(InformationUnit):
     def set_information(self):
         option = self.information_obj.get_option()
         if not self.is_list_empty(option):
@@ -2201,7 +2634,7 @@ class information_FILE_restore(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_backup(information_unit):
+class InformationFileBackup(InformationUnit):
     def set_information(self):
         option = self.information_obj.get_option()
         status = self.information_obj.get_status()
@@ -2218,7 +2651,7 @@ class information_FILE_backup(information_unit):
         self.check_status_and_add_information(status)
 
 
-class information_STRING_hash(information_unit):
+class InformationStringHash(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
@@ -2233,7 +2666,7 @@ class information_STRING_hash(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_STRING_unhash(information_unit):
+class InformationStringUnHash(InformationUnit):
     def set_information(self):
         option = self.information_obj.get_option()
         subjects = self.information_obj.get_topic_subject()
@@ -2249,7 +2682,7 @@ class information_STRING_unhash(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_MOUNTPOINT_exists(information_unit):
+class InformationMountpointExists(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Directory "
@@ -2261,7 +2694,7 @@ class information_MOUNTPOINT_exists(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_MOUNTPOINT_create(information_unit):
+class InformationMountpointCreate(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Creates mount point " + subjects[0]
@@ -2270,7 +2703,7 @@ class information_MOUNTPOINT_create(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_MOUNTPOINT_check(information_unit):
+class InformationMountpointCheck(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Checks if directory "
@@ -2282,7 +2715,7 @@ class information_MOUNTPOINT_check(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_PACKAGE_owned_by(information_unit):
+class InformationPackageOwnedBy(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Binary " + subjects[0] + "must be"
@@ -2292,7 +2725,7 @@ class information_PACKAGE_owned_by(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_SYSTEM_is_RHEL(information_unit):
+class InformationSystemIsRHEL(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information += "Checks if we are running on"
@@ -2302,7 +2735,7 @@ class information_SYSTEM_is_RHEL(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_SYSTEM_is_Fedora(information_unit):
+class InformationSystemIsFedora(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information += "Checks if we are running on"
@@ -2312,7 +2745,7 @@ class information_SYSTEM_is_Fedora(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_differ(information_unit):
+class InformationFileDiffer(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "File1 " + subjects[0] + " and file2 "
@@ -2321,7 +2754,7 @@ class information_FILE_differ(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_FILE_not_differ(information_unit):
+class InformationFileNotDiffer(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "File1 " + subjects[0] + " and file2 "
@@ -2330,7 +2763,7 @@ class information_FILE_not_differ(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_VALUE_equal(information_unit):
+class InformationValueEqual(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
@@ -2339,7 +2772,7 @@ class information_VALUE_equal(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_VALUE_not_equal(information_unit):
+class InformationValueNotEqual(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
@@ -2348,7 +2781,7 @@ class information_VALUE_not_equal(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_VALUE_greater(information_unit):
+class InformationValueGreater(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
@@ -2357,7 +2790,7 @@ class information_VALUE_greater(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_VALUE_greater_or_equal(information_unit):
+class InformationValueGreaterOrEqual(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
@@ -2366,13 +2799,13 @@ class information_VALUE_greater_or_equal(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_VALUE_check(information_unit):
+class InformationValueCheck(InformationUnit):
     def set_information(self):
         self.information = "Value " + self.information_obj.get_topic_subject()[0] + " must be 0"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_PACKAGE_check(information_unit):
+class InformationPackageCheck(InformationUnit):
     def set_information(self):
         option = self.information_obj.get_option()
         self.information = "Package " + self.information_obj.get_topic_subject()[0]
@@ -2394,7 +2827,7 @@ class information_PACKAGE_check(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_PACKAGE_exists(information_unit):
+class InformationPackageExists(InformationUnit):
     def set_information(self):
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
@@ -2421,7 +2854,7 @@ class information_PACKAGE_exists(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class information_PACKAGE_not_exists(information_unit):
+class InformationPackageNotExists(InformationUnit):
     def set_information(self):
         option = self.information_obj.get_option()
         self.information = "Package " + self.information_obj.get_topic_subject()[0]
@@ -2443,38 +2876,38 @@ class information_PACKAGE_not_exists(information_unit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
-class get_information(object):
+class GetInformation(object):
     array = [
-        # topic: FILE(DIRECTORY),           STRING                   PACKAGE          JOURNAL,PHASE,TEST       MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
-        [information_FILE_exists,           0,           information_PACKAGE_exists,              0,              0,              0,                     0,                  0,                  0,  information_MOUNTPOINT_exists,         0,                     0],  # exists
-        [information_FILE_not_exists,       0,           information_PACKAGE_not_exists,          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not exists
-        [information_FILE_contain,          0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # contain
-        [information_FILE_not_contain,      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not contain
-        [information_FILE_print,            0,           information_PACKAGE_print,   information_JOURNAL_print,  0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # print(show)
-        [information_FILE_resolve,          0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # resolve
-        [information_FILE_create, information_STRING_create,        0,                            0, information_MESSAGE_create,  0,                     0,                  0,                  0,  information_MOUNTPOINT_create,         0,                     0],  # create
-        [information_FILE_check,            0,           information_PACKAGE_check,               0,              0,              0,                     0,                  0,                  0,  information_MOUNTPOINT_check,          0,         information_VALUE_check],  # check
-        [           0,                      0,                      0,                information_JOURNAL_return, 0,              0,         information_SERVER_return,      0,                  0,                   0,                    0,                     0],  # return
-        [           0,                      0,                      0,                            0,              0,  information_COMMAND_run, information_SERVER_run,       0,       information_SERVICE_run,        0,                    0,                     0],  # run
-        [           0,                      0,                      0,                information_JOURNAL_report, 0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # report
-        [           0,                      0,                      0,                            0,              0,              0,          information_SERVER_kill,       0,       information_SERVICE_kill,       0,                    0,                     0],  # kill
-        [information_FILE_wait,             0,                      0,                            0,              0,  information_COMMAND_wait,          0,                  0,                  0,                   0,                    0,                     0],  # wait
-        [           0,                      0,           information_PACKAGE_import,              0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # import
-        [           0,                      0,                      0,                            0,              0,  information_COMMAND_measures,      0,                  0,                  0,                   0,                    0,                     0],  # measures
-        [           0,                      0,                      0,                            0,              0,              0,                     0,     information_BOOLEAN_set,         0,                   0,                    0,                     0],  # set
-        [information_FILE_restore,          0,                      0,                            0,              0,              0,                     0,                  0,      information_SERVICE_restore,     0,                    0,                     0],  # restore
-        [information_FILE_backup,           0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # backup
-        [           0,          information_STRING_hash,            0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # hash
-        [           0,          information_STRING_unhash,          0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # unhash
-        [           0,                      0,           information_PACKAGE_owned_by,            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # owned by
-        [           0,                      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,    information_SYSTEM_is_RHEL,            0],  # is RHEL
-        [           0,                      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,   information_SYSTEM_is_Fedora,           0],  # is Fedora
-        [information_FILE_differ,           0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # differ
-        [information_FILE_not_differ,       0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not differ
-        [           0,                      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,         information_VALUE_equal],  # equal
-        [           0,                      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,       information_VALUE_not_equal],  # not equal
-        [           0,                      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,        information_VALUE_greater],  # greater
-        [           0,                      0,                      0,                            0,              0,              0,                     0,                  0,                  0,                   0,                    0,   information_VALUE_greater_or_equal],  # greater or equal
+        # topic: FILE(DIRECTORY),           STRING                   PACKAGE          JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
+        [InformationFileExists,           0,           InformationPackageExists,              0,              0,              0,                     0,                  0,                  0,  InformationMountpointExists,           0,                     0],  # exists
+        [InformationFileNotExists,        0,           InformationPackageNotExists,           0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not exists
+        [InformationFileContain,          0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # contain
+        [InformationFileNotContain,       0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not contain
+        [InformationFilePrint,            0,           InformationPackagePrint,   InformationJournalPrint,    0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # print(show)
+        [InformationFileResolve,          0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # resolve
+        [InformationFileCreate, InformationStringCreate,          0,                          0, InformationMessageCreate,    0,                     0,                  0,                  0,  InformationMountpointCreate,           0,                     0],  # create
+        [InformationFileCheck,            0,           InformationPackageCheck,               0,              0,              0,                     0,                  0,                  0,  InformationMountpointCheck,            0,         InformationValueCheck],  # check
+        [           0,                    0,                      0,                InformationJournalReturn, 0,              0,         InformationServerReturn,        0,                  0,                   0,                    0,                     0],  # return
+        [           0,                    0,                      0,                          0,              0,  InformationCommandRun, InformationServerRun,           0,       InformationServiceRun,          0,                    0,                     0],  # run
+        [           0,                    0,                      0,                InformationJournalReport, 0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # report
+        [           0,                    0,                      0,                          0,              0,              0,          InformationServerKill,         0,       InformationServiceKill,         0,                    0,                     0],  # kill
+        [InformationFileWait,             0,                      0,                          0,              0,  InformationCommandWait,            0,                  0,                  0,                   0,                    0,                     0],  # wait
+        [           0,                    0,           InformationPackageImport,              0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # import
+        [           0,                    0,                      0,                          0,              0,  InformationCommandMeasures,        0,                  0,                  0,                   0,                    0,                     0],  # measures
+        [           0,                    0,                      0,                          0,              0,              0,                     0,     InformationBooleanSet,           0,                   0,                    0,                     0],  # set
+        [InformationFileRestore,          0,                      0,                          0,              0,              0,                     0,                  0,      InformationServiceRestore,       0,                    0,                     0],  # restore
+        [InformationFileBackup,           0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # backup
+        [           0,          InformationStringHash,            0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # hash
+        [           0,          InformationStringUnHash,          0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # unhash
+        [           0,                    0,           InformationPackageOwnedBy,             0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # owned by
+        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,    InformationSystemIsRHEL,               0],  # is RHEL
+        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,   InformationSystemIsFedora,              0],  # is Fedora
+        [InformationFileDiffer,           0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # differ
+        [InformationFileNotDiffer,        0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not differ
+        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,         InformationValueEqual],  # equal
+        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,       InformationValueNotEqual],  # not equal
+        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,        InformationValueGreater],  # greater
+        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,   InformationValueGreaterOrEqual],  # greater or equal
     ]
 
     def get_information_from_facts(self, information_obj):
@@ -2703,45 +3136,45 @@ class ConditionsForCommands:
     """ Class consists of conditions for testing commands used in
     parser_automata and documentation translator """
 
-    def is_rlWatchdog(self, command):
+    def is_rlwatchdog_command(self, command):
         return command == "rlWatchdog"
 
-    def is_rlReport(self, command):
+    def is_rlreport_command(self, command):
         return command == "rlReport"
 
-    def is_VirtualXxxx(self, command):
+    def is_virtualxxx_command(self, command):
         pom_list = ["rlVirtualXStop", "rlVirtualXStart", "rlVirtualXGetDisplay"]
         return command in pom_list
 
-    def is_rlWaitFor(self, command):
+    def is_rlwaitfor_command(self, command):
         return command == "rlWaitFor"
 
-    def is_rlWaitForSocket(self, command):
+    def is_rlwaitforsocket_command(self, command):
         return command == "rlWaitForSocket"
 
-    def is_rlWaitForFile(self, command):
+    def is_rlwaitforfile_command(self, command):
         return command == "rlWaitForFile"
 
-    def is_rlWaitForCmd(self, command):
+    def is_rlwaitforcmd_command(self, command):
         return command == "rlWaitForCmd"
 
-    def is_rlWaitForxxx(self, command):
+    def is_rlwaitforxxx_command(self, command):
         pom_list = ["rlWaitForCmd", "rlWaitForFile", "rlWaitForSocket"]
         return command in pom_list
 
-    def is_rlImport(self, command):
+    def is_rlimport_command(self, command):
         return command == "rlImport"
 
-    def is_rlPerfTime_RunsInTime(self, command):
+    def is_rlperftime_runsintime_command(self, command):
         return command == "rlPerfTime_RunsInTime"
 
-    def is_rlPerfTime_AvgFromRuns(self, command):
+    def is_rlperftime_avgfromruns_command(self, command):
         return command == "rlPerfTime_AvgFromRuns"
 
-    def is_rlCleanup_Apend_or_Prepend(self, command):
+    def is_rlcleanup_apend_or_prepend_command(self, command):
         return command == "rlCleanupAppend" or command == "rlCleanupPrepend"
 
-    def is_SEBooleanxxx(self, command):
+    def is_sebooleanxxx_command(self, command):
         pom_list = ["rlSEBooleanOn", "rlSEBooleanOff", "rlSEBooleanRestore"]
         return command in pom_list
 
@@ -2749,13 +3182,13 @@ class ConditionsForCommands:
         pom_list = ["rlServiceStart", "rlServiceStop", "rlServiceRestore"]
         return command in pom_list
 
-    def is_rlFileBackup(self, command):
+    def is_rlfilebackup_command(self, command):
         return command == "rlFileBackup"
 
-    def is_rlFileRestore(self, command):
+    def is_rlfilerestore_command(self, command):
         return command == "rlFileRestore"
 
-    def is_rlHash_or_rlUnhash(self, command):
+    def is_rlhash_or_rlunhash_command(self, command):
         return command == "rlHash" or command == "rlUnhash"
 
     def is_check_or_assert_mount(self, command):
@@ -2770,7 +3203,7 @@ class ConditionsForCommands:
     def is_assert_binary_origin(self, command):
         return command == "rlAssertBinaryOrigin"
 
-    def is_rlIsRHEL_or_rlISFedora(self, command):
+    def is_rlisrhel_or_rlisfedora_command(self, command):
         return command == "rlIsRHEL" or command == "rlIsFedora"
 
     def is_assert_differ(self, command):
@@ -2784,7 +3217,7 @@ class ConditionsForCommands:
                     "rlAssertGreaterOrEqual"]
         return command in pom_list
 
-    def is_rlPass_or_rlFail(self, command):
+    def is_rlpass_or_rlfail_command(self, command):
         return command == "rlPass" or command == "rlFail"
 
     def is_assert_grep(self, command):
@@ -2796,50 +3229,50 @@ class ConditionsForCommands:
     def is_assert_command(self, line):
         return line[0:len("rlAssert")] == "rlAssert"
 
-    def is_Rpm_command(self, command):
+    def is_rpm_command(self, command):
         return command[-3:] == "Rpm"
 
     def is_rlrun_command(self, line):
         return line[0:len("rlRun")] == "rlRun"
 
-    def is_rlJournalPrint(self, command):
+    def is_rljournalprint_command(self, command):
         pom_list = ["rlJournalPrint", "rlJournalPrintText"]
         return command in pom_list
 
-    def is_rlGetPhase_or_Test_State(self, command):
+    def is_rlgetphase_or_test_state_command(self, command):
         pom_list = ["rlGetPhaseState", "rlGetTestState"]
         return command in pom_list
 
-    def is_rlLog(self, command):
+    def is_rllog_command(self, command):
         pom_list = ["rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo",
                     "rlLogDebug", "rlLog"]
         return command in pom_list
 
-    def is_rlLogMetric(self, command):
+    def is_rllogmetric_command(self, command):
         pom_list = ["rlLogMetricLow", "rlLogMetricHigh"]
         return command in pom_list
 
-    def is_rlDie(self, command):
+    def is_rldie_command(self, command):
         return command[0:len("rlDie")] == "rlDie"
 
-    def is_rlBundleLogs(self, command):
+    def is_rlbundlelogs_command(self, command):
         return command[0:len("rlBundleLogs")] == "rlBundleLogs"
 
-    def is_rlFileSubmit(self, command):
+    def is_rlfilesubmit_command(self, command):
         return command[0:len("rlFileSubmit")] == "rlFileSubmit"
 
-    def is_rlShowPackageVersion(self, command):
+    def is_rlshowpackageversion_command(self, command):
         return command[0:len("rlShowPackageVersion")] == "rlShowPackageVersion"
 
-    def is_rlGet_x_Arch(self, command):
+    def is_rlget_x_arch_command(self, command):
         pom_list = ["rlGetArch", "rlGetPrimaryArch", "rlGetSecondaryArch"]
         return command in pom_list
 
-    def is_rlGetDistro(self, command):
+    def is_rlgetdistro_command(self, command):
         pom_list = ["rlGetDistroRelease", "rlGetDistroVariant"]
         return command in pom_list
 
-    def is_rlShowRunningKernel(self, command):
+    def is_rlshowrunningkernel_command(self, command):
         return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
 
 
