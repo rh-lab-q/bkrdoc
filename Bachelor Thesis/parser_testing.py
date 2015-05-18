@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-import parser
+import documentation_generator as parser
 import shlex
 import json
 
@@ -42,14 +42,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(my.environmental_variable,[])
 
     def test_assert_equal(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlAssertEquals \"Saves the configuration\" \"_enabled\" \"$CONF_VALUE\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlAssertEquals")
         self.assertEqual(mys.parsed_param_ref.value1,"_enabled")
         self.assertEqual(mys.parsed_param_ref.comment, "Saves the configuration")
         self.assertEqual(mys.parsed_param_ref.value2, "$CONF_VALUE")
 
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -59,16 +59,16 @@ class TestSequenceFunctions(unittest.TestCase):
 
 
     def test_automata(self):
-        my = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        my = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         my.parse_command("rlAssertRpm \"httpd\"")
         self.assertEqual(my.parsed_param_ref.argname,"rlAssertRpm")
         self.assertEqual(my.parsed_param_ref.name,"httpd")
 
     def test_rlRpm_commands(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlAssertRpm \"httpd\" 22 23  44")
 
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -77,19 +77,19 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,4)
     
     def test_unknown_command(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         unknown = mys.parse_command("poppd asdas")
         self.assertEqual(unknown.argname,"UNKNOWN")
         
     def test_first_command(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlRun \"rm -r $TmpDir\" 2,3,4,26 \"Removing tmp directory\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         self.assertEqual(mys.parsed_param_ref.command,"rm -r $TmpDir")
         self.assertEqual(mys.parsed_param_ref.comment, "Removing tmp directory")
         self.assertEqual(mys.parsed_param_ref.status, "2,3,4,26")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -98,19 +98,19 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,5)
         
     def test_assert_commands(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         mys.parse_command("rlAssertGrep \"Not Found\" \"stderr\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlAssertGrep")
         self.assertEqual(mys.parsed_param_ref.pattern,"Not Found")
         self.assertEqual(mys.parsed_param_ref.file, "stderr")
         
     def test_hash_command(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlHash \"text\" --algorithm magic!")
         self.assertEqual(mys.parsed_param_ref.argname,"rlHash")
         self.assertEqual(mys.parsed_param_ref.STRING,"text")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -122,7 +122,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(mys.parsed_param_ref.argname,"rlHash")
         self.assertEqual(mys.parsed_param_ref.stdin,True)
 
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -131,13 +131,13 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
         
     def test_backup_command(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         argparse_parsed_command = mys.parse_command("rlFileBackup --clean cleandir")
         self.assertEqual(argparse_parsed_command.argname,"rlFileBackup")
         self.assertEqual(argparse_parsed_command.file[0],"cleandir")
         self.assertEqual(argparse_parsed_command.clean,True)
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(argparse_parsed_command)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -146,22 +146,22 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
         
     def test_virtual_command(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         mys.parse_command("rlVirtualXStart $TEST")
         self.assertEqual(mys.parsed_param_ref.argname,"rlVirtualXStart")
         self.assertEqual(mys.parsed_param_ref.name,"$TEST")
         
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         mys.parse_command("rlAssert0 \"Virtual X server started\" $?")
         self.assertEqual(mys.parsed_param_ref.argname,"rlAssert0")
         self.assertEqual(mys.parsed_param_ref.comment,"Virtual X server started")
         self.assertEqual(mys.parsed_param_ref.value,"$?")
         
     def test_ServiceXXX(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlServiceStart boolean boool asda ")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -171,7 +171,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         test = mys.parse_command("rlServiceRestore boolean boool asda ")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -180,10 +180,10 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
         
     def test_SEBooleanXX(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlSEBooleanOn boolean boool asda ")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -193,7 +193,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         test = mys.parse_command("rlSEBooleanRestore boolean boool asda ")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -203,12 +203,12 @@ class TestSequenceFunctions(unittest.TestCase):
         
         
     def test_rlRun_command(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlRun -l 'rm -r $TmpDir' ")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         self.assertEqual(mys.parsed_param_ref.command,"rm -r $TmpDir")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -217,12 +217,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,5)
 
     def test_rlRun_rlFileBackup_extend(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlRun \"rlFileBackup --clean $HttpdPages $HttpdLogs\" \"1-2\" \"Backing up\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         #self.assertEqual(mys.parsed_param_ref.command,"rlFileBackup --clean $HttpdPages $HttpdLogs")
 
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -231,12 +231,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
 
     def test_rlRun_rlServiceStart_extend(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlRun \"rlServiceStart httpd\" ")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         #self.assertEqual(mys.parsed_param_ref.command,"rlFileBackup --clean $HttpdPages $HttpdLogs")
 
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -245,11 +245,11 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
         
     def test_rlGet_commands(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlGetPrimaryArch")
         self.assertEqual(mys.parsed_param_ref.argname,"rlGetPrimaryArch")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -260,7 +260,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test = mys.parse_command("rlGetDistroRelease")
         self.assertEqual(mys.parsed_param_ref.argname,"rlGetDistroRelease")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -271,7 +271,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test = mys.parse_command("rlShowRunningKernel")
         self.assertEqual(mys.parsed_param_ref.argname,"rlShowRunningKernel")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -282,7 +282,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test = mys.parse_command("rlGetTestState")
         self.assertEqual(mys.parsed_param_ref.argname,"rlGetTestState")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -291,14 +291,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
         
     def test_rlLog_commands(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlLogWarning ahoj logfile priorita --prio-label")
         self.assertEqual(mys.parsed_param_ref.argname,"rlLogWarning")
         self.assertEqual(mys.parsed_param_ref.logfile,"logfile")
         self.assertEqual(mys.parsed_param_ref.priority,"priorita")
         self.assertEqual(mys.parsed_param_ref.prio_label,True)
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -309,7 +309,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test = mys.parse_command("rlDie message ")
         self.assertEqual(mys.parsed_param_ref.argname,"rlDie")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -318,12 +318,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,1)
         
     def test_rlBundleLogs(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlBundleLogs package file1 file2 file3 file4")
         self.assertEqual(mys.parsed_param_ref.argname,"rlBundleLogs")
         self.assertEqual(mys.parsed_param_ref.file,["file1","file2","file3", "file4"])
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -332,14 +332,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,1)
         
     def test_filesubmit(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlFileSubmit path_to_file  required -s as")
         self.assertEqual(mys.parsed_param_ref.argname,"rlFileSubmit")
         self.assertEqual(mys.parsed_param_ref.s,"as")
         self.assertEqual(mys.parsed_param_ref.path_to_file,"path_to_file")
         self.assertEqual(mys.parsed_param_ref.required_name,'required')
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -348,12 +348,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,2)
         
     def test_showpackageversion(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlShowPackageVersion as km")
         self.assertEqual(mys.parsed_param_ref.argname,"rlShowPackageVersion")
         self.assertEqual(mys.parsed_param_ref.package,["as","km"])
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -361,12 +361,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,2)
         
     def test_JournalPrint(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlJournalPrintText --full-journal")
         self.assertEqual(mys.parsed_param_ref.argname,"rlJournalPrintText")
         self.assertEqual(mys.parsed_param_ref.full_journal,True)
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -374,10 +374,10 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,1)
         
     def test_rlWaitxxx(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlWaitForFile path")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -385,10 +385,10 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance,2)
         
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlWaitForCmd path -p TENTO -r 1")
         
-        sec = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        sec = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf_unit = sec.translate_data(test)
         ref = parser.get_information()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -398,18 +398,18 @@ class TestSequenceFunctions(unittest.TestCase):
         
     
     def test_backup_doc(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         mys.parse_command("rlFileBackup --clean cleandir")
-        doc = parser.documentation_translator(mys.parser_ref)
+        doc = parser.DocumentationTranslator(mys.parser_ref)
 
 
     def test_assert2_commands(self):
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlAssertGrep \"Not Found\" \"stderr\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlAssertGrep")
         self.assertEqual(mys.parsed_param_ref.pattern,"Not Found")
         self.assertEqual(mys.parsed_param_ref.file, "stderr")
-        pokus = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        pokus = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf = pokus.translate_data(test)
         inf_unit = pokus.translate_data(test)
         ref = parser.get_information()
@@ -417,11 +417,11 @@ class TestSequenceFunctions(unittest.TestCase):
         inf = "File: \"stderr\" must contain pattern: \"Not Found\""
         self.assertEqual(inf_data.information, inf)
 
-        mys = parser.statement_automata(parser.Parser("apache-test.sh"),parser.phase_container("test"))
+        mys = parser.StatementDataSearcher(parser.Parser("apache-test.sh"),parser.PhaseContainer("test"))
         test = mys.parse_command("rlAssertExists gener.html")
         self.assertEqual(mys.parsed_param_ref.argname,"rlAssertExists")
         self.assertEqual(mys.parsed_param_ref.file_directory,"gener.html")
-        pokus = parser.documentation_translator(parser.Parser("apache-test.sh"))
+        pokus = parser.DocumentationTranslator(parser.Parser("apache-test.sh"))
         inf = pokus.translate_data(test)
         inf_unit = pokus.translate_data(test)
         ref = parser.get_information()
