@@ -2059,6 +2059,13 @@ class DocumentationTranslator:
 
 
 class Topic(object):
+    """
+    Class which is consist of information topic data.
+    For example for BeakerLib command rlRun is topic command.
+
+    :param topic_data: topic data (Facts)
+    :param subject: Subject data which are "connected" to topic_data
+    """
     topic = ""
 
     subject = []
@@ -2075,6 +2082,11 @@ class Topic(object):
 
 
 class Option(object):
+    """
+    Option class which is consist of option and status of BeakerLib command
+    :param option_data: BeakerLib command options data
+    :param status_data: BeakerLib command future exit status
+    """
     option = []
 
     status = []
@@ -2097,6 +2109,14 @@ class Option(object):
 
 
 class DocumentationInformation(object):
+    """
+    This class contains data to describe every BeakerLib command
+    :param cmd_name: Command name
+    :param topic_object: Instance of Topic class
+    :param action: BeakerLib command action
+    :param importance: BeakerLib command importance
+    :param options: Instance of Option class
+    """
     command_name = ""
 
     topic = ""
@@ -2143,6 +2163,10 @@ class DocumentationInformation(object):
 
 
 class InformationUnit(object):
+    """
+    This is main class containing nature language information
+    :param inf: DocumentationInformation object with data
+    """
     information = ""
     information_obj = ""
 
@@ -2157,6 +2181,14 @@ class InformationUnit(object):
         return self.information_obj.get_command_name()
 
     def connect_multiple_facts(self, facts, max_size=5):
+        """
+        This method makes more human language sentences by
+        correct representing of word enumeration
+        :param facts: list of words to enumerate
+        :param max_size: Maximum size of words to be shown.
+                         Default is 5.
+        :return: set upped string line with enumerated words
+        """
         pom_inf = ""
         if len(facts) == 1:
             pom_inf = facts[0]
@@ -2183,6 +2215,13 @@ class InformationUnit(object):
         print("   " + self.information)
 
     def get_information_weigh(self):
+        """
+        This method calculates information weight.
+        The weight is amount of lines on which information
+        will be displayed
+
+        :return: information weight
+        """
         line_size = 60  # char per line
         weigh = (len(self.information)//line_size)
         mod_weigh = (len(self.information) % line_size)
@@ -2194,12 +2233,19 @@ class InformationUnit(object):
             return weigh
 
     def get_information_value(self):
+        """
+        :return: Return information importance
+        """
         return self.information_obj.get_importance()
 
     def is_list_empty(self, tested_list):
         return len(tested_list) == 0
 
     def check_status_and_add_information(self, status):
+        """
+        This method replaces status number for better information string.
+        :param status: command status
+        """
         if not status == "-":
             if status == "1":
                 self.information += " and must finished unsuccessfully"
@@ -2207,6 +2253,14 @@ class InformationUnit(object):
                 self.information += " and must finished with return code matching: " + status
 
     def set_correct_singulars_or_plurals(self, word, number_of_subject, ending="s", verb=False):
+        """
+        This method correctly represent singulars or plurals in word.
+        :param word: word to set up
+        :param number_of_subject: count of subjects in sentence
+        :param ending: word ending in plural. default is "s"
+        :param verb: possible verb after word
+        :return: Correctly set upped word
+        """
         pom_word = word
         if number_of_subject >= 2:
             if pom_word[-1] == "y" and ending == "ies":
@@ -2225,12 +2279,24 @@ class InformationUnit(object):
 
 
 class InformationFileExists(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
         self.information += " must exist"
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
+        """
+        Overloaded method to correctly represent status in this case
+        :param status: status number
+        :return: correctly represented status number.
+        """
         if status == "0":
             self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\" must exist"
         elif status == "1":
@@ -2240,12 +2306,24 @@ class InformationFileExists(InformationUnit):
 
 
 class InformationFileNotExists(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\""
         self.information += " must not exist"
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
+        """
+        Overloaded method to correctly represent status in this case
+        :param status: status number
+        :return: correctly represented status number.
+        """
         if status == "0":
             self.information = "File(directory): \"" + self.information_obj.get_topic_subject()[0] + "\" must not exist"
         elif status == "1":
@@ -2255,12 +2333,24 @@ class InformationFileNotExists(InformationUnit):
 
 
 class InformationFileContain(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                            + "\" must contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
+        """
+        Overloaded method to correctly represent status in this case
+        :param status: status number
+        :return: correctly represented status number.
+        """
         if status == "0":
             self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                                + "\" must contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
@@ -2272,12 +2362,24 @@ class InformationFileContain(InformationUnit):
 
 
 class InformationFileNotContain(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "File " + self.information_obj.get_topic_subject()[0] \
                            + " must not contain pattern " + self.information_obj.get_topic_subject()[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
+        """
+        Overloaded method to correctly represent status in this case
+        :param status: status number
+        :return: correctly represented status number.
+        """
         if status == "0":
             self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
                                + "\" must not contain pattern: \"" + self.information_obj.get_topic_subject()[1] + "\""
@@ -2289,7 +2391,14 @@ class InformationFileNotContain(InformationUnit):
 
 
 class InformationJournalPrint(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "Prints the content of the journal in pretty " + self.information_obj.get_topic_subject()[0]
         self.information += " format"
         if len(self.information_obj.get_option()):
@@ -2298,7 +2407,14 @@ class InformationJournalPrint(InformationUnit):
 
 
 class InformationPackagePrint(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "Shows information about "
         self.information += self.connect_multiple_facts(self.information_obj.get_topic_subject(), 4)
         self.information += " version"
@@ -2306,7 +2422,14 @@ class InformationPackagePrint(InformationUnit):
 
 
 class InformationFileResolve(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Resolves absolute path " + subjects[0]
         if len(subjects) == 3:
@@ -2318,7 +2441,14 @@ class InformationFileResolve(InformationUnit):
 
 
 class InformationFileCreate(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subject = self.information_obj.get_topic_subject()
         self.information = "Creates a tarball of " + self.set_correct_singulars_or_plurals("file", len(subject))
         self.information += self.connect_multiple_facts(subject, 3)
@@ -2327,7 +2457,14 @@ class InformationFileCreate(InformationUnit):
 
 
 class InformationMessageCreate(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
         if subjects[0] == "kernel":  # rlShowRunningKernel
@@ -2352,7 +2489,14 @@ class InformationMessageCreate(InformationUnit):
 
 
 class InformationFilePrint(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         if self.information_obj.get_topic_subject()[0] == "makefile":
             self.information = "Prints comma separated list of requirements defined in Makefile"
         else:
@@ -2361,7 +2505,14 @@ class InformationFilePrint(InformationUnit):
 
 
 class InformationFileCheck(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         if self.information_obj.get_topic_subject()[0] == "makefile":
             self.information = "Checks requirements in Makefile and returns number of compliance"
         else:
@@ -2370,7 +2521,14 @@ class InformationFileCheck(InformationUnit):
 
 
 class InformationJournalReturn(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "phase":
             self.information = "Returns number of failed asserts in current phase"
@@ -2390,7 +2548,14 @@ class InformationJournalReturn(InformationUnit):
 
 
 class InformationCommandRun(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "watchdog":
             self.information = "Runs command " + subjects[1]
@@ -2424,27 +2589,55 @@ class InformationCommandRun(InformationUnit):
 
 
 class InformationServerRun(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "Starts virtual X " + self.information_obj.get_topic_subject()[0] + \
                            " server on a first free display"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class InformationServerKill(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "Kills virtual X " + self.information_obj.get_topic_subject()[0] + " server"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class InformationServerReturn(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "Shows number of displays where virtual X " + self.information_obj.get_topic_subject()[0] + \
                            " is running"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class InformationJournalReport(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Reports test \"" + subjects[0]
         self.information += "\" with result " + subjects[1]
@@ -2452,7 +2645,14 @@ class InformationJournalReport(InformationUnit):
 
 
 class InformationCommandWait(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "cmd":
             # rlWaitForCmd
@@ -2478,7 +2678,14 @@ class InformationCommandWait(InformationUnit):
 
 
 class InformationFileWait(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         option = self.information_obj.get_option()
         if self.information_obj.get_topic_subject()[0] == "file":  # rlWaitForFile
             if not self.is_list_empty(option):
@@ -2506,7 +2713,14 @@ class InformationFileWait(InformationUnit):
 
 
 class InformationPackageImport(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subject = self.information_obj.get_topic_subject()
         self.information = "Imports code provided by "
         self.information += self.connect_multiple_facts(subject, 2)
@@ -2516,7 +2730,14 @@ class InformationPackageImport(InformationUnit):
 
 
 class InformationCommandMeasures(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
         if not self.is_list_empty(option):
@@ -2530,7 +2751,14 @@ class InformationCommandMeasures(InformationUnit):
 
 
 class InformationStringCreate(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         if self.information_obj.get_topic_subject()[0] == "append":
             self.information = "Appends string: " + self.information_obj.get_topic_subject()[1]
             self.information += " to the cleanup buffer"
@@ -2543,7 +2771,14 @@ class InformationStringCreate(InformationUnit):
 
 
 class InformationBooleanSet(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         if subjects[0] == "on":
             self.information = "Sets "
@@ -2564,7 +2799,14 @@ class InformationBooleanSet(InformationUnit):
 
 
 class InformationServiceRun(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subject = self.information_obj.get_topic_subject()
         self.information = "Starts "
         self.information += self.set_correct_singulars_or_plurals("service", len(subject))
@@ -2573,6 +2815,7 @@ class InformationServiceRun(InformationUnit):
 
     def check_status_and_add_information(self, status):
         """self.information[-1] is here because method set_correct_singulars... adds one space on the end of the word"""
+
         subject = self.information_obj.get_topic_subject()
         if status == "0":
             self.information = self.set_correct_singulars_or_plurals("Service", len(subject))
@@ -2587,7 +2830,14 @@ class InformationServiceRun(InformationUnit):
 
 
 class InformationServiceKill(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subject = self.information_obj.get_topic_subject()
         self.information = "Kills "
         self.information += self.set_correct_singulars_or_plurals("service", len(subject))
@@ -2610,7 +2860,14 @@ class InformationServiceKill(InformationUnit):
 
 
 class InformationServiceRestore(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subject = self.information_obj.get_topic_subject()
         self.information = self.set_correct_singulars_or_plurals("Service", len(subject))
         self.information += self.connect_multiple_facts(subject, 3)
@@ -2622,7 +2879,14 @@ class InformationServiceRestore(InformationUnit):
 
 
 class InformationFileRestore(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         option = self.information_obj.get_option()
         if not self.is_list_empty(option):
             self.information = "Restores backed up file with namespace: "
@@ -2635,7 +2899,14 @@ class InformationFileRestore(InformationUnit):
 
 
 class InformationFileBackup(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         option = self.information_obj.get_option()
         status = self.information_obj.get_status()
         subject = self.information_obj.get_topic_subject()
@@ -2652,7 +2923,14 @@ class InformationFileBackup(InformationUnit):
 
 
 class InformationStringHash(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
         self.information = "Hashes string "
@@ -2667,7 +2945,14 @@ class InformationStringHash(InformationUnit):
 
 
 class InformationStringUnHash(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         option = self.information_obj.get_option()
         subjects = self.information_obj.get_topic_subject()
         self.information = "Unhashes string "
@@ -2683,7 +2968,14 @@ class InformationStringUnHash(InformationUnit):
 
 
 class InformationMountpointExists(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Directory "
         self.information += subjects[0]
@@ -2695,7 +2987,14 @@ class InformationMountpointExists(InformationUnit):
 
 
 class InformationMountpointCreate(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Creates mount point " + subjects[0]
         if subjects[1]:
@@ -2704,7 +3003,14 @@ class InformationMountpointCreate(InformationUnit):
 
 
 class InformationMountpointCheck(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Checks if directory "
         self.information += subjects[0]
@@ -2716,7 +3022,14 @@ class InformationMountpointCheck(InformationUnit):
 
 
 class InformationPackageOwnedBy(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Binary " + subjects[0] + "must be"
         self.information += " owned by "
@@ -2726,7 +3039,14 @@ class InformationPackageOwnedBy(InformationUnit):
 
 
 class InformationSystemIsRHEL(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information += "Checks if we are running on"
         self.information += " RHEL "
@@ -2736,7 +3056,14 @@ class InformationSystemIsRHEL(InformationUnit):
 
 
 class InformationSystemIsFedora(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information += "Checks if we are running on"
         self.information += " Fedora "
@@ -2746,7 +3073,14 @@ class InformationSystemIsFedora(InformationUnit):
 
 
 class InformationFileDiffer(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "File1 " + subjects[0] + " and file2 "
         self.information += subjects[1]
@@ -2755,7 +3089,14 @@ class InformationFileDiffer(InformationUnit):
 
 
 class InformationFileNotDiffer(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "File1 " + subjects[0] + " and file2 "
         self.information += subjects[1]
@@ -2764,7 +3105,14 @@ class InformationFileNotDiffer(InformationUnit):
 
 
 class InformationValueEqual(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
         self.information += " must be equal to value2 "
@@ -2773,7 +3121,14 @@ class InformationValueEqual(InformationUnit):
 
 
 class InformationValueNotEqual(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
         self.information += " must not be equal to value2 "
@@ -2782,7 +3137,14 @@ class InformationValueNotEqual(InformationUnit):
 
 
 class InformationValueGreater(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
         self.information += " must be greater than value2 "
@@ -2791,7 +3153,14 @@ class InformationValueGreater(InformationUnit):
 
 
 class InformationValueGreaterOrEqual(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         self.information = "Value1 " + subjects[0]
         self.information += " must be greater or equal to value2 "
@@ -2800,13 +3169,27 @@ class InformationValueGreaterOrEqual(InformationUnit):
 
 
 class InformationValueCheck(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         self.information = "Value " + self.information_obj.get_topic_subject()[0] + " must be 0"
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
 class InformationPackageCheck(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         option = self.information_obj.get_option()
         self.information = "Package " + self.information_obj.get_topic_subject()[0]
         self.information += " must be installed"
@@ -2828,7 +3211,14 @@ class InformationPackageCheck(InformationUnit):
 
 
 class InformationPackageExists(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         subjects = self.information_obj.get_topic_subject()
         option = self.information_obj.get_option()
         if subjects[0] == "all":
@@ -2855,7 +3245,14 @@ class InformationPackageExists(InformationUnit):
 
 
 class InformationPackageNotExists(InformationUnit):
+    """
+    Small InformationUnit class which contains information in human language.
+    """
     def set_information(self):
+        """
+        Sets nature language information. This setting depends on small
+        InformationUnit class.
+        """
         option = self.information_obj.get_option()
         self.information = "Package " + self.information_obj.get_topic_subject()[0]
         self.information += " must not be installed"
@@ -2877,6 +3274,11 @@ class InformationPackageNotExists(InformationUnit):
 
 
 class GetInformation(object):
+    """
+    This class is responsible for transformation from DocumentationInformation class
+    to small InformationUnit class. This class contain big 2D array with reference to
+    small InformationUnit classes.
+    """
     array = [
         # topic: FILE(DIRECTORY),           STRING                   PACKAGE          JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
         [InformationFileExists,           0,           InformationPackageExists,              0,              0,              0,                     0,                  0,                  0,  InformationMountpointExists,           0,                     0],  # exists
@@ -2911,6 +3313,11 @@ class GetInformation(object):
     ]
 
     def get_information_from_facts(self, information_obj):
+        """
+        Method responsible for the transformation
+        :param information_obj: DocumentationInformation instanse to be transformed
+        :return: InformationUnit class or empty string.
+        """
         information = ""
         topic = information_obj.get_topic()
         for action in information_obj.get_action():
@@ -2923,6 +3330,11 @@ class GetInformation(object):
         return information
 
     def get_action_number(self, action):
+        """
+        method responsible for returning the right row number
+        :param action: action word
+        :return: row number
+        """
         if self.is_action_exists(action):
             return 0
         elif self.is_action_not_exists(action):
@@ -2983,6 +3395,11 @@ class GetInformation(object):
             return 28
 
     def get_topic_number(self, topic):
+        """
+        method responsible for returning the right topic column number
+        :param topic: Topic word
+        :return: column
+        """
         if self.is_topic_file(topic):
             return 0
         elif self.is_topic_string(topic):
@@ -3134,7 +3551,7 @@ class GetInformation(object):
 
 class ConditionsForCommands:
     """ Class consists of conditions for testing commands used in
-    parser_automata and documentation translator """
+    StatementDataSearcher and DocumentationTranslator """
 
     def is_rlwatchdog_command(self, command):
         return command == "rlWatchdog"
@@ -3278,6 +3695,12 @@ class ConditionsForCommands:
 
 #  ***************** MAIN ******************
 def set_cmd_arguments():
+    """
+    This method contains set upped argparse object to parse
+    command line options and files
+
+    :return: argparse object
+    """
     pom_parser = argparse.ArgumentParser(description='Parse arguments in cmd line for generator')
     pom_parser.add_argument('files', metavar='file', type=str, nargs='+', help='script file')
     pom_parser.add_argument('-l', '--log', dest='log_in', action='store_true',
@@ -3289,6 +3712,10 @@ def set_cmd_arguments():
 
 
 def run_doc_generator(parser_arg):
+    """
+    This method runs documentation generator
+    :param parser_arg: argparse object
+    """
     for file in parser_arg.files:
         pom = Parser(file)
         pom.get_doc_data()
