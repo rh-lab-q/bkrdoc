@@ -1,0 +1,24 @@
+Description:  This test is for testing Bugzilla version 3.6. It first installs the required rpm
+Author:  Dave Lawrence <dkl@redhat.com>
+Keywords: mysql, httpd, Bugzilla
+
+Test structure: Setup, Test, Cleanup
+
+Test launch: ./mozila-test.sh
+
+Setup [Unknown commands = 17, Total = 17]  
+    Starting mysqld and httpd service
+    Setting up the Bugzilla web root directory and Bugzilla configuration files
+    Installing required packages
+
+Test [Unknown commands = 7, Total = 7]
+    Running common sanity tests, Selenium tests and WebService tests
+    Creating test data
+    Printing test results
+
+Cleanup [Unknown commands = 2, Total = 2]
+    Stoping httpd and mysqld service
+
+Expected result: 
+
+Additional Informations:

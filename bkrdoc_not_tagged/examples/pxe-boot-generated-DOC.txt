@@ -1,0 +1,7 @@
+Test launch: pxe-boot-test.sh
+Test environmental variables: FAMILY
+
+Test PXE-Boot [ Unknown commands: 14, Total: 16 ]
+   Message "Unknown syslog file!" is created in to log
+   Value $? must be 0
+

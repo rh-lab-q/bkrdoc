@@ -1,0 +1,23 @@
+Description:  Apache example test
+Author:  Petr Splichal <psplicha@redhat.com>
+Keywords: apache, httpd
+
+Test structure: Setup, 2xTest, Cleanup
+
+Test launch: ./apache-test.sh
+
+Setup: [Unknown commands = 7, Total = 7]
+   Starts httpd service with fresh configuration
+   Backing up files
+
+Test1: [Unknown commands = 5, Total = 5]
+   Testing created page
+   Checking whether the page has been successfully fetched  
+
+Test2: [Unknown commands = 5, Total = 5]
+   Testing nonexisting page
+   Should raise error messages
+
+Cleanup: [Unknown commands = 4, Total = 4]
+   Restoring state of httpd service
+   Restoring backed up files
