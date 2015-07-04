@@ -33,7 +33,7 @@ class Gener(object):
     #Strin of Keywords of a test
     keywords = ""
 
-    #@ Konstructor of class Gener
+    #@ Constructor of class Gener
     #@ @param file_in is filepath to input file
     def __init__(self, file_in):
         self.comments = []

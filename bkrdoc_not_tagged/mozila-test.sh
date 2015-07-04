@@ -47,7 +47,7 @@ function run_test_case ()
  {
     echo $1 >> $TESTOUTPUTFILE
     rlRun $LOG "perl -I. -Ilib -It/lib $1 >>$TESTOUTPUTFILE 2>&1 2;" 0 $1
-    #@ test if previous action passed 
+    #@ test if previous action has passed 
     if [ $? -eq 0 ]
     then
         rlReport $1 PASS 
@@ -117,7 +117,7 @@ rlJournalStart
         rlRun "env DISPLAY=$DISPLAY java -jar t/config/selenium-server.jar -log selenium.log 2>/dev/null >/dev/null &" 0 "Starting Selenium RC server"
 
         # @ Fix the firefox path in the selenium config file
-        FIREFOX_PATH=$( rpm -ql firefox | grep "/usr/lib\(64\)\?/firefox-[^/]\+/firefox" ) #@
+        FIREFOX_PATH=$( rpm -ql firefox | grep "/usr/lib\(64\)\?/firefox-[^/]\+/firefox" )
         rlAssertExists "$FIREFOX_PATH"
         rlRun "sed -i 's|FIREFOX_PATH|$FIREFOX_PATH|g' t/config/selenium_test.conf" 0 "Updating Selenium config file with Firefox path"
     rlPhaseEnd

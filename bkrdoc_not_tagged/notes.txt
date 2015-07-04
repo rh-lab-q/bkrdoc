@@ -1,0 +1,58 @@
+$PACKAGES $REQUIRES and $COLLECTIONS - system variables
+extracting keywords from the identifier names in those statements
+
+We define “more effective”
+in terms of three criteria: programmers find the documenta-
+tion’s method summaries to be more helpful in understand-
+ing 1) what the methods do internally, 2) why the methods
+exist, and 3) how to use the methods.
+
+
+
+J. Krinke. Effects of context on program slicing. J.
+Syst. Softw., 79(9):1249–1260, Sept. 2006.
+How to get informations from the context
+
+
+
+Software Word Usage Model (SWUM) [17],
+the design of Natural Language Generation (NLG) systems
+[39], and the algorithm PageRank [27]. These techniques
+were proposed and evaluated elsewhere. We emphasize them
+here because they are important concepts for our approach.
+[17]
+E. Hill, L. Pollock, and K. Vijay-Shanker.
+Automatically capturing source code context of
+nl-queries for software maintenance and reuse. In
+Proceedings of the 31st International Conference on
+Software Engineering, ICSE ’09, pages 232–242,
+Washington, DC, USA, 2009. IEEE Computer Society.
+[39]
+E. Reiter and R. Dale. Building natural language
+generation systems. Cambridge University Press, New
+York, NY, USA, 2000.
+[27]
+A. N. Langville and C. D. Meyer. Google’s PageRank
+and Beyond: The Science of Search Engine Rankings.
+Princeton University Press, Princeton, NJ, USA, 2006.
+
+
+The final component of NLG is the Surface Realizer. The
+surface realizer generates natural language sentences from
+the phrases.
+
+Marke the most important commands in phases and try to extract keywords, use custom
+NLG to generate doc in english human language 
+
+
+A. Gatt and E. Reiter. Simplenlg: a realisation engine
+for practical applications. In Proceedings of the 12th
+European Workshop on Natural Language Generation,
+ENLG ’09, pages 90–93, Stroudsburg, PA, USA, 2009.
+Association for Computational Linguistics.
+
+
+L. Moreno, J. Aponte, S. Giriprasad, A. Marcus,
+L. Pollock, and K. Vijay-Shanker. Automatic
+generation of natural language summaries for java
+classes.

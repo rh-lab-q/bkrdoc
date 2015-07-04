@@ -1,0 +1,29 @@
+Test launch: apache-test.sh
+Test environmental variables: -
+
+Setup "Setup" [ Unknown commands: 1, Total: 7 ]
+   Package httpd must be installed
+   Command "TmpDir=$(mktemp -d)" must run successfully
+   Files or directories /var/www/html and /var/log/httpd are backed up
+   Command "echo 'Welcome to Test Page!' > /var/www/html/index.html" must run successfully
+   Command "rm -f /var/log/httpd/*" must run successfully
+   Service: httpd must be running
+
+Test "Test Existing Page" [ Unknown commands: 0, Total: 5 ]
+   Command "wget http://localhost/" must run successfully
+   File(directory): "index.html" must exist
+   File: "index.html" must contain pattern: "Welcome to Test Page"
+   File: "/var/log/httpd/access_log" must contain pattern: "GET / HTTP.*200"
+
+Test "Test Missing Page" [ Unknown commands: 0, Total: 5 ]
+   Command "wget http://localhost/missing.html 2>stderr" exit code must match: 1,8
+   File(directory): "missing.html" must not exist
+   File: "stderr" must contain pattern: "Not Found"
+   File: "/var/log/httpd/access_log" must contain pattern: "GET /missing.html HTTP.*404"
+   File: "/var/log/httpd/error_log" must contain pattern: "does not exist.*missing.html"
+
+Cleanup "Cleanup" [ Unknown commands: 1, Total: 4 ]
+   Command "rm -r $(mktemp -d)" must run successfully
+   Restores backed up files to their original location
+   Service httpd is restored into original state
+

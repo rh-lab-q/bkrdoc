@@ -24,6 +24,7 @@
 rlJournalStart
     #@ Testing of syslog in OS made by RH
     rlPhaseStartTest PXE-Boot
+
     #@ @key RedHatEnterpriseLinux7, RedHatEnterpriseLinux*, Fedora*  
         case $FAMILY in
             RedHatEnterpriseLinux7)

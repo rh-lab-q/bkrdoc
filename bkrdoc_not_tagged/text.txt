@@ -1,0 +1,26 @@
+Setup "Setup"
+   Package httpd must be installed
+   Command "TmpDir=$(mktemp -d)" must run successfully
+   Backing up file(s) or directory(ies): /var/www/html and /var/log/httpd
+   Command "echo 'Welcome to Test Page!' > /var/www/html/index.html" must run successfully
+   Command "rm -f /var/log/httpd/*" must run successfully
+   Service(s): httpd must be running
+
+Test "Test Existing Page"
+   Command "wget http://localhost/" must run successfully
+   Checking existence of file(directory): "index.html"
+   Checking if File: "index.html" contain pattern: "Welcome to Test Page"
+   Checking if File: "/var/log/httpd/access_log" contain pattern: "GET / HTTP.*200"
+
+Test "Test Missing Page"
+   Command "wget http://localhost/missing.html 2>stderr" exit code must match: 1,8
+   Checking non existence of file(directory): "missing.html"
+   Checking if File: "stderr" contain pattern: "Not Found"
+   Checking if File: "/var/log/httpd/access_log" contain pattern: "GET /missing.html HTTP.*404"
+   Checking if File: "/var/log/httpd/error_log" contain pattern: "does not exist.*missing.html"
+
+Cleanup "Cleanup"
+   Command "rm -r $(mktemp -d)" must run successfully
+   Restoring backed up files to their original location
+   Service(s) httpd will be restored into original state
+

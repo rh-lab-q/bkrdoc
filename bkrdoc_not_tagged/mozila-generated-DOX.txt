@@ -1,0 +1,31 @@
+Test launch: mozila-test.sh [VARIABLE]
+Test environmental variables: BEAKERLIB_DIR, OUTPUTFILE
+
+Setup [ Unknown commands: 6, Total: 24 ]
+   Command "tar zxvf bugzilla.tar.gz" must run successfully
+   Command "yum -y install httpd mysql-server firefox.x86_64 tigervnc-server-minimal perl-Test-WWW-Selenium java-1.6.0-openjdk" must run successfully
+   Package $i must be installed
+   Command "yum -y remove firefox.i386" exit code must match: 0,1
+   Command "rm -rf /var/www/html/bugzilla" must run successfully
+   Command "mv bugzilla /var/www/html/bugzilla" must run successfully
+   Command "cd /var/www/html/bugzilla" must run successfully
+   Command "mkdir -p data" must run successfully
+   Command "cp t/config/params data/." must run successfully
+   Starts service mysqld
+   Command "echo 'set global max_allowed_packet=1000000000000;' | mysql" must run successfully
+   Command "cat t/config/create_bugs_user.sql | mysql" must run successfully
+   Command "cp t/config/bugzilla.conf /etc/httpd/conf.d/" must run successfully
+   Starts service httpd
+   Command "Xvnc :4 -alwaysshared -geometry 1600x1200 -depth 24 -SecurityTypes None 2>/dev/null >/dev/null &" must run successfully
+   Command "env DISPLAY=:4 java -jar t/config/selenium-server.jar -log selenium.log 2>/dev/null >/dev/null &" must run successfully
+   File(directory): "$( rpm -ql firefox | grep /usr/lib\(64\)\?/firefox-[^/]\+/firefox )" must exist
+   Command "sed -i 's|FIREFOX_PATH|$( rpm -ql firefox | grep /usr/lib\(64\)\?/firefox-[^/]\+/firefox )|g' t/config/selenium_test.conf" must run successfully
+
+Test [ Unknown commands: 17, Total: 21 ]
+   Command "cd /var/www/html/bugzilla" must run successfully
+   Reports test "Overall testing result" with result FAIL
+
+Cleanup [ Unknown commands: 0, Total: 2 ]
+   Kills service httpd
+   Kills service mysqld
+
