@@ -24,7 +24,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(my.phases[7].phase_name,"Cleanup \"Cleanup\"")
         list1 = ['rlAssertRpm "httpd"', "rlRun 'TmpDir=$(mktemp -d)' 0",
         'pushd $TmpDir', 'rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up"',
-         'rlRun "echo \'Wlcome to Test Page!\' > $HttpdPages/index.html" 0 "Creating a simple welcome page"',
+         'rlRun "echo \'Welcome to Test Page!\' > $HttpdPages/index.html" 0 "Creating a simple welcome page"',
           'rlRun "rm -f $HttpdLogs/*"', 'rlRun "rlServiceStart httpd"']
         self.assertEqual(my.phases[1].statement_list,list1)
         
