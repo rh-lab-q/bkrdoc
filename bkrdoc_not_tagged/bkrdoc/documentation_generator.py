@@ -24,8 +24,8 @@ class DocumentationGenerator:
         This method sets up test launch variable, which indicates number of variables.
         :param number_of_variables: number of command line variables in test
         """
-        if int(number_of_variables) > int(self.test_launch):
-            self.test_launch = number_of_variables
+        if int(number_of_variables) > int(self._parser_ref.get_test_launch()):
+            self._parser_ref.set_test_launch(number_of_variables)
 
     def set_environmental_variable_information(self, variable):
         """

@@ -144,3 +144,6 @@ class Parser(object):
 
     def get_test_launch(self):
         return self.test_launch
+
+    def set_test_launch(self, number_of_variable):
+        self.test_launch = number_of_variable
