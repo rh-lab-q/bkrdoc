@@ -13,8 +13,10 @@ class TestSequenceFunctions(unittest.TestCase):
     
     
     def test_basic(self):
-        my = bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
-        my.get_doc_data()
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        my = generator._parser_ref
+        generator.get_doc_data()
         pom_list = ['/examples/beakerlib/Sanity/apache', 'httpd', '/var/www/', '/var/log/httpd', '$(mktemp -d)']
         self.assertListEqual(my.phases[-3].variables.variable_values_list, pom_list,"EQUAL")
         
@@ -30,22 +32,29 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(my.phases[1].statement_list,list1)
         
     def test_func(self):
-        my = bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/mozila-test.sh")
-        my.get_doc_data()
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/mozila-test.sh")
+        generator.get_doc_data()
         #print my.phases[0].func_list
 
 
     def test_environmental_variables(self):
-        my = bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/mozila-test.sh")
-        my.get_doc_data()
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/mozila-test.sh")
+        my = generator._parser_ref
+        generator.get_doc_data()
         self.assertEqual(my.environmental_variable,['BEAKERLIB_DIR', 'OUTPUTFILE'])
 
-        my = bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
-        my.get_doc_data()
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        my = generator._parser_ref
+        generator.get_doc_data()
         self.assertEqual(my.environmental_variable,[])
 
     def test_assert_equal(self):
-        mys = bkrdoc.StatementDataSearcher(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"),bkrdoc.PhaseContainer("test"))
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        mys = bkrdoc.StatementDataSearcher(generator,bkrdoc.PhaseContainer("test"))
         test = mys.parse_command("rlAssertEquals \"Saves the configuration\" \"_enabled\" \"$CONF_VALUE\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlAssertEquals")
         self.assertEqual(mys.parsed_param_ref.value1,"_enabled")
@@ -85,14 +94,16 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(unknown.argname,"UNKNOWN")
 
     def test_first_command(self):
-        mys = bkrdoc.StatementDataSearcher(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"),bkrdoc.PhaseContainer("test"))
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        mys = bkrdoc.StatementDataSearcher(generator,bkrdoc.PhaseContainer("test"))
         test = mys.parse_command("rlRun \"rm -r $TmpDir\" 2,3,4,26 \"Removing tmp directory\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         self.assertEqual(mys.parsed_param_ref.command,"rm -r $TmpDir")
         self.assertEqual(mys.parsed_param_ref.comment, "Removing tmp directory")
         self.assertEqual(mys.parsed_param_ref.status, "2,3,4,26")
 
-        sec = bkrdoc.DocumentationTranslator(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"))
+        sec = bkrdoc.DocumentationTranslator(generator)
         inf_unit = sec.translate_data(test)
         ref = bkrdoc.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -206,12 +217,14 @@ class TestSequenceFunctions(unittest.TestCase):
 
 
     def test_rlRun_command(self):
-        mys = bkrdoc.StatementDataSearcher(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"),bkrdoc.PhaseContainer("test"))
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        mys = bkrdoc.StatementDataSearcher(generator,bkrdoc.PhaseContainer("test"))
         test = mys.parse_command("rlRun -l 'rm -r $TmpDir' ")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         self.assertEqual(mys.parsed_param_ref.command,"rm -r $TmpDir")
 
-        sec = bkrdoc.DocumentationTranslator(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"))
+        sec = bkrdoc.DocumentationTranslator(generator)
         inf_unit = sec.translate_data(test)
         ref = bkrdoc.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -220,12 +233,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,5)
 
     def test_rlRun_rlFileBackup_extend(self):
-        mys = bkrdoc.StatementDataSearcher(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"),bkrdoc.PhaseContainer("test"))
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        mys = bkrdoc.StatementDataSearcher(generator,bkrdoc.PhaseContainer("test"))
         test = mys.parse_command("rlRun \"rlFileBackup --clean $HttpdPages $HttpdLogs\" \"1-2\" \"Backing up\"")
         self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
         #self.assertEqual(mys.parsed_param_ref.command,"rlFileBackup --clean $HttpdPages $HttpdLogs")
 
-        sec = bkrdoc.DocumentationTranslator(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"))
+        sec = bkrdoc.DocumentationTranslator(generator)
         inf_unit = sec.translate_data(test)
         ref = bkrdoc.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -401,9 +416,11 @@ class TestSequenceFunctions(unittest.TestCase):
 
 
     def test_backup_doc(self):
-        mys = bkrdoc.StatementDataSearcher(bkrdoc.Parser("./bkrdoc_not_tagged/examples/tests/apache-test.sh"),bkrdoc.PhaseContainer("test"))
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/apache-test.sh")
+        mys = bkrdoc.StatementDataSearcher(generator,bkrdoc.PhaseContainer("test"))
         mys.parse_command("rlFileBackup --clean cleandir")
-        doc = bkrdoc.DocumentationTranslator(mys.bkrdoc_ref)
+        doc = bkrdoc.DocumentationTranslator(mys.parsed_param_ref)
 
 
     def test_assert2_commands(self):
@@ -431,6 +448,14 @@ class TestSequenceFunctions(unittest.TestCase):
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "File(directory): \"gener.html\" must exist"
         self.assertEqual(inf_data.information, inf)
+
+
+    def test_autopart_test(self):
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/tests/autopart-test.sh")
+        generator.get_doc_data()
+        generator.get_documentation_information()
+        generator.generate_documentation()
 
 if __name__ == '__main__':
     unittest.main()
