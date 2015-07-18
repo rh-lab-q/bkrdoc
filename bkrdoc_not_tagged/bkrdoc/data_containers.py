@@ -113,7 +113,7 @@ class PhaseContainer:
     documentation_units = []
     phase_documentation_information = []
     func_list = []
-    parser_ref = ""
+    generator_ref = ""
 
     def __init__(self, name):
         self.phase_name = name
@@ -124,22 +124,22 @@ class PhaseContainer:
         self.documentation_units = []
         self.phase_documentation_information = []
         self.func_list = []
-        self.parser_ref = ""
+        self.generator_ref = ""
 
     def setup_statement(self, line):
         self.statement_list.append(line)
 
-    def search_data(self, parser_ref, variable_copy, function_copy):
+    def search_data(self, generator_ref, variable_copy, function_copy):
         """
         This method runs data searching in statement lines.
-        :param parser_ref: parser object reference
+        :param generator_ref: parser object reference
         :param variable_copy: variable copy
         :param function_copy: function copy
         """
         self.func_list = function_copy
         self.variables = variable_copy
-        self.parser_ref = parser_ref
-        command_translator = bkrdoc.StatementDataSearcher(parser_ref, self)
+        self.generator_ref = generator_ref
+        command_translator = bkrdoc.StatementDataSearcher(generator_ref, self)
         for statement in self.statement_list:
             try:
                 self.statement_classes.append(command_translator.parse_command(statement))
@@ -155,7 +155,7 @@ class PhaseContainer:
         Searching data in function object
         :param function: function object
         """
-        command_translator = bkrdoc.StatementDataSearcher(self.parser_ref, self)
+        command_translator = bkrdoc.StatementDataSearcher(self.generator_ref, self)
         function.data_list = []
         for statement in function.statement_list:
             try:

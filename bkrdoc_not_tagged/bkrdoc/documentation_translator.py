@@ -14,8 +14,8 @@ class DocumentationTranslator:
     high = 4
     highest = 5
 
-    def __init__(self, parser_ref):
-        self.parser_ref = parser_ref
+    def __init__(self, generator_ref):
+        self.generator_ref = generator_ref
         self.inf_ref = ""
 
     def translate_data(self, argparse_data):
@@ -190,10 +190,11 @@ class DocumentationTranslator:
         """
         importance = self.lowMedium
         subject = [argparse_data.path_to_file]
+        print()
         if not len(argparse_data.s) and not len(argparse_data.required_name):
             subject.append('-')
 
-        elif len(argparse_data.s) and not len(argparse_data.required_name):
+        elif len(argparse_data.s) and argparse_data.required_name is not None and not len(argparse_data.required_name):
             subject.append(argparse_data.s)
 
         elif len(argparse_data.s) and len(argparse_data.required_name):
@@ -353,7 +354,7 @@ class DocumentationTranslator:
         :return: argparse object
         """
         pom_phase = bkrdoc.PhaseContainer("Helpful phase")
-        return bkrdoc.StatementDataSearcher(self.parser_ref, pom_phase).parse_command(command)
+        return bkrdoc.StatementDataSearcher(self.generator_ref, pom_phase).parse_command(command)
 
     def set_rlvirtualx_xxx_data(self, argparse_data):
         """

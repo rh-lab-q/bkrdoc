@@ -11,13 +11,13 @@ class DocumentationGenerator:
     _parser_ref = ""
     _phases = ""
 
-    def __init__(self, cmd_options, file):
-        self._parser_ref = bkrdoc.Parser(file)
-        self._phases = self._parser_ref.get_phases()
-        self.get_doc_data()
-        self.get_documentation_information()
-        self.generate_documentation()
-        self.print_documentation(cmd_options)
+    def __init__(self):
+        self._parser_ref = ""
+        self._phases = ""
+
+    def parse_given_file(self, file):
+            self._parser_ref = bkrdoc.Parser(file)
+            self._phases = self._parser_ref.get_phases()
 
     def set_test_launch(self, number_of_variables):
         """
@@ -141,7 +141,7 @@ class DocumentationGenerator:
         """
         This method prints test launch information
         """
-        inf = "Test launch: " + self._parser_ref.get_file_name()
+        inf = "Test launch: " + str(self._parser_ref.get_file_name())
         i = 0
         while int(i) < int(self._parser_ref.get_test_launch()):
             inf += " [VARIABLE]"
@@ -261,7 +261,12 @@ def run_doc_generator(parser_arg):
     :param parser_arg: argparse object
     """
     for one_file in parser_arg.files:
-        DocumentationGenerator(parser_arg, one_file)
+        doc_generator = DocumentationGenerator()
+        doc_generator.parse_given_file(one_file)
+        doc_generator.get_doc_data()
+        doc_generator.get_documentation_information()
+        doc_generator.generate_documentation()
+        doc_generator.print_documentation(parser_arg)
 
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()

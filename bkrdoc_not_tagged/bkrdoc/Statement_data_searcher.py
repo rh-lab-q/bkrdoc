@@ -11,17 +11,17 @@ class StatementDataSearcher:
     This class is responsible for parsing data from statement lines. This parsing is done by
     setting argparse modules for every BeakerLib command. These setting we can see under
     big switch.
-    :param parser_ref: parser reference
+    :param generator_ref: parser reference
     :param phase_ref: reference to phase where was StatementDataSearcher instance made.
     """
     parsed_param_ref = ""
-    parser_ref = ""
+    generator_ref = ""
     phase_ref = ""
 
     minimum_variable_size = 4
 
-    def __init__(self, parser_ref, phase_ref):
-        self.parser_ref = parser_ref
+    def __init__(self, generator_ref, phase_ref):
+        self.generator_ref = generator_ref
         self.phase_ref = phase_ref
         self.minimum_variable_size = 4
 
@@ -170,7 +170,7 @@ class StatementDataSearcher:
         regular = re.compile("(.*)(\$(\d+))(.*)")
         match = regular.match(line)
         if match:
-            self.parser_ref.set_test_launch(match.group(3))
+            self.generator_ref.set_test_launch(match.group(3))
 
     def get_environmental_variable(self, line):
         """
@@ -183,7 +183,7 @@ class StatementDataSearcher:
             if word == "$":
                 word = lexer.get_token()
                 if not self.phase_ref.variables.is_existing_variable(word) and len(word) > self.minimum_variable_size:
-                    self.parser_ref.set_environmental_variable_information(word)
+                    self.generator_ref.set_environmental_variable_information(word)
 
             elif word[0:1] == '"':  # shlex doesn't returns whole string so for searching in strings I'm using recursion
                 self.get_environmental_variable(word[1:-1])
