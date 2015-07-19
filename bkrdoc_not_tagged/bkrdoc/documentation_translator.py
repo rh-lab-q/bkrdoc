@@ -190,14 +190,14 @@ class DocumentationTranslator:
         """
         importance = self.lowMedium
         subject = [argparse_data.path_to_file]
-        print()
+        print(argparse_data.required_name)
         if not len(argparse_data.s) and not len(argparse_data.required_name):
             subject.append('-')
 
-        elif len(argparse_data.s) and argparse_data.required_name is not None and not len(argparse_data.required_name):
+        elif len(argparse_data.s) and argparse_data.required_name is None:
             subject.append(argparse_data.s)
 
-        elif len(argparse_data.s) and len(argparse_data.required_name):
+        elif len(argparse_data.s) and argparse_data.required_name is not None and len(argparse_data.required_name):
             subject.append(argparse_data.s)
             subject.append(argparse_data.required_name)
         topic_obj = bkrdoc.Topic("FILE", subject)
