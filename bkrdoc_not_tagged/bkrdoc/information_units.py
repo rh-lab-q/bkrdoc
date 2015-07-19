@@ -209,8 +209,9 @@ class InformationFileNotContain(InformationUnit):
         Sets nature language information. This setting depends on small
         InformationUnit class.
         """
-        self.information = "File " + self.information_obj.get_topic_subject()[0] \
-                           + " must not contain pattern " + self.information_obj.get_topic_subject()[1]
+        self.information = "File: \"" + self.information_obj.get_topic_subject()[0] \
+                           + "\" must not contain pattern \"" + self.information_obj.get_topic_subject()[1]
+        self.information += "\""
         self.check_status_and_add_information(self.information_obj.get_status())
 
     def check_status_and_add_information(self, status):
