@@ -144,11 +144,15 @@ class PhaseContainer:
             try:
                 self.statement_classes.append(command_translator.parse_command(statement))
             except ValueError:
+                print("********************************************")
                 print("ERROR in line: " + str(statement))
                 print(ValueError)
+                print("********************************************")
             except SystemExit:
+                print("********************************************")
                 print("ERROR in line: " + str(statement))
                 print("Can be problem with variables substitutions")
+                print("********************************************")
 
     def search_data_in_function(self, function):
         """
@@ -161,11 +165,15 @@ class PhaseContainer:
             try:
                 function.add_data(command_translator.parse_command(statement))
             except ValueError:
+                print("********************************************")
                 print("ERROR in line: " + str(statement))
                 print(ValueError)
+                print("********************************************")
             except SystemExit:
+                print("********************************************")
                 print("ERROR in line: " + str(statement))
                 print("Can be problem with variables substitutions")
+                print("********************************************")
 
     def translate_data(self, parser_ref):
         """
