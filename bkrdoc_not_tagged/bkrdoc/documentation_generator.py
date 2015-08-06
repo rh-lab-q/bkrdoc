@@ -170,7 +170,8 @@ class DocumentationGenerator:
         self.print_test_environmental_variables_information()
         print("")
         test_weigh = self.get_test_weigh()
-        if test_weigh > cmd_options.size:
+
+        if not cmd_options.print_all and test_weigh > cmd_options.size:
             knapsack_list = self.setup_phases_lists_for_knapsack()
             finished_knapsack = self.solve_knapsack_dp(knapsack_list, cmd_options.size)
             self.set_phases_information_lists(finished_knapsack)
@@ -251,6 +252,8 @@ def set_cmd_arguments():
                             default=False, help='Show log data if they are possible')
     pom_parser.add_argument('-s', '--size', type=int, help="Size of output documentation in lines,"
                                                            " default is 32 lines(A4) per documentation", default=32)
+    pom_parser.add_argument('--all', '--print-all', dest='print_all', action='store_true',
+                            default=False, help='Printing all possible data.')
     parser_arg = pom_parser.parse_args()
     return parser_arg
 

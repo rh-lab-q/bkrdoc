@@ -4,6 +4,7 @@ __author__ = 'Jiri_Kulda'
 import re
 import shlex
 import bkrdoc
+import sys
 
 
 class PhaseOutside:
@@ -144,12 +145,12 @@ class PhaseContainer:
             try:
                 self.statement_classes.append(command_translator.parse_command(statement))
             except ValueError:
-                print("********************************************")
+                sys.stdout.write("********************************************")
                 print("ERROR in line: " + str(statement))
                 print(ValueError)
                 print("********************************************")
             except SystemExit:
-                print("********************************************")
+                sys.stdout.write("********************************************")
                 print("ERROR in line: " + str(statement))
                 print("Can be problem with variables substitutions")
                 print("********************************************")
@@ -165,12 +166,12 @@ class PhaseContainer:
             try:
                 function.add_data(command_translator.parse_command(statement))
             except ValueError:
-                print("********************************************")
+                sys.stdout.write("********************************************")
                 print("ERROR in line: " + str(statement))
                 print(ValueError)
                 print("********************************************")
             except SystemExit:
-                print("********************************************")
+                sys.stdout.write("********************************************")
                 print("ERROR in line: " + str(statement))
                 print("Can be problem with variables substitutions")
                 print("********************************************")
@@ -203,7 +204,7 @@ class PhaseContainer:
         conditions = bkrdoc.ConditionsForCommands()
 
         for information in self.phase_documentation_information:
-            if cmd_options.log_in:
+            if cmd_options.log_in or cmd_options.print_all:
                 information.print_information()
             elif not conditions.is_rllog_command(information.get_command_name()):
                 information.print_information()
