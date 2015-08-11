@@ -190,7 +190,7 @@ class DocumentationTranslator:
         """
         importance = self.lowMedium
         subject = [argparse_data.path_to_file]
-        print(argparse_data.required_name)
+        
         if not len(argparse_data.s) and not len(argparse_data.required_name):
             subject.append('-')
 
