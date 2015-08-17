@@ -75,6 +75,7 @@ class Parser(object):
         parsed_file = bashlex.parse(self.file_test)
 
         for command_line in parsed_file:
+            
             if not self.is_phase_journal_end(command_line.parts[0].word):
                 if self.is_phase(command_line.parts[0].word):
                     if len(command_line.parts) > 1:
