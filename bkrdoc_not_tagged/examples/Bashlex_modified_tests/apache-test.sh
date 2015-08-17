@@ -28,7 +28,7 @@ rlJournalStart
         rlAssertGrep "GET /missing.html HTTP.*404" "$HttpdLogs/access_log"
         rlAssertGrep "does not exist.*missing.html" "$HttpdLogs/error_log"
     rlPhaseEnd
-    rlPhaseStartCleanup "Cleanup"
+    rlPhaseStartCleanup
         popd
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
         rlRun "rlFileRestore"
