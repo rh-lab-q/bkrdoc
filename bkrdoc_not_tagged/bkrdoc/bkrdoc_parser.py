@@ -5,7 +5,7 @@ __author__ = 'Jiri_Kulda'
 import shlex
 import sys
 import bkrdoc
-
+import bashlex
 
 class Parser(object):
     """
@@ -72,26 +72,19 @@ class Parser(object):
         self.phases.append(bkrdoc.PhaseOutside())
 
         pom_line = ""
-        for line in self.file_test.split('\n'):
-            line = line.strip()
+        parsed_file = bashlex.parse(self.file_test)
 
-            if line[0:1] != '#' and len(line) >= 1 and \
-                    not self.is_phase_journal_end(line):
-
-                if self.is_phase(line):
-                    self.phases.append(bkrdoc.PhaseContainer(line[len("rlphasestart"):]))
-
-                elif self.is_end_back_slash(line):
-                    pom_line += line[0:-1]
-
-                elif len(self.phases) > 0:
-                    if pom_line != "":
-                        self.phases[-1].setup_statement(pom_line + line)
-                        pom_line = ""
+        for command_line in parsed_file:
+            if not self.is_phase_journal_end(command_line.parts[0].word):
+                if self.is_phase(command_line.parts[0].word):
+                    if len(command_line.parts) > 1:
+                        self.phases.append(bkrdoc.PhaseContainer(command_line.parts[1].word))
                     else:
-                        self.phases[-1].setup_statement(line)
+                        self.phases.append(bkrdoc.PhaseContainer(""))
+                else:
+                    self.phases[-1].setup_statement(command_line)
 
-            elif self.is_phase_journal_end(line):
+            elif self.is_phase_journal_end(command_line.parts[0].word):
                 self.phases.append(bkrdoc.PhaseOutside())
 
     def print_statement(self):
