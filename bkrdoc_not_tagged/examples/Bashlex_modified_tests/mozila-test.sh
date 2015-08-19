@@ -13,6 +13,7 @@ function create_test_data ()
     rlRun $LOG "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl second time"
     rlRun $LOG "perl t/config/generate_test_data.pl" 0 "Generating test data"
     rlRun $LOG "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl third time"
+    rlReport $1 PASS
 }
 rlJournalStart
     rlPhaseStartSetup

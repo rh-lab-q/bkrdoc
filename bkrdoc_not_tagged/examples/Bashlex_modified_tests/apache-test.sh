@@ -2,8 +2,9 @@
 TEST="/examples/beakerlib/Sanity/apache"
 PACKAGE="httpd"
 HttpdPages="/var/www/html"
-HttpdLogs="/var/log/httpd"
+HttpdLogs="/var/log/$PACKAGE"
 rlJournalStart
+    pushd $TmpDir
     rlPhaseStartSetup "Setup"
         rlAssertRpm "httpd"
         rlRun 'TmpDir=$(mktemp -d)' 0
@@ -25,7 +26,7 @@ rlJournalStart
         rlRun "wget http://localhost/missing.html 2>stderr" 1,8 "Trying to access a nonexistent page"
         rlAssertNotExists "missing.html"
         rlAssertGrep "Not Found" "stderr"
-        rlAssertGrep "GET /missing.html HTTP.*404" "$HttpdLogs/access_log"
+        rlAssertGrep "GET $(<index.html) /missing.html HTTP.*404" "$HttpdLogs/access_log"
         rlAssertGrep "does not exist.*missing.html" "$HttpdLogs/error_log"
     rlPhaseEnd
     rlPhaseStartCleanup
