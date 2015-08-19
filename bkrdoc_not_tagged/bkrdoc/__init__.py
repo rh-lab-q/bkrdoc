@@ -1,5 +1,6 @@
 from bkrdoc.option_object import *
 from bkrdoc.test_variables import *
+from bkrdoc.ast_visitor import *
 from bkrdoc.test_functions import *
 from bkrdoc.information_units import *
 from bkrdoc.conditions_for_commands import *
