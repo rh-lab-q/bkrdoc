@@ -16,6 +16,7 @@ class TestSequenceFunctions(unittest.TestCase):
         my = generator._parser_ref
         # generator.get_doc_data()
         pom_list = ['/examples/beakerlib/Sanity/apache', 'httpd', '/var/www/', '/var/log/$PACKAGE']
+        print(my.variables.variable_values_list)
         self.assertListEqual(my.variables.variable_values_list, pom_list, "EQUAL")
         self.assertEqual(len(my.phases), 11)
         self.assertEqual(my.phases[2].phase_name, "Setup: Setup")
