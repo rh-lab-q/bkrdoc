@@ -12,16 +12,13 @@ class StatementDataSearcher:
     This class is responsible for parsing data from statement lines. This parsing is done by
     setting argparse modules for every BeakerLib command. These setting we can see under
     big switch.
-    :param generator_ref: parser reference
     """
     parsed_param_ref = ""
-    generator_ref = ""
     phase_ref = ""
 
     minimum_variable_size = 4
 
-    def __init__(self, generator_ref):
-        self.generator_ref = generator_ref
+    def __init__(self):
         self.minimum_variable_size = 4
 
     def parse_command(self, data_container):
