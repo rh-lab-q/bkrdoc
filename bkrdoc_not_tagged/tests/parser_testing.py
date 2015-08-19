@@ -15,6 +15,7 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/apache-test.sh")
         my = generator._parser_ref
         # generator.get_doc_data()
+        
         pom_list = ['/examples/beakerlib/Sanity/apache', 'httpd', '/var/www/', '/var/log/$PACKAGE']
         self.assertListEqual(my.variables.variable_values_list, pom_list, "EQUAL")
         self.assertEqual(len(my.phases), 11)
