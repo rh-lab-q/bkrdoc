@@ -39,51 +39,68 @@ class Parser(object):
     phases = []
     outside = ""
     file_name = ""
-
+    variables = ""
     test_launch = ""
-
+    argparse_data_list = []
     environmental_variable = []
 
     def __init__(self, file_in):
         self.phases = []
         self.test_launch = 0
         self.environmental_variable = []
-        file_in = file_in.strip()
-        if file_in[(len(file_in) - 3):len(file_in)] == ".sh":
+        self.file_name = file_in.strip()
+        self.argparse_data_list = []
+        self.variables = ""
+
+    def open_file(self):
+        if self.file_name[(len(self.file_name) - 3):len(self.file_name)] == ".sh":
             try:
-                with open(file_in, "r") as input_file:
-                    self.file_name = file_in
-                    self.description = file_in[0:(len(file_in) - 3)]
+                with open(self.file_name, "r") as input_file:
+                    self.file_name = self.file_name
+                    self.description = self.file_name[0:(len(self.file_name) - 3)]
                     self.file_test = input_file.read()
-                    self.parse_data()
 
             except IOError:
-                sys.stderr.write("ERROR: Fail to open file: " + file_in + "\n")
+                sys.stderr.write("ERROR: Fail to open file: " + self.file_name + "\n")
                 sys.exit(1)
 
         else:
             print("ERROR: Not a script file. (*.sh)")
             sys.exit(1)
 
-    def parse_data(self):
+    def parse_data(self, input_line=""):
         """
         Method which divides lines of code into phase containers.
+        :input_line short string to be parsed (optional). Primary for testing
         """
+        # This condition is here for testing. Thanks to input_line I can test only one line without
+        # of need use whole
+        if len(input_line):
+            self.file_test = input_line
+        else:
+            self.open_file()
+
         self.phases.append(bkrdoc.PhaseOutside())
         pom_line = ""
-        variables = bkrdoc.TestVariables()
+        self.variables = bkrdoc.TestVariables()
         parsed_file = bashlex.parse(self.file_test)
-        data_searcher = bkrdoc.StatementDataSearcher("")
-        nodevistor = bkrdoc.NodeVisitor(variables)
-        cond = bkrdoc.ConditionsForCommands()
+        data_searcher = bkrdoc.StatementDataSearcher()
+        nodevistor = bkrdoc.NodeVisitor(self.variables)
 
         for command_line in parsed_file:
             nodevistor.visit(command_line)
             data_searcher.parse_command(nodevistor.get_parsed_container())
             nodevistor.erase_parsing_subject_variable()
-            argparse_data = data_searcher.parsed_param_ref
-            # print argparse_data
+            self.argparse_data_list.append(data_searcher.parsed_param_ref)
+        # print("Started =======================================")
+        # self.print_statement()
 
+        # print(variables.variable_names_list)
+        # print(variables.variable_values_list)
+
+    def divide_parsed_argparse_data_into_phase_conainers(self):
+        cond = bkrdoc.ConditionsForCommands()
+        for argparse_data in self.argparse_data_list:
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
                 if cond.is_phase(argparse_data.argname):
                     p_name = argparse_data.argname[len("rlPhaseStart"):]
@@ -99,9 +116,6 @@ class Parser(object):
 
         # print("Started =======================================")
         # self.print_statement()
-
-        # print(variables.variable_names_list)
-        # print(variables.variable_values_list)
 
     def print_statement(self):
         for i in self.phases:
