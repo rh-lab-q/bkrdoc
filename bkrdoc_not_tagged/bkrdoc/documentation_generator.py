@@ -17,6 +17,8 @@ class DocumentationGenerator:
 
     def parse_given_file(self, file):
             self._parser_ref = bkrdoc.Parser(file)
+            self._parser_ref.parse_data()
+            self._parser_ref.divide_parsed_argparse_data_into_phase_conainers()
             self._phases = self._parser_ref.get_phases()
 
     def set_test_launch(self, number_of_variables):
