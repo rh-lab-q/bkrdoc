@@ -322,28 +322,29 @@ class DocumentationTranslator:
         """
         importance = self.highest
         subject = [argparse_data.command, argparse_data.status]
-        possible_beakerlib_command = self.get_argparse_of_command(argparse_data.command)
+        # TODO !!!! Searching in rlRun commands for another rlRuncommand
+        # possible_beakerlib_command = self.get_argparse_of_command(argparse_data.command)
 
-        if possible_beakerlib_command.argname == "UNKNOWN":
-            param_option = []
-            if argparse_data.l:
-                param_option.append("l")
-            elif argparse_data.c:
-                param_option.append("c")
-            elif argparse_data.t and argparse_data.s:
-                param_option.append("s")
-                param_option.append("t")
-            elif argparse_data.t:
-                param_option.append("t")
-            elif argparse_data.s:
-                param_option.append("s")
-            topic_obj = bkrdoc.Topic("COMMAND", subject)
-            action = ["run"]
-            self.inf_ref = bkrdoc.DocumentationInformation(argparse_data.argname, topic_obj, action, importance, bkrdoc.Option(param_option))
+        # if possible_beakerlib_command.argname == "UNKNOWN":
+        param_option = []
+        if argparse_data.l:
+            param_option.append("l")
+        elif argparse_data.c:
+            param_option.append("c")
+        elif argparse_data.t and argparse_data.s:
+            param_option.append("s")
+            param_option.append("t")
+        elif argparse_data.t:
+            param_option.append("t")
+        elif argparse_data.s:
+            param_option.append("s")
+        topic_obj = bkrdoc.Topic("COMMAND", subject)
+        action = ["run"]
+        self.inf_ref = bkrdoc.DocumentationInformation(argparse_data.argname, topic_obj, action, importance, bkrdoc.Option(param_option))
 
-        else:
-            beakerlib_information_unit = self.translate_data(possible_beakerlib_command)
-            beakerlib_information_unit.set_status(argparse_data.status)
+        #else:
+        #    beakerlib_information_unit = self.translate_data(possible_beakerlib_command)
+        #   beakerlib_information_unit.set_status(argparse_data.status)
 
     def get_argparse_of_command(self, command):
         """
@@ -353,8 +354,9 @@ class DocumentationTranslator:
         :param command: command line
         :return: argparse object
         """
-        pom_phase = bkrdoc.PhaseContainer("Helpful phase")
-        return bkrdoc.StatementDataSearcher(self.generator_ref, pom_phase).parse_command(command)
+        # TODO
+        # pom_phase = bkrdoc.PhaseContainer("Helpful phase")
+        # return bkrdoc.StatementDataSearcher(self.generator_ref).parse_command(command)
 
     def set_rlvirtualx_xxx_data(self, argparse_data):
         """
