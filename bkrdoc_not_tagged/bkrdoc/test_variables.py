@@ -52,3 +52,22 @@ class TestVariables:
             return pom_str
         else:
             return string
+
+    def replace_variable_in_string_with_specified_variable(self, string, spec_variable):
+        original_string = string
+        pom_str = string
+        if len(self.variable_names_list) and self.is_existing_variable(spec_variable):
+            pom_str = pom_str.replace("$" + spec_variable, self.get_variable_value(spec_variable))
+            # Below while solves replacing variables in replaced variable value
+            i = 0
+            while pom_str is not string:
+                string = pom_str
+                pom_str = self.replace_variable_in_string(pom_str)
+                i += 1
+                if i >= 100:
+                    print("ERROR: Too many variable replacement in line: " + original_string)
+                    pom_str = original_string
+                    break
+            return pom_str
+        else:
+            return string
