@@ -1,7 +1,6 @@
 #!/usr/bin/python
 __author__ = 'Jiri_Kulda'
 
-import re
 import shlex
 import bkrdoc
 import sys
@@ -31,25 +30,14 @@ class PhaseOutside:
         :param variable_copy: Copy of variables
         :param function_copy: Copy of functions
         """
+        # TODO below lines should be fixed by new version of bashlex
+        # after that uncomment these below lines!!!
+
+        """
         self.variables = variable_copy
         self.func_list = function_copy
         func = False
         for statement in self.statement_list:
-
-            # This three conditions are here because of getting further
-            # information from functions.
-            if self.is_function(statement):
-                func = True
-                self.func_list.append(bkrdoc.TestFunction(statement[len("function")+1:]))
-
-            elif func and not self.is_function_end(statement):
-                self.func_list[-1].add_line(statement)
-
-            elif func and self.is_function_end(statement):
-                self.func_list[-1].add_line(statement)
-                func = False
-
-            else:
                 # searching variables in statement line
                 try:
                     read = shlex.shlex(statement)
@@ -82,6 +70,7 @@ class PhaseOutside:
                 except ValueError as detail:
                     print("ERROR in line: " + str(statement))
                     print("With message: " + str(detail))
+            """
 
     def is_function(self, line):
         return line[0:len("function")] == "function"
@@ -140,7 +129,7 @@ class PhaseContainer:
         self.func_list = function_copy
         self.variables = variable_copy
         self.generator_ref = generator_ref
-        command_translator = bkrdoc.StatementDataSearcher(generator_ref, self)
+        command_translator = bkrdoc.StatementDataSearcher(generator_ref)
         for statement in self.statement_list:
             try:
                 self.statement_classes.append(command_translator.parse_command(statement))
@@ -160,7 +149,7 @@ class PhaseContainer:
         Searching data in function object
         :param function: function object
         """
-        command_translator = bkrdoc.StatementDataSearcher(self.generator_ref, self)
+        command_translator = bkrdoc.StatementDataSearcher(self.generator_ref)
         function.data_list = []
         for statement in function.statement_list:
             try:
@@ -182,7 +171,7 @@ class PhaseContainer:
         :param parser_ref: parser reference
         """
         data_translator = bkrdoc.DocumentationTranslator(parser_ref)
-        for data in self.statement_classes:
+        for data in self.statement_list:
             if data.argname != "UNKNOWN":
                 self.documentation_units.append(data_translator.translate_data(data))
 
@@ -240,3 +229,100 @@ class PhaseContainer:
         :return: list of functions
         """
         return self.func_list
+
+
+class DataContainer(object):
+    _argparse_list = []
+
+    def set_argparse_list(self, member):
+        pass
+
+    def get_argparse_list(self):
+        pass
+
+    def set_last_member_in_argparse_list(self, member):
+        pass
+
+    def get_last_member_of_argparse_list(self):
+        pass
+
+
+class CommandContainer(DataContainer):
+    _command_ast = ""
+    _command_substitution_ast_list = [""]
+    _substitution_argparse_list = []
+
+    def __init__(self, ast):
+        self._command_ast = ast
+        self._argparse_list = []
+        self._substitution_argparse_list = []
+        self._command_substitution_ast_list = [""]
+
+    def set_argparse_list(self, command_member):
+        if self.is_command_substitution_list_empty():
+            self._argparse_list.append(command_member)
+        else:
+            self._substitution_argparse_list.append(command_member)
+
+    def set_command_substitution_ast(self, ast):
+        self._command_substitution_ast_list[-1] = ast
+
+    def get_argparse_list(self):
+        return self._argparse_list
+
+    def set_last_member_in_argparse_list(self, member):
+        self._argparse_list[-1] = member
+
+    def get_last_member_of_argparse_list(self):
+        return self._argparse_list[-1]
+
+    def get_last_member_of_command_subst_ast_list(self):
+        return self._command_substitution_ast_list[-1]
+
+    def set_empty_spot_for_cmd_subst_ast_list(self):
+        self._command_substitution_ast_list.append("")
+
+    def is_command_substitution_list_empty(self):
+        return self._command_substitution_ast_list[-1] is ""
+
+
+class FunctionContainer(DataContainer):
+    _function_ast = ""
+    function_name = ""
+
+    def __init__(self, ast):
+        self._argparse_list = []
+        self._function_ast = ast
+        self.function_name = ""
+
+    def set_argparse_list(self, member):
+        pass
+
+    def get_argparse_list(self):
+        return self._argparse_list
+
+    def set_last_member_in_argparse_list(self, member):
+        pass
+
+    def get_last_member_of_argparse_list(self):
+        pass
+
+
+class AssignmentContainer(DataContainer):
+    _assign_ast = []
+
+    def __init__(self, ast):
+        self._assign_ast = ast
+        self._argparse_list = []
+
+    def set_argparse_list(self, command_member):
+        self._argparse_list.append(command_member)
+
+    def get_argparse_list(self):
+        return self._argparse_list
+
+    def set_last_member_in_argparse_list(self, member):
+        self._argparse_list[-1] = member
+
+    def get_last_member_of_argparse_list(self):
+        return self._argparse_list[-1]

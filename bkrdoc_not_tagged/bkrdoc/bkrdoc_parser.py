@@ -70,56 +70,44 @@ class Parser(object):
         Method which divides lines of code into phase containers.
         """
         self.phases.append(bkrdoc.PhaseOutside())
-
         pom_line = ""
+        variables = bkrdoc.TestVariables()
         parsed_file = bashlex.parse(self.file_test)
+        data_searcher = bkrdoc.StatementDataSearcher("")
+        nodevistor = bkrdoc.NodeVisitor(variables)
+        cond = bkrdoc.ConditionsForCommands()
 
         for command_line in parsed_file:
-            
-            if not self.is_phase_journal_end(command_line.parts[0].word):
-                if self.is_phase(command_line.parts[0].word):
-                    if len(command_line.parts) > 1:
-                        self.phases.append(bkrdoc.PhaseContainer(command_line.parts[1].word))
-                    else:
-                        self.phases.append(bkrdoc.PhaseContainer(""))
-                else:
-                    self.phases[-1].setup_statement(command_line)
+            nodevistor.visit(command_line)
+            data_searcher.parse_command(nodevistor.get_parsed_container())
+            nodevistor.erase_parsing_subject_variable()
+            argparse_data = data_searcher.parsed_param_ref
+            # print argparse_data
 
-            elif self.is_phase_journal_end(command_line.parts[0].word):
+            if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
+                if cond.is_phase(argparse_data.argname):
+                    p_name = argparse_data.argname[len("rlPhaseStart"):]
+                    if argparse_data.description is not None:
+                        self.phases.append(bkrdoc.PhaseContainer(p_name + ": " + argparse_data.description))
+                    else:
+                        self.phases.append(bkrdoc.PhaseContainer(p_name))
+                else:
+                    self.phases[-1].setup_statement(argparse_data)
+
+            elif cond.is_phase_journal_end(argparse_data.argname) or cond.is_journal_start(argparse_data.argname):
                 self.phases.append(bkrdoc.PhaseOutside())
+
+        # print("Started =======================================")
+        # self.print_statement()
+
+        # print(variables.variable_names_list)
+        # print(variables.variable_values_list)
 
     def print_statement(self):
         for i in self.phases:
+            print(i.phase_name)
             print(i.statement_list)
             print("\n")
-
-    def is_end_back_slash(self, line):
-        return line[-1:] == '\\'
-
-    def is_phase(self, line):
-        return line[0:len("rlphasestart")].lower() == "rlphasestart"
-
-    def is_phase_clean(self, line):
-        return line[0:len("rlphasestartclean")].lower() == "rlphasestartclean"
-
-    def is_phase_test(self, line):
-        return line[0:len("rlphasestarttest")].lower() == "rlphasestarttest"
-
-    def is_phase_setup(self, line):
-        return line[0:len("rlphasestartsetup")].lower() == "rlphasestartsetup"
-
-    def is_phase_journal_end(self, line):
-        if line[0:len("rlphaseend")].lower() == "rlphaseend":
-            return True
-
-        elif line[0:len("rljournalend")].lower() == "rljournalend":
-            return True
-
-        else:
-            return False
-
-    def is_journal_start(self, line):
-        return line[0:len("rljournalstart")].lower() == "rljournalstart"
 
     def is_phase_outside(self, phase_ref):
         return phase_ref.phase_name == "Outside phase"

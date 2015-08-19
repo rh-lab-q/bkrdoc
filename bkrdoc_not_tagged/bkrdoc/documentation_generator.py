@@ -271,12 +271,11 @@ def run_doc_generator(parser_arg):
     for one_file in parser_arg.files:
         doc_generator = DocumentationGenerator()
         doc_generator.parse_given_file(one_file)
-        doc_generator.print_statement()
         #TODO Uncomment below lines. These lines are commented because of adding bashlex into bkrdoc
         #doc_generator.get_doc_data()
-        #doc_generator.get_documentation_information()
-        #doc_generator.generate_documentation()
-        #doc_generator.print_documentation(parser_arg)
+        doc_generator.get_documentation_information()
+        doc_generator.generate_documentation()
+        doc_generator.print_documentation(parser_arg)
 
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()

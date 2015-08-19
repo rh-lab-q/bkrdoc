@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import argparse
-import re
 import shlex
 import bkrdoc
 
+
 __author__ = 'Jiri_Kulda'
+
 
 class StatementDataSearcher:
     """
@@ -12,7 +13,6 @@ class StatementDataSearcher:
     setting argparse modules for every BeakerLib command. These setting we can see under
     big switch.
     :param generator_ref: parser reference
-    :param phase_ref: reference to phase where was StatementDataSearcher instance made.
     """
     parsed_param_ref = ""
     generator_ref = ""
@@ -20,22 +20,22 @@ class StatementDataSearcher:
 
     minimum_variable_size = 4
 
-    def __init__(self, generator_ref, phase_ref):
+    def __init__(self, generator_ref):
         self.generator_ref = generator_ref
-        self.phase_ref = phase_ref
         self.minimum_variable_size = 4
 
-    def parse_command(self, statement_line):
+    def parse_command(self, data_container):
         # Splitting statement using shlex lexicator
         """
         Method contains big switch for division of statement line
-        :param statement_line: singe line of code from test
+        :param data_container: Container with set upped data for argparse
         :return: argparse object with parsed data
         """
-        pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
-        self.get_cmd_line_params(pom_statement_line)
-        self.get_environmental_variable(pom_statement_line)
-        pom_list = shlex.split(pom_statement_line, True, posix=True)
+        # pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
+        # self.get_cmd_line_params(pom_statement_line)
+        # self.get_environmental_variable(pom_statement_line)
+        # pom_list = shlex.split(pom_statement_line, True, posix=True)
+        pom_list = data_container.get_argparse_list()
         first = pom_list[0]
 
         # if self.is_beakerLib_command(first, self.parser_ref):
@@ -78,6 +78,15 @@ class StatementDataSearcher:
 
         elif condition.is_rlfilerestore_command(first):
             self.get_rlfile_restore_data(pom_list)
+
+        elif condition.is_phase(first):
+            self.get_rlphasestartxxx_data(pom_list)
+
+        elif condition.is_phase_journal_end(first):
+            self.get_rljournal_phase_end_data(pom_list)
+
+        elif condition.is_journal_start(first):
+            self.get_rljournalstart_data(pom_list)
 
         elif condition.is_rlisrhel_or_rlisfedora_command(first):
             self.get_isrhel_or_isfedora_data(pom_list)
@@ -155,28 +164,29 @@ class StatementDataSearcher:
             self.get_rlvirtualx_xxx_data(pom_list)
 
         else:
-            self.unknown_command(pom_list, pom_statement_line)
+            self.unknown_command(pom_list)
 
         return self.parsed_param_ref
 
     def find_and_replace_variable(self, statement):
         pass
 
-    def get_cmd_line_params(self, line):
-        """
-        This method searches for command line variables in code represented as $1 $2 ...
-        :param line: statement line of code
-        """
+    #TODO Commented because of the same searching in nodevisitor
+    """def get_cmd_line_params(self, line):
+
+        #This method searches for command line variables in code represented as $1 $2 ...
+        #:param line: statement line of code
+
         regular = re.compile("(.*)(\$(\d+))(.*)")
         match = regular.match(line)
         if match:
             self.generator_ref.set_test_launch(match.group(3))
 
     def get_environmental_variable(self, line):
-        """
-        Searches environmental variables in code line
-        :param line: code line
-        """
+
+        #Searches environmental variables in code line
+        #:param line: code line
+
         lexer = shlex.shlex(line)
         word = lexer.get_token()
         while word:
@@ -187,7 +197,7 @@ class StatementDataSearcher:
 
             elif word[0:1] == '"':  # shlex doesn't returns whole string so for searching in strings I'm using recursion
                 self.get_environmental_variable(word[1:-1])
-            word = lexer.get_token()
+            word = lexer.get_token()"""
 
     def is_variable_assignment(self, statement):
         """
@@ -210,20 +220,38 @@ class StatementDataSearcher:
                     if not value == "":
                         value += " "
                     value += value_member
-
-                regular = re.compile("\"(/.*/)(.*)\"")
-                match = regular.match(value)
-                if match:
-                    self.phase_ref.variables.add_variable(member, match.group(1) + match.group(2))
-                    # TODO keywords from not outside phases
-                    # self.keywords_list.append(match.group(2))
-                else:
-                    self.phase_ref.variables.add_variable(member, value)
-
             member = equal_to
             equal_to = read.get_token()
 
         return
+
+    def get_rljournalstart_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_rljournal_phase_end_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_rlphasestartxxx_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("description", type=str, nargs="?")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rljournalprint_data(self, pom_param_list):
         """
@@ -322,18 +350,23 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def unknown_command(self, pom_param_list, statement_list):
+    def unknown_command(self, pom_param_list):
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
-        self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"])
+        parser_arg.add_argument("data", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"] + pom_param_list )
         # Trying to find variable assignment in statement line
+        statement_list = ""
+        for member in pom_param_list:
+            statement_list += " " + member
         self.is_variable_assignment(statement_list)
-        self.is_function_name_in_statement(statement_list)
+       # self.is_function_name_in_statement(statement_list)
 
-    def is_function_name_in_statement(self, line):
-        for function in self.phase_ref.get_function_list():
-            if function.name in line and function.is_function_data_empty():
-                self.phase_ref.search_data_in_function(function)
+    # TODO
+    # def is_function_name_in_statement(self, line):
+    #    for function in self.phase_ref.get_function_list():
+    #        if function.name in line and function.is_function_data_empty():
+    #           self.phase_ref.search_data_in_function(function)
 
     def get_rlwatchdog_data(self, pom_param_list):
         """
@@ -377,7 +410,8 @@ class StatementDataSearcher:
         parser_arg.add_argument("comment", type=str, nargs='?')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
         ref = self.parsed_param_ref
-        self.parse_command(self.parsed_param_ref.command)  # for getting variables from command
+        # TODO
+        # self.parse_command(self.parsed_param_ref.command)  # for getting variables from command
         self.parsed_param_ref = ref
 
     def get_rlvirtualx_xxx_data(self, pom_param_list):
