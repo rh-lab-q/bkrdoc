@@ -16,7 +16,8 @@ class TestSequenceFunctions(unittest.TestCase):
         my = generator._parser_ref
         # generator.get_doc_data()
 
-        pom_list = ['/examples/beakerlib/Sanity/apache', 'httpd', '/var/www/', '/var/log/$PACKAGE']
+        pom_list = ['/examples/beakerlib/Sanity/apache', 'httpd', '/var/www/', '/var/log/$PACKAGE', '$(mktemp -d)']
+        print(my.variables.variable_values_list)
         self.assertListEqual(my.variables.variable_values_list, pom_list, "EQUAL")
         self.assertEqual(len(my.phases), 11)
         self.assertEqual(my.phases[2].phase_name, "Setup: Setup")
@@ -101,7 +102,7 @@ class TestSequenceFunctions(unittest.TestCase):
         parser = bkrdoc.Parser("")
         parser.parse_data("rlRun \"rm -r $TmpDir\" 2,3,4,26 \"Removing tmp directory\"")
         self.assertEqual(parser.argparse_data_list[0].argname, "rlRun")
-        self.assertEqual(parser.argparse_data_list[0].command, "rm -r $TmpDir")
+        self.assertEqual(parser.argparse_data_list[0].command.data, ['rm', '-r', '$TmpDir'])
         self.assertEqual(parser.argparse_data_list[0].comment, "Removing tmp directory")
         self.assertEqual(parser.argparse_data_list[0].status, "2,3,4,26")
 
@@ -219,8 +220,8 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/apache-test.sh")
         parser = bkrdoc.Parser("")
         parser.parse_data("rlRun -l 'rm -r $TmpDir' ")
-        self.assertEqual(parser.argparse_data_list[0].argname,"rlRun")
-        self.assertEqual(parser.argparse_data_list[0].command,"rm -r $TmpDir")
+        self.assertEqual(parser.argparse_data_list[0].argname, "rlRun")
+        self.assertEqual(parser.argparse_data_list[0].command.data, ['rm', '-r', '$TmpDir'])
 
         sec = bkrdoc.DocumentationTranslator(generator)
         inf_unit = sec.translate_data(parser.argparse_data_list[0])
@@ -230,7 +231,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 5)
 
-    @unittest.skip("Missing implementation of searching in rlRun commands for possible BeakerLib commands")
+    # @unittest.skip("Missing implementation of searching in rlRun commands for possible BeakerLib commands")
     def test_rlRun_rlFileBackup_extend(self):
         generator = bkrdoc.DocumentationGenerator()
         generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/apache-test.sh")
@@ -246,7 +247,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 3)
 
-    @unittest.skip("Missing implementation of searching in rlRun commands for possible BeakerLib commands")
+    # @unittest.skip("Missing implementation of searching in rlRun commands for possible BeakerLib commands")
     def test_rlRun_rlServiceStart_extend(self):
         parser = bkrdoc.Parser("")
         parser.parse_data("rlRun \"rlServiceStart httpd\" ")
