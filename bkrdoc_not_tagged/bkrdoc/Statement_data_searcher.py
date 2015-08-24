@@ -245,10 +245,17 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
+        print(pom_param_list)
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("description", type=str, nargs="?")
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args([pom_param_list[0]])
+        # hack for --help message
+        rest = ""
+        for member in pom_param_list[1:]:
+            rest += member + " "
+        rest = rest.strip()
+        self.parsed_param_ref.description = rest
 
     def get_rljournalprint_data(self, pom_param_list):
         """

@@ -81,7 +81,7 @@ class Parser(object):
             self.open_file()
 
         self.phases.append(bkrdoc.PhaseOutside())
-        pom_line = ""
+
         self.variables = bkrdoc.TestVariables()
         parsed_file = bashlex.parse(self.file_test)
         data_searcher = bkrdoc.StatementDataSearcher()

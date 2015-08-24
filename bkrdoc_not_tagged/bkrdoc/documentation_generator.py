@@ -5,7 +5,6 @@ import argparse
 import bkrdoc
 
 
-
 class DocumentationGenerator:
 
     _parser_ref = ""
@@ -16,10 +15,10 @@ class DocumentationGenerator:
         self._phases = ""
 
     def parse_given_file(self, file):
-            self._parser_ref = bkrdoc.Parser(file)
-            self._parser_ref.parse_data()
-            self._parser_ref.divide_parsed_argparse_data_into_phase_conainers()
-            self._phases = self._parser_ref.get_phases()
+        self._parser_ref = bkrdoc.Parser(file)
+        self._parser_ref.parse_data()
+        self._parser_ref.divide_parsed_argparse_data_into_phase_conainers()
+        self._phases = self._parser_ref.get_phases()
 
     def set_test_launch(self, number_of_variables):
         """
@@ -276,8 +275,6 @@ def run_doc_generator(parser_arg):
     for one_file in parser_arg.files:
         doc_generator = DocumentationGenerator()
         doc_generator.parse_given_file(one_file)
-        #TODO Uncomment below lines. These lines are commented because of adding bashlex into bkrdoc
-        #doc_generator.get_doc_data()
         doc_generator.get_documentation_information()
         doc_generator.generate_documentation()
         doc_generator.print_documentation(parser_arg)
