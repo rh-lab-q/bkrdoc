@@ -86,12 +86,22 @@ class Parser(object):
         parsed_file = bashlex.parse(self.file_test)
         data_searcher = bkrdoc.StatementDataSearcher()
         nodevistor = bkrdoc.NodeVisitor(self.variables)
+        conditions = bkrdoc.ConditionsForCommands()
 
         for command_line in parsed_file:
             nodevistor.visit(command_line)
             data_searcher.parse_command(nodevistor.get_parsed_container())
             nodevistor.erase_parsing_subject_variable()
-            self.argparse_data_list.append(data_searcher.parsed_param_ref)
+            data_argparse = data_searcher.parsed_param_ref
+
+            if conditions.is_rlrun_command(data_argparse.argname):
+                command_parse = bashlex.parse(data_searcher.parsed_param_ref.command)
+                nodevistor.visit(command_parse[0])
+                data_searcher.parse_command(nodevistor.get_parsed_container())
+                nodevistor.erase_parsing_subject_variable()
+                data_argparse.command = data_searcher.parsed_param_ref
+            self.argparse_data_list.append(data_argparse)
+
         # print("Started =======================================")
         # self.print_statement()
 

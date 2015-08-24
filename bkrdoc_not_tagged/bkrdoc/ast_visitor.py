@@ -19,7 +19,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitnodeend(self, n):
-        if self.is_command_container():
+        if self.is_command_container() or self.is_assignment_container():
             if not self._parsing_subject.is_command_substitution_list_empty():
                 if n == self._parsing_subject.get_last_member_of_command_subst_ast_list():
                     self._parsing_subject.set_empty_spot_for_cmd_subst_ast_list()
@@ -74,8 +74,11 @@ class NodeVisitor(ast.nodevisitor):
         self._parsing_subject.set_argparse_list(word)
 
     def visitassignment(self, n, word):
-        #print("AssingmentTTTTTTTT NOT IMPLEMENTED")
-        #print(word)
+        # print("AssingmentTTTTTTTT NOT IMPLEMENTED")
+        # print("ASSINGMENT")
+        # print(word)
+        # print(n)
+        # print("")
         self._parsing_subject = data_containers.AssignmentContainer(n)
         read = shlex.shlex(word)
         member = read.get_token()
@@ -141,3 +144,6 @@ class NodeVisitor(ast.nodevisitor):
 
     def is_command_container(self):
         return type(self._parsing_subject).__name__ == "CommandContainer"
+
+    def is_assignment_container(self):
+        return type(self._parsing_subject).__name__ == "AssignmentContainer"

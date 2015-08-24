@@ -43,6 +43,9 @@ class DocumentationGenerator:
             print(i.statement_list)
             print("\n")
 
+    def get_parser_ref(self):
+        return self._parser_ref
+
     def get_doc_data(self):
         """
         Method which is responsible for starting the first analysis of code lines.

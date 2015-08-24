@@ -233,6 +233,7 @@ class PhaseContainer:
 
 class DataContainer(object):
     _argparse_list = []
+    _command_substitution_ast_list = [""]
 
     def set_argparse_list(self, member):
         pass
@@ -245,6 +246,18 @@ class DataContainer(object):
 
     def get_last_member_of_argparse_list(self):
         pass
+
+    def set_command_substitution_ast(self, ast):
+        self._command_substitution_ast_list[-1] = ast
+
+    def is_command_substitution_list_empty(self):
+        return self._command_substitution_ast_list[-1] is ""
+
+    def get_last_member_of_command_subst_ast_list(self):
+        return self._command_substitution_ast_list[-1]
+
+    def set_empty_spot_for_cmd_subst_ast_list(self):
+        self._command_substitution_ast_list.append("")
 
 
 class CommandContainer(DataContainer):
@@ -264,9 +277,6 @@ class CommandContainer(DataContainer):
         else:
             self._substitution_argparse_list.append(command_member)
 
-    def set_command_substitution_ast(self, ast):
-        self._command_substitution_ast_list[-1] = ast
-
     def get_argparse_list(self):
         return self._argparse_list
 
@@ -275,15 +285,6 @@ class CommandContainer(DataContainer):
 
     def get_last_member_of_argparse_list(self):
         return self._argparse_list[-1]
-
-    def get_last_member_of_command_subst_ast_list(self):
-        return self._command_substitution_ast_list[-1]
-
-    def set_empty_spot_for_cmd_subst_ast_list(self):
-        self._command_substitution_ast_list.append("")
-
-    def is_command_substitution_list_empty(self):
-        return self._command_substitution_ast_list[-1] is ""
 
 
 class FunctionContainer(DataContainer):
@@ -310,9 +311,11 @@ class FunctionContainer(DataContainer):
 
 class AssignmentContainer(DataContainer):
     _assign_ast = []
+    _command_substitution_ast_list = [""]
 
     def __init__(self, ast):
         self._assign_ast = ast
+        self._command_substitution_ast_list = [""]
         self._argparse_list = []
 
     def set_argparse_list(self, command_member):

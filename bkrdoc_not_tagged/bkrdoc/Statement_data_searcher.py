@@ -350,8 +350,12 @@ class StatementDataSearcher:
     def unknown_command(self, pom_param_list):
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("data", type=str, nargs='+')
-        self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"] + pom_param_list )
+        parser_arg.add_argument("data", type=str, nargs='?')
+        self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"])
+
+        # Added hack of data adding.
+        self.parsed_param_ref.data = pom_param_list
+
         # Trying to find variable assignment in statement line
         statement_list = ""
         for member in pom_param_list:
