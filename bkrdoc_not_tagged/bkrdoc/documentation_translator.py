@@ -322,7 +322,7 @@ class DocumentationTranslator:
         """
         importance = self.highest
         subject = [argparse_data.command, argparse_data.status]
-        # TODO !!!! Searching in rlRun commands for another rlRuncommand
+        # TODO !!!! Searching in rlRun commands for another BeakerLib command
         # possible_beakerlib_command = self.get_argparse_of_command(argparse_data.command)
 
         # if possible_beakerlib_command.argname == "UNKNOWN":
