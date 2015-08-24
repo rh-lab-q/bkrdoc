@@ -89,6 +89,7 @@ class Parser(object):
         conditions = bkrdoc.ConditionsForCommands()
 
         for command_line in parsed_file:
+            print(command_line)
             nodevistor.visit(command_line)
             data_searcher.parse_command(nodevistor.get_parsed_container())
             nodevistor.erase_parsing_subject_variable()
@@ -114,7 +115,7 @@ class Parser(object):
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
                 if cond.is_phase(argparse_data.argname):
                     p_name = argparse_data.argname[len("rlPhaseStart"):]
-                    if argparse_data.description is not None:
+                    if argparse_data.description is not None and argparse_data.description is not "":
                         self.phases.append(bkrdoc.PhaseContainer(p_name + ": " + argparse_data.description))
                     else:
                         self.phases.append(bkrdoc.PhaseContainer(p_name))
