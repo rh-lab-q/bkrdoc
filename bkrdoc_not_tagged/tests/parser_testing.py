@@ -33,12 +33,21 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(argparse_list[5].argname, "rlRun")
         self.assertEqual(argparse_list[6].argname, "rlRun")
 
-    @unittest.skip("Problem with functions in mozilla test")
-    def test_func(self):
+    def test_simple_func(self):
         generator = bkrdoc.DocumentationGenerator()
-        generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/mozila-test.sh")
-        generator.get_doc_data()
-        # print my.phases[0].func_list
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/function-test.sh")
+        func_list = generator._parser_ref.test_functions[0]
+        statement_list = func_list.statement_list
+        self.assertEqual(func_list.get_function_name(), "create_test_data")
+        self.assertEqual(statement_list[0].argname, "rlLog")
+        self.assertEqual(statement_list[1].argname, "rlLog")
+        self.assertEqual(statement_list[2].argname, "rlRun")
+        self.assertEqual(statement_list[3].argname, "rlRun")
+        self.assertEqual(statement_list[4].argname, "rlRun")
+        self.assertEqual(statement_list[5].argname, "rlRun")
+        self.assertEqual(statement_list[6].argname, "rlRun")
+        self.assertEqual(statement_list[7].argname, "rlReport")
+
 
     @unittest.skip("Problem with functions in mozilla test")
     def test_environmental_variables(self):
@@ -448,6 +457,8 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/autopart-test.sh")
         generator.get_documentation_information()
         generator.generate_documentation()
+
+
 
 if __name__ == '__main__':
     unittest.main()
