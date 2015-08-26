@@ -33,6 +33,7 @@ class StatementDataSearcher:
         # self.get_environmental_variable(pom_statement_line)
         # pom_list = shlex.split(pom_statement_line, True, posix=True)
         pom_list = data_container.get_argparse_list()
+        pom_list = self.erase_empty_list_mmebers(pom_list)
         first = pom_list[0]
 
         # if self.is_beakerLib_command(first, self.parser_ref):
@@ -245,7 +246,6 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        print(pom_param_list)
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("description", type=str, nargs="?")
@@ -714,3 +714,6 @@ class StatementDataSearcher:
 
     def is_beakerlib_command(self, testing_command, parser_ref):
         return parser_ref.is_beakerlib_command(testing_command)
+
+    def erase_empty_list_mmebers(self, input_list):
+        return filter(None, input_list)

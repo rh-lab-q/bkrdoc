@@ -37,6 +37,7 @@ class Parser(object):
                     "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText"]
 
     phases = []
+    test_functions = []
     outside = ""
     file_name = ""
     variables = ""
@@ -51,6 +52,7 @@ class Parser(object):
         self.file_name = file_in.strip()
         self.argparse_data_list = []
         self.variables = ""
+        self.test_functions = []
 
     def open_file(self):
         if self.file_name[(len(self.file_name) - 3):len(self.file_name)] == ".sh":
@@ -89,11 +91,19 @@ class Parser(object):
         conditions = bkrdoc.ConditionsForCommands()
 
         for command_line in parsed_file:
-            print(command_line)
+            # print(command_line)
             nodevistor.visit(command_line)
-            data_searcher.parse_command(nodevistor.get_parsed_container())
-            nodevistor.erase_parsing_subject_variable()
-            data_argparse = data_searcher.parsed_param_ref
+            container = nodevistor.get_parsed_container()
+            if self.is_function_container(container):
+                self.test_functions.append(container)
+                for command in container.get_command_list():
+                    data_searcher.parse_command(command)
+                    container.set_member_of_statement_list(data_searcher.parsed_param_ref)
+                nodevistor.erase_function_reference_variable()
+            else:
+                data_searcher.parse_command(nodevistor.get_parsed_container())
+                nodevistor.erase_parsing_subject_variable()
+                data_argparse = data_searcher.parsed_param_ref
 
             if conditions.is_rlrun_command(data_argparse.argname):
                 command_parse = bashlex.parse(data_searcher.parsed_param_ref.command)
@@ -151,6 +161,9 @@ class Parser(object):
 
     def get_test_launch(self):
         return self.test_launch
+
+    def is_function_container(self, container):
+        return type(container).__name__ == "FunctionContainer"
 
     def set_test_launch(self, number_of_variable):
         self.test_launch = number_of_variable

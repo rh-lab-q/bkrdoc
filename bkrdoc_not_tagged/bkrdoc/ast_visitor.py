@@ -9,20 +9,28 @@ import shlex
 class NodeVisitor(ast.nodevisitor):
     _parsing_subject = data_containers.DataContainer
     _variables = ""
+    _function_ref = ""
 
     def __init__(self, variables):
         self._parsing_subject = ""
         self._variables = variables
+        self._function_ref = ""
 
     def visitnode(self, n):
         #print(n)
         pass
 
     def visitnodeend(self, n):
-        if self.is_command_container() or self.is_assignment_container():
-            if not self._parsing_subject.is_command_substitution_list_empty():
-                if n == self._parsing_subject.get_last_member_of_command_subst_ast_list():
-                    self._parsing_subject.set_empty_spot_for_cmd_subst_ast_list()
+        #print("++++++++++++++++++++END++++++++++++++++++++++")
+        #print(n.kind)
+        #print("")
+        if self.is_function_container() and self.is_command_node(n) and not self.is_parsing_subject_empty():
+            if n == self.get_parsing_subject_ast():
+                self._function_ref.add_command(self._parsing_subject)
+                self.erase_parsing_subject_variable()
+        elif self.is_command_substitution_node(n):
+            if n == self._parsing_subject.get_last_member_of_command_subst_ast_list():
+                self._parsing_subject.set_empty_spot_for_cmd_subst_ast_list()
 
     def visitoperator(self, n, op):
         print("visitoperator NOT IMPLEMENTED")
@@ -32,8 +40,8 @@ class NodeVisitor(ast.nodevisitor):
 
     def visitlist(self, n, parts):
         print("visitlist NOT IMPLEMENTED")
-        print(n)
-        print(parts)
+        # print(n)
+        # print(parts)
         pass
 
     def visitpipe(self, n, pipe):
@@ -59,6 +67,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
     def visitcommand(self, n, parts):
         #print("command ********************************")
+        #print(n)
         if self._parsing_subject is "":
             self._parsing_subject = data_containers.CommandContainer(n)
         else:
@@ -66,12 +75,21 @@ class NodeVisitor(ast.nodevisitor):
                 self._parsing_subject = data_containers.CommandContainer(n)
 
     def visitfunction(self, n, name, body, parts):
-        print("function ******************************** NOT IMPLEMENTED")
-        pass
+        # print("function ******************************** NOT IMPLEMENTED")
+        self._function_ref = data_containers.FunctionContainer(body)
+        self._function_ref.set_function_name(name.word)
+        # print("n: " + str(n))
+        # print("Name: " + str(name))
+        # print("Body: " + str(body))
+        # print("Parts: " + str(parts))
+
     def visitword(self, n, word):
-        #print("word!")
-        #print(word)
-        self._parsing_subject.set_argparse_list(word)
+        # print("word!")
+        # print(word)
+        if self.is_function_container() and not self.is_parsing_subject_empty():
+            self._parsing_subject.set_argparse_list(word)
+        elif not self.is_function_container():
+            self._parsing_subject.set_argparse_list(word)
 
     def visitassignment(self, n, word):
         # print("AssingmentTTTTTTTT NOT IMPLEMENTED")
@@ -92,6 +110,7 @@ class NodeVisitor(ast.nodevisitor):
                 if not value == "":
                     value += " "
                 value += value_member
+
             self._parsing_subject.set_argparse_list(member)
             self._parsing_subject.set_argparse_list("=")
             self._parsing_subject.set_argparse_list(value)
@@ -99,9 +118,9 @@ class NodeVisitor(ast.nodevisitor):
 
     def visitreservedword(self, n, word):
         print("Reserved WOOOOOOOOOOOORD NOT IMPLEMENTED")
-        print(n)
-        print(word)
-        pass
+        print("Reserved word: " + str(word))
+        # if self.is_end_of_function(word):
+        #    print("SAve last command into function container")
 
     def visitparameter(self, n, value):
         #print("PARAMETR VISIT")
@@ -133,6 +152,9 @@ class NodeVisitor(ast.nodevisitor):
     def erase_parsing_subject_variable(self):
         self._parsing_subject = ""
 
+    def erase_function_reference_variable(self):
+        self._function_ref = ""
+
     def search_data(self):
         pass
 
@@ -140,10 +162,38 @@ class NodeVisitor(ast.nodevisitor):
         return self._parsing_subject.get_argparse_list()
 
     def get_parsed_container(self):
-        return self._parsing_subject
+        if self.is_parsing_subject_empty():
+            if self.is_function_container():
+                return self._function_ref
+        else:
+            return self._parsing_subject
 
     def is_command_container(self):
         return type(self._parsing_subject).__name__ == "CommandContainer"
 
     def is_assignment_container(self):
         return type(self._parsing_subject).__name__ == "AssignmentContainer"
+
+    def is_function_container(self):
+        return type(self._function_ref).__name__ == "FunctionContainer"
+
+    def is_function_word(self, word):
+        return word == "function"
+
+    def is_unnamed_function(self):
+        return self._function_ref.get_function_name() == ""
+
+    def is_parsing_subject_empty(self):
+        return self._parsing_subject == ""
+
+    def is_end_of_function(self, word):
+        return word == "}"
+
+    def is_command_substitution_node(self, n):
+        return n.kind == "commandsubstitution"
+
+    def is_command_node(self, n):
+        return n.kind == "command"
+
+    def get_parsing_subject_ast(self):
+        return self._parsing_subject.get_ast()

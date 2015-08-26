@@ -247,8 +247,11 @@ class DataContainer(object):
     def get_last_member_of_argparse_list(self):
         pass
 
+    def get_ast(self):
+        pass
+
     def set_command_substitution_ast(self, ast):
-        self._command_substitution_ast_list[-1] = ast
+        self._command_substitution_ast_list.append(ast)
 
     def is_command_substitution_list_empty(self):
         return self._command_substitution_ast_list[-1] is ""
@@ -286,27 +289,39 @@ class CommandContainer(DataContainer):
     def get_last_member_of_argparse_list(self):
         return self._argparse_list[-1]
 
+    def get_ast(self):
+        return self._command_ast
 
-class FunctionContainer(DataContainer):
+
+class FunctionContainer(object):
     _function_ast = ""
     function_name = ""
+    command_list = []
+    statement_list = []
 
     def __init__(self, ast):
         self._argparse_list = []
         self._function_ast = ast
         self.function_name = ""
+        self.statement_list = []
 
-    def set_argparse_list(self, member):
-        pass
+    def set_function_name(self, fname):
+        self.function_name = fname
 
-    def get_argparse_list(self):
-        return self._argparse_list
+    def add_command(self, command):
+        self.command_list.append(command)
 
-    def set_last_member_in_argparse_list(self, member):
-        pass
+    def get_last_command(self):
+        return self.command_list[-1]
 
-    def get_last_member_of_argparse_list(self):
-        pass
+    def get_function_name(self):
+        return self.function_name
+
+    def get_command_list(self):
+        return self.command_list
+
+    def set_member_of_statement_list(self, member):
+        self.statement_list.append(member)
 
 
 class AssignmentContainer(DataContainer):
@@ -329,3 +344,6 @@ class AssignmentContainer(DataContainer):
 
     def get_last_member_of_argparse_list(self):
         return self._argparse_list[-1]
+
+    def get_ast(self):
+        return self._assign_ast
