@@ -109,4 +109,3 @@ rlJournalEnd
 
 # Print the test report
 rlJournalPrintText
-
