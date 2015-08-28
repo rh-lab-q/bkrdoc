@@ -16,7 +16,6 @@ function create_test_data ()
     rlReport $1 PASS
 }
 rlJournalStart
-    pushd $TmpDir
     rlPhaseStartSetup "Setup"
         rlAssertRpm "httpd"
         rlRun 'TmpDir=$(mktemp -d)' 0

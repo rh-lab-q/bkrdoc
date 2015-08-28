@@ -4,7 +4,6 @@ PACKAGE="httpd"
 HttpdPages="/var/www/html"
 HttpdLogs="/var/log/$PACKAGE"
 rlJournalStart
-    pushd $TmpDir
     rlPhaseStartSetup "Setup"
         rlAssertRpm "httpd"
         rlRun 'TmpDir=$(mktemp -d)' 0
