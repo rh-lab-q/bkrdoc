@@ -7,6 +7,7 @@ class TestVariables:
     variable_values_list = []
 
     test_launch_variables = 0
+    test_launch_variables_list = []
     test_environmental_variables_list = []
 
     keywords = []
@@ -40,9 +41,10 @@ class TestVariables:
         return self.variable_values_list[pos]
 
     def set_unknown_variable(self, variable):
-        if variable.isdigit():
+        if variable.isdigit() and not self.is_variable_in_test_launch_list(variable):
+            self.test_launch_variables_list.append(variable)
             self.test_launch_variables += 1
-        else:
+        elif not variable.isdigit():
             self.test_environmental_variables_list.append(variable)
 
     def get_test_launch(self):
@@ -88,3 +90,7 @@ class TestVariables:
             return pom_str
         else:
             return string
+
+    def is_variable_in_test_launch_list(self,variable):
+        return variable in self.test_launch_variables_list
+
