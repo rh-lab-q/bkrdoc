@@ -123,11 +123,14 @@ class NodeVisitor(ast.nodevisitor):
         #    print("SAve last command into function container")
 
     def visitparameter(self, n, value):
-        #print("PARAMETR VISIT")
-        #print(value)
-        pom_member = self._parsing_subject.get_last_member_of_argparse_list()
-        pom_member = self._variables.replace_variable_in_string_with_specified_variable(pom_member, value)
-        self._parsing_subject.set_last_member_in_argparse_list(pom_member)
+        # print("PARAMETR VISIT")
+        # print(value)
+        if self._variables.is_existing_variable(value):
+            pom_member = self._parsing_subject.get_last_member_of_argparse_list()
+            pom_member = self._variables.replace_variable_in_string_with_specified_variable(pom_member, value)
+            self._parsing_subject.set_last_member_in_argparse_list(pom_member)
+        else:
+            self._variables.set_unknown_variable(value)
 
     def visittilde(self, n, value):
         print("TILDE NOT IMPLEMENTED")

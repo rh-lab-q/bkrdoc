@@ -3,7 +3,7 @@
 
 import argparse
 import bkrdoc
-
+import os
 
 class DocumentationGenerator:
 
@@ -150,7 +150,8 @@ class DocumentationGenerator:
         """
         This method prints test launch information
         """
-        inf = "Test launch: " + str(self._parser_ref.get_file_name())
+        file_path, file_name = os.path.split(self._parser_ref.get_file_name())
+        inf = "Test launch: " + str(file_name)
         i = 0
         while int(i) < int(self._parser_ref.get_test_launch()):
             inf += " [VARIABLE]"

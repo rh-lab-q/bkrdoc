@@ -154,13 +154,13 @@ class Parser(object):
         return self.phases
 
     def get_environmental_variables(self):
-        return self.environmental_variable
+        return self.variables.get_test_environmental_variables_list()
 
     def get_file_name(self):
         return self.file_name
 
     def get_test_launch(self):
-        return self.test_launch
+        return self.variables.get_test_launch()
 
     def is_function_container(self, container):
         return type(container).__name__ == "FunctionContainer"

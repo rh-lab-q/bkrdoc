@@ -6,11 +6,16 @@ class TestVariables:
     variable_names_list = []
     variable_values_list = []
 
+    test_launch_variables = 0
+    test_environmental_variables_list = []
+
     keywords = []
 
     def __init__(self):
         self.variable_names_list = []
         self.variable_values_list = []
+        self.test_launch_variables = 0
+        self.test_environmental_variables_list = []
 
     def add_variable(self, name, value):
         if self.is_existing_variable(name):
@@ -33,6 +38,18 @@ class TestVariables:
     def get_variable_value(self, name):
         pos = self.get_variable_position(name)
         return self.variable_values_list[pos]
+
+    def set_unknown_variable(self, variable):
+        if variable.isdigit():
+            self.test_launch_variables += 1
+        else:
+            self.test_environmental_variables_list.append(variable)
+
+    def get_test_launch(self):
+        return self.test_launch_variables
+
+    def get_test_environmental_variables_list(self):
+        return self.test_environmental_variables_list
 
     def get_variable_position(self, name):
         i = 0
