@@ -19,7 +19,7 @@ class node(object):
         self.__dict__.update(kwargs)
 
     def dump(self, indent='  '):
-        return _dump(self, indent)
+        return ast._dump(self, indent)
 
     def __repr__(self):
         chunks = []
@@ -115,11 +115,6 @@ class NodeVisitor(ast.nodevisitor):
         #print("++++++++++++++++++++END++++++++++++++++++++++")
         #print(n.kind)
         #print("")
-        #if self.is_function_container() and self.is_command_node(n) and not self.is_parsing_subject_empty():
-        #    if n == self.get_parsing_subject_ast():
-        #        self._function_ref.add_command(self._parsing_subject)
-        #        self.erase_parsing_subject_variable()
-        #elif self.is_command_substitution_node(n):
         if self.is_command_substitution_node(n):
             if n == self._parsing_subject.get_last_member_of_command_subst_ast_list():
                 self._parsing_subject.set_empty_spot_for_cmd_subst_ast_list()
@@ -168,8 +163,6 @@ class NodeVisitor(ast.nodevisitor):
 
     def visitfunction(self, n, name, body, parts):
         # print("function ******************************** NOT IMPLEMENTED")
-        # self._function_ref = data_containers.FunctionContainer(body)
-        # self._function_ref.set_function_name(name.word)
         # print("n: " + str(n))
         # print("Name: " + str(name))
         # print("Body: " + str(body))
@@ -303,49 +296,3 @@ class NodeVisitor(ast.nodevisitor):
 
     def get_parsing_subject_ast(self):
         return self._parsing_subject.get_ast()
-
-
-def _dump(tree, indent='  '):
-    def _format(n, level=0):
-        if isinstance(n, node):
-            d = dict(n.__dict__)
-            kind = d.pop('kind')
-            if kind == 'list' and level > 0:
-                level = level + 1
-            fields = []
-            v = d.pop('s', None)
-            if v:
-                fields.append(('s', _format(v, level)))
-            for k, v in sorted(d.items()):
-                if not v or k == 'parts':
-                    continue
-                llevel = level
-                if isinstance(v, node):
-                    llevel += 1
-                    fields.append((k, '\n' + (indent * llevel) + _format(v, llevel)))
-                else:
-                    fields.append((k, _format(v, level)))
-            if kind == 'function':
-                fields = [f for f in fields if f[0] not in ('name', 'body')]
-            v = d.pop('parts', None)
-            if v:
-                fields.append(('parts', _format(v, level)))
-            return ''.join([
-                '%sNode' % kind.title(),
-                '(',
-                ', '.join(('%s=%s' % field for field in fields)),
-                ')'])
-        elif isinstance(n, list):
-            lines = ['[']
-            lines.extend((indent * (level + 1) + _format(x, level + 1) + ','
-                         for x in n))
-            if len(lines) > 1:
-                lines.append(indent * (level) + ']')
-            else:
-                lines[-1] += ']'
-            return '\n'.join(lines)
-        return repr(n)
-
-    if not isinstance(tree, node):
-        raise TypeError('expected node, got %r' % tree.__class__.__name__)
-    return _format(tree)

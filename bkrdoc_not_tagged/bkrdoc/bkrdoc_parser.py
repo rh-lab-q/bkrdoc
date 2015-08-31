@@ -96,21 +96,20 @@ class Parser(object):
             container = nodevistor.get_parsed_container()
             if self.is_function_container(container):
                 self.test_functions.append(container)
+                nodevistor.erase_parsing_subject_variable()
                 for command in container.get_command_list():
                     data_searcher.parse_command(command)
-                    container.set_member_of_statement_list(data_searcher.parsed_param_ref)
-                nodevistor.erase_parsing_subject_variable()
+                    data_argparse = data_searcher.parsed_param_ref
+                    if conditions.is_rlrun_command(data_argparse.argname):
+                        data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
+                    container.set_member_of_statement_list(data_argparse)
             else:
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()
                 data_argparse = data_searcher.parsed_param_ref
 
             if conditions.is_rlrun_command(data_argparse.argname):
-                command_parse = bashlex.parse(data_searcher.parsed_param_ref.command)
-                nodevistor.visit(command_parse[0])
-                data_searcher.parse_command(nodevistor.get_parsed_container())
-                nodevistor.erase_parsing_subject_variable()
-                data_argparse.command = data_searcher.parsed_param_ref
+                data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
             self.argparse_data_list.append(data_argparse)
 
         # print("Started =======================================")
@@ -118,6 +117,15 @@ class Parser(object):
 
         # print(variables.variable_names_list)
         # print(variables.variable_values_list)
+
+    def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
+        data_searcher = bkrdoc.StatementDataSearcher()
+        command_parse = bashlex.parse(rlrun_argparse.command)
+        nodevisitor.visit(command_parse[0])
+        data_searcher.parse_command(nodevisitor.get_parsed_container())
+        nodevisitor.erase_parsing_subject_variable()
+        rlrun_argparse.command = data_searcher.parsed_param_ref
+        return rlrun_argparse
 
     def divide_parsed_argparse_data_into_phase_conainers(self):
         cond = bkrdoc.ConditionsForCommands()
