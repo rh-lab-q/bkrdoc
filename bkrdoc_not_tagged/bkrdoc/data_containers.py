@@ -298,12 +298,14 @@ class FunctionContainer(object):
     function_name = ""
     command_list = []
     statement_list = []
+    _variables = ""
 
     def __init__(self, ast):
         self._argparse_list = []
         self._function_ast = ast
         self.function_name = ""
         self.statement_list = []
+        self._variables = ""
 
     def set_function_name(self, fname):
         self.function_name = fname
@@ -322,6 +324,9 @@ class FunctionContainer(object):
 
     def set_member_of_statement_list(self, member):
         self.statement_list.append(member)
+
+    def set_variables(self, variables):
+        self._variables = variables
 
 
 class AssignmentContainer(DataContainer):

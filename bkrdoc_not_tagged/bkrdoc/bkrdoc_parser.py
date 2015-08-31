@@ -99,7 +99,7 @@ class Parser(object):
                 for command in container.get_command_list():
                     data_searcher.parse_command(command)
                     container.set_member_of_statement_list(data_searcher.parsed_param_ref)
-                nodevistor.erase_function_reference_variable()
+                nodevistor.erase_parsing_subject_variable()
             else:
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()
