@@ -101,6 +101,7 @@ class Parser(object):
                     self.argparse_data_list.append(container)
                 nodevistor.erase_parsing_subject_variable()
                 for command in container.get_command_list():
+                    #print(command.get_argparse_list())
                     data_searcher.parse_command(command)
                     data_argparse = data_searcher.parsed_param_ref
                     if conditions.is_rlrun_command(data_argparse.argname):

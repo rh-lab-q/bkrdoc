@@ -132,11 +132,15 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitpipe(self, n, pipe):
-        print("VISIT PIIIIIIIIIIIIPE NOT IMPLEMENTED")
-        pass
+        # print("VISIT PIIIIIIIIIIIIPE NOT IMPLEMENTED")
+        # print("PIPE: " + str(pipe))
+        self._parsing_subject.set_argparse_list(pipe)
+
     def visitpipeline(self, n, parts):
-        print("VISIT PIIIIIIIIIIIIPEEEEELIIIIIIIIINEEEE NOT IMPLEMENTED")
+        # print("VISIT PIIIIIIIIIIIIPEEEEELIIIIIIIIINEEEE NOT IMPLEMENTED")
+        # print("PARTS: " + str(parts))
         pass
+    
     def visitcompound(self, n, list, redirects):
         print("VISIT COMPOUND NOT IMPLEMENTED")
         pass
@@ -148,17 +152,19 @@ class NodeVisitor(ast.nodevisitor):
         pom_variables = self._variables
         self._variables = copy.deepcopy(self._variables)
         loop = data_containers.LoopContainer(node)
+        self.set_for_loop_variable_settings(parts)
         # print("node " + str(node))
-        # print("parts: " + str(parts[5]))
-        if self.is_list_node(parts[5]):
-            for member in parts[5]:
+        # print("WORD: " + str(parts[self.get_loop_body_position(parts)]))
+        # print("parts: " + str(parts))
+        if self.is_list_node(parts[self.get_loop_body_position(parts)]):
+            for member in parts[self.get_loop_body_position(parts)]:
                 self.visit(member)
                 if not self.is_parsing_subject_empty():
                     # TODO future check for condition and loop container
                     loop.add_command(self.get_parsed_container())
                 self.erase_parsing_subject_variable()
         else:
-            self.visit(parts[5])
+            self.visit(parts[self.get_loop_body_position(parts)])
             loop.add_command(self.get_parsed_container())
             self.erase_parsing_subject_variable()
         loop.set_variables(self._variables)
@@ -281,6 +287,15 @@ class NodeVisitor(ast.nodevisitor):
     def search_data(self):
         pass
 
+    def get_loop_body_position(self, node):
+        i = 0
+        for member in node:
+            if member.word == "do":
+                i += 1
+                return i
+            i += 1
+        return -1
+
     def get_parsed_data(self):
         return self._parsing_subject.get_argparse_list()
 
@@ -311,8 +326,24 @@ class NodeVisitor(ast.nodevisitor):
     def is_command_node(self, n):
         return n.kind == "command"
 
+    def is_parametr_node(self, n):
+        return n.kind == "parametr"
+
     def is_list_node(self, n):
         return n.kind == "list"
+
+    def set_for_loop_variable_settings(self, node):
+        for_variable = node[1].word
+        for_variable_value = ""
+        for value in node[3:]:
+            if value.word == "do":
+                break
+            else:
+                for_variable_value += value.word + " "
+        # Erasing last empty space.
+        for_variable_value = for_variable_value.strip()
+        self._variables.add_variable(for_variable, for_variable_value)
+
 
     def get_parsing_subject_ast(self):
         return self._parsing_subject.get_ast()
