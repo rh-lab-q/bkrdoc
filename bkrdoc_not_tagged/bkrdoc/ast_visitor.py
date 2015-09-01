@@ -70,9 +70,9 @@ class NodeVisitor(ast.nodevisitor):
                     self.visit(child)
         elif k in ('if', 'for', 'while', 'until'):
             dochild = self._visitnode(n, n.parts)
-            if dochild is None or dochild:
-                for child in n.parts:
-                    self.visit(child)
+            # if dochild is None or dochild:
+                # for child in n.parts:
+                    # self.visit(child)
         elif k == 'command':
             dochild = self._visitnode(n, n.parts)
             if dochild is None or dochild:
@@ -144,7 +144,27 @@ class NodeVisitor(ast.nodevisitor):
         print("IF ******************************** NOT IMPLEMENTED")
         pass
     def visitfor(self, node, parts):
-        print("for ******************************** NOT IMPLEMENTED")
+        # print("for ******************************** NOT IMPLEMENTED")
+        pom_variables = self._variables
+        self._variables = copy.deepcopy(self._variables)
+        loop = data_containers.LoopContainer(node)
+        # print("node " + str(node))
+        # print("parts: " + str(parts[5]))
+        if self.is_list_node(parts[5]):
+            for member in parts[5]:
+                self.visit(member)
+                if not self.is_parsing_subject_empty():
+                    # TODO future check for condition and loop container
+                    loop.add_command(self.get_parsed_container())
+                self.erase_parsing_subject_variable()
+        else:
+            self.visit(parts[5])
+            loop.add_command(self.get_parsed_container())
+            self.erase_parsing_subject_variable()
+        loop.set_variables(self._variables)
+        self._variables = pom_variables
+        self._parsing_subject = loop
+
         pass
     def visitwhile(self, node, parts):
         print("While ******************************** NOT IMPLEMENTED")
@@ -181,7 +201,7 @@ class NodeVisitor(ast.nodevisitor):
                 self.erase_parsing_subject_variable()
         else:
             self.visit((parts[4]).list[1].parts)
-            function.add_command(self.get_parsed_data())
+            function.add_command(self.get_parsed_container())
             self.erase_parsing_subject_variable()
         function.set_variables(self._variables)
         self._variables = pom_variables

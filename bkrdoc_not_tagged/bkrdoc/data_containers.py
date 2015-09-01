@@ -301,7 +301,7 @@ class FunctionContainer(object):
     _variables = ""
 
     def __init__(self, ast):
-        self._argparse_list = []
+        self.command_list = []
         self._function_ast = ast
         self.function_name = ""
         self.statement_list = []
@@ -318,6 +318,35 @@ class FunctionContainer(object):
 
     def get_function_name(self):
         return self.function_name
+
+    def get_command_list(self):
+        return self.command_list
+
+    def set_member_of_statement_list(self, member):
+        self.statement_list.append(member)
+
+    def set_variables(self, variables):
+        self._variables = variables
+
+
+class LoopContainer(object):
+    _loop_ast = ""
+    command_list = []
+    statement_list = []
+    _variables = ""
+    argname = "loop"
+
+    def __init__(self, ast):
+        self._loop_ast = ast
+        self.command_list =[]
+        self.statement_list = []
+        self._variables = ""
+
+    def add_command(self, command):
+        self.command_list.append(command)
+
+    def get_last_command(self):
+        return self.command_list[-1]
 
     def get_command_list(self):
         return self.command_list

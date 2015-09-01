@@ -94,8 +94,11 @@ class Parser(object):
             # print(command_line)
             nodevistor.visit(command_line)
             container = nodevistor.get_parsed_container()
-            if self.is_function_container(container):
-                self.test_functions.append(container)
+            if self.is_function_container(container) or self.is_loop_container(container):
+                if self.is_function_container(container):
+                    self.test_functions.append(container)
+                elif self.is_loop_container(container):
+                    self.argparse_data_list.append(container)
                 nodevistor.erase_parsing_subject_variable()
                 for command in container.get_command_list():
                     data_searcher.parse_command(command)
@@ -107,10 +110,9 @@ class Parser(object):
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()
                 data_argparse = data_searcher.parsed_param_ref
-
-            if conditions.is_rlrun_command(data_argparse.argname):
-                data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
-            self.argparse_data_list.append(data_argparse)
+                if conditions.is_rlrun_command(data_argparse.argname):
+                    data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
+                self.argparse_data_list.append(data_argparse)
 
         # print("Started =======================================")
         # self.print_statement()
@@ -172,6 +174,9 @@ class Parser(object):
 
     def is_function_container(self, container):
         return type(container).__name__ == "FunctionContainer"
+
+    def is_loop_container(self, container):
+        return type(container).__name__ == "LoopContainer"
 
     def set_test_launch(self, number_of_variable):
         self.test_launch = number_of_variable
