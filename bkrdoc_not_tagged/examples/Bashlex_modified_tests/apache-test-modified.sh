@@ -4,6 +4,7 @@ PACKAGE="httpd"
 HttpdPages="/var/www/html"
 HttpdLogs="/var/log/$PACKAGE"
 LOG=""
+YUM_PACKAGES="httpd mysql-server firefox.x86_64 tigervnc-server-minimal perl-Test-WWW-Selenium java-1.6.0-openjdk"
 function create_test_data ()
 {
     rlLog "Creating Bugzilla test data"
@@ -14,12 +15,22 @@ function create_test_data ()
     rlRun $LOG "perl t/config/generate_test_data.pl" 0 "Generating test data"
     rlRun $LOG "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl third time"
     rlReport $1 PASS
+    rlReport $1 PASS
+    rlReport $40 PASS
+    rlReport $1 PASS
+    rlReport $12 PASS
+    rlReport $124 PASS
 }
 rlJournalStart
     rlPhaseStartSetup "Setup"
+        for i in $YUM_PACKAGES
+        do
+            rlAssertRpm $i
+        done
         rlAssertRpm "httpd"
         rlRun 'TmpDir=$(mktemp -d)' 0
         pushd $TmpDir
+        rlRun $LOG "echo 'drop database bugs;' | mysql" 0,1 "Dropping current bugs database"
         rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up"
         rlRun "echo 'Welcome to Test Page!' > $HttpdPages/index.html" 0 "Creating a simple welcome page"
         rlRun "rm -f $HttpdLogs/*"
@@ -41,6 +52,10 @@ rlJournalStart
         rlAssertGrep "does not exist.*missing.html" "$HttpdLogs/error_log"
     rlPhaseEnd
     rlPhaseStartCleanup
+        for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+        do
+            rlRun "abrt-auto-reporting $arg"
+        done
         popd
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
         rlRun "rlFileRestore"
