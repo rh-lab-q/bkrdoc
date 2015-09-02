@@ -26,6 +26,7 @@ rlJournalStart
         for i in $YUM_PACKAGES
         do
             rlAssertRpm $i
+            rlReport $40 PASS
         done
         rlAssertRpm "httpd"
         rlRun 'TmpDir=$(mktemp -d)' 0
@@ -38,8 +39,18 @@ rlJournalStart
     rlPhaseEnd
     HttpdPages="/var/www/"
     rlPhaseStartTest "Test Existing Page"
+        if [ $? -eq 0 ]; then
+            rlRun "sed -i 's/Example/#Example/' /etc/freshclam.conf" 0 "Comment out Example line"
+        fi
         rlRun "wget http://localhost/" 0 "Fetching the welcome page"
         rlAssertExists "index.html"
+        if [ $? -eq 0 ]
+        then
+            rlReport $1 PASS
+        else
+            rlReport $1 FAIL
+            RESULT="FAIL"
+        fi
         rlLog "index.html contains: $(<index.html)"
         rlAssertGrep "Welcome to Test Page" "index.html"
         rlAssertGrep "GET / HTTP.*200" "$HttpdLogs/access_log"
@@ -48,6 +59,10 @@ rlJournalStart
         rlRun "wget http://localhost/missing.html 2>stderr" 1,8 "Trying to access a nonexistent page"
         rlAssertNotExists "missing.html"
         rlAssertGrep "Not Found" "stderr"
+        if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
+            rlFail "Mangles the configuration value"
+            rlFail "Mangles the configuration value"
+        fi
         rlAssertGrep "GET $(<index.html) /missing.html HTTP.*404" "$HttpdLogs/access_log"
         rlAssertGrep "does not exist.*missing.html" "$HttpdLogs/error_log"
     rlPhaseEnd
