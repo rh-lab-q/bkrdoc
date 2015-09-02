@@ -140,13 +140,31 @@ class NodeVisitor(ast.nodevisitor):
         # print("VISIT PIIIIIIIIIIIIPEEEEELIIIIIIIIINEEEE NOT IMPLEMENTED")
         # print("PARTS: " + str(parts))
         pass
-    
+
     def visitcompound(self, n, list, redirects):
         print("VISIT COMPOUND NOT IMPLEMENTED")
         pass
+
     def visitif(self, node, parts):
-        print("IF ******************************** NOT IMPLEMENTED")
-        pass
+        # print("IF ******************************** NOT IMPLEMENTED")
+        # print("NODE: " + str(node))
+        # print("PARTS: " + str(parts))
+        # print(self.get_condition_body_position(parts))
+        condition = data_containers.ConditionContainer(parts)
+        for body in self.get_condition_body_position(parts):
+            if self.is_list_node(parts[body]):
+                for member in parts[body].parts:
+                    self.visit(member)
+                    if not self.is_parsing_subject_empty():
+                        # TODO future check for condition and loop container
+                        condition.add_command(self.get_parsed_container())
+                    self.erase_parsing_subject_variable()
+            else:
+                self.visit(parts[body])
+                condition.add_command(self.get_parsed_container())
+                self.erase_parsing_subject_variable()
+        self._parsing_subject = condition
+
     def visitfor(self, node, parts):
         # print("for ******************************** NOT IMPLEMENTED")
         pom_variables = self._variables
@@ -157,7 +175,7 @@ class NodeVisitor(ast.nodevisitor):
         # print("WORD: " + str(parts[self.get_loop_body_position(parts)]))
         # print("parts: " + str(parts))
         if self.is_list_node(parts[self.get_loop_body_position(parts)]):
-            for member in parts[self.get_loop_body_position(parts)]:
+            for member in parts[self.get_loop_body_position(parts)].parts:
                 self.visit(member)
                 if not self.is_parsing_subject_empty():
                     # TODO future check for condition and loop container
@@ -296,6 +314,29 @@ class NodeVisitor(ast.nodevisitor):
             i += 1
         return -1
 
+    def get_condition_body_position(self, n):
+        body_position_list = []
+        i = 0
+        for member in n:
+            if self.is_reservedword_node(member) and member.word == "then":
+                i += 1
+                body_position_list.append(i)
+
+            elif self.is_reservedword_node(member) and member.word == "elif":
+                i += 1
+                body_position_list.append(i)
+
+            elif self.is_reservedword_node(member) and member.word == "else":
+                i += 1
+                body_position_list.append(i)
+
+            elif self.is_reservedword_node(member) and member.word == "fi":
+                i += 1
+                return body_position_list
+            else:
+                i += 1
+        return -1
+
     def get_parsed_data(self):
         return self._parsing_subject.get_argparse_list()
 
@@ -329,8 +370,12 @@ class NodeVisitor(ast.nodevisitor):
     def is_parametr_node(self, n):
         return n.kind == "parametr"
 
+    def is_reservedword_node(self, n):
+        return n.kind == "reservedword"
+
     def is_list_node(self, n):
         return n.kind == "list"
+
 
     def set_for_loop_variable_settings(self, node):
         for_variable = node[1].word

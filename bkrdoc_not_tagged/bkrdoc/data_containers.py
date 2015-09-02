@@ -293,12 +293,30 @@ class CommandContainer(DataContainer):
         return self._command_ast
 
 
-class FunctionContainer(object):
-    _function_ast = ""
-    function_name = ""
+class SimpleContainer(object):
     command_list = []
     statement_list = []
     _variables = ""
+
+    def add_command(self, command):
+        self.command_list.append(command)
+
+    def get_last_command(self):
+        return self.command_list[-1]
+
+    def get_command_list(self):
+        return self.command_list
+
+    def set_member_of_statement_list(self, member):
+        self.statement_list.append(member)
+
+    def set_variables(self, variables):
+        self._variables = variables
+
+
+class FunctionContainer(SimpleContainer):
+    _function_ast = ""
+    function_name = ""
 
     def __init__(self, ast):
         self.command_list = []
@@ -310,30 +328,12 @@ class FunctionContainer(object):
     def set_function_name(self, fname):
         self.function_name = fname
 
-    def add_command(self, command):
-        self.command_list.append(command)
-
-    def get_last_command(self):
-        return self.command_list[-1]
-
     def get_function_name(self):
         return self.function_name
 
-    def get_command_list(self):
-        return self.command_list
 
-    def set_member_of_statement_list(self, member):
-        self.statement_list.append(member)
-
-    def set_variables(self, variables):
-        self._variables = variables
-
-
-class LoopContainer(object):
+class LoopContainer(SimpleContainer):
     _loop_ast = ""
-    command_list = []
-    statement_list = []
-    _variables = ""
     argname = "loop"
 
     def __init__(self, ast):
@@ -342,20 +342,16 @@ class LoopContainer(object):
         self.statement_list = []
         self._variables = ""
 
-    def add_command(self, command):
-        self.command_list.append(command)
 
-    def get_last_command(self):
-        return self.command_list[-1]
+class ConditionContainer(SimpleContainer):
+    _condition_ast = ""
+    argname = "condition"
 
-    def get_command_list(self):
-        return self.command_list
-
-    def set_member_of_statement_list(self, member):
-        self.statement_list.append(member)
-
-    def set_variables(self, variables):
-        self._variables = variables
+    def __init__(self, ast):
+        self._condition_ast = ast
+        self.command_list =[]
+        self.statement_list = []
+        self._variables = ""
 
 
 class AssignmentContainer(DataContainer):

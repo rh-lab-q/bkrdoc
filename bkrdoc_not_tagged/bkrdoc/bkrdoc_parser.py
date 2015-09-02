@@ -94,10 +94,10 @@ class Parser(object):
             # print(command_line)
             nodevistor.visit(command_line)
             container = nodevistor.get_parsed_container()
-            if self.is_function_container(container) or self.is_loop_container(container):
+            if self.is_loop_function_or_condition_container(container):
                 if self.is_function_container(container):
                     self.test_functions.append(container)
-                elif self.is_loop_container(container):
+                elif self.is_loop_container(container) or self.is_condition_container(container):
                     self.argparse_data_list.append(container)
                 nodevistor.erase_parsing_subject_variable()
                 for command in container.get_command_list():
@@ -178,6 +178,13 @@ class Parser(object):
 
     def is_loop_container(self, container):
         return type(container).__name__ == "LoopContainer"
+
+    def is_condition_container(self, container):
+        return type(container).__name__ == "ConditionContainer"
+
+    def is_loop_function_or_condition_container(self, container):
+        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer"]
+        return type(container).__name__ in pom_containers
 
     def set_test_launch(self, number_of_variable):
         self.test_launch = number_of_variable
