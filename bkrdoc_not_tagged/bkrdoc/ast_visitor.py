@@ -170,34 +170,21 @@ class NodeVisitor(ast.nodevisitor):
 
     def visitfor(self, node, parts):
         # print("for ******************************** NOT IMPLEMENTED")
-        pom_variables = self._variables
-        self._variables = copy.deepcopy(self._variables)
-        loop = data_containers.LoopContainer(node)
+        loop = data_containers.LoopContainer(node, "for")
         self.set_for_loop_variable_settings(parts)
-        # print("node " + str(node))
-        # print("WORD: " + str(parts[self.get_loop_body_position(parts)]))
-        # print("parts: " + str(parts))
-        if self.is_list_node(parts[self.get_loop_body_position(parts)]):
-            for member in parts[self.get_loop_body_position(parts)].parts:
-                self.visit(member)
-                if not self.is_parsing_subject_empty():
-                    loop.add_command(self.get_parsed_container())
-                self.erase_parsing_subject_variable()
-        else:
-            self.visit(parts[self.get_loop_body_position(parts)])
-            loop.add_command(self.get_parsed_container())
-            self.erase_parsing_subject_variable()
-        loop.set_variables(self._variables)
-        self._variables = pom_variables
-        self._parsing_subject = loop
+        self.visit_loops(loop, parts)
 
         pass
     def visitwhile(self, node, parts):
-        print("While ******************************** NOT IMPLEMENTED")
-        pass
+        # print("While ******************************** NOT IMPLEMENTED")
+        loop = data_containers.LoopContainer(node, "while")
+        self.visit_loops(loop, parts)
+
     def visituntil(self, node, parts):
-        print("Until ******************************** NOT IMPLEMENTED")
-        pass
+        # print("Until ******************************** NOT IMPLEMENTED")
+        loop = data_containers.LoopContainer(node, "until")
+        self.visit_loops(loop, parts)
+
     def visitcommand(self, n, parts):
         #print("command ********************************")
         #print(n)
@@ -306,10 +293,30 @@ class NodeVisitor(ast.nodevisitor):
     def search_data(self):
         pass
 
+    def visit_loops(self, loop_ref, parts):
+        pom_variables = self._variables
+        self._variables = copy.deepcopy(self._variables)
+        # print("node " + str(node))
+        # print("WORD: " + str(parts[self.get_loop_body_position(parts)]))
+        # print("parts: " + str(parts))
+        if self.is_list_node(parts[self.get_loop_body_position(parts)]):
+            for member in parts[self.get_loop_body_position(parts)].parts:
+                self.visit(member)
+                if not self.is_parsing_subject_empty():
+                    loop_ref.add_command(self.get_parsed_container())
+                self.erase_parsing_subject_variable()
+        else:
+            self.visit(parts[self.get_loop_body_position(parts)])
+            loop_ref.add_command(self.get_parsed_container())
+            self.erase_parsing_subject_variable()
+        loop_ref.set_variables(self._variables)
+        self._variables = pom_variables
+        self._parsing_subject = loop_ref
+
     def get_loop_body_position(self, node):
         i = 0
         for member in node:
-            if member.word == "do":
+            if self.is_reservedword_node(member) and member.word == "do":
                 i += 1
                 return i
             i += 1

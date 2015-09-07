@@ -37,7 +37,7 @@ class TestSequenceFunctions(unittest.TestCase):
         generator = bkrdoc.DocumentationGenerator()
         generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/condition-test.sh")
         parser = generator._parser_ref
-        print parser.argparse_data_list[0]
+        # print parser.argparse_data_list[0]
         first_condition = parser.argparse_data_list[1].get_statement_list()
         self.assertEqual(first_condition[0].argname, "rlReport")
         self.assertEqual(first_condition[1].argname, "rlReport")
@@ -50,6 +50,20 @@ class TestSequenceFunctions(unittest.TestCase):
         second_condition_statement = parser.argparse_data_list[2].statement_list
         self.assertEqual(3, len(second_condition_statement))
 
+    def test_loops(self):
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/loop-test.sh")
+        parser = generator._parser_ref
+        loop_test = parser.argparse_data_list[6].get_statement_list()
+        self.assertEqual(loop_test[0].data, ['echo', 'Skiping $@ file...'])
+        self.assertEqual(loop_test[1].data, ['continue'])
+        self.assertEqual(loop_test[2].data, ['/bin/cp', '$@', '$@.bak'])
+        # print parser.argparse_data_list[7].statement_list
+        loop2_test = parser.argparse_data_list[7].statement_list
+        self.assertEqual(loop2_test[0].argname, "UNKNOWN")
+        self.assertEqual(loop2_test[1].argname, "until loop")
+        self.assertEqual(loop2_test[2].argname, "UNKNOWN")
+        self.assertEqual(loop2_test[3].argname, "for loop")
 
     def test_simple_func(self):
         generator = bkrdoc.DocumentationGenerator()

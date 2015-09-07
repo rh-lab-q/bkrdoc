@@ -364,7 +364,8 @@ class LoopContainer(SimpleContainer):
     _loop_ast = ""
     argname = "loop"
 
-    def __init__(self, ast):
+    def __init__(self, ast, name):
+        self.argname = name + " " + self.argname
         self._loop_ast = ast
         self.command_list =[]
         self.statement_list = []
