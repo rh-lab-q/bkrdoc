@@ -35,15 +35,22 @@ class TestVariables:
     def is_existing_variable(self, name):
         return name in self.variable_names_list
 
+    def is_variable_in_environmental_list(self, variable):
+        return variable in self.test_environmental_variables_list
+
     def get_variable_value(self, name):
         pos = self.get_variable_position(name)
         return self.variable_values_list[pos]
+
+    def set_environmental_variable(self, variable):
+        if not self.is_variable_in_environmental_list(variable):
+            self.test_environmental_variables_list.append(variable)
 
     def set_unknown_variable(self, variable):
         if variable.isdigit() and self.test_launch_variables < int(variable):
             self.test_launch_variables = int(variable)
         elif not variable.isdigit():
-            self.test_environmental_variables_list.append(variable)
+            self.set_environmental_variable(variable)
 
     def get_test_launch(self):
         return self.test_launch_variables
