@@ -100,13 +100,7 @@ class Parser(object):
                 elif self.is_loop_container(container) or self.is_condition_container(container):
                     self.argparse_data_list.append(container)
                 nodevistor.erase_parsing_subject_variable()
-                for command in container.get_command_list():
-                    #print(command.get_argparse_list())
-                    data_searcher.parse_command(command)
-                    data_argparse = data_searcher.parsed_param_ref
-                    if conditions.is_rlrun_command(data_argparse.argname):
-                        data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
-                    container.set_member_of_statement_list(data_argparse)
+                container.search_data(self, nodevistor)
             else:
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()

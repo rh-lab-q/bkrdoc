@@ -313,6 +313,34 @@ class SimpleContainer(object):
     def set_variables(self, variables):
         self._variables = variables
 
+    def get_statement_list(self):
+        pom_statement_list = []
+        for line in self.statement_list:
+            if self.is_container(line):
+                pom_statement_list += line.get_statement_list()
+            else:
+                pom_statement_list.append(line)
+        return pom_statement_list
+
+    def is_container(self, data):
+        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer"]
+        return type(data).__name__ in pom_containers
+
+    def search_data(self, parser_ref, nodevisitor):
+        data_searcher = bkrdoc.StatementDataSearcher()
+        conditions = bkrdoc.ConditionsForCommands()
+        for command in self.command_list:
+            if self.is_container(command):
+                command.search_data(parser_ref, nodevisitor)
+                self.statement_list.append(command)
+            else:
+                data_searcher.parse_command(command)
+                data = data_searcher.parsed_param_ref
+                if conditions.is_rlrun_command(data.argname):
+                    data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
+                self.statement_list.append(data)
+
+
 
 class FunctionContainer(SimpleContainer):
     _function_ast = ""

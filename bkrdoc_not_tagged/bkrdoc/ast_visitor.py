@@ -148,19 +148,22 @@ class NodeVisitor(ast.nodevisitor):
     def visitif(self, node, parts):
         # print("IF ******************************** NOT IMPLEMENTED")
         # print("NODE: " + str(node))
-        # print("PARTS: " + str(parts))
+        #  print("PARTS: " + str(parts))
         # print(self.get_condition_body_position(parts))
         condition = data_containers.ConditionContainer(parts)
-        for body in self.get_condition_body_position(parts):
-            if self.is_list_node(parts[body]):
-                for member in parts[body].parts:
+        condition_body = self.get_condition_body_position(parts)
+        keys = condition_body.keys()
+        # keys need to be sorted to be in right position.
+        keys.sort()
+        for key in keys:
+            if self.is_list_node(parts[condition_body[key]]):
+                for member in parts[condition_body[key]].parts:
                     self.visit(member)
                     if not self.is_parsing_subject_empty():
-                        # TODO future check for condition and loop container
                         condition.add_command(self.get_parsed_container())
                     self.erase_parsing_subject_variable()
             else:
-                self.visit(parts[body])
+                self.visit(parts[condition_body[key]])
                 condition.add_command(self.get_parsed_container())
                 self.erase_parsing_subject_variable()
         self._parsing_subject = condition
@@ -178,7 +181,6 @@ class NodeVisitor(ast.nodevisitor):
             for member in parts[self.get_loop_body_position(parts)].parts:
                 self.visit(member)
                 if not self.is_parsing_subject_empty():
-                    # TODO future check for condition and loop container
                     loop.add_command(self.get_parsed_container())
                 self.erase_parsing_subject_variable()
         else:
@@ -220,7 +222,6 @@ class NodeVisitor(ast.nodevisitor):
                 self.visit(member)
                 # print(self._parsing_subject)
                 if not self.is_parsing_subject_empty():
-                    # TODO future check for condition and loop container
                     function.add_command(self.get_parsed_container())
                 self.erase_parsing_subject_variable()
         else:
@@ -315,24 +316,24 @@ class NodeVisitor(ast.nodevisitor):
         return -1
 
     def get_condition_body_position(self, n):
-        body_position_list = []
+        body_position = {}
         i = 0
         for member in n:
             if self.is_reservedword_node(member) and member.word == "then":
                 i += 1
-                body_position_list.append(i)
+                body_position[str(i) + "then"] = i
 
-            elif self.is_reservedword_node(member) and member.word == "elif":
-                i += 1
-                body_position_list.append(i)
+            # elif self.is_reservedword_node(member) and member.word == "elif":
+            #    i += 1
+            #    body_position[str(i) + "elif"] = i
 
             elif self.is_reservedword_node(member) and member.word == "else":
                 i += 1
-                body_position_list.append(i)
+                body_position[str(i) + "else"] = i
 
             elif self.is_reservedword_node(member) and member.word == "fi":
                 i += 1
-                return body_position_list
+                return body_position
             else:
                 i += 1
         return -1

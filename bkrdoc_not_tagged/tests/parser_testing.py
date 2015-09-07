@@ -33,6 +33,24 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(argparse_list[5].argname, "rlRun")
         self.assertEqual(argparse_list[6].argname, "rlRun")
 
+    def test_conditions(self):
+        generator = bkrdoc.DocumentationGenerator()
+        generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/condition-test.sh")
+        parser = generator._parser_ref
+        print parser.argparse_data_list[0]
+        first_condition = parser.argparse_data_list[1].get_statement_list()
+        self.assertEqual(first_condition[0].argname, "rlReport")
+        self.assertEqual(first_condition[1].argname, "rlReport")
+        self.assertEqual(first_condition[2].argname, "UNKNOWN")
+        second_condition = parser.argparse_data_list[2].get_statement_list()
+        self.assertEqual(second_condition[0].data, ['echo', 'This is a leap year.  February has 29 days.'])
+        self.assertEqual(second_condition[1].data, ['echo', 'This is not a leap year, February has 29 days.'])
+        self.assertEqual(second_condition[2].data, ['echo', 'This is a leap year.  February has 28 days.'])
+        self.assertEqual(second_condition[3].data, ['echo', 'This is not a leap year.  February has 28 days.'])
+        second_condition_statement = parser.argparse_data_list[2].statement_list
+        self.assertEqual(3, len(second_condition_statement))
+
+
     def test_simple_func(self):
         generator = bkrdoc.DocumentationGenerator()
         generator.parse_given_file("./bkrdoc_not_tagged/examples/Bashlex_modified_tests/function-test.sh")
