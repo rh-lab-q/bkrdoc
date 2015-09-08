@@ -43,9 +43,6 @@ class DocumentationTranslator:
             if condition.is_assert_grep(argname):
                 self.set_assert_grep_data(argparse_data)
 
-            elif condition.is_rlpass_or_rlfail_command(argname):
-                self.set_rlpass_or_rlfail_data(argparse_data)
-
             elif condition.is_assert0(argname):
                 self.set_rlassert0_data(argparse_data)
 
@@ -129,6 +126,9 @@ class DocumentationTranslator:
 
         elif condition.is_rljournalprint_command(argname):
             self.set_rljournalprint_data(argparse_data)
+
+        elif condition.is_rlpass_or_rlfail_command(argname):
+                self.set_rlpass_or_rlfail_data(argparse_data)
 
         elif condition.is_rlimport_command(argname):
             self.set_rlimport_data(argparse_data)
@@ -722,7 +722,14 @@ class DocumentationTranslator:
         self.inf_ref = bkrdoc.DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_rlpass_or_rlfail_data(self, argparse_data):
-        pass
+        importance = self.lowMedium
+        if argparse_data.argname == "rlFail":
+            subject = ["fail"]
+        else:
+            subject = ["pass"]
+        topic_obj = bkrdoc.Topic("TEST", subject)
+        action = ["set"]
+        self.inf_ref = bkrdoc.DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
     def set_assert_grep_data(self, argparse_data):
         """

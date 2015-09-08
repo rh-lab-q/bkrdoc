@@ -1021,6 +1021,16 @@ class InformationValueCheck(InformationUnit):
         self.check_status_and_add_information(self.information_obj.get_status())
 
 
+class InformationTestSet(InformationUnit):
+
+    def set_information(self):
+        subjects = self.information_obj.get_topic_subject()
+        if subjects[0] == "fail":
+            self.information = "Returns 1 and asserts FAIL"
+        else:
+            self.information = "Returns 0 and asserts PASS"
+
+
 class InformationPackageCheck(InformationUnit):
     """
     Small InformationUnit class which contains information in human language.

@@ -3,6 +3,7 @@ __author__ = 'Jiri_Kulda'
 
 import bkrdoc
 
+
 class GetInformation(object):
     """
     This class is responsible for transformation from DocumentationInformation class
@@ -10,36 +11,36 @@ class GetInformation(object):
     small InformationUnit classes.
     """
     array = [
-        # topic: FILE(DIRECTORY),           STRING                   PACKAGE          JOURNAL,PHASE,TEST   MESSAGE         COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
-        [bkrdoc.InformationFileExists,           0,           bkrdoc.InformationPackageExists,              0,              0,              0,                     0,                  0,                  0,  bkrdoc.InformationMountpointExists,           0,                     0],  # exists
-        [bkrdoc.InformationFileNotExists,        0,           bkrdoc.InformationPackageNotExists,           0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not exists
-        [bkrdoc.InformationFileContain,          0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # contain
-        [bkrdoc.InformationFileNotContain,       0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not contain
-        [bkrdoc.InformationFilePrint,            0,           bkrdoc.InformationPackagePrint,   bkrdoc.InformationJournalPrint,    0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # print(show)
-        [bkrdoc.InformationFileResolve,          0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # resolve
-        [bkrdoc.InformationFileCreate, bkrdoc.InformationStringCreate,          0,                          0, bkrdoc.InformationMessageCreate,    0,                     0,                  0,                  0,  bkrdoc.InformationMountpointCreate,           0,                     0],  # create
-        [bkrdoc.InformationFileCheck,            0,           bkrdoc.InformationPackageCheck,               0,              0,              0,                     0,                  0,                  0,  bkrdoc.InformationMountpointCheck,            0,         bkrdoc.InformationValueCheck],  # check
-        [           0,                    0,                      0,                bkrdoc.InformationJournalReturn, 0,              0,         bkrdoc.InformationServerReturn,        0,                  0,                   0,                    0,                     0],  # return
-        [           0,                    0,                      0,                          0,              0,  bkrdoc.InformationCommandRun, bkrdoc.InformationServerRun,           0,       bkrdoc.InformationServiceRun,          0,                    0,                     0],  # run
-        [           0,                    0,                      0,                bkrdoc.InformationJournalReport, 0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # report
-        [           0,                    0,                      0,                          0,              0,              0,          bkrdoc.InformationServerKill,         0,       bkrdoc.InformationServiceKill,         0,                    0,                     0],  # kill
-        [bkrdoc.InformationFileWait,             0,                      0,                          0,              0,  bkrdoc.InformationCommandWait,            0,                  0,                  0,                   0,                    0,                     0],  # wait
-        [           0,                    0,           bkrdoc.InformationPackageImport,              0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # import
-        [           0,                    0,                      0,                          0,              0,  bkrdoc.InformationCommandMeasures,        0,                  0,                  0,                   0,                    0,                     0],  # measures
-        [           0,                    0,                      0,                          0,              0,              0,                     0,     bkrdoc.InformationBooleanSet,           0,                   0,                    0,                     0],  # set
-        [bkrdoc.InformationFileRestore,          0,                      0,                          0,              0,              0,                     0,                  0,      bkrdoc.InformationServiceRestore,       0,                    0,                     0],  # restore
-        [bkrdoc.InformationFileBackup,           0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # backup
-        [           0,          bkrdoc.InformationStringHash,            0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # hash
-        [           0,          bkrdoc.InformationStringUnHash,          0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # unhash
-        [           0,                    0,           bkrdoc.InformationPackageOwnedBy,             0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # owned by
-        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,    bkrdoc.InformationSystemIsRHEL,               0],  # is RHEL
-        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,   bkrdoc.InformationSystemIsFedora,              0],  # is Fedora
-        [bkrdoc.InformationFileDiffer,           0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # differ
-        [bkrdoc.InformationFileNotDiffer,        0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,                     0],  # not differ
-        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,         bkrdoc.InformationValueEqual],  # equal
-        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,       bkrdoc.InformationValueNotEqual],  # not equal
-        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,        bkrdoc.InformationValueGreater],  # greater
-        [           0,                    0,                      0,                          0,              0,              0,                     0,                  0,                  0,                   0,                    0,   bkrdoc.InformationValueGreaterOrEqual],  # greater or equal
+        # topic: FILE(DIRECTORY),           STRING                   PACKAGE                  JOURNAL,PHASE,TEST                 MESSAGE            COMMAND                SERVER              BOOLEAN              SERVICE            MOUNTPOINT              SYSTEM                 VALUE  # ACTIONS
+        [bkrdoc.InformationFileExists,           0,           bkrdoc.InformationPackageExists,       0,                            0,                  0,                     0,                  0,                  0,  bkrdoc.InformationMountpointExists,     0,                     0],  # exists
+        [bkrdoc.InformationFileNotExists,        0,           bkrdoc.InformationPackageNotExists,    0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # not exists
+        [bkrdoc.InformationFileContain,          0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # contain
+        [bkrdoc.InformationFileNotContain,       0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # not contain
+        [bkrdoc.InformationFilePrint,            0,           bkrdoc.InformationPackagePrint, bkrdoc.InformationJournalPrint,      0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # print(show)
+        [bkrdoc.InformationFileResolve,          0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # resolve
+        [bkrdoc.InformationFileCreate, bkrdoc.InformationStringCreate,   0,                          0,           bkrdoc.InformationMessageCreate,     0,                     0,                  0,                  0,  bkrdoc.InformationMountpointCreate,     0,                     0],  # create
+        [bkrdoc.InformationFileCheck,            0,           bkrdoc.InformationPackageCheck,        0,                            0,                  0,                     0,                  0,                  0,  bkrdoc.InformationMountpointCheck,      0,      bkrdoc.InformationValueCheck],  # check
+        [           0,                           0,                      0,       bkrdoc.InformationJournalReturn,                 0,                  0,      bkrdoc.InformationServerReturn,    0,                  0,                    0,                    0,                     0],  # return
+        [           0,                           0,                      0,                          0,                            0,  bkrdoc.InformationCommandRun, bkrdoc.InformationServerRun, 0,       bkrdoc.InformationServiceRun,    0,                    0,                     0],  # run
+        [           0,                           0,                      0,                bkrdoc.InformationJournalReport,        0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # report
+        [           0,                           0,                      0,                          0,                            0,                  0,          bkrdoc.InformationServerKill,  0,       bkrdoc.InformationServiceKill,   0,                    0,                     0],  # kill
+        [bkrdoc.InformationFileWait,             0,                      0,                          0,                            0,  bkrdoc.InformationCommandWait,         0,                  0,                  0,                    0,                    0,                     0],  # wait
+        [           0,                           0,           bkrdoc.InformationPackageImport,       0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # import
+        [           0,                           0,                      0,                          0,                            0,  bkrdoc.InformationCommandMeasures,     0,                  0,                  0,                    0,                    0,                     0],  # measures
+        [           0,                           0,                      0,                bkrdoc.InformationTestSet,              0,                  0,                     0,     bkrdoc.InformationBooleanSet,    0,                    0,                    0,                     0],  # set
+        [bkrdoc.InformationFileRestore,          0,                      0,                          0,                            0,                  0,                     0,                  0,      bkrdoc.InformationServiceRestore, 0,                    0,                     0],  # restore
+        [bkrdoc.InformationFileBackup,           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # backup
+        [           0,          bkrdoc.InformationStringHash,            0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # hash
+        [           0,          bkrdoc.InformationStringUnHash,          0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # unhash
+        [           0,                           0,           bkrdoc.InformationPackageOwnedBy,      0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # owned by
+        [           0,                           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,    bkrdoc.InformationSystemIsRHEL,        0],  # is RHEL
+        [           0,                           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,   bkrdoc.InformationSystemIsFedora,       0],  # is Fedora
+        [bkrdoc.InformationFileDiffer,           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # differ
+        [bkrdoc.InformationFileNotDiffer,        0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,                     0],  # not differ
+        [           0,                           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,         bkrdoc.InformationValueEqual],  # equal
+        [           0,                           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,       bkrdoc.InformationValueNotEqual],  # not equal
+        [           0,                           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,        bkrdoc.InformationValueGreater],  # greater
+        [           0,                           0,                      0,                          0,                            0,                  0,                     0,                  0,                  0,                    0,                    0,   bkrdoc.InformationValueGreaterOrEqual],  # greater or equal
     ]
 
     def get_information_from_facts(self, information_obj):
@@ -136,7 +137,7 @@ class GetInformation(object):
             return 1
         elif self.is_topic_package(topic):
             return 2
-        elif self.is_topic_journal(topic):
+        elif self.is_topic_journal_or_phase_or_test(topic):
             return 3
         elif self.is_topic_message(topic):
             return 4
@@ -164,8 +165,9 @@ class GetInformation(object):
     def is_topic_package(self, topic):
         return topic == "PACKAGE"
 
-    def is_topic_journal(self, topic):
-        return topic == "JOURNAL"
+    def is_topic_journal_or_phase_or_test(self, topic):
+        topics = ["JOURNAL", "TEST", "PHASE"]
+        return topic in topics
 
     def is_topic_message(self, topic):
         return topic == "MESSAGE"

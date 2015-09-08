@@ -33,6 +33,7 @@ class StatementDataSearcher:
         # self.get_environmental_variable(pom_statement_line)
         # pom_list = shlex.split(pom_statement_line, True, posix=True)
         pom_list = data_container.get_argparse_list()
+        #print(pom_list)
         pom_list = self.erase_empty_list_mmebers(pom_list)
         first = pom_list[0]
 
@@ -52,9 +53,6 @@ class StatementDataSearcher:
 
             if condition.is_assert_grep(first):
                 self.get_assert_grep_data(pom_list)
-
-            elif condition.is_rlpass_or_rlfail_command(first):
-                self.get_rlpass_or_rlfail_data(pom_list)
 
             elif condition.is_assert0(first):
                 self.get_assert0_data(pom_list)
@@ -118,6 +116,9 @@ class StatementDataSearcher:
 
         elif condition.is_rlbundlelogs_command(first):
             self.get_rlbundlelogs_data(pom_list)
+
+        elif condition.is_rlpass_or_rlfail_command(first):
+                self.get_rlpass_or_rlfail_data(pom_list)
 
         elif condition.is_rlservicexxx(first):
             self.get_rlservicexxx_data(pom_list)
