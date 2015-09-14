@@ -53,17 +53,23 @@ class Parser(object):
                     i, condition = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
                                                                       condition, ["fi"], splitted_file_string)
                     container.add_statement_line(condition)
+                    container.add_comment(condition)
+                    tagged_comment_container = ""
                 elif self.is_loop_line(splitted_line):
                     loop = LoopContainer()
                     i, loop = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
                                                                  loop, ["done"], splitted_file_string)
                     container.add_statement_line(loop)
+                    container.add_comment(loop)
+                    tagged_comment_container = ""
 
                 elif self.is_function_line(splitted_line):
                     function = FunctionContainer()
                     i, function = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
                                                                      function, ["}"], splitted_file_string)
+                    container.add_comment(function)
                     container.add_statement_line(function)
+                    tagged_comment_container = ""
 
                 else:
                     container.add_statement_line(line)

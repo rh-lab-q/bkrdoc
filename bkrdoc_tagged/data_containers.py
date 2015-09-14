@@ -25,6 +25,15 @@ class SimpleContainer(object):
                 pom_list.append(member)
         return pom_list
 
+    def get_comments_list(self):
+        pom_list = []
+        for member in self.comments_list:
+            if is_simple_container_instance(member):
+                pom_list += member.get_comments_list()
+            else:
+                pom_list.append(member.get_comments())
+        return pom_list
+
 
 class PhaseOutsideContainer(SimpleContainer):
 
@@ -92,6 +101,9 @@ class TaggedCommentContainer(object):
 
     def add_tagged_line(self, line):
         self.tagged_line = line
+
+    def get_comments(self):
+        return self.comments
 
 
 def is_simple_container_instance(container):
