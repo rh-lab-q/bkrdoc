@@ -35,7 +35,7 @@ PACKAGE="abrt"
 
 #@ Function that configure selected value
 #@   does not require any parameter 
-function get_configured_value
+function get_configured_value()
 {
     VALUE=`grep "^AutoreportingEnabled" /etc/abrt/abrt.conf | tr -d " " | cut -f2 -d "="`
     echo $VALUE
@@ -118,7 +118,7 @@ rlJournalStart
         #@ for every argument in selected word will do...
         for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
         do
-            rlRun "abrt-auto-reporting $arg"  #@
+            rlRun "abrt-auto-reporting $arg"#@
 
             get_configured_value #@
             rlAssertNotEquals "Changed the configuration" "_$OLD" "_$CONF_VALUE"
