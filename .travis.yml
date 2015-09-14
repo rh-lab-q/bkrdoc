@@ -2,4 +2,6 @@ language: python
 python:
   - "2.7"
 # command to run tests
-script: python bkrdoc_not_tagged/tests/parser_testing.py -v
+script:
+  - python bkrdoc_not_tagged/tests/parser_testing.py -v
+  - python bkrdoc_tagged/tagged_generator_tests.py -v
