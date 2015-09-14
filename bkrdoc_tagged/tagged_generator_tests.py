@@ -7,7 +7,7 @@ from tagged_generator import Generator
 class TaggedGeneratorTests(unittest.TestCase):
 
     def test_phases(self):
-        generator = Generator("abrt-auto-reporting-sanity-test.sh")
+        generator = Generator("./bkrdoc_tagged/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         parser = generator.parser_ref
         self.assertEqual(len(parser.phases), 19)
@@ -32,7 +32,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(type(parser.phases[18]).__name__, "PhaseOutsideContainer")
 
     def test_phases_statement(self):
-        generator = Generator("abrt-auto-reporting-sanity-test.sh")
+        generator = Generator("./bkrdoc_tagged/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         parser = generator.parser_ref
 
