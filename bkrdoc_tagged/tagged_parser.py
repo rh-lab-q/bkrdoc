@@ -37,6 +37,7 @@ class Parser(object):
 
     def comments_and_containers_parsing(self, splitted_line, tagged_comment_container, container, splitted_file_string,
                                         i, line):
+
         if not self.is_empty_line(splitted_line) and self.is_tagged_comment_start(splitted_line) and \
            not self.is_tagged_comment_container(tagged_comment_container):
                 tagged_comment_container = TaggedCommentContainer(splitted_line)
@@ -81,6 +82,11 @@ class Parser(object):
                 if self.is_tagged_comment_container(tagged_comment_container):
                     container.add_comment(tagged_comment_container)
                     tagged_comment_container = ""
+            if not self.is_empty_line(splitted_line) and self.is_important_code_line(splitted_line):
+                tagged_comment_container = TaggedCommentContainer("")
+                tagged_comment_container.add_condition_tag("important")
+                tagged_comment_container.add_tagged_line(splitted_line)
+
         return i, tagged_comment_container, container
 
     def parse_condition(self, i, splitted_file_string, searched_last_keyword, container):
@@ -112,6 +118,8 @@ class Parser(object):
             specific_container.add_comment(tagged_comment_container)
             return self.parse_condition(i, splitted_file_string, end_list, specific_container)
 
+    def is_important_code_line(self, splitted_line):
+        return splitted_line[-1].endswith("#@")
 
     def is_seacher_keyword(self, searched_keyword, line):
         return line[0] in searched_keyword

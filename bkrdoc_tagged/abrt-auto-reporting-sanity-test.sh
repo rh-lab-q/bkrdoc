@@ -126,7 +126,7 @@ rlJournalStart
             #@       @action Test if actualy value in arg is not "enabled" and @important "disabled"
             if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
                 #@ wee will seee
-                rlFail "Mangles the configuration value" #@
+                rlFail "Mangles the configuration value"#@
             fi
 
             #@ something which is connected to this loop

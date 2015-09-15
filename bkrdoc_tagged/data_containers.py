@@ -35,6 +35,8 @@ class SimpleContainer(object):
         return pom_list
 
 
+
+
 class PhaseOutsideContainer(SimpleContainer):
 
     def __init__(self):
@@ -65,6 +67,7 @@ class TestPhaseContainer(SimpleContainer):
 
 
 class ConditionContainer(SimpleContainer):
+    condition_tag = "condition"
 
     def __init__(self):
         self.comments_list = []
@@ -73,6 +76,7 @@ class ConditionContainer(SimpleContainer):
 
 
 class FunctionContainer(SimpleContainer):
+    function_tag = "function"
 
     def __init__(self):
         self.comments_list = []
@@ -81,6 +85,7 @@ class FunctionContainer(SimpleContainer):
 
 
 class LoopContainer(SimpleContainer):
+    loop_tag = "loop"
 
     def __init__(self):
         self.comments_list = []
@@ -90,11 +95,14 @@ class LoopContainer(SimpleContainer):
 
 class TaggedCommentContainer(object):
 
+    condition_tags = []
     comments = []
     tagged_line = ""
 
     def __init__(self, first_comment):
         self.comments = [first_comment]
+        self.tagged_line = ""
+        self.condition_tags = []
 
     def add_comment(self, comment):
         self.comments.append(comment)
@@ -104,6 +112,9 @@ class TaggedCommentContainer(object):
 
     def get_comments(self):
         return self.comments
+
+    def add_condition_tag(self, given_tag):
+        self.condition_tags.append(given_tag)
 
 
 def is_simple_container_instance(container):

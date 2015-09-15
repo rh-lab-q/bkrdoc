@@ -70,7 +70,7 @@ class TaggedGeneratorTests(unittest.TestCase):
                                                                                              '"_$OLD" "_$CONF_VALUE"',
                                                                   'if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE !='
                                                                   ' "disabled" ]; then',
-                                                                  'rlFail "Mangles the configuration value" #@',
+                                                                  'rlFail "Mangles the configuration value"#@',
                                                                   'OLD=$CONF_VALUE #@'])
         self.assertEqual(parser.phases[16].statement_list, ['rlRun "abrt-auto-reporting disabled"', 'popd # TmpDir',
                                                             'rm -rf $TmpDir'])
@@ -93,7 +93,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(parser.phases[11].get_comments_list(), [])
         self.assertEqual(parser.phases[12].get_comments_list(), [[['#@', 'More', 'than', 'just', 'one', 'enabled', 'as', 'a', 'argument']]])
         self.assertEqual(parser.phases[13].get_comments_list(), [])
-        self.assertEqual(parser.phases[14].get_comments_list(), [[['#@', 'Various', 'types', 'of', 'arguments', 'will', 'start', 'this', 'part']], [['#@', 'for', 'every', 'argument', 'in', 'selected', 'word', 'will', 'do...']], [['#@', '@action', 'Test', 'if', 'actualy', 'value', 'in', 'arg', 'is', 'not', '"enabled"', 'and', '@important', '"disabled"']], [['#@', 'wee', 'will', 'seee']], [['#@', 'something', 'which', 'is', 'connected', 'to', 'this', 'loop']]])
+        self.assertEqual(parser.phases[14].get_comments_list(), [[['#@', 'Various', 'types', 'of', 'arguments', 'will', 'start', 'this', 'part']], [['#@', 'for', 'every', 'argument', 'in', 'selected', 'word', 'will', 'do...']], [''], [''], [['#@', '@action', 'Test', 'if', 'actualy', 'value', 'in', 'arg', 'is', 'not', '"enabled"', 'and', '@important', '"disabled"']], [['#@', 'wee', 'will', 'seee']], [''], [['#@', 'something', 'which', 'is', 'connected', 'to', 'this', 'loop']], ['']])
         self.assertEqual(parser.phases[15].get_comments_list(), [])
         self.assertEqual(parser.phases[16].get_comments_list(), [[['#@', 'clean', 'after', 'test']], [['#@', 'Disable', 'auto', 'reporting']]])
         self.assertEqual(parser.phases[17].get_comments_list(), [[['#@Something', 'on', 'the', 'end', 'of', 'the', 'test'], ['#could', 'be', 'anything']]])
