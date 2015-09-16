@@ -131,6 +131,9 @@ class Parser(object):
             specific_container.add_comment(tagged_comment_container)
             return self.parse_condition(i, splitted_file_string, end_list, specific_container)
 
+    def get_phases(self):
+        return self.phases
+
     def comments_set_up(self):
         for phase in self.phases:
             phase.comments_set_up()

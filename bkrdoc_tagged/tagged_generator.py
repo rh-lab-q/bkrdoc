@@ -7,6 +7,8 @@ from tagged_parser import Parser
 
 class Generator(object):
 
+    phases = []
+
     def __init__(self, file_in):
         if file_in[(len(file_in) - 3):len(file_in)] == ".sh":
             try:
@@ -14,6 +16,7 @@ class Generator(object):
                 with open(file_in, "r") as input_file:
                     self.file_string = input_file.read()
                     self.parser_ref = ""
+                    self.phases = []
 
             except IOError:
                 self.fail = False
@@ -26,10 +29,15 @@ class Generator(object):
     def parse_file(self):
         self.parser_ref = Parser()
         self.parser_ref.parse_file_by_lines(self.file_string)
-
+        self.phases = self.parser_ref.get_phases()
 
     def comments_set_up(self):
-        self.parser_ref.comments_set_up()
+        for phase in self.phases:
+            phase.comments_set_up()
+
+    def generate_documentation(self):
+        for phase in self.phases:
+            phase.print_documentation()
 
 
 # !!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
@@ -70,6 +78,7 @@ def run_doc_generator(parsed_arg):
         part = Generator(file_in_cmd)
         part.parse_file()
         part.comments_set_up()
+        part.generate_documentation()
         #part.parse_tags()
         #foo = NewTextDoc(part)
         #foo.parse_data()

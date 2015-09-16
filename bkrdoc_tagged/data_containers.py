@@ -1,11 +1,13 @@
 __author__ = 'jkulda'
 
+import shlex
 
 class SimpleContainer(object):
 
     comments_list = []
     statement_list = []
     common_comments = []
+    name = ""
 
     def add_comment(self, comment_container):
         self.comments_list.append(comment_container)
@@ -19,7 +21,7 @@ class SimpleContainer(object):
     def get_statement_list(self):
         pom_list = []
         for member in self.statement_list:
-            if is_simple_container_instance(member):
+            if self.is_simple_container_instance(member):
                 pom_list += member.get_statement_list()
             else:
                 pom_list.append(member)
@@ -28,7 +30,7 @@ class SimpleContainer(object):
     def get_comments_list(self):
         pom_list = []
         for member in self.comments_list:
-            if is_simple_container_instance(member):
+            if self.is_simple_container_instance(member):
                 pom_list += member.get_comments_list()
             else:
                 pom_list.append(member.get_comments())
@@ -36,12 +38,37 @@ class SimpleContainer(object):
 
     def comments_set_up(self):
         for comment in self.comments_list:
-            if is_simple_container_instance(comment):
+            if self.is_simple_container_instance(comment):
                 comment.comments_set_up()
             else:
                 comment.search_for_tags()
 
+    def print_documentation(self):
+        if self.is_test_phase_container():
+            print "  {0} {1}".format(self.name, self.name_comment)
+        else:
+            print "  {0}".format(self.name)
+        self.print_comments_with_offset("    ")
+        print("")
+
+    def print_comments_with_offset(self, offset):
+        for comment in self.comments_list:
+            if self.is_simple_container_instance(comment):
+                comment.print_comments_with_offset(offset + "  ")
+            else:
+                comment.print_data(offset)
+
+    def is_simple_container_instance(self, container):
+        container_names = ["LoopContainer", "FunctionContainer", "ConditionContainer"]
+        return type(container).__name__ in container_names
+
+    def is_test_phase_container(self):
+        return type(self).__name__ == "TestPhaseContainer"
+
+
 class PhaseOutsideContainer(SimpleContainer):
+
+    name = "Outside Phase"
 
     def __init__(self):
         self.comments_list = []
@@ -60,14 +87,18 @@ class TestPhaseContainer(SimpleContainer):
 
     def add_statement_line(self, line):
         if self.is_name_empty() and len(self.statement_list) == 0:
-            self.name = line[0]
-            if len(line) > 1:
-                self.name_comment = line[1]
+            self.set_test_phase_name(line)
         else:
             self.statement_list.append(line)
 
     def is_name_empty(self):
         return self.name == ""
+
+    def set_test_phase_name(self, line):
+        line = shlex.split(line, posix=False)
+        self.name = line[0][len("rlPhaseStart"):]
+        if len(line) > 1:
+            self.name_comment = line[1]
 
 
 class ConditionContainer(SimpleContainer):
@@ -123,13 +154,17 @@ class TaggedCommentContainer(object):
     def add_condition_tag(self, given_tag):
         self.condition_tags.append(given_tag)
 
+    def print_data(self, offset):
+        for comment in self.documentation_comments:
+            print "{0}{1}".format(offset, comment)
+
     def search_for_tags(self):
         for comment in self.comments:
             if self.get_tag_in_line(comment):
                 found_tag = self.get_tag_in_line(comment)[0]
                 if self.is_known_tag(self.get_tag_from_word(found_tag)):
                     self.known_tags[self.get_tag_from_word(found_tag)] = self.set_documentation_comment(comment[comment.index(found_tag) + 1:])
-                    print self.known_tags[self.get_tag_from_word(found_tag)]
+                    # print self.known_tags[self.get_tag_from_word(found_tag)]
                 else:
                     raise UnknownTagException("Not supported tag: {0}. If it's needed write an e-mail to "
                                               "jkulda@redhat.com.".format(self.get_tag_from_word(found_tag)))
@@ -184,6 +219,3 @@ class TaggedCommentContainer(object):
 class UnknownTagException(Exception):
     pass
 
-def is_simple_container_instance(container):
-    container_names = ["LoopContainer", "FunctionContainer", "ConditionContainer"]
-    return type(container).__name__ in container_names
