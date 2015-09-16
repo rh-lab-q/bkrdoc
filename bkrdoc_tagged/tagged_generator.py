@@ -28,6 +28,10 @@ class Generator(object):
         self.parser_ref.parse_file_by_lines(self.file_string)
 
 
+    def comments_set_up(self):
+        self.parser_ref.comments_set_up()
+
+
 # !!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
 def set_cmd_arguments():
     # Parse of arguments
@@ -65,6 +69,7 @@ def run_doc_generator(parsed_arg):
     for file_in_cmd in parsed_arg.files:
         part = Generator(file_in_cmd)
         part.parse_file()
+        part.comments_set_up()
         #part.parse_tags()
         #foo = NewTextDoc(part)
         #foo.parse_data()
@@ -78,3 +83,4 @@ def run_doc_generator(parsed_arg):
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()
     run_doc_generator(CMD_args)
+

@@ -34,8 +34,12 @@ class SimpleContainer(object):
                 pom_list.append(member.get_comments())
         return pom_list
 
-
-
+    def comments_set_up(self):
+        for comment in self.comments_list:
+            if is_simple_container_instance(comment):
+                comment.comments_set_up()
+            else:
+                comment.search_for_tags()
 
 class PhaseOutsideContainer(SimpleContainer):
 
@@ -95,14 +99,17 @@ class LoopContainer(SimpleContainer):
 
 class TaggedCommentContainer(object):
 
+    known_tags = {"keywords": "", "key": "", "author": "", "description": ""}
     condition_tags = []
     comments = []
     tagged_line = ""
+    documentation_comments = []
 
     def __init__(self, first_comment):
         self.comments = [first_comment]
         self.tagged_line = ""
         self.condition_tags = []
+        self.documentation_comments = []
 
     def add_comment(self, comment):
         self.comments.append(comment)
@@ -116,6 +123,66 @@ class TaggedCommentContainer(object):
     def add_condition_tag(self, given_tag):
         self.condition_tags.append(given_tag)
 
+    def search_for_tags(self):
+        for comment in self.comments:
+            if self.get_tag_in_line(comment):
+                found_tag = self.get_tag_in_line(comment)[0]
+                if self.is_known_tag(self.get_tag_from_word(found_tag)):
+                    self.known_tags[self.get_tag_from_word(found_tag)] = self.set_documentation_comment(comment[comment.index(found_tag) + 1:])
+                    print self.known_tags[self.get_tag_from_word(found_tag)]
+                else:
+                    raise UnknownTagException("Not supported tag: {0}. If it's needed write an e-mail to "
+                                              "jkulda@redhat.com.".format(self.get_tag_from_word(found_tag)))
+            else:
+                erased_comment_line = self.erase_comments_start_tags(comment)
+                if self.is_code_tag():
+                    erased_comment_line = self.erase_comments_start_tags(self.tagged_line)
+                self.documentation_comments.append(self.set_documentation_comment(erased_comment_line))
+                # print self.documentation_comments
+
+    def is_code_tag(self):
+        return self.condition_tags == ["code"]
+
+    def get_tag_in_line(self, splitted_line):
+        return [word for word in splitted_line if ((word.startswith("@") and len(word) > 1) or word.startswith("#@@"))]
+
+    def is_known_tag(self, tag):
+        return tag in self.known_tags.keys()
+
+    def erase_comments_start_tags(self, splitted_line):
+        if splitted_line[0] == "#@":
+            return splitted_line[1:]
+        elif len(splitted_line) > 1 and splitted_line[0] == "#" and splitted_line[1] == "@":
+            return splitted_line[2:]
+        elif splitted_line[0].startswith("#@"):
+            return [splitted_line[0][2:]] + splitted_line[1:]
+        elif splitted_line[0].startswith("#"):
+            if splitted_line[0] == "#":
+                return splitted_line[1:]
+            else:
+                return [splitted_line[0][1:]] + splitted_line[1:]
+        elif splitted_line[-1] == "#@":
+            return splitted_line[0:-1]
+        elif splitted_line[-1].endswith("#@"):
+            return splitted_line[0:-2] + [splitted_line[-1][0:-3]]
+        else:
+            return splitted_line
+
+    def set_documentation_comment(self, splitted_line):
+        pom_line = splitted_line[0]
+        for member in splitted_line[1:]:
+            pom_line += " {0}".format(member)
+        return pom_line
+
+    def get_tag_from_word(self, word):
+        if word.startswith("@"):
+            return word[1:]
+        else:
+            return word[3:]
+
+
+class UnknownTagException(Exception):
+    pass
 
 def is_simple_container_instance(container):
     container_names = ["LoopContainer", "FunctionContainer", "ConditionContainer"]

@@ -21,12 +21,22 @@ class Parser(object):
             line = splitted_file_string[i]
             line = line.strip()
             splitted_line = shlex.split(line, posix=False)
+
             if not self.is_empty_line(splitted_line):
                 if self.is_phase_start_xxx(splitted_line[0]):
                     self.phases.append(TestPhaseContainer())
 
                 elif self.is_phase_journal_end(splitted_line[0]) or self.is_journal_start(splitted_line[0]):
                     self.phases.append(PhaseOutsideContainer())
+
+            # if self.is_phase_outside_container(self.phases[-1]):
+            #     print line
+            #     i, self.phases[-1] = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
+            #                                                             self.phases[-1], ["rlJournalStart", "rlPhaseStartSetup", "rlPhaseStartCleanup", "rlPhaseStartTest", "rlJournalEnd"], splitted_file_string)
+            # else:
+            #    i, self.phases[-1] = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
+            #                                                             self.phases[-1], ["rlPhaseEnd"],
+            #                                                            splitted_file_string)
 
             i, tagged_comment_container, container = self.comments_and_containers_parsing(splitted_line,
                                                                                           tagged_comment_container,
@@ -83,9 +93,11 @@ class Parser(object):
                     container.add_comment(tagged_comment_container)
                     tagged_comment_container = ""
             if not self.is_empty_line(splitted_line) and self.is_important_code_line(splitted_line):
-                tagged_comment_container = TaggedCommentContainer("")
-                tagged_comment_container.add_condition_tag("important")
+                tagged_comment_container = TaggedCommentContainer([""])
+                tagged_comment_container.add_condition_tag("code")
                 tagged_comment_container.add_tagged_line(splitted_line)
+                container.add_comment(tagged_comment_container)
+                tagged_comment_container = ""
 
         return i, tagged_comment_container, container
 
@@ -110,6 +122,7 @@ class Parser(object):
                                                                                           splitted_file_string,
                                                                                           i, line)
             i += 1
+        return i, container
 
     def specific_container_parse_call(self, i, tagged_comment_container, splitted_line, specific_container,
                                       end_list, splitted_file_string):
@@ -117,6 +130,10 @@ class Parser(object):
             tagged_comment_container.add_tagged_line(splitted_line)
             specific_container.add_comment(tagged_comment_container)
             return self.parse_condition(i, splitted_file_string, end_list, specific_container)
+
+    def comments_set_up(self):
+        for phase in self.phases:
+            phase.comments_set_up()
 
     def is_important_code_line(self, splitted_line):
         return splitted_line[-1].endswith("#@")
@@ -167,3 +184,11 @@ class Parser(object):
 
     def is_tagged_comment_container(self, tagged_container):
         return type(tagged_container).__name__ == "TaggedCommentContainer"
+
+    def is_phase_outside_container(self, container):
+        return type(container).__name__ == "PhaseOutsideContainer"
+
+    def is_phase_startxxx_container(self, container):
+        return type(container).__name__ == "TestPhaseContainer"
+
+

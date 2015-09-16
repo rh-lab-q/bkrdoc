@@ -69,7 +69,7 @@ rlJournalStart
 
     # @ Print help informations
     # @keywords doc help 
-    #  blah @networking @action @wifi sfsdf sdf sdfsd f
+    # blah sfsdf sdf sdfsd f
     # Using of block comment
     # This could be usefull 
     rlPhaseStartTest "--help"
@@ -85,7 +85,7 @@ rlJournalStart
         rlAssertEquals "Reads the configuration" "_$(abrt-auto-reporting)" "_$CONF_VALUE"
     rlPhaseEnd
 
-    #@Single enablned as @try a argument
+    #@Single enablned as a argument
     rlPhaseStartTest "enabled"
         rlRun "abrt-auto-reporting enabled"
 
@@ -97,7 +97,7 @@ rlJournalStart
     #@ Disabled as a argument
     rlPhaseStartTest "disabled"
         rlRun "abrt-auto-reporting disabled"
-
+        #@@key mamut
         get_configured_value
         rlAssertEquals "Saves the configuration" "_disabled" "_$CONF_VALUE"
         rlAssertEquals "Reads the configuration" "_disabled" "_$(abrt-auto-reporting)"
@@ -123,7 +123,7 @@ rlJournalStart
             get_configured_value #@
             rlAssertNotEquals "Changed the configuration" "_$OLD" "_$CONF_VALUE"
 
-            #@       @action Test if actualy value in arg is not "enabled" and @important "disabled"
+            #@ Test if actualy value in arg is not "enabled" and "disabled"
             if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
                 #@ wee will seee
                 rlFail "Mangles the configuration value"#@
