@@ -206,8 +206,21 @@ class TaggedCommentContainer(object):
 
     def print_data(self, offset):
         for comment in self.documentation_comments:
-            if self.is_phase_start_xxx(self.tagged_line):
-                print "{0}{1}".format("    ", comment)
+            if not self.is_splitted_line_empty(self.tagged_line):
+                if self.is_phase_start_xxx(self.tagged_line):
+                    print "{0}{1}".format("    ", comment)
+
+                elif self.is_condition_line(self.tagged_line):
+                    print "{0}condition: {1}".format(offset[2:], comment)
+
+                elif self.is_loop_line(self.tagged_line):
+                    print "{0}loop: {1}".format(offset[2:], comment)
+
+                elif self.is_function_line(self.tagged_line):
+                    print "{0}function: {1}".format(offset[2:], comment)
+
+                else:
+                    print "{0}{1}".format(offset, comment)
             else:
                 print "{0}{1}".format(offset, comment)
 
@@ -238,6 +251,9 @@ class TaggedCommentContainer(object):
 
     def is_know_tag_empty(self, key):
         return self.known_tags[key] == ""
+
+    def is_splitted_line_empty(self, splitted_line):
+        return len(splitted_line) == 0
 
     def is_code_tag(self):
         return self.condition_tags == ["code"]
