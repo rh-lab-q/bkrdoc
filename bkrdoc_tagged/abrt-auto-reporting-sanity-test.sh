@@ -73,8 +73,10 @@ rlJournalStart
     # Using of block comment
     # This could be usefull 
     rlPhaseStartTest "--help"
+        #@ TESTING
         rlRun "abrt-auto-reporting --help" 0
         rlRun "abrt-auto-reporting --help 2>&1 | grep 'Usage: abrt-auto-reporting'"
+        #@ Back phase testing
     rlPhaseEnd
  
     #@ Runs script with no arguments
@@ -132,6 +134,7 @@ rlJournalStart
             #@ something which is connected to this loop
             OLD=$CONF_VALUE #@
         done
+        #@ Documentation test
     rlPhaseEnd
 
     #@ clean after test

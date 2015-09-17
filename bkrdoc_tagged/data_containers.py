@@ -45,12 +45,19 @@ class SimpleContainer(object):
                 comment.search_for_tags()
 
     def print_documentation(self):
-        if self.is_test_phase_container():
-            print "  {0} {1}".format(self.name, self.name_comment)
-        else:
-            print "  {0}".format(self.name)
-        self.print_comments_with_offset("    ")
-        print("")
+        if not self.is_comment_list_empty():
+            if self.is_test_phase_container():
+                print "  {0} {1}".format(self.name, self.name_comment)
+            else:
+                print "  {0}".format(self.name)
+            if self.is_outside_phase_container():
+                self.print_comments_with_offset("    ")
+            else:
+                self.print_comments_with_offset("      ")
+            print("")
+
+    def is_comment_list_empty(self):
+        return self.comments_list == []
 
     def print_comments_with_offset(self, offset):
         for comment in self.comments_list:
@@ -65,6 +72,9 @@ class SimpleContainer(object):
 
     def is_test_phase_container(self):
         return type(self).__name__ == "TestPhaseContainer"
+
+    def is_outside_phase_container(self):
+        return type(self).__name__ == "PhaseOutsideContainer"
 
 
 class PhaseOutsideContainer(SimpleContainer):
@@ -196,7 +206,10 @@ class TaggedCommentContainer(object):
 
     def print_data(self, offset):
         for comment in self.documentation_comments:
-            print "{0}{1}".format(offset, comment)
+            if self.is_phase_start_xxx(self.tagged_line):
+                print "{0}{1}".format("    ", comment)
+            else:
+                print "{0}{1}".format(offset, comment)
 
     def get_title_data(self):
         return self.known_tags
@@ -266,6 +279,21 @@ class TaggedCommentContainer(object):
         else:
             return word[3:]
 
+    def is_phase_start_xxx(self, splitted_line):
+        phase_list = ["rlPhaseStartSetup", "rlPhaseStartCleanup", "rlPhaseStartTest"]
+        if len(splitted_line) > 0:
+            return splitted_line[0] in phase_list
+        return False
+
+    def is_condition_line(self, line):
+        return line[0] == "if"
+
+    def is_loop_line(self, line):
+        loop_list = ["for", "while", "until"]
+        return line[0] in loop_list
+
+    def is_function_line(self, splitted_line):
+        return splitted_line[0] == "function"
 
 class UnknownTagException(Exception):
     pass

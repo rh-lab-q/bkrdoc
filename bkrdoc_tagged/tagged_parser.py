@@ -27,6 +27,9 @@ class Parser(object):
                     self.phases.append(TestPhaseContainer())
 
                 elif self.is_phase_journal_end(splitted_line[0]) or self.is_journal_start(splitted_line[0]):
+                    if self.is_tagged_comment_container(tagged_comment_container):
+                        self.phases[-1].add_comment(tagged_comment_container)
+                        tagged_comment_container = ""
                     self.phases.append(PhaseOutsideContainer())
 
             # if self.is_phase_outside_container(self.phases[-1]):
