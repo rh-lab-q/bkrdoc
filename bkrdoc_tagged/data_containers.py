@@ -2,6 +2,7 @@ __author__ = 'jkulda'
 
 import shlex
 
+
 class SimpleContainer(object):
 
     comments_list = []
@@ -74,6 +75,45 @@ class PhaseOutsideContainer(SimpleContainer):
         self.comments_list = []
         self.statement_list = []
         self.common_comments = []
+
+    def search_for_title_data(self):
+        new_coment = TaggedCommentContainer("")
+        for common_comment in self.common_comments:
+            if self.is_word_in_line(common_comment, "keywords:"):
+                index = self.get_word_index_in_line(common_comment, "keywords:")
+                data = new_coment.set_documentation_comment(common_comment[index + 1:])
+                if new_coment.is_know_tag_empty("keywords"):
+                    new_coment.known_tags["keywords"] = data
+                else:
+                    new_coment.known_tags["keywords"] += ", {0}".format(data)
+
+            elif self.is_word_in_line(common_comment, "description:"):
+                index = self.get_word_index_in_line(common_comment, "description:")
+                data = new_coment.set_documentation_comment(common_comment[index + 1:])
+                if new_coment.is_know_tag_empty("description"):
+                    new_coment.known_tags["description"] = data
+                else:
+                    new_coment.known_tags["description"] += ", {0}".format(data)
+
+            elif self.is_word_in_line(common_comment, "author:"):
+                index = self.get_word_index_in_line(common_comment, "author:")
+                data = new_coment.set_documentation_comment(common_comment[index + 1:])
+                if new_coment.is_know_tag_empty("author"):
+                    new_coment.known_tags["author"] = data
+                else:
+                    new_coment.known_tags["author"] += ", {0}".format(data)
+        self.comments_list.insert(0, new_coment)
+
+    def is_word_in_line(self, splitted_line, word):
+        splitted_line = [element.lower() for element in splitted_line]
+        return word in splitted_line
+
+    def get_word_index_in_line(self, splitted_line, word):
+        splitted_line = [element.lower() for element in splitted_line]
+        try:
+            return splitted_line.index(word)
+        except ValueError:
+            return 0
 
 
 class TestPhaseContainer(SimpleContainer):
@@ -158,12 +198,20 @@ class TaggedCommentContainer(object):
         for comment in self.documentation_comments:
             print "{0}{1}".format(offset, comment)
 
+    def get_title_data(self):
+        return self.known_tags
+
     def search_for_tags(self):
         for comment in self.comments:
             if self.get_tag_in_line(comment):
                 found_tag = self.get_tag_in_line(comment)[0]
                 if self.is_known_tag(self.get_tag_from_word(found_tag)):
-                    self.known_tags[self.get_tag_from_word(found_tag)] = self.set_documentation_comment(comment[comment.index(found_tag) + 1:])
+                    known_tags_data = self.set_documentation_comment(comment[comment.index(found_tag) + 1:])
+                    if self.is_know_tag_empty(self.get_tag_from_word(found_tag)):
+                        self.known_tags[self.get_tag_from_word(found_tag)] = known_tags_data
+                    else:
+                        self.known_tags[self.get_tag_from_word(found_tag)] += ", {0}".format(known_tags_data)
+                    # print self.known_tags
                     # print self.known_tags[self.get_tag_from_word(found_tag)]
                 else:
                     raise UnknownTagException("Not supported tag: {0}. If it's needed write an e-mail to "
@@ -174,6 +222,9 @@ class TaggedCommentContainer(object):
                     erased_comment_line = self.erase_comments_start_tags(self.tagged_line)
                 self.documentation_comments.append(self.set_documentation_comment(erased_comment_line))
                 # print self.documentation_comments
+
+    def is_know_tag_empty(self, key):
+        return self.known_tags[key] == ""
 
     def is_code_tag(self):
         return self.condition_tags == ["code"]

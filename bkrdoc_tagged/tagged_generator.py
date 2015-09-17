@@ -35,9 +35,28 @@ class Generator(object):
         for phase in self.phases:
             phase.comments_set_up()
 
-    def generate_documentation(self):
+    def get_title_data(self):
+        self.phases[0].search_for_title_data()
+
+    def generate_documentation_title(self):
+        self.get_title_data()
+        title_data = self.phases[0].comments_list[0].get_title_data()
+        print "Description: {0}".format(title_data["description"])
+        print "Author: {0}".format(title_data["author"])
+        if title_data["key"]:
+            print "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
+        else:
+            print "Keywords: {0}".format(title_data["keywords"])
+
+    def generate_phase_data(self):
+        print "Phases:"
         for phase in self.phases:
             phase.print_documentation()
+
+    def generate_documentation(self):
+        self.generate_documentation_title()
+        print ""
+        self.generate_phase_data()
 
 
 # !!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
