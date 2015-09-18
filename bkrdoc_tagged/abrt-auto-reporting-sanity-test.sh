@@ -37,8 +37,10 @@ PACKAGE="abrt"
 #@   does not require any parameter 
 function get_configured_value()
 {
+    #@ comment on the beggining
     VALUE=`grep "^AutoreportingEnabled" /etc/abrt/abrt.conf | tr -d " " | cut -f2 -d "="`
     echo $VALUE
+    #@ Important case
     case "$VALUE" in
         [yY][eE][sS]|"_")
             export CONF_VALUE="enabled"
@@ -50,6 +52,7 @@ function get_configured_value()
             echo "Unknown option value"
             export CONF_VALUE="disabled"
             ;;
+    #@ comment on the end
     esac
 }
 #@ @author Janosik Karel 

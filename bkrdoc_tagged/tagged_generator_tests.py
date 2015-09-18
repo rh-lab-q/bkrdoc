@@ -79,7 +79,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         generator = Generator("./bkrdoc_tagged/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         parser = generator.parser_ref
-        self.assertEqual(parser.phases[0].get_comments_list(), [[['#@', '@description', 'does', 'what', 'it', 'does']], [['#@', 'Function', 'that', 'configure', 'selected', 'value'], ['#@', 'does', 'not', 'require', 'any', 'parameter']], [['#@', '@author', 'Janosik', 'Karel']]])
+        self.assertEqual(parser.phases[0].get_comments_list(), [[['#@', '@description', 'does', 'what', 'it', 'does']], [['#@', 'Function', 'that', 'configure', 'selected', 'value'], ['#@', 'does', 'not', 'require', 'any', 'parameter']], [['#@', 'comment', 'on', 'the', 'beggining']], [['#@', 'Important', 'case']], [['#@', 'comment', 'on', 'the', 'end']], [['#@', '@author', 'Janosik', 'Karel']]])
         self.assertEqual(parser.phases[1].get_comments_list(), [[['#@', 'Somenthing', 'in', 'start', 'of', 'the', 'test'], ['#Could', 'be', 'anything']]])
         self.assertEqual(parser.phases[2].get_comments_list(), [[['#@', 'Make', 'temporary', 'directory', 'and', 'saves', 'work', 'in', 'it']]])
         self.assertEqual(parser.phases[3].get_comments_list(), [[['#@', 'Additional', 'info']]])

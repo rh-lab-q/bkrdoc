@@ -205,24 +205,43 @@ class TaggedCommentContainer(object):
         self.condition_tags.append(given_tag)
 
     def print_data(self, offset):
+        first = True
         for comment in self.documentation_comments:
-            if not self.is_splitted_line_empty(self.tagged_line):
+            if self.is_code_tag():
+                print "{0}code: {1}".format(offset, comment)
+            elif not self.is_splitted_line_empty(self.tagged_line):
                 if self.is_phase_start_xxx(self.tagged_line):
                     print "{0}{1}".format("    ", comment)
 
                 elif self.is_condition_line(self.tagged_line):
-                    print "{0}condition: {1}".format(offset[2:], comment)
+                    if first:
+                        print "{0}condition: {1}".format(offset[2:], comment)
+                        first = False
+                    else:
+                        print "{0}- {1}".format(offset[1:], comment)
 
                 elif self.is_loop_line(self.tagged_line):
-                    print "{0}loop: {1}".format(offset[2:], comment)
+                    if first:
+                        print "{0}loop: {1}".format(offset[2:], comment)
+                        first = False
+                    else:
+                        print "{0}- {1}".format(offset[1:], comment)
 
                 elif self.is_function_line(self.tagged_line):
-                    print "{0}function: {1}".format(offset[2:], comment)
-
+                    if first:
+                        print "{0}function: {1}".format(offset[2:], comment)
+                        first = False
+                    else:
+                        print "{0}- {1}".format(offset[1:], comment)
                 else:
                     print "{0}{1}".format(offset, comment)
             else:
                 print "{0}{1}".format(offset, comment)
+
+    def is_code_tag(self):
+        if not self.is_splitted_line_empty(self.condition_tags):
+            return self.condition_tags[0] == "code"
+        return False
 
     def get_title_data(self):
         return self.known_tags
@@ -254,9 +273,6 @@ class TaggedCommentContainer(object):
 
     def is_splitted_line_empty(self, splitted_line):
         return len(splitted_line) == 0
-
-    def is_code_tag(self):
-        return self.condition_tags == ["code"]
 
     def get_tag_in_line(self, splitted_line):
         return [word for word in splitted_line if ((word.startswith("@") and len(word) > 1) or word.startswith("#@@"))]
