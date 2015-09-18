@@ -1,0 +1,21 @@
+Description: hm
+Author: Red Hat (c)
+Keywords: squid, yum repositories, Ca certificate, ftp, http, https, 
+
+Phases: 
+	rlPhaseStartSetup "Client setup"
+		On client, prepare squid for caching yum repositories [setup] 
+			action: Enable SELinux boolean, allow to connect from any host [setup] 
+			action: Fetch CA certificate, 
+			action, networking: add to CA bundle [setup] 
+			action: Set up yum repositories for ftp, http, htpps protocol [setup] 
+			loop, wifi, action: Set ftp, http, https protocol 
+			loop, action: for yum repository. 
+
+Expected result: 
+
+Additional information: 
+	 Loops: 
+		for protocol in "ftp" "http" "https" ; do
+			Set ftp, http, https protocol 
+			for yum repository. 

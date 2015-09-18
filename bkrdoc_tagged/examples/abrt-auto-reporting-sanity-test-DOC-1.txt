@@ -1,0 +1,160 @@
+Description: does what it does,  does sanity on abrt-auto-reporting
+Author: Janosik Karel,  Jakub Filak <jfilak@redhat.com>
+Keywords: doc help, auto-reporting,
+
+Phases: 
+  Outside Phase:
+    Somenthing in start of the test
+    Could be anything
+
+  Setup
+    Make temporary directory and saves work in it 
+
+  Outside Phase:
+    Additional info
+
+  Test "--help"
+    Print help informations 
+    blah 
+    Using of block comment 
+    This could be usefull 
+      networking, action, wifi: sfsdf sdf sdfsd f 
+
+  Test "no args"
+    Runs script with no arguments 
+
+  Test "enabled"
+    Single enablned as 
+      try: a argument 
+
+  Test "disabled"
+    Disabled as a argument 
+
+  Test "enabled (once more)"
+    More than just one enabled as a argument 
+
+  Test "various argument types"
+    Various types of arguments will start this part
+      code: rlRun "abrt-auto-reporting $arg"
+      code: get_configured_value
+      code: rlFail "Mangles the configuration value"
+      code: OLD=$CONF_VALUE
+      loop: for every argument in selected word will do...
+        condition, action: Test if actualy value in arg is not "enabled" and
+        condition, important: "disabled"
+        condition: wee will seee
+        something which is connected to this loop
+      after loop
+
+  Cleanup
+    clean after test 
+      action: Disable auto reporting 
+
+  Outside Phase:
+    Something on the end of the test
+    could be anything     
+
+Additional information: 
+   Loops: 
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+      for every argument in selected word will do... 
+      something which is connected to this loop 
+
+   Functions: 
+    function get_configured_value
+      Function that configure selected value
+      does not require any parameter
+
+   Conditions: 
+    if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
+      Test if actualy value in arg is not "enabled" and 
+      "disabled" 
+      wee will seee 
+
+Test protocol:
+  beakerlib RPM : beakerlib-1.9-3.fc20 
+  bl-redhat RPM : not installed
+  Test started  : 2014-09-22 19:34:42 CEST
+  Test finished : 2014-09-22 19:34:45 CEST
+  Test name     : abrt-auto-reporting-sanity
+  Distro:       : Fedora release 20 (Heisenbug)
+  Hostname      : localhost.localdomain
+  Architecture  : x86_64
+  
+Test description:
+  Setup
+    LOG: Duration: 0s
+    LOG: Assertions: 0 good, 0 bad
+    PASS: RESULT: Setup
+
+  --help
+    PASS: Command 'abrt-auto-reporting --help' (Expected 0, got 0)
+    FAIL: Command 'abrt-auto-reporting --help 2>&1 | grep 'Usage: abrt-auto-reporting'' (Expected 0, got 1)
+    LOG: Duration: 0s
+    LOG: Assertions: 1 good, 1 bad
+    FAIL: RESULT: --help
+
+  no args
+    PASS: Command 'abrt-auto-reporting' (Expected 0, got 0)
+    PASS: Reads the configuration (Assert: _disabled should equal _disabled)
+    LOG: Duration: 0s
+    LOG: Assertions: 2 good, 0 bad
+    PASS: RESULT: no args
+
+  enabled
+    FAIL: Command 'abrt-auto-reporting enabled' (Expected 0, got 1)
+    FAIL: Saves the configuration (Assert: _enabled should equal _disabled)
+    FAIL: Reads the configuration (Assert: _enabled should equal _disabled)
+    LOG: Duration: 0s
+    LOG: Assertions: 0 good, 3 bad
+    FAIL: RESULT: enabled
+
+  disabled
+    PASS: Command 'abrt-auto-reporting disabled' (Expected 0, got 0)
+    PASS: Saves the configuration (Assert: _disabled should equal _disabled)
+    PASS: Reads the configuration (Assert: _disabled should equal _disabled)
+    LOG: Duration: 0s
+    LOG: Assertions: 3 good, 0 bad
+    PASS: RESULT: disabled
+
+  enabled (once more)
+    FAIL: Command 'abrt-auto-reporting enabled' (Expected 0, got 1)
+    FAIL: Saves the configuration (Assert: _enabled should equal _disabled)
+    FAIL: Reads the configuration (Assert: _enabled should equal _disabled)
+    LOG: Duration: 0s
+    LOG: Assertions: 0 good, 3 bad
+    FAIL: RESULT: enabled (once more)F
+
+  various argument types
+    PASS: Command 'abrt-auto-reporting disabled' (Expected 0, got 0)
+    PASS: Changed the configuration (Assert: "_enabled" should not equal "_disabled")
+    FAIL: Command 'abrt-auto-reporting EnAbLeD' (Expected 0, got 1)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    PASS: Command 'abrt-auto-reporting dIsAblEd' (Expected 0, got 0)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    FAIL: Command 'abrt-auto-reporting enabled' (Expected 0, got 1)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    PASS: Command 'abrt-auto-reporting no' (Expected 0, got 0)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    FAIL: Command 'abrt-auto-reporting Yes' (Expected 0, got 1)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    PASS: Command 'abrt-auto-reporting nO' (Expected 0, got 0)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    FAIL: Command 'abrt-auto-reporting yes' (Expected 0, got 1)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    PASS: Command 'abrt-auto-reporting 0' (Expected 0, got 0)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    FAIL: Command 'abrt-auto-reporting 1' (Expected 0, got 1)
+    FAIL: Changed the configuration (Assert: "_disabled" should not equal "_disabled")
+    LOG: Duration: 1s
+    LOG: Assertions: 6 good, 14 bad
+    FAIL: RESULT: various argument types
+
+  Cleanup
+    PASS: Command 'abrt-auto-reporting disabled' (Expected 0, got 0)
+    LOG: Duration: 0s
+    LOG: Assertions: 1 good, 0 bad
+    PASS: RESULT: Cleanup
+
+  abrt-auto-reporting-sanity
+    LOG: Phases: 4 good, 4 bad  

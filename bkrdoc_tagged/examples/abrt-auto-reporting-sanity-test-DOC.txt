@@ -1,0 +1,77 @@
+Description: does what it does,  does sanity on abrt-auto-reporting
+Author: Janosik Karel,  Jakub Filak <jfilak@redhat.com>
+Keywords: doc help, auto-reporting,
+
+Phases: 
+  Outside Phase:
+    Somenthing in start of the test
+    Could be anything
+
+  Setup
+    Make temporary directory and saves work in it 
+
+  Outside Phase:
+    Additional info
+
+  Test "--help"
+    Print help informations 
+    blah 
+    Using of block comment 
+    This could be usefull 
+      networking, action, wifi: sfsdf sdf sdfsd f 
+
+  Test "no args"
+    Runs script with no arguments 
+
+  Test "enabled"
+    Single enablned as 
+      try: a argument 
+
+  Test "disabled"
+    Disabled as a argument 
+
+  Test "enabled (once more)"
+    More than just one enabled as a argument 
+
+  Test "various argument types"
+    Various types of arguments will start this part 
+      code: rlRun "abrt-auto-reporting $arg"  
+      code: get_configured_value 
+      code: rlFail "Mangles the configuration value" 
+      code: OLD=$CONF_VALUE 
+      loop: for every argument in selected word will do... 
+        condition: Test if actualy value in arg is not "enabled" and"disabled"
+          wee will seee
+        something which is connected to this loop
+
+  Cleanup
+    clean after test 
+      action: Disable auto reporting 
+
+  Outside Phase:
+    Something on the end of the test
+    could be anything
+
+Expected result: 
+
+Additional information: 
+   Loops: 
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      for every argument in selected word will do... 
+      something which is connected to this loop
+    done;
+
+   Functions: 
+    function get_configured_value
+    {
+      Function that configure selected value
+      does not require any parameter
+    }
+
+   Conditions: 
+    if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
+      Test if actualy value in arg is not "enabled" and 
+      "disabled" 
+      wee will seee
+    fi
