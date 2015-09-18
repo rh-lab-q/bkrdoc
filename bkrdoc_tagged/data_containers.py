@@ -44,6 +44,20 @@ class SimpleContainer(object):
             else:
                 comment.search_for_tags()
 
+    def get_additional_containers(self, func, loop, cond):
+        for comment in self.comments_list:
+            if self.is_simple_container_instance(comment):
+                if self.is_function_container(comment):
+                    func.append(comment)
+                    func, loop, cond = comment.get_additional_containers(func, loop, cond)
+                elif self.is_loop_container(comment):
+                    loop.append(comment)
+                    func, loop, cond = comment.get_additional_containers(func, loop, cond)
+                elif self.is_condition_container(comment):
+                    cond.append(comment)
+                    func, loop, cond = comment.get_additional_containers(func, loop, cond)
+        return func, loop, cond
+
     def print_documentation(self):
         if not self.is_comment_list_empty():
             if self.is_test_phase_container():
@@ -55,6 +69,9 @@ class SimpleContainer(object):
             else:
                 self.print_comments_with_offset("      ")
             print("")
+
+    def print_additional_phase_data(self):
+        pass
 
     def is_comment_list_empty(self):
         return self.comments_list == []
@@ -75,6 +92,15 @@ class SimpleContainer(object):
 
     def is_outside_phase_container(self):
         return type(self).__name__ == "PhaseOutsideContainer"
+
+    def is_loop_container(self, container):
+        return type(container).__name__ == "LoopContainer"
+
+    def is_function_container(self, container):
+        return type(container).__name__ == "FunctionContainer"
+
+    def is_condition_container(self, container):
+        return type(container).__name__ == "ConditionContainer"
 
 
 class PhaseOutsideContainer(SimpleContainer):
@@ -159,6 +185,14 @@ class ConditionContainer(SimpleContainer):
         self.statement_list = []
         self.common_comments = []
 
+    def print_additional_phase_data(self):
+        offset = "    "
+        print "{0}{1}".format(offset, self.statement_list[0])
+        for comment in self.comments_list:
+            if not self.is_simple_container_instance(comment):
+                comment.print_doc_comments_with_offset(offset + "  ")
+        print("{0}fi".format(offset))
+
 
 class FunctionContainer(SimpleContainer):
     function_tag = "function"
@@ -168,6 +202,15 @@ class FunctionContainer(SimpleContainer):
         self.statement_list = []
         self.common_comments = []
 
+    def print_additional_phase_data(self):
+        offset = "    "
+        print "{0}{1}".format(offset, self.statement_list[0])
+        print offset + "{"
+        for comment in self.comments_list:
+            if not self.is_simple_container_instance(comment):
+                comment.print_doc_comments_with_offset(offset + "  ")
+        print offset + "}"
+
 
 class LoopContainer(SimpleContainer):
     loop_tag = "loop"
@@ -176,6 +219,15 @@ class LoopContainer(SimpleContainer):
         self.comments_list = []
         self.statement_list = []
         self.common_comments = []
+
+    def print_additional_phase_data(self):
+        offset = "    "
+        print "{0}{1}".format(offset, self.statement_list[0])
+        print "{0}do".format(offset)
+        for comment in self.comments_list:
+            if not self.is_simple_container_instance(comment):
+                comment.print_doc_comments_with_offset(offset + "  ")
+        print "{0}done".format(offset)
 
 
 class TaggedCommentContainer(object):
@@ -203,6 +255,10 @@ class TaggedCommentContainer(object):
 
     def add_condition_tag(self, given_tag):
         self.condition_tags.append(given_tag)
+
+    def print_doc_comments_with_offset(self, offset):
+        for comment in self.documentation_comments:
+            print "{0}{1}".format(offset, comment)
 
     def print_data(self, offset):
         first = True

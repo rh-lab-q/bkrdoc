@@ -53,10 +53,35 @@ class Generator(object):
         for phase in self.phases:
             phase.print_documentation()
 
+    def print_additional_container_data(self, name, additional_containers):
+        if len(additional_containers):
+            print "  {0}:".format(name)
+            for container in additional_containers:
+                container.print_additional_phase_data()
+                if len(additional_containers) > 1:
+                    print ""
+            print("")
+
+    def generate_additional_info(self):
+        print "Additional information:"
+        func = []
+        loop = []
+        cond = []
+        for phase in self.phases:
+            func, loop, cond = phase.get_additional_containers(func, loop, cond)
+
+        self.print_additional_container_data("Functions", func)
+        self.print_additional_container_data("Loops", loop)
+        self.print_additional_container_data("Conditions", cond)
+
     def generate_documentation(self):
         self.generate_documentation_title()
         print ""
         self.generate_phase_data()
+        print ""
+        print "Expected results:"
+        print ""
+        self.generate_additional_info()
 
 
 # !!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
