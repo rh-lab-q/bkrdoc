@@ -38,81 +38,77 @@ class Generator(object):
     def get_title_data(self):
         self.phases[0].search_for_title_data()
 
-    def generate_documentation_title(self):
+    def get_documentation_title_doc(self):
         self.get_title_data()
         title_data = self.phases[0].comments_list[0].get_title_data()
-        print "Description: {0}".format(title_data["description"])
-        print "Author: {0}".format(title_data["author"])
+        documentation = "Description: {0}\n".format(title_data["description"])
+        documentation += "Author: {0}\n".format(title_data["author"])
         if title_data["key"]:
-            print "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
+            documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
         else:
-            print "Keywords: {0}".format(title_data["keywords"])
+            documentation += "Keywords: {0}".format(title_data["keywords"])
+        return documentation
 
-    def generate_phase_data(self):
-        print "Phases:"
+    def get_phase_data_documentation(self):
+        documentation = "Phases:\n"
         for phase in self.phases:
-            phase.print_documentation()
+            documentation += phase.print_documentation()
+        return documentation
 
     def print_additional_container_data(self, name, additional_containers):
+        documentation = ""
         if len(additional_containers):
-            print "  {0}:".format(name)
+            documentation += "  {0}:\n".format(name)
             for container in additional_containers:
-                container.print_additional_phase_data()
+                documentation += container.get_additional_phase_data()
                 if len(additional_containers) > 1:
-                    print ""
-            print("")
+                    documentation += "\n"
+            documentation += "\n"
+        return documentation
 
     def generate_additional_info(self):
-        print "Additional information:"
+        documentation = "Additional information:\n"
         func = []
         loop = []
         cond = []
         for phase in self.phases:
             func, loop, cond = phase.get_additional_containers(func, loop, cond)
 
-        self.print_additional_container_data("Functions", func)
-        self.print_additional_container_data("Loops", loop)
-        self.print_additional_container_data("Conditions", cond)
+        documentation += self.print_additional_container_data("Functions", func)
+        documentation += self.print_additional_container_data("Loops", loop)
+        documentation += self.print_additional_container_data("Conditions", cond)
+        return documentation
 
-    def generate_documentation(self):
-        self.generate_documentation_title()
-        print ""
-        self.generate_phase_data()
-        print ""
-        print "Expected results:"
-        print ""
-        self.generate_additional_info()
+    def generate_documentation(self, parsed_arg):
+        documentation = self.get_documentation_title_doc()
+        documentation += "\n\n"
+        documentation += self.get_phase_data_documentation()
+        documentation += "Expected results:\n"
+        documentation += "\n"
+        documentation += self.generate_additional_info()
+        if parsed_arg.FILE_NAME:
+            file_out = open(parsed_arg.FILE_NAME, "w")
+            file_out.write(documentation)
+        else:
+            print(documentation)
 
 
 # !!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
 def set_cmd_arguments():
     # Parse of arguments
-    parser = argparse.ArgumentParser(description='Parse arguments in cmd line for generator')
-    group = parser.add_mutually_exclusive_group()
-
+    parser = argparse.ArgumentParser(description='Documentation generator which creates documentation from tagged '
+                                                 'documentation comments')
     parser.add_argument('files',
                         metavar='file',
                         type=str,
                         nargs='+',
                         help='script file')
 
-    group.add_argument('--txt', '--TXT',
-                       dest='text_in',
-                       action='store_true',
-                       default=False,
-                       help='argument to make txt doc file output')
-
-    group.add_argument('--moin', '--MOIN',
-                       dest='moin_in',
-                       action='store_true',
-                       default=False,
-                       help='argument to make moinmoin doc file output')
-
     parser.add_argument('-o', '--output',
-                        dest='out_in',
-                        action='store_true',
+                        dest='FILE_NAME',
+                        type=str,
                         default=False,
-                        help='argument to save documentation to ouptut file')
+                        help='Save documentation into file with specified name.')
     return parser.parse_args()
 
 
@@ -122,15 +118,7 @@ def run_doc_generator(parsed_arg):
         part = Generator(file_in_cmd)
         part.parse_file()
         part.comments_set_up()
-        part.generate_documentation()
-        #part.parse_tags()
-        #foo = NewTextDoc(part)
-        #foo.parse_data()
-        #if (not parser_arg.text_in and not parser_arg.moin_in) or \
-        #        parser_arg.text_in:
-        #    foo.text_output(parser_arg.out_in)
-        #elif parser_arg.moin_in:
-        #    foo.moin_output(parser_arg.out_in)
+        part.generate_documentation(parsed_arg)
 
 
 if __name__ == "__main__":

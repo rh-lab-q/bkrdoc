@@ -59,29 +59,33 @@ class SimpleContainer(object):
         return func, loop, cond
 
     def print_documentation(self):
+        documentation = ""
         if not self.is_comment_list_empty():
             if self.is_test_phase_container():
-                print "  {0} {1}".format(self.name, self.name_comment)
+                documentation += "  {0} {1}\n".format(self.name, self.name_comment)
             else:
-                print "  {0}".format(self.name)
+                documentation += "  {0}\n".format(self.name)
             if self.is_outside_phase_container():
-                self.print_comments_with_offset("    ")
+                documentation += self.print_comments_with_offset("    ")
             else:
-                self.print_comments_with_offset("      ")
-            print("")
+                documentation += self.print_comments_with_offset("      ")
+            documentation += "\n"
+        return documentation
 
-    def print_additional_phase_data(self):
+    def get_additional_phase_data(self):
         pass
 
     def is_comment_list_empty(self):
         return self.comments_list == []
 
     def print_comments_with_offset(self, offset):
+        documentation = ""
         for comment in self.comments_list:
             if self.is_simple_container_instance(comment):
-                comment.print_comments_with_offset(offset + "  ")
+                documentation += comment.print_comments_with_offset(offset + "  ")
             else:
-                comment.print_data(offset)
+                documentation += comment.print_data(offset)
+        return documentation
 
     def is_simple_container_instance(self, container):
         container_names = ["LoopContainer", "FunctionContainer", "ConditionContainer"]
@@ -185,13 +189,14 @@ class ConditionContainer(SimpleContainer):
         self.statement_list = []
         self.common_comments = []
 
-    def print_additional_phase_data(self):
+    def get_additional_phase_data(self):
         offset = "    "
-        print "{0}{1}".format(offset, self.statement_list[0])
+        documentation = "{0}{1}\n".format(offset, self.statement_list[0])
         for comment in self.comments_list:
             if not self.is_simple_container_instance(comment):
-                comment.print_doc_comments_with_offset(offset + "  ")
-        print("{0}fi".format(offset))
+                documentation += comment.print_doc_comments_with_offset(offset + "  ")
+        documentation += "{0}fi\n".format(offset)
+        return documentation
 
 
 class FunctionContainer(SimpleContainer):
@@ -202,14 +207,15 @@ class FunctionContainer(SimpleContainer):
         self.statement_list = []
         self.common_comments = []
 
-    def print_additional_phase_data(self):
+    def get_additional_phase_data(self):
         offset = "    "
-        print "{0}{1}".format(offset, self.statement_list[0])
-        print offset + "{"
+        documentation = "{0}{1}\n".format(offset, self.statement_list[0])
+        documentation += offset + "{\n"
         for comment in self.comments_list:
             if not self.is_simple_container_instance(comment):
-                comment.print_doc_comments_with_offset(offset + "  ")
-        print offset + "}"
+                documentation += comment.print_doc_comments_with_offset(offset + "  ")
+        documentation += offset + "}\n"
+        return documentation
 
 
 class LoopContainer(SimpleContainer):
@@ -220,14 +226,15 @@ class LoopContainer(SimpleContainer):
         self.statement_list = []
         self.common_comments = []
 
-    def print_additional_phase_data(self):
+    def get_additional_phase_data(self):
         offset = "    "
-        print "{0}{1}".format(offset, self.statement_list[0])
-        print "{0}do".format(offset)
+        documentation = "{0}{1}\n".format(offset, self.statement_list[0])
+        documentation += "{0}do\n".format(offset)
         for comment in self.comments_list:
             if not self.is_simple_container_instance(comment):
-                comment.print_doc_comments_with_offset(offset + "  ")
-        print "{0}done".format(offset)
+                documentation += comment.print_doc_comments_with_offset(offset + "  ")
+        documentation += "{0}done\n".format(offset)
+        return documentation
 
 
 class TaggedCommentContainer(object):
@@ -257,42 +264,46 @@ class TaggedCommentContainer(object):
         self.condition_tags.append(given_tag)
 
     def print_doc_comments_with_offset(self, offset):
+        documentation = ""
         for comment in self.documentation_comments:
-            print "{0}{1}".format(offset, comment)
+            documentation += "{0}{1}\n".format(offset, comment)
+        return documentation
 
     def print_data(self, offset):
         first = True
+        documentation = ""
         for comment in self.documentation_comments:
             if self.is_code_tag():
-                print "{0}code: {1}".format(offset, comment)
+                documentation += "{0}code: {1}\n".format(offset, comment)
             elif not self.is_splitted_line_empty(self.tagged_line):
                 if self.is_phase_start_xxx(self.tagged_line):
-                    print "{0}{1}".format("    ", comment)
+                    documentation += "{0}{1}\n".format("    ", comment)
 
                 elif self.is_condition_line(self.tagged_line):
                     if first:
-                        print "{0}condition: {1}".format(offset[2:], comment)
+                        documentation += "{0}condition: {1}\n".format(offset[2:], comment)
                         first = False
                     else:
-                        print "{0}- {1}".format(offset[1:], comment)
+                        documentation += "{0}- {1}\n".format(offset[1:], comment)
 
                 elif self.is_loop_line(self.tagged_line):
                     if first:
-                        print "{0}loop: {1}".format(offset[2:], comment)
+                        documentation += "{0}loop: {1}\n".format(offset[2:], comment)
                         first = False
                     else:
-                        print "{0}- {1}".format(offset[1:], comment)
+                        documentation += "{0}- {1}\n".format(offset[1:], comment)
 
                 elif self.is_function_line(self.tagged_line):
                     if first:
-                        print "{0}function: {1}".format(offset[2:], comment)
+                        documentation += "{0}function: {1}\n".format(offset[2:], comment)
                         first = False
                     else:
-                        print "{0}- {1}".format(offset[1:], comment)
+                        documentation += "{0}- {1}\n".format(offset[1:], comment)
                 else:
-                    print "{0}{1}".format(offset, comment)
+                    documentation += "{0}{1}\n".format(offset, comment)
             else:
-                print "{0}{1}".format(offset, comment)
+                documentation += "{0}{1}\n".format(offset, comment)
+        return documentation
 
     def is_code_tag(self):
         if not self.is_splitted_line_empty(self.condition_tags):
@@ -382,6 +393,7 @@ class TaggedCommentContainer(object):
 
     def is_function_line(self, splitted_line):
         return splitted_line[0] == "function"
+
 
 class UnknownTagException(Exception):
     pass
