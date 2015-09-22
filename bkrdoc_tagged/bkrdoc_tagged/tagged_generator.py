@@ -3,6 +3,7 @@ __author__ = 'jkulda'
 import argparse
 import sys
 from tagged_parser import Parser
+from data_containers import TaggedCommentContainer
 
 
 class Generator(object):
@@ -19,7 +20,6 @@ class Generator(object):
                     self.phases = []
 
             except IOError:
-                self.fail = False
                 sys.stderr.write("ERROR: Fail to open file: " + file_in + "\n")
                 sys.exit(1)
         else:
@@ -38,6 +38,10 @@ class Generator(object):
     def get_title_data(self):
         self.phases[0].search_for_title_data()
 
+    def erase_title_data(self):
+        help_comment = TaggedCommentContainer("")
+        help_comment.erase_known_tags()
+
     def get_documentation_title_doc(self):
         self.get_title_data()
         title_data = self.phases[0].comments_list[0].get_title_data()
@@ -47,6 +51,8 @@ class Generator(object):
             documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
         else:
             documentation += "Keywords: {0}".format(title_data["keywords"])
+        # need to erase shared title data
+        self.erase_title_data()
         return documentation
 
     def get_phase_data_documentation(self):
@@ -86,15 +92,19 @@ class Generator(object):
         documentation += self.print_additional_container_data("Conditions", cond)
         return documentation
 
-    def generate_documentation(self, parsed_arg):
+    def get_documentation(self):
         documentation = self.get_documentation_title_doc()
         documentation += "\n\n"
         documentation += self.get_phase_data_documentation()
         documentation += "Expected results:\n"
         documentation += "\n"
         documentation += self.generate_additional_info()
-        if parsed_arg.FILE_NAME:
-            file_out = open(parsed_arg.FILE_NAME, "w")
+        return documentation
+
+    def show_documentation_data(self, parsed_arg):
+        documentation = self.get_documentation()
+        if parsed_arg:
+            file_out = open(parsed_arg, "w")
             file_out.write(documentation)
         else:
             sys.stdout.write(documentation)
@@ -125,7 +135,7 @@ def run_doc_generator(parsed_arg):
         part = Generator(file_in_cmd)
         part.parse_file()
         part.comments_set_up()
-        part.generate_documentation(parsed_arg)
+        part.show_documentation_data(parsed_arg.FILE_NAME)
 
 
 if __name__ == "__main__":

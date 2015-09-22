@@ -125,6 +125,24 @@ class TaggedGeneratorTests(unittest.TestCase):
 
         self.assertEqual(phases[0].get_comments_list(), [[['#@', 'condition']], [['#@', 'conditionaaaaaaaaaaaa']], [['#@', 'conditionoooooooooooo']], [['#@', 'conditioneeeeeeeeeee']], [['#@', 'conditionesss']], [['#@', 'conditionassss']], [['#@', 'conditionsdaswewqw']], [['#@', 'conditionttttttttttttt']]])
 
+    def test_abrt(self):
+        generator = Generator("./bkrdoc_tagged/examples/abrt-auto-reporting-sanity-test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation()
+        first_doc = open("./bkrdoc_tagged/examples/abrt-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_condition(self):
+        generator = Generator("./bkrdoc_tagged/examples/condition_test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation()
+        first_doc = open("./bkrdoc_tagged/examples/condition-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
 
 if __name__ == '__main__':
     unittest.main()

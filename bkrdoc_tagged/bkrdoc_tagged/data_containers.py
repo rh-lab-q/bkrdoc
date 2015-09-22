@@ -171,6 +171,7 @@ class PhaseOutsideContainer(SimpleContainer):
                 else:
                     new_coment.known_tags["author"] += ", {0}".format(data)
         self.comments_list.insert(0, new_coment)
+        new_coment = ""
 
     def is_word_in_line(self, splitted_line, word):
         splitted_line = [element.lower() for element in splitted_line]
@@ -294,6 +295,12 @@ class TaggedCommentContainer(object):
 
     def add_condition_tag(self, given_tag):
         self.condition_tags.append(given_tag)
+
+    def erase_known_tags(self):
+        self.known_tags["keywords"] = ""
+        self.known_tags["key"] = ""
+        self.known_tags["author"] = ""
+        self.known_tags["description"] = ""
 
     def print_doc_comments_with_offset(self, offset):
         documentation = ""
