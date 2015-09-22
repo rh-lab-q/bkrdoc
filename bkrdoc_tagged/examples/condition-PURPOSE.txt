@@ -1,0 +1,46 @@
+Description: 
+Author: 
+Keywords: 
+
+Phases:
+  Outside Phase
+    condition: condition
+      conditionaaaaaaaaaaaa
+    condition: conditionoooooooooooo
+      condition: conditioneeeeeeeeeee
+        conditionesss
+        conditionassss
+    condition: conditionsdaswewqw
+      conditionttttttttttttt
+
+Expected results:
+
+Additional information:
+  Conditions:
+    if [ $? -eq 0 ]
+    else
+    fi
+
+    if [ $year -eq "0" ]; then
+    elif [ $year -eq 0 ]; then
+    else
+    fi
+
+    if [ $year -eq "0" ]; then
+      condition
+      conditionaaaaaaaaaaaa
+    elif [ $year -eq 0 ]; then
+      conditionoooooooooooo
+      conditionsdaswewqw
+    else
+      conditionttttttttttttt
+    fi
+
+    if [ $year -ne 0 ]; then
+      conditioneeeeeeeeeee
+      conditionesss
+    else
+      conditionassss
+    fi
+
+
