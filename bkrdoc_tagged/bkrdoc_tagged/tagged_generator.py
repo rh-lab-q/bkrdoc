@@ -23,7 +23,7 @@ class Generator(object):
                 sys.stderr.write("ERROR: Fail to open file: " + file_in + "\n")
                 sys.exit(1)
         else:
-            print "ERROR: Not a script file. (.sh)"
+            print ("ERROR: Not a script file. (.sh)")
             sys.exit(1)
 
     def parse_file(self):
