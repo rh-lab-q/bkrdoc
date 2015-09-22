@@ -23,7 +23,13 @@ class SimpleContainer(object):
         pom_list = []
         for member in self.statement_list:
             if self.is_simple_container_instance(member):
-                pom_list += member.get_statement_list()
+                if self.is_condition_container(member):
+                    pom_list += member.get_statement_list()
+                    for elif_member in member.elif_parts:
+                        if self.is_simple_container_instance(elif_member):
+                            pom_list += elif_member.get_statement_list()
+                else:
+                    pom_list += member.get_statement_list()
             else:
                 pom_list.append(member)
         return pom_list
@@ -32,7 +38,13 @@ class SimpleContainer(object):
         pom_list = []
         for member in self.comments_list:
             if self.is_simple_container_instance(member):
-                pom_list += member.get_comments_list()
+                if self.is_condition_container(member):
+                    pom_list += member.get_comments_list()
+                    for elif_member in member.elif_parts:
+                        if self.is_simple_container_instance(elif_member):
+                            pom_list += elif_member.get_comments_list()
+                else:
+                    pom_list += member.get_comments_list()
             else:
                 pom_list.append(member.get_comments())
         return pom_list
@@ -40,13 +52,20 @@ class SimpleContainer(object):
     def comments_set_up(self):
         for comment in self.comments_list:
             if self.is_simple_container_instance(comment):
-                comment.comments_set_up()
+                if self.is_condition_container(comment):
+                    comment.comments_set_up()
+                    for elif_comment in comment.elif_parts:
+                        if self.is_simple_container_instance(elif_comment):
+                            elif_comment.comments_set_up()
+                else:
+                    comment.comments_set_up()
             else:
                 comment.search_for_tags()
 
     def get_additional_containers(self, func, loop, cond):
         for comment in self.comments_list:
             if self.is_simple_container_instance(comment):
+                # print comment
                 if self.is_function_container(comment):
                     func.append(comment)
                     func, loop, cond = comment.get_additional_containers(func, loop, cond)
@@ -56,6 +75,9 @@ class SimpleContainer(object):
                 elif self.is_condition_container(comment):
                     cond.append(comment)
                     func, loop, cond = comment.get_additional_containers(func, loop, cond)
+                    for element in comment.elif_parts:
+                        if self.is_simple_container_instance(element):
+                            func, loop, cond = element.get_additional_containers(func, loop, cond)
         return func, loop, cond
 
     def print_documentation(self):
@@ -82,7 +104,13 @@ class SimpleContainer(object):
         documentation = ""
         for comment in self.comments_list:
             if self.is_simple_container_instance(comment):
-                documentation += comment.print_comments_with_offset(offset + "  ")
+                if self.is_condition_container(comment):
+                    documentation += comment.print_comments_with_offset(offset + "  ")
+                    for elif_comment in comment.elif_parts:
+                        if self.is_simple_container_instance(elif_comment):
+                            documentation += elif_comment.print_comments_with_offset(offset + "  ")
+                else:
+                    documentation += comment.print_comments_with_offset(offset + "  ")
             else:
                 documentation += comment.print_data(offset)
         return documentation
@@ -183,11 +211,13 @@ class TestPhaseContainer(SimpleContainer):
 
 class ConditionContainer(SimpleContainer):
     condition_tag = "condition"
+    elif_parts = []
 
     def __init__(self):
         self.comments_list = []
         self.statement_list = []
         self.common_comments = []
+        self.elif_parts = []
 
     def get_additional_phase_data(self):
         offset = "    "
@@ -195,8 +225,10 @@ class ConditionContainer(SimpleContainer):
         for comment in self.comments_list:
             if not self.is_simple_container_instance(comment):
                 documentation += comment.print_doc_comments_with_offset(offset + "  ")
-        documentation += "{0}fi\n".format(offset)
         return documentation
+
+    def add_elif_part(self, container):
+        self.elif_parts.append(container)
 
 
 class FunctionContainer(SimpleContainer):
@@ -385,7 +417,8 @@ class TaggedCommentContainer(object):
         return False
 
     def is_condition_line(self, line):
-        return line[0] == "if"
+        condition_line = ["if", "elif", "else"]
+        return line[0] in condition_line
 
     def is_loop_line(self, line):
         loop_list = ["for", "while", "until"]

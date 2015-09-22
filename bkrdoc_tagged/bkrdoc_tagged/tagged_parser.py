@@ -54,9 +54,9 @@ class Parser(object):
         else:
             if not self.is_empty_line(splitted_line):
                 if self.is_condition_line(splitted_line):
-                    condition = ConditionContainer()
                     i, condition = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
-                                                                      condition, ["fi"], splitted_file_string)
+                                                                      ConditionContainer(), ["fi"],
+                                                                      splitted_file_string)
                     container.add_statement_line(condition)
                     container.add_comment(condition)
                     tagged_comment_container = ""
@@ -100,21 +100,43 @@ class Parser(object):
         container.add_statement_line(splitted_file_string[i].strip())
         i += 1
         tagged_comment_container = ""
+        is_elif_condition_part = False
 
         while i < max_len:
             line = splitted_file_string[i]
             line = line.strip()
             splitted_line = shlex.split(line, posix=False)
+
             if not self.is_empty_line(splitted_line) and self.is_seacher_keyword(searched_last_keyword, splitted_line):
                 if self.is_tagged_comment_container(tagged_comment_container):
+                    tagged_comment_container.add_tagged_line(splitted_line)
                     container.add_comment(tagged_comment_container)
                 return i, container
 
-            i, tagged_comment_container, container = self.comments_and_containers_parsing(splitted_line,
-                                                                                          tagged_comment_container,
-                                                                                          container,
-                                                                                          splitted_file_string,
-                                                                                          i, line)
+            elif not self.is_empty_line(splitted_line) and self.is_seacher_keyword(["else", "elif", "fi"], splitted_line):
+                i, condition = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
+                                                                  ConditionContainer(), ["else", "elif", "fi"],
+                                                                  splitted_file_string)
+                container.add_elif_part(condition)
+                line = splitted_file_string[i]
+                line = line.strip()
+                tagged_comment_container = ""
+                splitted_line = shlex.split(line, posix=False)
+                if not self.is_empty_line(splitted_line) and self.is_seacher_keyword(searched_last_keyword, splitted_line):
+                    if self.is_tagged_comment_container(tagged_comment_container):
+                        container.add_comment(tagged_comment_container)
+                    return i, container
+                is_elif_condition_part = True
+                i -= 1
+
+            if not is_elif_condition_part:
+                i, tagged_comment_container, container = self.comments_and_containers_parsing(splitted_line,
+                                                                                              tagged_comment_container,
+                                                                                              container,
+                                                                                              splitted_file_string,
+                                                                                              i, line)
+            if is_elif_condition_part:
+                is_elif_condition_part = False
             i += 1
         return i, container
 
@@ -123,6 +145,8 @@ class Parser(object):
         if self.is_tagged_comment_container(tagged_comment_container):
             tagged_comment_container.add_tagged_line(splitted_line)
             specific_container.add_comment(tagged_comment_container)
+            return self.parse_condition(i, splitted_file_string, end_list, specific_container)
+        else:
             return self.parse_condition(i, splitted_file_string, end_list, specific_container)
 
     def get_phases(self):

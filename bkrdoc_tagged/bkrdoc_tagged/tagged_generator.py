@@ -61,10 +61,17 @@ class Generator(object):
             documentation += "  {0}:\n".format(name)
             for container in additional_containers:
                 documentation += container.get_additional_phase_data()
+                if self.is_condition_container(container):
+                    for elif_member in container.elif_parts:
+                        documentation += elif_member.get_additional_phase_data()
+                    documentation += "{0}fi\n".format("    ")
                 if len(additional_containers) > 1:
                     documentation += "\n"
             documentation += "\n"
         return documentation
+
+    def is_condition_container(self, container):
+        return type(container).__name__ == "ConditionContainer"
 
     def generate_additional_info(self):
         documentation = "Additional information:\n"

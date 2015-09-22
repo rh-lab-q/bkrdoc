@@ -100,6 +100,31 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(parser.phases[17].get_comments_list(), [[['#@Something', 'on', 'the', 'end', 'of', 'the', 'test'], ['#could', 'be', 'anything']]])
         self.assertEqual(parser.phases[18].get_comments_list(), [])
 
+    def test_conditions(self):
+        generator = Generator("./bkrdoc_tagged/examples/condition_test.sh")
+        generator.parse_file()
+        parser = generator.parser_ref
+        phases = parser.phases
+        first_condition = phases[0].comments_list[0]
+        self.assertEqual(first_condition.statement_list, ['if [ $? -eq 0 ]', 'then', 'rlReport $1 PASS'])
+        self.assertEqual(first_condition.elif_parts[0].statement_list, ['else', 'rlReport $1 FAIL', 'RESULT="FAIL"'])
+
+        second_condition = phases[0].comments_list[1]
+        self.assertEqual(second_condition.statement_list, ['if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."'])
+        self.assertEqual(second_condition.elif_parts[0].statement_list, ['elif [ $year -eq 0 ]; then', 'echo "This is not a leap year, February has 29 days."'])
+        self.assertEqual(second_condition.elif_parts[1].statement_list, ['else', 'echo "This is not a leap year.  February has 28 days."'])
+
+        third_condition = phases[0].comments_list[2]
+        self.assertEqual(third_condition.statement_list, ['if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."'])
+        self.assertEqual(third_condition.elif_parts[0].statement_list[0], "elif [ $year -eq 0 ]; then")
+        self.assertEqual(third_condition.elif_parts[0].statement_list[1].statement_list, ['if [ $year -ne 0 ]; then', 'echo "This is not a leap year, February has 29 days."'])
+        self.assertEqual(third_condition.elif_parts[0].statement_list[1].elif_parts[0].statement_list, ['else', 'echo "This is a leap year.  February has 28 days."'])
+        self.assertEqual(third_condition.elif_parts[1].statement_list, ['else', 'echo "This is not a leap year.  February has 28 days."'])
+        # print phases[0].comments_list
+        self.assertEqual(phases[0].get_statement_list(), ['rlReport $1 FAIL', 'if [ $? -eq 0 ]', 'then', 'rlReport $1 PASS', 'else', 'rlReport $1 FAIL', 'RESULT="FAIL"', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is not a leap year.  February has 28 days."', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'if [ $year -ne 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is a leap year.  February has 28 days."', 'else', 'echo "This is not a leap year.  February has 28 days."'])
+
+        self.assertEqual(phases[0].get_comments_list(), [[['#@', 'condition']], [['#@', 'conditionaaaaaaaaaaaa']], [['#@', 'conditionoooooooooooo']], [['#@', 'conditioneeeeeeeeeee']], [['#@', 'conditionesss']], [['#@', 'conditionassss']], [['#@', 'conditionsdaswewqw']], [['#@', 'conditionttttttttttttt']]])
+
 
 if __name__ == '__main__':
     unittest.main()
