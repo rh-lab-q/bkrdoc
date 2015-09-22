@@ -143,6 +143,14 @@ class TaggedGeneratorTests(unittest.TestCase):
         data = first_doc.read()
         self.assertEqual(doc, data)
 
+    def test_containers(self):
+        generator = Generator("./bkrdoc_tagged/examples/containers_tests.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation()
+        first_doc = open("./bkrdoc_tagged/examples/containers-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
 
 if __name__ == '__main__':
     unittest.main()
