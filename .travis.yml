@@ -1,6 +1,7 @@
 language: python
 python:
   - "2.7"
+install: pip install bashlex
 # command to run tests
 script:
   - python bkrdoc_not_tagged/tests/parser_testing.py -v
