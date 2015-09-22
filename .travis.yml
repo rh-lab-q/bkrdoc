@@ -1,9 +1,10 @@
 language: python
 python:
   - "2.7"
-  - "3.0"
+  - "3.2"
   - "3.3"
   - "3.4"
+  - "3.5"
 # command to run tests
 script:
   - python bkrdoc_not_tagged/tests/parser_testing.py -v
