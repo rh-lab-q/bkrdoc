@@ -1,3 +1,4 @@
+__author__ = 'jkulda'
 from bkrdoc.option_object import *
 from bkrdoc.test_variables import *
 from bkrdoc.test_functions import *
