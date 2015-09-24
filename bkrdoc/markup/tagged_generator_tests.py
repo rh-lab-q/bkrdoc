@@ -8,7 +8,7 @@ from tagged_generator import Generator
 class TaggedGeneratorTests(unittest.TestCase):
 
     def test_phases(self):
-        generator = Generator("./bkrdoc_tagged/examples/abrt-auto-reporting-sanity-test.sh")
+        generator = Generator("./examples/markup/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         parser = generator.parser_ref
         self.assertEqual(len(parser.phases), 19)
@@ -33,7 +33,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(type(parser.phases[18]).__name__, "PhaseOutsideContainer")
 
     def test_phases_statement(self):
-        generator = Generator("./bkrdoc_tagged/examples/abrt-auto-reporting-sanity-test.sh")
+        generator = Generator("./examples/markup/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         parser = generator.parser_ref
 
@@ -77,7 +77,7 @@ class TaggedGeneratorTests(unittest.TestCase):
                                                             'rm -rf $TmpDir'])
 
     def test_phases_comments(self):
-        generator = Generator("./bkrdoc_tagged/examples/abrt-auto-reporting-sanity-test.sh")
+        generator = Generator("./examples/markup/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         parser = generator.parser_ref
         self.assertEqual(parser.phases[0].get_comments_list(), [[['#@', '@description', 'does', 'what', 'it', 'does']], [['#@', 'Function', 'that', 'configure', 'selected', 'value'], ['#@', 'does', 'not', 'require', 'any', 'parameter']], [['#@', 'comment', 'on', 'the', 'beggining']], [['#@', 'Important', 'case']], [['#@', 'comment', 'on', 'the', 'end']], [['#@', '@author', 'Janosik', 'Karel']]])
@@ -101,7 +101,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(parser.phases[18].get_comments_list(), [])
 
     def test_conditions(self):
-        generator = Generator("./bkrdoc_tagged/examples/condition_test.sh")
+        generator = Generator("./examples/markup/condition_test.sh")
         generator.parse_file()
         parser = generator.parser_ref
         phases = parser.phases
@@ -126,29 +126,29 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(phases[0].get_comments_list(), [[['#@', 'condition']], [['#@', 'conditionaaaaaaaaaaaa']], [['#@', 'conditionoooooooooooo']], [['#@', 'conditioneeeeeeeeeee']], [['#@', 'conditionesss']], [['#@', 'conditionassss']], [['#@', 'conditionsdaswewqw']], [['#@', 'conditionttttttttttttt']]])
 
     def test_abrt(self):
-        generator = Generator("./bkrdoc_tagged/examples/abrt-auto-reporting-sanity-test.sh")
+        generator = Generator("./examples/markup/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         generator.comments_set_up()
         doc = generator.get_documentation()
-        first_doc = open("./bkrdoc_tagged/examples/abrt-PURPOSE.txt", 'r')
+        first_doc = open("./examples/markup/abrt-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
 
     def test_condition(self):
-        generator = Generator("./bkrdoc_tagged/examples/condition_test.sh")
+        generator = Generator("./examples/markup/condition_test.sh")
         generator.parse_file()
         generator.comments_set_up()
         doc = generator.get_documentation()
-        first_doc = open("./bkrdoc_tagged/examples/condition-PURPOSE.txt", 'r')
+        first_doc = open("./examples/markup/condition-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
 
     def test_containers(self):
-        generator = Generator("./bkrdoc_tagged/examples/containers_tests.sh")
+        generator = Generator("./examples/markup/containers_tests.sh")
         generator.parse_file()
         generator.comments_set_up()
         doc = generator.get_documentation()
-        first_doc = open("./bkrdoc_tagged/examples/containers-PURPOSE.txt", 'r')
+        first_doc = open("./examples/markup/containers-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
 
