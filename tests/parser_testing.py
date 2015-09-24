@@ -8,10 +8,8 @@ sys.path.insert(0, './bkrdoc_not_tagged/')
 import bkrdoc
 
 
-
 class TestSequenceFunctions(unittest.TestCase):
-    
-    
+
     def test_basic(self):
         generator = bkrdoc.DocumentationGenerator()
         generator.parse_given_file("./examples/tests/apache-test.sh")
@@ -68,7 +66,6 @@ class TestSequenceFunctions(unittest.TestCase):
         inf = "Value1 _enabled must be equal to value2 $CONF_VALUE"
         self.assertEqual(inf_data.information,inf)
         self.assertEqual(sec.inf_ref.importance,4)
-
 
     def test_automata(self):
         my = bkrdoc.StatementDataSearcher(bkrdoc.Parser("./examples/tests/apache-test.sh"),bkrdoc.PhaseContainer("test"))
