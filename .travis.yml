@@ -6,6 +6,7 @@ python:
   - "3.4"
   - "3.5"
 # command to run tests
+install: python setpu.py install
 script:
   - python tests/parser_testing.py -v
   - python bkrdoc/markup/tagged_generator_tests.py -v
