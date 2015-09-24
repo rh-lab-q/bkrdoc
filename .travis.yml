@@ -7,5 +7,5 @@ python:
   - "3.5"
 # command to run tests
 script:
-  - python bkrdoc_not_tagged/tests/parser_testing.py -v
-  - python bkrdoc_tagged/bkrdoc_tagged/tagged_generator_tests.py -v
+  - python tests/parser_testing.py -v
+  - python bkrdoc/markup/tagged_generator_tests.py -v
