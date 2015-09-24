@@ -1,0 +1,19 @@
+* consistent presentation of actions and assertions (Asserts)
+* Searching for parameters important for launching tests (Phase 2)
+- adding category of credibility
+- information about credibility summary
+- make credibility information more fine grained
+- Connecting information units
+- Shortening information units 
+- Dynamic analysis
+- templates of documentation
+- Information units as data in extra config file
+- Extraction of keywords from test for documentation
+- Automatic generation of test summary
+- Implementation of rlWatchdog command extension.
+- adding removing information by set up priority
+- understanding non BeakerLib bash commands
+- show better information during errors
+- bash parser
+- searching in test functions
+- adding visibility connection between code and information
