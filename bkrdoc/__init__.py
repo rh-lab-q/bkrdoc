@@ -1,4 +1,4 @@
 __author__ = 'jkulda'
 
-import analysis
-import markup
+import bkrdoc.analysis
+import bkrdoc.markup
