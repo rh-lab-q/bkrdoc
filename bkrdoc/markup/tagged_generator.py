@@ -2,8 +2,8 @@ __author__ = 'jkulda'
 
 import argparse
 import sys
-from tagged_parser import Parser
-from data_containers import TaggedCommentContainer
+from bkrdoc.markup.tagged_parser import Parser
+from bkrdoc.markup.data_containers import TaggedCommentContainer
 
 
 class Generator(object):

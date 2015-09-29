@@ -2,7 +2,7 @@
 __author__ = 'jkulda'
 
 import unittest
-from tagged_generator import Generator
+from bkrdoc.markup.tagged_generator import Generator
 
 
 class TaggedGeneratorTests(unittest.TestCase):

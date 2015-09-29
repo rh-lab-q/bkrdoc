@@ -1,7 +1,7 @@
 __author__ = 'jkulda'
 
 import shlex
-from data_containers import *
+from bkrdoc.markup.data_containers import *
 
 
 class Parser(object):
