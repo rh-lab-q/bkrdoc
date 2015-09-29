@@ -1,4 +1,4 @@
 __author__ = 'jkulda'
-from tagged_generator import *
-from tagged_parser import *
-from data_containers import *
+from bkrdoc.markup.tagged_generator import *
+from bkrdoc.markup.tagged_parser import *
+from bkrdoc.markup.data_containers import *
