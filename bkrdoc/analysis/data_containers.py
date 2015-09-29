@@ -3,7 +3,7 @@ __author__ = 'Jiri_Kulda'
 
 import re
 import shlex
-import bkrdoc
+import bkrdoc.analysis
 import sys
 
 
@@ -18,7 +18,7 @@ class PhaseOutside:
         # self.parse_ref = parse_cmd
         self.phase_name = "Outside phase"
         self.statement_list = []
-        self.variables = bkrdoc.TestVariables()
+        self.variables = bkrdoc.analysis.TestVariables()
         self.func_list = []
 
     def setup_statement(self, line):
@@ -40,7 +40,7 @@ class PhaseOutside:
             # information from functions.
             if self.is_function(statement):
                 func = True
-                self.func_list.append(bkrdoc.TestFunction(statement[len("function")+1:]))
+                self.func_list.append(bkrdoc.analysis.TestFunction(statement[len("function")+1:]))
 
             elif func and not self.is_function_end(statement):
                 self.func_list[-1].add_line(statement)
@@ -120,7 +120,7 @@ class PhaseContainer:
         self.phase_name = name
         self.statement_list = []
         self.doc = []
-        self.variables = bkrdoc.TestVariables()
+        self.variables = bkrdoc.analysis.TestVariables()
         self.statement_classes = []
         self.documentation_units = []
         self.phase_documentation_information = []
@@ -140,7 +140,7 @@ class PhaseContainer:
         self.func_list = function_copy
         self.variables = variable_copy
         self.generator_ref = generator_ref
-        command_translator = bkrdoc.StatementDataSearcher(generator_ref, self)
+        command_translator = bkrdoc.analysis.StatementDataSearcher(generator_ref, self)
         for statement in self.statement_list:
             try:
                 self.statement_classes.append(command_translator.parse_command(statement))
@@ -160,7 +160,7 @@ class PhaseContainer:
         Searching data in function object
         :param function: function object
         """
-        command_translator = bkrdoc.StatementDataSearcher(self.generator_ref, self)
+        command_translator = bkrdoc.analysis.StatementDataSearcher(self.generator_ref, self)
         function.data_list = []
         for statement in function.statement_list:
             try:
@@ -181,7 +181,7 @@ class PhaseContainer:
         Translate data from argparse object to DocumentationInformation object
         :param parser_ref: parser reference
         """
-        data_translator = bkrdoc.DocumentationTranslator(parser_ref)
+        data_translator = bkrdoc.analysis.DocumentationTranslator(parser_ref)
         for data in self.statement_classes:
             if data.argname != "UNKNOWN":
                 self.documentation_units.append(data_translator.translate_data(data))
@@ -190,7 +190,7 @@ class PhaseContainer:
         """
         Transforms DocumentationInformation into small classes using GetInformation
         """
-        information_translator = bkrdoc.GetInformation()
+        information_translator = bkrdoc.analysis.GetInformation()
         for information in self.documentation_units:
             if information:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
@@ -201,7 +201,7 @@ class PhaseContainer:
         :param cmd_options: possible command line options
         """
         self.print_phase_name_with_documentation_credibility()
-        conditions = bkrdoc.ConditionsForCommands()
+        conditions = bkrdoc.analysis.ConditionsForCommands()
 
         for information in self.phase_documentation_information:
             if cmd_options.log_in or cmd_options.print_all:

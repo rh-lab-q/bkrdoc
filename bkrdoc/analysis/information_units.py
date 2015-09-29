@@ -1,6 +1,7 @@
 #!/usr/bin/python
 __author__ = 'Jiri_Kulda'
 
+
 class InformationUnit(object):
     """
     This is main class containing nature language information

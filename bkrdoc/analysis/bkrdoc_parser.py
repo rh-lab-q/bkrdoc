@@ -4,7 +4,7 @@ __author__ = 'Jiri_Kulda'
 
 import shlex
 import sys
-import bkrdoc
+import bkrdoc.analysis
 
 
 class Parser(object):
@@ -69,7 +69,7 @@ class Parser(object):
         """
         Method which divides lines of code into phase containers.
         """
-        self.phases.append(bkrdoc.PhaseOutside())
+        self.phases.append(bkrdoc.analysis.PhaseOutside())
 
         pom_line = ""
         for line in self.file_test.split('\n'):
@@ -79,7 +79,7 @@ class Parser(object):
                     not self.is_phase_journal_end(line):
 
                 if self.is_phase(line):
-                    self.phases.append(bkrdoc.PhaseContainer(line[len("rlphasestart"):]))
+                    self.phases.append(bkrdoc.analysis.PhaseContainer(line[len("rlphasestart"):]))
 
                 elif self.is_end_back_slash(line):
                     pom_line += line[0:-1]
@@ -92,7 +92,7 @@ class Parser(object):
                         self.phases[-1].setup_statement(line)
 
             elif self.is_phase_journal_end(line):
-                self.phases.append(bkrdoc.PhaseOutside())
+                self.phases.append(bkrdoc.analysis.PhaseOutside())
 
     def print_statement(self):
         for i in self.phases:

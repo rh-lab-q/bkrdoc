@@ -2,8 +2,7 @@
 # author Jiri Kulda
 
 import argparse
-import bkrdoc
-
+import bkrdoc.analysis
 
 
 class DocumentationGenerator:
@@ -16,7 +15,7 @@ class DocumentationGenerator:
         self._phases = ""
 
     def parse_given_file(self, file):
-            self._parser_ref = bkrdoc.Parser(file)
+            self._parser_ref = bkrdoc.analysis.Parser(file)
             self._phases = self._parser_ref.get_phases()
 
     def set_test_launch(self, number_of_variables):
@@ -42,16 +41,16 @@ class DocumentationGenerator:
         After this method finishes all phase containers will have argparse object
         with parsed data.
         """
-        pom_var = bkrdoc.TestVariables()
+        pom_var = bkrdoc.analysis.TestVariables()
         pom_func = []
         for member in self._phases:
             if not self.is_phase_outside(member):
                 member.search_data(self, pom_var, pom_func)
-                pom_var = bkrdoc.TestVariables()
+                pom_var = bkrdoc.analysis.TestVariables()
 
             else:
                 member.search_data(pom_var, pom_func)
-                pom_var = bkrdoc.TestVariables()
+                pom_var = bkrdoc.analysis.TestVariables()
 
             # copying variables to new variable instance
             for var in member.variables.variable_names_list:
