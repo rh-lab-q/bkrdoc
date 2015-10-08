@@ -60,7 +60,6 @@ Phases:
     Something on the end of the test
     could be anything
 
-Expected results:
 
 Additional information:
   Functions:

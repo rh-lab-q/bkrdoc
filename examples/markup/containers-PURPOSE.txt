@@ -1,5 +1,5 @@
 Description: AHOOOOJ svete
-Author: Karel Nejezchleb
+Author: 
 Keywords: 
 
 Phases:
@@ -20,7 +20,6 @@ Phases:
     condition: conditionsdaswewqw
       conditionttttttttttttt
 
-Expected results:
 
 Additional information:
   Loops:
@@ -39,8 +38,8 @@ Additional information:
       conditionaaaaaaaaaaaa
     elif [ $year -eq 0 ]; then
       conditionoooooooooooo
-      conditionsdaswewqw
     else
+      conditionsdaswewqw
       conditionttttttttttttt
     fi
 

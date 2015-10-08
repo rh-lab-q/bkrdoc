@@ -96,7 +96,6 @@ class Generator(object):
         documentation = self.get_documentation_title_doc()
         documentation += "\n\n"
         documentation += self.get_phase_data_documentation()
-        documentation += "Expected results:\n"
         documentation += "\n"
         documentation += self.generate_additional_info()
         return documentation

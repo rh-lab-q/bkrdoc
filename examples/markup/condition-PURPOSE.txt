@@ -9,11 +9,11 @@ Phases:
     condition: conditionoooooooooooo
       condition: conditioneeeeeeeeeee
         conditionesss
+      condition: 
         conditionassss
     condition: conditionsdaswewqw
       conditionttttttttttttt
 
-Expected results:
 
 Additional information:
   Conditions:
@@ -31,8 +31,8 @@ Additional information:
       conditionaaaaaaaaaaaa
     elif [ $year -eq 0 ]; then
       conditionoooooooooooo
-      conditionsdaswewqw
     else
+      conditionsdaswewqw
       conditionttttttttttttt
     fi
 
