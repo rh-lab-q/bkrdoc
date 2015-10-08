@@ -60,7 +60,12 @@ class SimpleContainer(object):
                 else:
                     comment.comments_set_up()
             else:
-                comment.search_for_tags()
+                try:
+                    comment.search_for_tags()
+                except UnknownTagException as detail:
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print("Unknown Tag Exception: \"{0}\"".format(detail))
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     def get_additional_containers(self, func, loop, cond):
         for comment in self.comments_list:
