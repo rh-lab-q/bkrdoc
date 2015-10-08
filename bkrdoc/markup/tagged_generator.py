@@ -57,8 +57,13 @@ class Generator(object):
 
     def get_phase_data_documentation(self):
         documentation = "Phases:\n"
+        pom_doc = ""
         for phase in self.phases:
-            documentation += phase.print_documentation()
+            pom_doc += phase.print_documentation()
+            phases_doc_split = pom_doc.strip().split("\n")
+            if len(phases_doc_split) > 1:
+                documentation += pom_doc
+            pom_doc = ""
         return documentation
 
     def print_additional_container_data(self, name, additional_containers):
