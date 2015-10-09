@@ -47,8 +47,10 @@ class Generator(object):
         title_data = self.phases[0].comments_list[0].get_title_data()
         documentation = "Description: {0}\n".format(title_data["description"])
         documentation += "Author: {0}\n".format(title_data["author"])
-        if title_data["key"]:
+        if title_data["key"] and title_data["keywords"]:
             documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
+        elif title_data["key"] and not title_data["keywords"]:
+            documentation += "Keywords: {0}".format(title_data["key"])
         else:
             documentation += "Keywords: {0}".format(title_data["keywords"])
         # need to erase shared title data
