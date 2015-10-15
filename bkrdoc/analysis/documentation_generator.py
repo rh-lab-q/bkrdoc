@@ -237,6 +237,7 @@ class DocumentationGenerator:
     def is_phase_outside(self, phase_ref):
         return phase_ref.phase_name == "Outside phase"
 
+
 #  ***************** MAIN ******************
 def set_cmd_arguments():
     """
@@ -257,7 +258,7 @@ def set_cmd_arguments():
     return parser_arg
 
 
-def run_doc_generator(parser_arg):
+def run_analysis_doc_generator(parser_arg):
     """
     This method runs documentation generator
     :param parser_arg: argparse object
@@ -272,4 +273,4 @@ def run_doc_generator(parser_arg):
 
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()
-    run_doc_generator(CMD_args)
+    run_analysis_doc_generator(CMD_args)

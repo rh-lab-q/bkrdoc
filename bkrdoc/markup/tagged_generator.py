@@ -135,7 +135,7 @@ def set_cmd_arguments():
     return parser.parse_args()
 
 
-def run_doc_generator(parsed_arg):
+def run_markup_doc_generator(parsed_arg):
     # cycle of script files to be transformed to documentation
     for file_in_cmd in parsed_arg.files:
         part = Generator(file_in_cmd)
@@ -146,5 +146,5 @@ def run_doc_generator(parsed_arg):
 
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()
-    run_doc_generator(CMD_args)
+    run_markup_doc_generator(CMD_args)
 

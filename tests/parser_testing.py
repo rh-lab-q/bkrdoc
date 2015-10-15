@@ -5,7 +5,8 @@ import sys
 
 sys.path.insert(0, '..')
 sys.path.insert(0, './bkrdoc_not_tagged/')
-import bkrdoc
+import bkrdoc.analysis
+import bkrdoc.markup
 
 
 class TestSequenceFunctions(unittest.TestCase):

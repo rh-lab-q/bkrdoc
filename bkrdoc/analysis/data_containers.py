@@ -103,7 +103,6 @@ class PhaseOutside:
                 return False
 
 
-
 class PhaseContainer:
     """Class for store information in test phase"""
     phase_name = ""
