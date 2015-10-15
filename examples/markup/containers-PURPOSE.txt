@@ -4,20 +4,20 @@ Keywords:
 
 Phases:
   Outside Phase
-    condition: condition
+    if: condition
       conditionaaaaaaaaaaaa
-    condition: conditionoooooooooooo
-      condition: conditioneeeeeeeeeee
+    elif: conditionoooooooooooo
+      if: conditioneeeeeeeeeee
         conditionesss
-        loop: conditionassss
+        for: conditionassss
           code: rlRun "abrt-auto-reporting $arg"
           code: get_configured_value
-          condition: Test if actualy value in arg is not "enabled" and "disabled"
+          if: Test if actualy value in arg is not "enabled" and "disabled"
             wee will seee
             code: rlFail "Mangles the configuration value"
           something which is connected to this loop
           code: OLD=$CONF_VALUE
-    condition: conditionsdaswewqw
+    else: conditionsdaswewqw
       conditionttttttttttttt
 
 

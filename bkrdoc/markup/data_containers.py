@@ -119,20 +119,13 @@ class SimpleContainer(object):
                 else:
                     documentation += comment.print_comments_with_offset(offset + "  ")
             else:
-                # print "FIRST:= {0} Documentation:= {1} ".format(first, comment.documentation_comments)
                 if first:
                     if self.is_setup_test_cleanup_tag(documentation_tag):
                         documentation += comment.print_data(offset[2:], "")
-                        #print "WAS?"
                     else:
-                        #print("-------------------------")
-                        #print comment.documentation_comments
-                        #print documentation_tag
-                        #print("-------------------------")
                         documentation += comment.print_data(offset, documentation_tag)
                     first = False
                 else:
-                    #print("HMMMM")
                     documentation += comment.print_data(offset, "")
         return documentation
 
@@ -266,7 +259,22 @@ class ConditionContainer(SimpleContainer):
         self.elif_parts.append(container)
 
     def get_name(self):
+        if self.is_elif_in_line(self.statement_list[0]):
+            return "elif"
+        elif self.is_else_in_line(self.statement_list[0]):
+            return "else"
+        elif self.is_if_in_line(self.statement_list[0]):
+            return "if"
         return self.condition_tag
+
+    def is_elif_in_line(self, line):
+        return line.find("elif") > -1
+
+    def is_else_in_line(self, line):
+        return line.find("else", 0, 5) > -1
+
+    def is_if_in_line(self, line):
+        return line.find("if", 0, 3) > -1
 
 
 class FunctionContainer(SimpleContainer):
@@ -310,7 +318,20 @@ class LoopContainer(SimpleContainer):
         return documentation
 
     def get_name(self):
+        if self.is_for_in_line(self.statement_list[0]):
+            return "for"
+        elif self.is_while_in_line(self.statement_list[0]):
+            return "while"
         return self.loop_tag
+
+    def is_for_in_line(self, line):
+        return line.find("for", 0, 4) > -1
+
+    def is_while_in_line(self, line):
+        return line.find("while", 0, 6) > -1
+
+    def is_do_while_in_line(self, line):
+        return line.find("do", 0, 3) > -1
 
 
 class TaggedCommentContainer(object):

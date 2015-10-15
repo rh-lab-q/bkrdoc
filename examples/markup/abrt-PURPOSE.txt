@@ -42,10 +42,10 @@ Phases:
 
   Test "various argument types"
     Various types of arguments will start this part
-      loop: for every argument in selected word will do...
+      for: for every argument in selected word will do...
         code: rlRun "abrt-auto-reporting $arg"
         code: get_configured_value
-        condition: Test if actualy value in arg is not "enabled" and "disabled"
+        if: Test if actualy value in arg is not "enabled" and "disabled"
           wee will seee
           code: rlFail "Mangles the configuration value"
         something which is connected to this loop

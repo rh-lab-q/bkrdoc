@@ -4,14 +4,14 @@ Keywords:
 
 Phases:
   Outside Phase
-    condition: condition
+    if: condition
       conditionaaaaaaaaaaaa
-    condition: conditionoooooooooooo
-      condition: conditioneeeeeeeeeee
+    elif: conditionoooooooooooo
+      if: conditioneeeeeeeeeee
         conditionesss
-      condition: 
+      else: 
         conditionassss
-    condition: conditionsdaswewqw
+    else: conditionsdaswewqw
       conditionttttttttttttt
 
 
