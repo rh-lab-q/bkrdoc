@@ -3,12 +3,12 @@ import argparse
 from bkrdoc.analysis.documentation_generator import run_analysis_doc_generator
 from bkrdoc.markup.tagged_generator import run_markup_doc_generator
 
+
 def analysis_run(args):
     run_analysis_doc_generator(args)
 
 
 def markup_run(args):
-    #markup.Generator(args.file)
     run_markup_doc_generator(args)
 
 
@@ -58,6 +58,7 @@ def parse_cmd_arguments():
     try:
         parser_arg.func(parser_arg)
     except Exception as exc:
+        print ("Error with function parsing. If this is a bug make an issue in github repo")
         print exc
 
 if __name__ == "__main__":
