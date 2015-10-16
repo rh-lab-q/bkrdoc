@@ -5,7 +5,7 @@ This project aims to provide tools for automated documentation generation for Be
 
 ## 1. Introduction
 ### 1.1 What is bkrdoc?
-**bkrdoc** is a documentation generator from tests written using **BeakerLib** library. This generator makes documentation from test code without any documentation markup.
+**bkrdoc** is a documentation generator from tests written using **BeakerLib** library. This generator makes documentation from test code with and also without any documentation markup.
 
 ### 1.2 What it`s good for?
 For fast, brief and reliable documentation creation. It`s good for quick start with unknown **BeakerLib** test. Created documentations provides information about the documentation credibility. Also created documentations shows environmental variables and helps reader to run test script from which was documentation created. 
@@ -30,11 +30,18 @@ Feel free to send me an email (Kulda12@seznam.cz) for any question you have on *
 - **bkrdoc** has no external dependencies.
 
 ### 2.2 Installation process
-Instalation is very simple. First you need to download whole project and after that run setup.py script in bkrdoc_not_tagged folder. For executing setup.py file you need to run this standart `python setup.py install`. 
+Instalation is very simple. You have two choices. First is to download rpm from [bkrdoc](https://pypi.python.org/pypi/bkrdoc) pypi and easily install it. Second choice is to download whole project and after that run setup.py script in bkrdoc folder. For executing setup.py file you need to run this standart `python setup.py install` command. 
 
 ## 3. Using
 ### 3.1 Basic usage
-Documentation generator is `documentation_generator.py` file. To create documentation from **BeakerLib** test you need to execute `documentation_generator.py` file. Shown on this example:`python documentation_generator.py [BeakerLib_test.sh]`.
+Documentation generator for analysis is `documentation_generator.py` file and for markup is `tagged_generator.py`. For generation of documentation there is file called `bkrdoc/bkrdoc.py`.  Shown on this example:
+```
+for analysis:
+python bkrdoc.py analysis [analysis-options] [BeakerLib_test.sh]
+
+for markup:
+python bkrdoc.py markup [markup-options] [BeakerLib_test.sh]
+```
 
 ## 4. Package contents
 After downloading bkrdoc project, you will see following files and directories:
@@ -45,11 +52,23 @@ This README file.
 _**LICENSE:**_
 File with bkrdoc license.
 
-_**bkrdoc_not_tagged/:**_
-Folder with bkrdoc generator which is creating documentations from **BeakerLib** tests without any documentation markup.
+_**bkrdoc/:**_
+Folder with bkrdoc generator which is creating documentations from **BeakerLib** tests with and without any documentation markup.
 
-_**bkrdoc_tagged/:**_
-Folder with bkrdoc generator which is creating documentation from **BeakerLib** test _with_ specific documentation markup.
+_**bkrdoc/analysis/:**_
+Folder with sources for automated documentation generator without documentation markup
+
+_**bkrdoc/markup/:**_
+Folder with sources for automated documentation generator with documentation markup
+
+_**examples/:**_
+This folder contains some **BeakerLib** tests and generated documentations
+
+_**docs/:**_
+Folder contains TODO options and first documentation format.
+
+_**tests/:**_
+Folder contains files for bkrdoc testing
 
 ## 5. CI Status
 **bkrdoc** is automatically tested by [Travis CI project](https://travis-ci.org). Latest build status is: 
