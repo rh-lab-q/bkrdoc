@@ -103,34 +103,77 @@ class SimpleContainer(object):
         pass
 
     def is_comment_list_empty(self):
-        return self.comments_list == []
+        if not self.comments_list:
+            return False
+        else:
+            return self.search_for_emptiness(self.comments_list)
 
     def print_comments_with_offset(self, offset):
         documentation = ""
         documentation_tag = self.get_name()
-        first = True
-        for comment in self.comments_list:
-            if self.is_simple_container_instance(comment):
-                if self.is_condition_container(comment):
-                    documentation += comment.print_comments_with_offset(offset + "  ")
-                    for elif_comment in comment.elif_parts:
-                        if self.is_simple_container_instance(elif_comment):
-                            documentation += elif_comment.print_comments_with_offset(offset + "  ")
-                else:
-                    documentation += comment.print_comments_with_offset(offset + "  ")
-            else:
-                if first:
-                    if self.is_setup_test_cleanup_tag(documentation_tag):
-                        documentation += comment.print_data(offset[2:], "")
+
+        if not self.is_comment_list_empty():
+            first = True
+            for comment in self.comments_list:
+                if self.is_simple_container_instance(comment):
+                    # print "LOL {0}".format(documentation_tag)
+                    # print self.comments_list
+                    if first:
+                        # print "???..."
+                        documentation += "{0}{1}:\n".format(offset[2:], documentation_tag)
+                        first = False
+                    if self.is_condition_container(comment):
+                        documentation += comment.print_comments_with_offset(offset + "  ")
+                        for elif_comment in comment.elif_parts:
+                            if self.is_simple_container_instance(elif_comment):
+                                documentation += elif_comment.print_comments_with_offset(offset + "  ")
                     else:
-                        documentation += comment.print_data(offset, documentation_tag)
-                    first = False
+                        # print "???"
+                        documentation += comment.print_comments_with_offset(offset + "  ")
                 else:
-                    documentation += comment.print_data(offset, "")
-        return documentation
+                    if first:
+                        if self.is_setup_test_cleanup_tag(documentation_tag):
+                            documentation += comment.print_data(offset[2:], "")
+                            # print "{0} !!!!!!! {1}".format(documentation_tag, type(comment).__name__)
+                        elif self.is_condition_container(self):
+                            # print "{0} +++++++++++++++++ {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
+                            if not self.search_for_emptiness(self.comments_list) and \
+                                    self.search_for_emptiness(self.comments_list[1:]) and \
+                                    self.comments_list[0].is_description_comment():
+                                if self.search_for_emptiness(self.elif_parts):
+                                    documentation += comment.print_data(offset[2:], "")
+                                else:
+                                    documentation += comment.print_data(offset, documentation_tag)
+                            else:
+                                documentation += comment.print_data(offset, documentation_tag)
+                        elif self.is_loop_container(self):
+                            if self.comments_list[0].is_description_comment() and self.search_for_emptiness(self.comments_list[1:]):
+                                documentation += comment.print_data(offset[2:], "")
+                            else:
+                                # print "{0} /////////////////// {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
+                                documentation += comment.print_data(offset, documentation_tag)
+                        else:
+                            documentation += comment.print_data(offset, documentation_tag)
+                            # print "{0} --------- {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
+                        first = False
+                    else:
+                        # print "{0} :::::::: {1}".format(documentation_tag, type(comment).__name__)
+                        documentation += comment.print_data(offset, "")
+            return documentation
+        return ""
 
     def get_name(self):
         pass
+
+    def search_for_emptiness(self, data):
+        empty = True
+        for member in data:
+            if self.is_simple_container_instance(member):
+                if not member.is_comment_list_empty():
+                    empty = False
+            elif self.is_tagged_comment_container(member):
+                return False
+        return empty
 
     def is_simple_container_instance(self, container):
         container_names = ["LoopContainer", "FunctionContainer", "ConditionContainer"]
@@ -154,6 +197,9 @@ class SimpleContainer(object):
     def is_setup_test_cleanup_tag(self, tag):
         tags = ["Cleanup", "Setup", "Test"]
         return tag in tags
+
+    def is_tagged_comment_container(self, container):
+        return type(container).__name__ == "TaggedCommentContainer"
 
 
 class PhaseOutsideContainer(SimpleContainer):
@@ -276,6 +322,21 @@ class ConditionContainer(SimpleContainer):
     def is_if_in_line(self, line):
         return line.find("if", 0, 3) > -1
 
+    def is_comment_list_empty(self):
+        if not self.comments_list and not self.elif_parts:
+            return True
+        elif not self.comments_list and self.elif_parts:
+            return self.search_for_emptiness(self.elif_parts)
+        elif self.comments_list and not self.elif_parts:
+            return self.search_for_emptiness(self.comments_list)
+        else:
+            empty = True
+            if not self.search_for_emptiness(self.comments_list):
+                empty = False
+            if not self.search_for_emptiness(self.elif_parts):
+                empty = False
+            return empty
+
 
 class FunctionContainer(SimpleContainer):
     function_tag = "function"
@@ -333,6 +394,13 @@ class LoopContainer(SimpleContainer):
     def is_do_while_in_line(self, line):
         return line.find("do", 0, 3) > -1
 
+    def is_comment_list_empty(self):
+        empty = True
+        if not self.comments_list:
+            return True
+        else:
+            return self.search_for_emptiness(self.comments_list)
+
 
 class TaggedCommentContainer(object):
 
@@ -379,6 +447,8 @@ class TaggedCommentContainer(object):
         for comment in self.documentation_comments:
             #print "Comment {0} with tagged line {1}".format(comment, self.tagged_line)
             if self.is_code_tag():
+                if documentation_tag:
+                    documentation += "{0}{1}: \n".format(offset[2:], documentation_tag)
                 documentation += "{0}code: {1}\n".format(offset, comment)
             elif not self.is_splitted_line_empty(self.tagged_line):
                 if documentation_tag and first:
@@ -495,6 +565,10 @@ class TaggedCommentContainer(object):
     def is_function_loop_condition_line(self, splitted_line):
         pom_list = ["if", "elif", "else", "for", "while", "until", "function"]
         return splitted_line[0] in pom_list
+
+    def is_description_comment(self):
+        return self.is_function_loop_condition_line(self.tagged_line)
+
 
 class UnknownTagException(Exception):
     pass

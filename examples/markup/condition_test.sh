@@ -18,7 +18,7 @@ fi
 if [ $year -eq "0" ]; then
 #@ conditionaaaaaaaaaaaa
   echo "This is a leap year.  February has 29 days."
-  #@ conditionoooooooooooo
+#@ conditionoooooooooooo
 elif [ $year -eq 0 ]; then
 #@ conditioneeeeeeeeeee
         if [ $year -ne 0 ]; then
@@ -31,5 +31,35 @@ elif [ $year -eq 0 ]; then
         #@ conditionsdaswewqw
 else
 #@ conditionttttttttttttt
+  echo "This is not a leap year.  February has 28 days."
+fi
+#@ Little condition description without inside conditions
+if [ $year -eq "0" ]; then
+  echo "This is a leap year.  February has 29 days."
+elif [ $year -eq 0 ]; then
+   echo "This is not a leap year, February has 29 days."
+else
+  echo "This is not a leap year.  February has 28 days."
+fi
+if [ $year -eq "0" ]; then
+#@ Big condition description with inside conditions
+  echo "This is a leap year.  February has 29 days."
+elif [ $year -eq 0 ]; then
+        if [ $year -ne 0 ]; then
+          echo "This is not a leap year, February has 29 days."
+        else
+          echo "This is a leap year.  February has 28 days."
+        fi
+else
+  echo "This is not a leap year.  February has 28 days."
+fi
+#@ Little condition description without inside conditions
+if [ $year -eq "0" ]; then
+#@ Little condition description without inside conditions
+  echo "This is a leap year.  February has 29 days."
+  #@ Little condition description without inside conditions ELIF
+elif [ $year -eq 0 ]; then
+   echo "This is not a leap year, February has 29 days."
+else
   echo "This is not a leap year.  February has 28 days."
 fi

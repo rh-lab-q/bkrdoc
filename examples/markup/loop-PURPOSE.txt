@@ -1,0 +1,56 @@
+Description: 
+Author: MAN
+Keywords: 
+
+Phases:
+  Outside Phase
+    if:
+      if: conditioneeeeeeeeeee
+        conditionesss
+      else:
+        for: conditionassss
+          code: rlRun "abrt-auto-reporting $arg"
+        for: 
+          code: rlRun "abrt-auto-reporting $arg"
+        conditionassss
+    else: conditionsdaswewqw
+      conditionttttttttttttt
+
+
+Additional information:
+  Loops:
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      conditionassss
+      rlRun "abrt-auto-reporting $arg"
+    done
+
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      rlRun "abrt-auto-reporting $arg"
+    done
+
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      conditionassss
+    done
+
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+    done
+
+
+  Conditions:
+    if [ $year -eq 0 ]; then
+    else
+      conditionsdaswewqw
+      conditionttttttttttttt
+    fi
+
+    if [ $year -ne 0 ]; then
+      conditioneeeeeeeeeee
+      conditionesss
+    else
+    fi
+
+

@@ -9,6 +9,7 @@ Phases:
     elif: conditionoooooooooooo
       if: conditioneeeeeeeeeee
         conditionesss
+      else:
         for: conditionassss
           code: rlRun "abrt-auto-reporting $arg"
           code: get_configured_value

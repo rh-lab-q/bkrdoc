@@ -121,9 +121,8 @@ class TaggedGeneratorTests(unittest.TestCase):
         self.assertEqual(third_condition.elif_parts[0].statement_list[1].elif_parts[0].statement_list, ['else', 'echo "This is a leap year.  February has 28 days."'])
         self.assertEqual(third_condition.elif_parts[1].statement_list, ['else', 'echo "This is not a leap year.  February has 28 days."'])
         # print phases[0].comments_list
-        self.assertEqual(phases[0].get_statement_list(), ['rlReport $1 FAIL', 'if [ $? -eq 0 ]', 'then', 'rlReport $1 PASS', 'else', 'rlReport $1 FAIL', 'RESULT="FAIL"', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is not a leap year.  February has 28 days."', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'if [ $year -ne 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is a leap year.  February has 28 days."', 'else', 'echo "This is not a leap year.  February has 28 days."'])
-
-        self.assertEqual(phases[0].get_comments_list(), [[['#@', 'condition']], [['#@', 'conditionaaaaaaaaaaaa']], [['#@', 'conditionoooooooooooo']], [['#@', 'conditioneeeeeeeeeee']], [['#@', 'conditionesss']], [['#@', 'conditionassss']], [['#@', 'conditionsdaswewqw']], [['#@', 'conditionttttttttttttt']]])
+        self.assertEqual(phases[0].get_statement_list(),['rlReport $1 FAIL', 'if [ $? -eq 0 ]', 'then', 'rlReport $1 PASS', 'else', 'rlReport $1 FAIL', 'RESULT="FAIL"', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is not a leap year.  February has 28 days."', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'if [ $year -ne 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is a leap year.  February has 28 days."', 'else', 'echo "This is not a leap year.  February has 28 days."', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is not a leap year.  February has 28 days."', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'if [ $year -ne 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is a leap year.  February has 28 days."', 'else', 'echo "This is not a leap year.  February has 28 days."', 'if [ $year -eq "0" ]; then', 'echo "This is a leap year.  February has 29 days."', 'elif [ $year -eq 0 ]; then', 'echo "This is not a leap year, February has 29 days."', 'else', 'echo "This is not a leap year.  February has 28 days."'])
+        self.assertEqual(phases[0].get_comments_list(), [[['#@', 'condition']], [['#@', 'conditionaaaaaaaaaaaa']], [['#@', 'conditionoooooooooooo']], [['#@', 'conditioneeeeeeeeeee']], [['#@', 'conditionesss']], [['#@', 'conditionassss']], [['#@', 'conditionsdaswewqw']], [['#@', 'conditionttttttttttttt']], [['#@', 'Little', 'condition', 'description', 'without', 'inside', 'conditions']], [['#@', 'Big', 'condition', 'description', 'with', 'inside', 'conditions']], [['#@', 'Little', 'condition', 'description', 'without', 'inside', 'conditions']], [['#@', 'Little', 'condition', 'description', 'without', 'inside', 'conditions']], [['#@', 'Little', 'condition', 'description', 'without', 'inside', 'conditions', 'ELIF']]])
 
     def test_abrt(self):
         generator = Generator("./examples/markup/abrt-auto-reporting-sanity-test.sh")
@@ -149,6 +148,15 @@ class TaggedGeneratorTests(unittest.TestCase):
         generator.comments_set_up()
         doc = generator.get_documentation()
         first_doc = open("./examples/markup/containers-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_loops(self):
+        generator = Generator("./examples/markup/loop_test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation()
+        first_doc = open("./examples/markup/loop-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
 
