@@ -3,7 +3,6 @@ __author__ = 'Jiri_Kulda'
 
 import re
 import shlex
-import credibility
 import bkrdoc.analysis
 import sys
 
@@ -212,7 +211,7 @@ class PhaseContainer:
     def print_phase_name_with_documentation_credibility(self):
         total_commands = len(self.statement_list)
         unknown_commands = total_commands - len(self.phase_documentation_information)
-        phase_credibility = credibility.DocumentationCredibility(unknown_commands, total_commands)
+        phase_credibility = bkrdoc.analysis.credibility.DocumentationCredibility(unknown_commands, total_commands)
         inf = self.phase_name + " [ Unknown commands: " + str(unknown_commands) + ", Total: " + str(total_commands) \
                               + ", Documentation credibility: " + phase_credibility.get_credibility() + " ]"
         print(inf)
