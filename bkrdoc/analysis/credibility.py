@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from __future__ import division  # floating-point division
 
 
@@ -5,7 +6,8 @@ class DocumentationCredibility:
     """
     DocumentationCredibility class provides simple key(0-5 (LOW to HIGH)) to credibility conversion
     based on Unknown to Total commands ratio.
-    :param credibility: dictionary-like key-to-credibility conversion
+    :param credibility: credibility computed from number of unknown vs. total commands provided to the constructor
+    :param credibilityTable: dictionary-like key-to-credibility conversion
     """
     credibility = ""
 

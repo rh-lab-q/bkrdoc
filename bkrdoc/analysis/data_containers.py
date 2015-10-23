@@ -3,9 +3,9 @@ __author__ = 'Jiri_Kulda'
 
 import re
 import shlex
+import credibility
 import bkrdoc.analysis
 import sys
-import credibility
 
 
 class PhaseOutside:
