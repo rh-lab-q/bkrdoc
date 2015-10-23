@@ -5,6 +5,7 @@ import re
 import shlex
 import bkrdoc.analysis
 import sys
+import credibility
 
 
 class PhaseOutside:
@@ -36,7 +37,7 @@ class PhaseOutside:
         func = False
         for statement in self.statement_list:
 
-            # This three conditions are here because of getting further
+            # These three conditions are here because of getting further
             # information from functions.
             if self.is_function(statement):
                 func = True
@@ -60,7 +61,7 @@ class PhaseOutside:
                     # condition to handle assign to random value
                     # setting variable list
                         if equal_to == '=':
-                        # This 7 lines are here for erasing comments and for reading whole line
+                        # These 7 lines are here for erasing comments and for reading whole line
                             pom_i = statement.find("=", len(member)) + 1
                             list_of_statement = shlex.split(statement[pom_i:], True, True)
                             value = ""
@@ -104,7 +105,7 @@ class PhaseOutside:
 
 
 class PhaseContainer:
-    """Class for store information in test phase"""
+    """Class for storing information in test phase"""
     phase_name = ""
     statement_list = []
     doc_ref = ""
@@ -209,8 +210,11 @@ class PhaseContainer:
                 information.print_information()
 
     def print_phase_name_with_documentation_credibility(self):
-        credibility = len(self.statement_list) - len(self.phase_documentation_information)
-        inf = self.phase_name + " [ Unknown commands: " + str(credibility) + ", Total: " + str(len(self.statement_list)) + " ]"
+        total_commands = len(self.statement_list)
+        unknown_commands = total_commands - len(self.phase_documentation_information)
+        phase_credibility = credibility.DocumentationCredibility(unknown_commands, total_commands)
+        inf = self.phase_name + " [ Unknown commands: " + str(unknown_commands) + ", Total: " + str(total_commands) \
+                              + ", Documentation credibility: " + phase_credibility.get_credibility() + " ]"
         print(inf)
 
     def get_information_list(self):

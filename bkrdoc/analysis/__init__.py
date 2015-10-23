@@ -13,3 +13,4 @@ from .documentation_translator import *
 from .documentation_generator import *
 from .get_information import *
 from .Statement_data_searcher import *
+from .credibility import *
