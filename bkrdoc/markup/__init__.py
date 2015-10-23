@@ -1,4 +1,2 @@
 __author__ = 'jkulda'
-from .tagged_generator import *
-from .tagged_parser import *
-from .data_containers import *
+__all__ = ['tagged_generator', 'tagged_parser', 'data_containers']
