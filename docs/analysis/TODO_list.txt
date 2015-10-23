@@ -17,3 +17,4 @@
 - bash parser
 - searching in test functions
 - adding visibility connection between code and information
+- short whole documentation by some ratio not just 32 lines
