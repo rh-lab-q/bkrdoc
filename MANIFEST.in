@@ -1,4 +1,4 @@
 recursive-include docs *
 recursive-include examples *
-include bkrdoc.py
+include beakerlib_doc.py
 include README.md
