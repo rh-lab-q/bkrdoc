@@ -211,9 +211,8 @@ class PhaseContainer:
     def print_phase_name_with_documentation_credibility(self):
         total_commands = len(self.statement_list)
         unknown_commands = total_commands - len(self.phase_documentation_information)
-        phase_credibility = bkrdoc.analysis.credibility.DocumentationCredibility(unknown_commands, total_commands)
         inf = self.phase_name + " [ Unknown commands: " + str(unknown_commands) + ", Total: " + str(total_commands) \
-                              + ", Documentation credibility: " + phase_credibility.get_credibility() + " ]"
+                              + ", Documentation credibility: " + self.get_phase_credibility().get_credibility() + " ]"
         print(inf)
 
     def get_information_list(self):
@@ -242,3 +241,10 @@ class PhaseContainer:
         :return: list of functions
         """
         return self.func_list
+
+    def get_phase_credibility(self):
+        Credibility = bkrdoc.analysis.credibility.DocumentationCredibility
+        total_commands = len(self.statement_list)
+        unknown_commands = total_commands - len(self.phase_documentation_information)
+        percent_correct = Credibility.compute_percent_correct(unknown_commands, total_commands)
+        return Credibility(percent_correct)

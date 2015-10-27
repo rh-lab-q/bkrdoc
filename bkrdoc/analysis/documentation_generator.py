@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # author Jiri Kulda
 
+from __future__ import division  # floating-point division
+
 import argparse
 import bkrdoc.analysis
 
@@ -180,6 +182,8 @@ class DocumentationGenerator:
                 member.print_phase_documentation(cmd_options)
                 print("")
 
+        print("Overall documentation credibility: " + self.get_overall_credibility())
+
     # items in [["information", weigh, value], ...] format
     def solve_knapsack_dp(self, items, limit):
         """
@@ -237,6 +241,13 @@ class DocumentationGenerator:
     def is_phase_outside(self, phase_ref):
         return phase_ref.phase_name == "Outside phase"
 
+    def get_overall_credibility(self):
+        overall_percent_correct = 0.0
+        for phase in self._phases:
+            if not self.is_phase_outside(phase):
+                overall_percent_correct += phase.get_phase_credibility().get_percent_correct()
+                overall_percent_correct /= 2
+        return bkrdoc.analysis.credibility.DocumentationCredibility(overall_percent_correct).get_credibility()
 
 #  ***************** MAIN ******************
 def set_cmd_arguments():
