@@ -182,7 +182,7 @@ class DocumentationGenerator:
                 member.print_phase_documentation(cmd_options)
                 print("")
 
-        print("Overall documentation credibility: " + self.get_overall_credibility())
+        print("[ Overall documentation credibility: " + self.get_overall_credibility() + " ]")
 
     # items in [["information", weigh, value], ...] format
     def solve_knapsack_dp(self, items, limit):
@@ -242,12 +242,16 @@ class DocumentationGenerator:
         return phase_ref.phase_name == "Outside phase"
 
     def get_overall_credibility(self):
+        count = 0
         overall_percent_correct = 0.0
         for phase in self._phases:
             if not self.is_phase_outside(phase):
                 overall_percent_correct += phase.get_phase_credibility().get_percent_correct()
-                overall_percent_correct /= 2
-        return bkrdoc.analysis.credibility.DocumentationCredibility(overall_percent_correct).get_credibility()
+                count += 1
+        if count == 0:
+            return 'Very high'
+        else:
+            return bkrdoc.analysis.credibility.DocumentationCredibility(overall_percent_correct/count).get_credibility()
 
 #  ***************** MAIN ******************
 def set_cmd_arguments():
