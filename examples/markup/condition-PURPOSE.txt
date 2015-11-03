@@ -13,12 +13,12 @@ Phases:
         conditionassss
     else: conditionsdaswewqw
       conditionttttttttttttt
-    Little condition description without inside conditions
+      Little condition description without inside conditions
     if: 
       Big condition description with inside conditions
     if: Little condition description without inside conditions
       Little condition description without inside conditions
-    Little condition description without inside conditions ELIF
+      Little condition description without inside conditions ELIF
 
 
 Additional information:
@@ -32,31 +32,29 @@ Additional information:
     else
     fi
 
+    condition
     if [ $year -eq "0" ]; then
-      condition
       conditionaaaaaaaaaaaa
+    conditionoooooooooooo
     elif [ $year -eq 0 ]; then
-      conditionoooooooooooo
+    conditionsdaswewqw
     else
-      conditionsdaswewqw
       conditionttttttttttttt
     fi
 
+    conditioneeeeeeeeeee
     if [ $year -ne 0 ]; then
-      conditioneeeeeeeeeee
       conditionesss
     else
-      conditionassss
     fi
 
+    Little condition description without inside conditions
     if [ $year -eq "0" ]; then
-      Little condition description without inside conditions
     elif [ $year -eq 0 ]; then
     else
     fi
 
     if [ $year -eq "0" ]; then
-      Big condition description with inside conditions
     elif [ $year -eq 0 ]; then
     else
     fi
@@ -65,11 +63,11 @@ Additional information:
     else
     fi
 
+    Little condition description without inside conditions
     if [ $year -eq "0" ]; then
       Little condition description without inside conditions
-      Little condition description without inside conditions
+    Little condition description without inside conditions ELIF
     elif [ $year -eq 0 ]; then
-      Little condition description without inside conditions ELIF
     else
     fi
 

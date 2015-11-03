@@ -73,9 +73,9 @@ Additional information:
     }
 
   Loops:
+    for every argument in selected word will do...
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
     do
-      for every argument in selected word will do...
       rlRun "abrt-auto-reporting $arg"
       get_configured_value
       something which is connected to this loop
@@ -83,8 +83,8 @@ Additional information:
     done
 
   Conditions:
+    Test if actualy value in arg is not "enabled" and "disabled"
     if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
-      Test if actualy value in arg is not "enabled" and "disabled"
       wee will seee
       rlFail "Mangles the configuration value"
     fi

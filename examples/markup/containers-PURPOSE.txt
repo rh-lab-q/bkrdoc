@@ -24,9 +24,9 @@ Phases:
 
 Additional information:
   Loops:
+    conditionassss
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
     do
-      conditionassss
       rlRun "abrt-auto-reporting $arg"
       get_configured_value
       something which is connected to this loop
@@ -34,24 +34,24 @@ Additional information:
     done
 
   Conditions:
+    condition
     if [ $year -eq "0" ]; then
-      condition
       conditionaaaaaaaaaaaa
+    conditionoooooooooooo
     elif [ $year -eq 0 ]; then
-      conditionoooooooooooo
+    conditionsdaswewqw
     else
-      conditionsdaswewqw
       conditionttttttttttttt
     fi
 
+    conditioneeeeeeeeeee
     if [ $year -ne 0 ]; then
-      conditioneeeeeeeeeee
       conditionesss
     else
     fi
 
+    Test if actualy value in arg is not "enabled" and "disabled"
     if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
-      Test if actualy value in arg is not "enabled" and "disabled"
       wee will seee
       rlFail "Mangles the configuration value"
     fi

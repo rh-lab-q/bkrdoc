@@ -19,12 +19,7 @@ Phases:
 
 Additional information:
   Loops:
-    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
-    do
-      conditionassss
-      rlRun "abrt-auto-reporting $arg"
-    done
-
+    conditionassss
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
     do
       rlRun "abrt-auto-reporting $arg"
@@ -32,7 +27,11 @@ Additional information:
 
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
     do
-      conditionassss
+    done
+
+    conditionassss
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
     done
 
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
@@ -42,13 +41,13 @@ Additional information:
 
   Conditions:
     if [ $year -eq 0 ]; then
+    conditionsdaswewqw
     else
-      conditionsdaswewqw
       conditionttttttttttttt
     fi
 
+    conditioneeeeeeeeeee
     if [ $year -ne 0 ]; then
-      conditioneeeeeeeeeee
       conditionesss
     else
     fi
