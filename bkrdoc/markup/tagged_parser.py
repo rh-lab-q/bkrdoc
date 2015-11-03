@@ -20,7 +20,10 @@ class Parser(object):
         while i < max_len:
             line = splitted_file_string[i]
             line = line.strip()
-            splitted_line = shlex.split(line, posix=False)
+            try:
+                splitted_line = shlex.split(line, posix=False)
+            except ValueError as detail:
+                self.print_value_error_msg(detail)
 
             if not self.is_empty_line(splitted_line):
                 if self.is_phase_start_xxx(splitted_line[0]):
@@ -31,12 +34,14 @@ class Parser(object):
                         self.phases[-1].add_comment(tagged_comment_container)
                         tagged_comment_container = ""
                     self.phases.append(PhaseOutsideContainer())
-
-            i, tagged_comment_container, container = self.comments_and_containers_parsing(splitted_line,
+            try:
+                i, tagged_comment_container, container = self.comments_and_containers_parsing(splitted_line,
                                                                                           tagged_comment_container,
                                                                                           self.phases[-1],
                                                                                           splitted_file_string,
                                                                                           i, line)
+            except ValueError as detail:
+                self.print_value_error_msg(detail)
             i += 1
 
     def comments_and_containers_parsing(self, splitted_line, tagged_comment_container, container, splitted_file_string,
@@ -222,4 +227,8 @@ class Parser(object):
     def is_phase_startxxx_container(self, container):
         return type(container).__name__ == "TestPhaseContainer"
 
+    def print_value_error_msg(self, detail):
+        print("****************************************")
+        print("ValueError: This error si caused by missing closing quotation.")
+        print("****************************************")
 
