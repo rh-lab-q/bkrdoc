@@ -455,5 +455,44 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.get_documentation_information()
         generator.generate_documentation()
 
+    def test_credibility(self):
+        cr = bkrdoc.analysis.DocumentationCredibility(0, 0)
+        perc = cr.compute_percent_correct(0, 0)
+        self.assertEqual(cr.compute_credibility_key(perc), list(cr.credibilityTable)[-1])  # "0 total, should be MAX"
+
+        cr0 = bkrdoc.analysis.DocumentationCredibility(100, 100)
+        self.assertEquals(cr0.get_credibility(), cr0.credibilityTable[0])
+        cr1 = bkrdoc.analysis.DocumentationCredibility(99, 100)
+        self.assertEquals(cr1.get_credibility(), cr1.credibilityTable[1])
+        cr2 = bkrdoc.analysis.DocumentationCredibility(81, 100)
+        self.assertEquals(cr2.get_credibility(), cr2.credibilityTable[1])
+        cr3 = bkrdoc.analysis.DocumentationCredibility(80, 100)
+        self.assertEquals(cr3.get_credibility(), cr3.credibilityTable[2])
+        cr4 = bkrdoc.analysis.DocumentationCredibility(61, 100)
+        self.assertEquals(cr4.get_credibility(), cr4.credibilityTable[2])
+        cr5 = bkrdoc.analysis.DocumentationCredibility(60, 100)
+        self.assertEquals(cr5.get_credibility(), cr5.credibilityTable[3])
+        cr6 = bkrdoc.analysis.DocumentationCredibility(41, 100)
+        self.assertEquals(cr6.get_credibility(), cr6.credibilityTable[3])
+        cr7 = bkrdoc.analysis.DocumentationCredibility(40, 100)
+        self.assertEquals(cr7.get_credibility(), cr7.credibilityTable[4])
+        cr8 = bkrdoc.analysis.DocumentationCredibility(21, 100)
+        self.assertEquals(cr8.get_credibility(), cr8.credibilityTable[4])
+        cr9 = bkrdoc.analysis.DocumentationCredibility(20, 100)
+        self.assertEquals(cr9.get_credibility(), cr9.credibilityTable[5])
+        cr10 = bkrdoc.analysis.DocumentationCredibility(1, 100)
+        self.assertEquals(cr10.get_credibility(), cr10.credibilityTable[5])
+        cr11 = bkrdoc.analysis.DocumentationCredibility(0, 100)
+        self.assertEquals(cr11.get_credibility(), cr11.credibilityTable[5])
+
+    def test_overall_credibility(self):
+        generator = bkrdoc.analysis.DocumentationGenerator()
+        generator.parse_given_file("./examples/tests/autopart-test.sh")
+        credibility = ""
+        for phase in generator._phases:
+            if phase.phase_name == "Test":
+                credibility = phase.get_phase_credibility().get_credibility()
+        self.assertEquals(credibility, generator.get_overall_credibility())
+
 if __name__ == '__main__':
     unittest.main()
