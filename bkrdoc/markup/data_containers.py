@@ -118,7 +118,7 @@ class SimpleContainer(object):
                 if self.is_simple_container_instance(comment):
                     # print "LOL {0}".format(documentation_tag)
                     # print self.comments_list
-                    if first:
+                    if first and not self.is_test_phase_container():
                         # print "???..."
                         documentation += "{0}{1}:\n".format(offset[2:], documentation_tag)
                         first = False
@@ -295,8 +295,14 @@ class ConditionContainer(SimpleContainer):
 
     def get_additional_phase_data(self):
         offset = "    "
-        documentation = "{0}{1}\n".format(offset, self.statement_list[0])
-        for comment in self.comments_list:
+        documentation = ""
+        comments = self.comments_list
+        if not self.is_comment_list_empty() and self.is_tagged_comment_container(self.comments_list[0]):
+            documentation += self.comments_list[0].get_description_comment_by_tags(["if", "elif", "else"])
+            comments = self.comments_list[1:]
+        documentation += "{0}{1}\n".format(offset, self.statement_list[0])
+        for comment in comments:
+            # print comment.get_description_comment_by_tags(["if", "elif", "else"])
             if not self.is_simple_container_instance(comment):
                 documentation += comment.print_doc_comments_with_offset(offset + "  ")
         return documentation
@@ -370,9 +376,14 @@ class LoopContainer(SimpleContainer):
 
     def get_additional_phase_data(self):
         offset = "    "
-        documentation = "{0}{1}\n".format(offset, self.statement_list[0])
+        documentation = ""
+        comments = self.comments_list
+        if not self.is_comment_list_empty() and self.is_tagged_comment_container(self.comments_list[0]):
+            documentation += self.comments_list[0].get_description_comment_by_tags(["do", "while", "for"])
+            comments = self.comments_list[1:]
+        documentation += "{0}{1}\n".format(offset, self.statement_list[0])
         documentation += "{0}do\n".format(offset)
-        for comment in self.comments_list:
+        for comment in comments:
             if not self.is_simple_container_instance(comment):
                 documentation += comment.print_doc_comments_with_offset(offset + "  ")
         documentation += "{0}done\n".format(offset)
@@ -443,6 +454,7 @@ class TaggedCommentContainer(object):
     def print_data(self, offset, documentation_tag):
         first = True
         documentation = ""
+        #print "RUN"
         #print "tag{0}".format(documentation_tag)
         for comment in self.documentation_comments:
             #print "Comment {0} with tagged line {1}".format(comment, self.tagged_line)
@@ -463,14 +475,25 @@ class TaggedCommentContainer(object):
                     documentation += "{0}- {1}\n".format(offset[1:], comment)
 
                 else:
-                    #print "Comment {0} with tagged line {1}".format(comment, self.tagged_line)
-                    #print "first {0}".format(first)
-                    #print "documentation_tag {0}".format(documentation_tag)
-                    documentation += "{0}{1}\n".format(offset, comment)
+                    #print "Commentt {0} with tagged line {1}".format(comment, self.tagged_line)
+                    if self.is_phase_description_comment(self.tagged_line, offset):
+                        documentation += "{0}{1}\n".format(offset, comment)
+                    elif self.is_phase_description_offset(offset):
+                        documentation += "{0}{1}\n".format(offset + offset[2:], comment)
+                    else:
+                        #print "first {0}".format(first)
+                        #print "documentation_tag {0}".format(documentation_tag)
+                        documentation += "{0}{1}\n".format(offset, comment)
 
             else:
                 documentation += "{0}{1}\n".format(offset, comment)
         return documentation
+
+    def is_phase_description_comment(self, tagged_line, offset):
+        return self.is_phase_description_offset(offset) and self.is_phase_start_xxx(tagged_line)
+
+    def is_phase_description_offset(self, offset):
+        return offset == "    "
 
     def is_code_tag(self):
         if not self.is_splitted_line_empty(self.condition_tags):
@@ -507,6 +530,15 @@ class TaggedCommentContainer(object):
 
     def is_splitted_line_empty(self, splitted_line):
         return len(splitted_line) == 0
+
+    def get_description_comment_by_tags(self, tags):
+        if self.is_description_comment_by_tags(tags):
+            return self.print_doc_comments_with_offset("    ")
+        else:
+            return ""
+
+    def is_description_comment_by_tags(self, tags):
+        return self.tagged_line[0] in tags
 
     def get_tag_in_line(self, splitted_line):
         return [word for word in splitted_line if ((word.startswith("@") and len(word) > 1) or word.startswith("#@@"))]
