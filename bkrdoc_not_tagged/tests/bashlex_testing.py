@@ -3,8 +3,9 @@ __author__ = 'jkulda'
 import codecs
 import bashlex
 
+test = ""
 try:
-    with open('comments', "r") as input_file:
+    with open('../examples/tests/bashlex.sh', "r") as input_file:
         test = input_file.read()
 except:
     print("chyba!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
