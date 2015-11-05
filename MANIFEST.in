@@ -1,4 +1,3 @@
 recursive-include docs *
 recursive-include examples *
-include beakerlib_doc.py
 include README.md
