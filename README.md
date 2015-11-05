@@ -34,13 +34,13 @@ Instalation is very simple. You have two choices. First is to download rpm from 
 
 ## 3. Using
 ### 3.1 Basic usage
-Documentation generator for analysis is `documentation_generator.py` file and for markup is `tagged_generator.py`. For generation of documentation there is file called `bkrdoc/beakerlib_doc.py`.  Shown on this example:
+After installation of bkrdoc rpm you can easily run bkrdoc by typing bkrdoc in command line. You can see on this examples:
 ```
 for analysis:
-python beakerlib_doc.py analysis [analysis-options] [BeakerLib_test.sh]
+bkrdoc analysis [analysis-options] [BeakerLib_test.sh]
 
 for markup:
-python beakerlib_doc.py markup [markup-options] [BeakerLib_test.sh]
+bkrdoc markup [markup-options] [BeakerLib_test.sh]
 ```
 
 ### 3.2 Documentation tags
