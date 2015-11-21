@@ -172,6 +172,10 @@ class DocumentationGenerator:
         print("")
         test_weigh = self.get_test_weigh()
 
+        for member in self._phases:
+            if not self.is_phase_outside(member):
+                member.set_known_commands(len(member.get_information_list()))
+
         if not cmd_options.print_all and test_weigh > cmd_options.size:
             knapsack_list = self.setup_phases_lists_for_knapsack()
             finished_knapsack = self.solve_knapsack_dp(knapsack_list, cmd_options.size)

@@ -2,7 +2,7 @@
 __author__ = 'Jiri_Kulda'
 
 class TestVariables:
-    """Class contain variables from BeakerLib test"""
+    """Class contains variables from BeakerLib test"""
     variable_names_list = []
     variable_values_list = []
 
