@@ -26,6 +26,18 @@ class Parser(object):
                 self.print_value_error_msg(detail)
 
             if not self.is_empty_line(splitted_line):
+                ''' for Description: / Author: / Keywords: spanning multiple lines '''
+                if self.has_keyword(splitted_line):
+                    i_temp = i
+                    while True:
+                        i_temp += 1
+                        splitted_next = shlex.split(splitted_file_string[i_temp].strip(), posix=False)
+                        if self.same_keyword_span(splitted_next):
+                            splitted_line += self.comma_or_newline(splitted_line[1][:-1])
+                            splitted_line += splitted_next[1:]
+                        else:
+                            break
+
                 if self.is_phase_start_xxx(splitted_line[0]):
                     self.phases.append(TestPhaseContainer())
 
@@ -227,8 +239,23 @@ class Parser(object):
     def is_phase_startxxx_container(self, container):
         return type(container).__name__ == "TestPhaseContainer"
 
+    def has_keyword(self, line):
+        if len(line) <= 1:
+            return False
+        return line[1] in ["Description:", "Author:", "Keywords:"]
+
+    def same_keyword_span(self, line):
+        return (not self.is_empty_line(line)) and (not self.is_empty_line(line[1:])) \
+                and (not self.has_keyword(line)) and (line[1][1] != '~')
+
+    def comma_or_newline(self, word):
+        table = {'Description': '\n      ',
+                 'Author': ',',
+                 'Keywords': ','}
+        return table.get(word, "")
+
     def print_value_error_msg(self, detail):
         print("****************************************")
-        print("ValueError: This error si caused by missing closing quotation.")
+        print("ValueError: This error is caused by missing closing quotation.")
         print("****************************************")
 
