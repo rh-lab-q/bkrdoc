@@ -114,7 +114,6 @@ class PhaseContainer:
     phase_documentation_information = []
     func_list = []
     generator_ref = ""
-    known_commands = 0
 
     def __init__(self, name):
         self.phase_name = name
@@ -126,7 +125,6 @@ class PhaseContainer:
         self.phase_documentation_information = []
         self.func_list = []
         self.generator_ref = ""
-        self.known_commands = 0
 
     def setup_statement(self, line):
         self.statement_list.append(line)
@@ -251,8 +249,4 @@ class PhaseContainer:
         return len(self.statement_list)
 
     def get_unknown_commands(self):
-        return self.get_total_commands() - self.known_commands
-    #    return self.get_total_commands() - len(self.phase_documentation_information)
-
-    def set_known_commands(self, known):
-        self.known_commands = known
+        return sum(not st.startswith('rl') for st in self.statement_list)
