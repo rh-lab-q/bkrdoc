@@ -30,11 +30,11 @@ Feel free to send me an email (Kulda12@seznam.cz) for any question you have on *
 - **bkrdoc** has no external dependencies.
 
 ### 2.2 Installation process
-Instalation is very simple. You have two choices. First is to download rpm from [bkrdoc](https://pypi.python.org/pypi/bkrdoc) pypi and easily install it. Second choice is to download whole project and after that run setup.py script in bkrdoc folder. For executing setup.py file you need to run this standart `python setup.py install` command. 
+Installation is very simple. You have two choices. First is to download rpm from [bkrdoc](https://pypi.python.org/pypi/bkrdoc) pypi and easily install it. Second choice is to download whole project and after that run setup.py script in bkrdoc folder. For executing setup.py file you need to run this standard `python setup.py install` command. 
 
 ## 3. Using
 ### 3.1 Basic usage
-After installation of bkrdoc rpm you can easily run bkrdoc by typing bkrdoc in command line. You can see on this examples:
+After installation of bkrdoc rpm you can easily run bkrdoc by typing bkrdoc in command line. You can see on these examples:
 ```
 for analysis:
 bkrdoc analysis [analysis-options] [BeakerLib_test.sh]
@@ -70,7 +70,7 @@ result:
       Reporting finished
 ```
 
-In the top of every generated documentation are three lines consits of description, information about authors and keyword of the test. These three lines are generated from test template. But it can occur that the template is missing or you want to add more data and that you can do using these tags: `@keyword`, `@key`, `@author` and `@description`. For example: `#@ @key httpd` will add key into keywords line:
+In the top of every generated documentation are three lines consisting of description, information about authors and keywords of the test. These three lines are generated from test template. But it can occur that the template is missing or you want to add more data and that you can do using these tags: `@keyword`, `@key`, `@author` and `@description`. For example: `#@ @key httpd` will add key into keywords line:
 ```
 Description: Simple test
 Author: Jan Kresla
