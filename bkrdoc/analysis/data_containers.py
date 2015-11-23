@@ -5,6 +5,7 @@ import re
 import shlex
 import bkrdoc.analysis
 import sys
+from bkrdoc_parser import Parser
 
 
 class PhaseOutside:
@@ -249,4 +250,4 @@ class PhaseContainer:
         return len(self.statement_list)
 
     def get_unknown_commands(self):
-        return sum(not st.startswith('rl') for st in self.statement_list)
+        return sum(st.partition(' ')[0] not in Parser.all_commands for st in self.statement_list)
