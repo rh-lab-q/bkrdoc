@@ -133,7 +133,7 @@ class SimpleContainer(object):
                 else:
                     if first:
                         if self.is_setup_test_cleanup_tag(documentation_tag):
-                            documentation += comment.print_data(offset[2:], "")
+                            documentation += comment.print_data(offset[2:], "", self)
                             # print "{0} !!!!!!! {1}".format(documentation_tag, type(comment).__name__)
                         elif self.is_condition_container(self):
                             # print "{0} +++++++++++++++++ {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
@@ -141,24 +141,24 @@ class SimpleContainer(object):
                                     self.search_for_emptiness(self.comments_list[1:]) and \
                                     self.comments_list[0].is_description_comment():
                                 if self.search_for_emptiness(self.elif_parts):
-                                    documentation += comment.print_data(offset[2:], "")
+                                    documentation += comment.print_data(offset[2:], "", self)
                                 else:
-                                    documentation += comment.print_data(offset, documentation_tag)
+                                    documentation += comment.print_data(offset, documentation_tag, self)
                             else:
-                                documentation += comment.print_data(offset, documentation_tag)
+                                documentation += comment.print_data(offset, documentation_tag, self)
                         elif self.is_loop_container(self):
                             if self.comments_list[0].is_description_comment() and self.search_for_emptiness(self.comments_list[1:]):
-                                documentation += comment.print_data(offset[2:], "")
+                                documentation += comment.print_data(offset[2:], "", self)
                             else:
                                 # print "{0} /////////////////// {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
-                                documentation += comment.print_data(offset, documentation_tag)
+                                documentation += comment.print_data(offset, documentation_tag, self)
                         else:
-                            documentation += comment.print_data(offset, documentation_tag)
                             # print "{0} --------- {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
+                            documentation += comment.print_data(offset, documentation_tag, self)
                         first = False
                     else:
                         # print "{0} :::::::: {1}".format(documentation_tag, type(comment).__name__)
-                        documentation += comment.print_data(offset, "")
+                        documentation += comment.print_data(offset, "", self)
             return documentation
         return ""
 
@@ -451,13 +451,14 @@ class TaggedCommentContainer(object):
             documentation += "{0}{1}\n".format(offset, comment)
         return documentation
 
-    def print_data(self, offset, documentation_tag):
+    def print_data(self, offset, documentation_tag, phase):
         first = True
         documentation = ""
-        #print "RUN"
-        #print "tag{0}".format(documentation_tag)
+        # print "RUN"
+        # print "tag{0}".format(documentation_tag)
         for comment in self.documentation_comments:
-            #print "Comment {0} with tagged line {1}".format(comment, self.tagged_line)
+            # print "Comment {0} with tagged line {1}".format(comment, self.tagged_line)
+            # print "Comment{0}offset with len:= {1}".format(offset, len(offset))
             if self.is_code_tag():
                 if documentation_tag:
                     documentation += "{0}{1}: \n".format(offset[2:], documentation_tag)
@@ -473,6 +474,9 @@ class TaggedCommentContainer(object):
 
                 elif self.is_function_loop_condition_line(self.tagged_line) and not first:
                     documentation += "{0}- {1}\n".format(offset[1:], comment)
+
+                elif self.is_outside_phase_container(phase):
+                    documentation += "{0}{1}\n".format(offset, comment)
 
                 else:
                     #print "Commentt {0} with tagged line {1}".format(comment, self.tagged_line)
@@ -576,6 +580,9 @@ class TaggedCommentContainer(object):
             return word[1:]
         else:
             return word[3:]
+
+    def is_outside_phase_container(self, container):
+        return type(container).__name__ == "PhaseOutsideContainer"
 
     def is_phase_start_xxx(self, splitted_line):
         phase_list = ["rlPhaseStartSetup", "rlPhaseStartCleanup", "rlPhaseStartTest"]

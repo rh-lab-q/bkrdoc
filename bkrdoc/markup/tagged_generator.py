@@ -66,20 +66,31 @@ class Generator(object):
             pom_doc += phase.print_documentation()
             phases_doc_split = pom_doc.strip().split("\n")
             if len(phases_doc_split) > 1:
-                if parsed_arg.additional_info:
-                    documentation += pom_doc
-                else:
-                    documentation += self.erase_spaces(phases_doc_split)
-                    documentation += "\n"
+                if self.is_outside_phase_documentation(phases_doc_split):
+                    pom_doc = self.erase_outside_phase_settings(phases_doc_split)
+                    pom_doc += "\n"
+                elif not parsed_arg.additional_info:
+                    pom_doc = self.erase_spaces(phases_doc_split)
+                    pom_doc += "\n"
+                documentation += pom_doc
             pom_doc = ""
         return documentation
 
     # This method erases two spaces at the beginning of line.
-    def erase_spaces(self, splitted_line, spaces="  "):
-        pom_line = "{0}{1}".format(splitted_line[0], "\n")
-        for line in splitted_line[1:]:
+    def erase_spaces(self, splitted_lines, spaces="  "):
+        pom_line = "{0}{1}".format(splitted_lines[0], "\n")
+        for line in splitted_lines[1:]:
             pom_line += "{0}{1}".format(line[len(spaces):], "\n")
         return pom_line
+
+    def erase_outside_phase_settings(self, splitted_lines, spaces="    "):
+        pom_line = ""
+        for line in splitted_lines[1:]:
+            pom_line += "{0}{1}".format(line[len(spaces):], "\n")
+        return pom_line
+
+    def is_outside_phase_documentation(self, splitted_lines):
+        return splitted_lines[0] == "Outside Phase"
 
     def print_additional_container_data(self, name, additional_containers):
         documentation = ""
