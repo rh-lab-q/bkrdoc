@@ -5,6 +5,15 @@ import unittest
 from bkrdoc.markup.tagged_generator import Generator
 
 
+class PomArgparse(object):
+    FILE_NAME = ""
+    additional_info = False
+
+    def __init__(self, file_name="", additional_info=False):
+        self.FILE_NAME = file_name
+        self.additional_info = additional_info
+
+
 class TaggedGeneratorTests(unittest.TestCase):
 
     def test_phases(self):
@@ -128,7 +137,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         generator = Generator("./examples/markup/abrt-auto-reporting-sanity-test.sh")
         generator.parse_file()
         generator.comments_set_up()
-        doc = generator.get_documentation()
+        doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/abrt-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
@@ -137,7 +146,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         generator = Generator("./examples/markup/condition_test.sh")
         generator.parse_file()
         generator.comments_set_up()
-        doc = generator.get_documentation()
+        doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/condition-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
@@ -146,7 +155,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         generator = Generator("./examples/markup/containers_tests.sh")
         generator.parse_file()
         generator.comments_set_up()
-        doc = generator.get_documentation()
+        doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/containers-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
@@ -155,8 +164,26 @@ class TaggedGeneratorTests(unittest.TestCase):
         generator = Generator("./examples/markup/loop_test.sh")
         generator.parse_file()
         generator.comments_set_up()
-        doc = generator.get_documentation()
+        doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/loop-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_apache_without_additional_info(self):
+        generator = Generator("./examples/tests/apache-test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation(PomArgparse())
+        first_doc = open("./examples/markup/apache-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_mozilla_without_additional_info(self):
+        generator = Generator("./examples/tests/mozila-test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation(PomArgparse())
+        first_doc = open("./examples/markup/mozila-PURPOSE.txt", 'r')
         data = first_doc.read()
         self.assertEqual(doc, data)
 

@@ -57,16 +57,29 @@ class Generator(object):
         self.erase_title_data()
         return documentation
 
-    def get_phase_data_documentation(self):
-        documentation = "Phases:\n"
+    def get_phase_data_documentation(self, parsed_arg):
+        documentation = ""
+        if parsed_arg.additional_info:
+            documentation += "Phases:\n"
         pom_doc = ""
         for phase in self.phases:
             pom_doc += phase.print_documentation()
             phases_doc_split = pom_doc.strip().split("\n")
             if len(phases_doc_split) > 1:
-                documentation += pom_doc
+                if parsed_arg.additional_info:
+                    documentation += pom_doc
+                else:
+                    documentation += self.erase_spaces(phases_doc_split)
+                    documentation += "\n"
             pom_doc = ""
         return documentation
+
+    # This method erases two spaces at the beginning of line.
+    def erase_spaces(self, splitted_line, spaces="  "):
+        pom_line = "{0}{1}".format(splitted_line[0], "\n")
+        for line in splitted_line[1:]:
+            pom_line += "{0}{1}".format(line[len(spaces):], "\n")
+        return pom_line
 
     def print_additional_container_data(self, name, additional_containers):
         documentation = ""
@@ -83,7 +96,8 @@ class Generator(object):
             documentation += "\n"
         return documentation
 
-    def is_condition_container(self, container):
+    @staticmethod
+    def is_condition_container(container):
         return type(container).__name__ == "ConditionContainer"
 
     def generate_additional_info(self):
@@ -99,18 +113,19 @@ class Generator(object):
         documentation += self.print_additional_container_data("Conditions", cond)
         return documentation
 
-    def get_documentation(self):
+    def get_documentation(self, parsed_arg):
         documentation = self.get_documentation_title_doc()
         documentation += "\n\n"
-        documentation += self.get_phase_data_documentation()
-        documentation += "\n"
-        documentation += self.generate_additional_info()
+        documentation += self.get_phase_data_documentation(parsed_arg)
+        if parsed_arg.additional_info:
+            documentation += "\n"
+            documentation += self.generate_additional_info()
         return documentation
 
     def show_documentation_data(self, parsed_arg):
-        documentation = self.get_documentation()
-        if parsed_arg:
-            file_out = open(parsed_arg, "w")
+        documentation = self.get_documentation(parsed_arg)
+        if parsed_arg.FILE_NAME:
+            file_out = open(parsed_arg.FILE_NAME, "w")
             file_out.write(documentation)
         else:
             sys.stdout.write(documentation)
@@ -132,6 +147,11 @@ def set_cmd_arguments():
                         type=str,
                         default=False,
                         help='Save documentation into file with specified name.')
+    parser.add_argument('--additional',
+                        dest='additional_info',
+                        default=False,
+                        action='store_true',
+                        help='This option shows additional information section in test documentation')
     return parser.parse_args()
 
 
@@ -141,7 +161,7 @@ def run_markup_doc_generator(parsed_arg):
         part = Generator(file_in_cmd)
         part.parse_file()
         part.comments_set_up()
-        part.show_documentation_data(parsed_arg.FILE_NAME)
+        part.show_documentation_data(parsed_arg)
 
 
 if __name__ == "__main__":
