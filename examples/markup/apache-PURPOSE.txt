@@ -2,8 +2,7 @@ Description: Apache example test
 Author: Petr Splichal <psplicha@redhat.com>
 Keywords: 
 
-Outside Phase
-    key apache
+key apache
 
 Setup "Setup"
   Sums up phase asserts and reports the overall phase result

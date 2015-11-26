@@ -4,10 +4,9 @@ Description: This test is for testing Bugzilla version 3.6. It first installs th
 Author: Dave Lawrence <dkl@redhat.com> , Dave Lawrence <dkl@mozilla.com>
 Keywords: 
 
-Outside Phase
-  function: function which run test case
-    test if previous action has passed
-  function: Function which creates test data
+function: function which run test case
+  test if previous action has passed
+function: Function which creates test data
 
 Setup 
     Copy yum repo config and install all necessary rpms for testing
@@ -16,6 +15,8 @@ Setup
     Start the MySQL service
     Create the initial test data needed by the testsuite
     Fix the firefox path in the selenium config file
+
+test if previous action has passed
 
 Test 
     Set the testoutputlog to the current beaker log dir

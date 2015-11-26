@@ -29,7 +29,7 @@
 # Include the BeakerLib environment
 . /usr/share/beakerlib/beakerlib.sh
 
-# Set the full test name 
+# Set the full test name
 #@key apache
 TEST="/examples/beakerlib/Sanity/apache"
 

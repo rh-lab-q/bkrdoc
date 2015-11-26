@@ -3,22 +3,21 @@ Author:
 Keywords: 
 
 Phases:
-  Outside Phase
-    if: condition
-      conditionaaaaaaaaaaaa
-    elif: conditionoooooooooooo
-      if: conditioneeeeeeeeeee
-        conditionesss
-      else: 
-        conditionassss
-    else: conditionsdaswewqw
-      conditionttttttttttttt
-      Little condition description without inside conditions
-    if: 
-      Big condition description with inside conditions
-    if: Little condition description without inside conditions
-      Little condition description without inside conditions
-      Little condition description without inside conditions ELIF
+if: condition
+  conditionaaaaaaaaaaaa
+elif: conditionoooooooooooo
+  if: conditioneeeeeeeeeee
+    conditionesss
+  else: 
+    conditionassss
+else: conditionsdaswewqw
+  conditionttttttttttttt
+  Little condition description without inside conditions
+if: 
+  Big condition description with inside conditions
+if: Little condition description without inside conditions
+  Little condition description without inside conditions
+  Little condition description without inside conditions ELIF
 
 
 Additional information:

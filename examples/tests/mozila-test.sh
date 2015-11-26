@@ -121,6 +121,7 @@ rlJournalStart
         rlAssertExists "$FIREFOX_PATH"
         rlRun "sed -i 's|FIREFOX_PATH|$FIREFOX_PATH|g' t/config/selenium_test.conf" 0 "Updating Selenium config file with Firefox path"
     rlPhaseEnd
+#@ test if previous action has passed
 
     rlPhaseStartTest
         #@ Set the testoutputlog to the current beaker log dir

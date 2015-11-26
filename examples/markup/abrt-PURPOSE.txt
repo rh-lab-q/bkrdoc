@@ -3,22 +3,19 @@ Author: Janosik Karel, Jakub Filak <jfilak@redhat.com>
 Keywords: doc help, auto-reporting, mamut
 
 Phases:
-  Outside Phase
-    function: Function that configure selected value
-     - does not require any parameter
-      comment on the beggining
-      Important case
-      comment on the end
+function: Function that configure selected value
+ - does not require any parameter
+  comment on the beggining
+  Important case
+  comment on the end
 
-  Outside Phase
-    Somenthing in start of the test
-    Could be anything
+Somenthing in start of the test
+Could be anything
 
   Setup 
     Make temporary directory and saves work in it
 
-  Outside Phase
-    Additional info
+Additional info
 
   Test "--help"
     Print help informations
@@ -56,9 +53,8 @@ Phases:
     clean after test
       Disable auto reporting
 
-  Outside Phase
-    Something on the end of the test
-    could be anything
+Something on the end of the test
+could be anything
 
 
 Additional information:

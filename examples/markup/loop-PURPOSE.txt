@@ -3,18 +3,17 @@ Author: MAN
 Keywords: 
 
 Phases:
-  Outside Phase
-    if:
-      if: conditioneeeeeeeeeee
-        conditionesss
-      else:
-        for: conditionassss
-          code: rlRun "abrt-auto-reporting $arg"
-        for: 
-          code: rlRun "abrt-auto-reporting $arg"
-        conditionassss
-    else: conditionsdaswewqw
-      conditionttttttttttttt
+if:
+  if: conditioneeeeeeeeeee
+    conditionesss
+  else:
+    for: conditionassss
+      code: rlRun "abrt-auto-reporting $arg"
+    for: 
+      code: rlRun "abrt-auto-reporting $arg"
+    conditionassss
+else: conditionsdaswewqw
+  conditionttttttttttttt
 
 
 Additional information:

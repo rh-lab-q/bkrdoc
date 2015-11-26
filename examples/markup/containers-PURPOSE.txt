@@ -3,23 +3,22 @@ Author:
 Keywords: 
 
 Phases:
-  Outside Phase
-    if: condition
-      conditionaaaaaaaaaaaa
-    elif: conditionoooooooooooo
-      if: conditioneeeeeeeeeee
-        conditionesss
-      else:
-        for: conditionassss
-          code: rlRun "abrt-auto-reporting $arg"
-          code: get_configured_value
-          if: Test if actualy value in arg is not "enabled" and "disabled"
-            wee will seee
-            code: rlFail "Mangles the configuration value"
-          something which is connected to this loop
-          code: OLD=$CONF_VALUE
-    else: conditionsdaswewqw
-      conditionttttttttttttt
+if: condition
+  conditionaaaaaaaaaaaa
+elif: conditionoooooooooooo
+  if: conditioneeeeeeeeeee
+    conditionesss
+  else:
+    for: conditionassss
+      code: rlRun "abrt-auto-reporting $arg"
+      code: get_configured_value
+      if: Test if actualy value in arg is not "enabled" and "disabled"
+        wee will seee
+        code: rlFail "Mangles the configuration value"
+      something which is connected to this loop
+      code: OLD=$CONF_VALUE
+else: conditionsdaswewqw
+  conditionttttttttttttt
 
 
 Additional information:
