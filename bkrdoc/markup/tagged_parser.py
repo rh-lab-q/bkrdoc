@@ -63,10 +63,16 @@ class Parser(object):
            not self.is_tagged_comment_container(tagged_comment_container):
                 tagged_comment_container = TaggedCommentContainer(splitted_line)
         elif not self.is_empty_line(splitted_line) and self.is_common_comment_line(splitted_line):
-            if self.is_tagged_comment_container(tagged_comment_container):
-                # print splitted_line
+            if self.is_tagged_comment_container(tagged_comment_container) and \
+                    self.is_tagged_comment_start(splitted_line):
+                # print "bbbb {0}".format(splitted_line)
                 tagged_comment_container.add_comment(splitted_line)
+            elif self.is_tagged_comment_container(tagged_comment_container):
+                container.add_comment(tagged_comment_container)
+                tagged_comment_container = ""
+                container.add_common_comment(splitted_line)
             else:
+                # print "aaaa {0}".format(splitted_line)
                 container.add_common_comment(splitted_line)
         else:
             if not self.is_empty_line(splitted_line):

@@ -1,6 +1,6 @@
 Description: does what it does, does sanity on abrt-auto-reporting
 Author: Janosik Karel, Jakub Filak <jfilak@redhat.com>
-Keywords: doc help, auto-reporting, mamut
+Keywords: auto-reporting, mamut
 
 Phases:
 function: Function that configure selected value
@@ -10,17 +10,15 @@ function: Function that configure selected value
   comment on the end
 
 Somenthing in start of the test
-Could be anything
 
   Setup 
     Make temporary directory and saves work in it
 
 Additional info
+Print help informations
+blah sfsdf sdf sdfsd f
 
   Test "--help"
-    Print help informations
-    blah sfsdf sdf sdfsd f
-    Using of block comment
     This could be usefull
       TESTING
       Back phase testing
@@ -54,7 +52,6 @@ Additional info
       Disable auto reporting
 
 Something on the end of the test
-could be anything
 
 
 Additional information:

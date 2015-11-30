@@ -72,9 +72,9 @@ rlJournalStart
 
     # @ Print help informations
     # @keywords doc help 
-    # blah sfsdf sdf sdfsd f
+    #@ blah sfsdf sdf sdfsd f
     # Using of block comment
-    # This could be usefull 
+    #@ This could be usefull
     rlPhaseStartTest "--help"
         #@ TESTING
         rlRun "abrt-auto-reporting --help" 0
