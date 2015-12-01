@@ -97,7 +97,8 @@ class ConditionsForCommands:
         return command == "rlAssert0"
 
     def is_assert_command(self, line):
-        return line[0:len("rlAssert")] == "rlAssert"
+        pom_list = ["rlPass", "rlFail"]
+        return line[0:len("rlAssert")] == "rlAssert" or line in pom_list
 
     def is_rpm_command(self, command):
         return command[-3:] == "Rpm"
