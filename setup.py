@@ -8,7 +8,6 @@ setup(
     license='BSD',
     author='Jiri Kulda',
     author_email='Kulda12@seznam.cz, jkulda@redhat.com',
-    install_requires=['*python*>=2.7'],
     description='This project aims to provide tools for automated documentation generation for BeakerLib tests. ',
     classifiers=["Programming Language :: Python",
                  "Programming Language :: Python :: 3",
