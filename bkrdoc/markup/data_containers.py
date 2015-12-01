@@ -379,8 +379,10 @@ class LoopContainer(SimpleContainer):
         documentation = ""
         comments = self.comments_list
         if not self.is_comment_list_empty() and self.is_tagged_comment_container(self.comments_list[0]):
-            documentation += self.comments_list[0].get_description_comment_by_tags(["do", "while", "for"])
-            comments = self.comments_list[1:]
+            loop_description = self.comments_list[0].get_description_comment_by_tags(["do", "while", "for"])
+            if loop_description != "":
+                documentation += loop_description
+                comments = self.comments_list[1:]
         documentation += "{0}{1}\n".format(offset, self.statement_list[0])
         documentation += "{0}do\n".format(offset)
         for comment in comments:
@@ -416,7 +418,7 @@ class LoopContainer(SimpleContainer):
 class TaggedCommentContainer(object):
 
     known_tags = {"keywords": "", "key": "", "author": "", "description": ""}
-    condition_tags = []
+    condition_tags = {}
     comments = []
     tagged_line = ""
     documentation_comments = []
@@ -424,7 +426,7 @@ class TaggedCommentContainer(object):
     def __init__(self, first_comment):
         self.comments = [first_comment]
         self.tagged_line = ""
-        self.condition_tags = []
+        self.condition_tags = {}
         self.documentation_comments = []
 
     def add_comment(self, comment):
@@ -436,8 +438,8 @@ class TaggedCommentContainer(object):
     def get_comments(self):
         return self.comments
 
-    def add_condition_tag(self, given_tag):
-        self.condition_tags.append(given_tag)
+    def add_condition_tag(self, key, data):
+        self.condition_tags[key] = data
 
     def erase_known_tags(self):
         self.known_tags["keywords"] = ""
@@ -459,10 +461,13 @@ class TaggedCommentContainer(object):
         for comment in self.documentation_comments:
             # print "Comment {0} with tagged line {1}".format(comment, self.tagged_line)
             # print "Comment{0}offset with len:= {1}".format(offset, len(offset))
-            if self.is_code_tag():
+            if self.is_specified_tag("after_code"):
+                # TODO make sure that with empty comment after #@ there will be no documentation line
                 if documentation_tag:
                     documentation += "{0}{1}: \n".format(offset[2:], documentation_tag)
-                documentation += "{0}code: {1}\n".format(offset, comment)
+                pom_comment = self.get_tag_data("after_code")
+                if pom_comment != "":
+                    documentation += "{0}{1}\n".format(offset, pom_comment)
             elif not self.is_splitted_line_empty(self.tagged_line):
                 if documentation_tag and first:
                     if not self.is_function_loop_condition_line(self.tagged_line):
@@ -499,9 +504,12 @@ class TaggedCommentContainer(object):
     def is_phase_description_offset(self, offset):
         return offset == "    "
 
-    def is_code_tag(self):
+    def get_tag_data(self, tag):
+        return self.condition_tags[tag]
+
+    def is_specified_tag(self, tag):
         if not self.is_splitted_line_empty(self.condition_tags):
-            return self.condition_tags[0] == "code"
+            return tag in self.condition_tags.keys()
         return False
 
     def get_title_data(self):
@@ -524,7 +532,7 @@ class TaggedCommentContainer(object):
                                               "jkulda@redhat.com.".format(self.get_tag_from_word(found_tag)))
             else:
                 erased_comment_line = self.erase_comments_start_tags(comment)
-                if self.is_code_tag():
+                if self.is_specified_tag("after_code"):
                     erased_comment_line = self.erase_comments_start_tags(self.tagged_line)
                 self.documentation_comments.append(self.set_documentation_comment(erased_comment_line))
                 # print self.documentation_comments
@@ -564,6 +572,7 @@ class TaggedCommentContainer(object):
                 return [splitted_line[0][1:]] + splitted_line[1:]
         elif splitted_line[-1] == "#@":
             return splitted_line[0:-1]
+
         elif splitted_line[-1].endswith("#@"):
             return splitted_line[0:-2] + [splitted_line[-1][0:-3]]
         else:

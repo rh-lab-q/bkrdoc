@@ -81,7 +81,7 @@ class TaggedGeneratorTests(unittest.TestCase):
                                                                   'if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE !='
                                                                   ' "disabled" ]; then',
                                                                   'rlFail "Mangles the configuration value"#@',
-                                                                  'OLD=$CONF_VALUE #@'])
+                                                                  'OLD=$CONF_VALUE #@ Adding new data to OLD variable'])
         self.assertEqual(parser.phases[16].statement_list, ['rlRun "abrt-auto-reporting disabled"', 'popd # TmpDir',
                                                             'rm -rf $TmpDir'])
 

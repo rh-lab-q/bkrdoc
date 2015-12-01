@@ -135,7 +135,7 @@ rlJournalStart
             fi
 
             #@ something which is connected to this loop
-            OLD=$CONF_VALUE #@
+            OLD=$CONF_VALUE #@ Adding new data to OLD variable
         done
         #@ Documentation test
     rlPhaseEnd

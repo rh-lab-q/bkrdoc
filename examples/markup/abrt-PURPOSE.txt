@@ -38,13 +38,11 @@ blah sfsdf sdf sdfsd f
   Test "various argument types"
     Various types of arguments will start this part
       for: for every argument in selected word will do...
-        code: rlRun "abrt-auto-reporting $arg"
-        code: get_configured_value
         if: Test if actualy value in arg is not "enabled" and "disabled"
           wee will seee
-          code: rlFail "Mangles the configuration value"
+          Mangles the configuration value
         something which is connected to this loop
-        code: OLD=$CONF_VALUE
+        Adding new data to OLD variable
       Documentation test
 
   Cleanup 
@@ -72,7 +70,7 @@ Additional information:
       rlRun "abrt-auto-reporting $arg"
       get_configured_value
       something which is connected to this loop
-      OLD=$CONF_VALUE
+      OLD=$CONF_VALUE #@ Adding new data to OLD variable
     done
 
   Conditions:

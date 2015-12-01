@@ -8,13 +8,13 @@ if [ $year -eq 0 ]; then
             #@ conditionassss
             for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
             do
-                rlRun "abrt-auto-reporting $arg"#@
+                rlRun "abrt-auto-reporting $arg" #@ After command comment
                 get_configured_value
                 rlAssertNotEquals "Changed the configuration" "_$OLD" "_$CONF_VALUE"
             done
             for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
             do
-                rlRun "abrt-auto-reporting $arg"#@
+                rlRun "abrt-auto-reporting $arg" 0 "THIS comment" #@ Not this comment
                 get_configured_value
                 rlAssertNotEquals "Changed the configuration" "_$OLD" "_$CONF_VALUE"
             done

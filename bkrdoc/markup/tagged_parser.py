@@ -2,6 +2,11 @@ __author__ = 'jkulda'
 
 import shlex
 from bkrdoc.markup.data_containers import *
+from bkrdoc.analysis.Statement_data_searcher import StatementDataSearcher
+
+
+class UnknownStatementDataParsingException(Exception):
+        pass
 
 
 class Parser(object):
@@ -109,9 +114,25 @@ class Parser(object):
                 if self.is_tagged_comment_container(tagged_comment_container):
                     container.add_comment(tagged_comment_container)
                     tagged_comment_container = ""
-            if not self.is_empty_line(splitted_line) and self.is_important_code_line(splitted_line):
+            if not self.is_empty_line(splitted_line) and self.is_after_code_doc_comment(splitted_line):
                 tagged_comment_container = TaggedCommentContainer([""])
-                tagged_comment_container.add_condition_tag("code")
+                data_searcher = StatementDataSearcher()
+                argparse_data, var = data_searcher.parse_command(line)
+                try:
+                    if argparse_data.comment is not None:
+                        tagged_comment_container.add_condition_tag("after_code", argparse_data.comment)
+                    else:
+                        tagged_comment_container.add_condition_tag("after_code",
+                                                                   self.get_after_code_doc_commment(splitted_line))
+                except AttributeError:
+                    tagged_comment_container.add_condition_tag("after_code",
+                                                               self.get_after_code_doc_commment(splitted_line))
+                except ValueError as detail:
+                    self.print_value_error_msg(detail)
+                except Exception as detail:
+                    raise UnknownStatementDataParsingException("Unknown parsing exception. Please contact "
+                                                               "jkulda@redhat, Kulda12@seznam.cz"
+                                                               "Detail of exception: {0}".format(detail))
                 tagged_comment_container.add_tagged_line(splitted_line)
                 container.add_comment(tagged_comment_container)
                 tagged_comment_container = ""
@@ -129,7 +150,7 @@ class Parser(object):
             line = splitted_file_string[i]
             line = line.strip()
             splitted_line = shlex.split(line, posix=False)
-
+            # print splitted_line
             if not self.is_empty_line(splitted_line) and self.is_seacher_keyword(searched_last_keyword, splitted_line):
                 if self.is_tagged_comment_container(tagged_comment_container):
                     tagged_comment_container.add_tagged_line(splitted_line)
@@ -162,12 +183,15 @@ class Parser(object):
 
             # print "impossible"
             if not is_elif_condition_part:
-                # print "ZDE"
+                # print "ZDE {0} with container {1}".format(splitted_line, container)
+                # print "with tagged_comment_container: {0}".format(tagged_comment_container)
                 i, tagged_comment_container, container = self.comments_and_containers_parsing(splitted_line,
                                                                                               tagged_comment_container,
                                                                                               container,
                                                                                               splitted_file_string,
                                                                                               i, line)
+                # print container.get_statement_list()
+                # print container.comments_list
             if is_elif_condition_part:
                 is_elif_condition_part = False
             i += 1
@@ -189,8 +213,27 @@ class Parser(object):
         for phase in self.phases:
             phase.comments_set_up()
 
-    def is_important_code_line(self, splitted_line):
-        return splitted_line[-1].endswith("#@")
+    def is_after_code_doc_comment(self, splitted_line):
+        if len(splitted_line) > 1 and not self.is_tagged_comment_start(splitted_line):
+            for splitted in splitted_line[1:]:
+                if splitted.endswith("#@"):
+                    return True
+        return False
+
+    def get_after_code_doc_commment(self, splitted_line):
+        pom_line = ""
+        threshold = False
+        if len(splitted_line) > 1:
+            for splitted in splitted_line[1:]:
+                if threshold:
+                    if pom_line != "":
+                        pom_line = "{0} {1}".format(pom_line, splitted)
+                    else:
+                        pom_line += splitted
+                elif splitted.endswith("#@"):
+                    threshold = True
+        return pom_line
+
 
     def is_seacher_keyword(self, searched_keyword, line):
         return line[0] in searched_keyword

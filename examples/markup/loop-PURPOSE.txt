@@ -8,9 +8,9 @@ if:
     conditionesss
   else:
     for: conditionassss
-      code: rlRun "abrt-auto-reporting $arg"
+      After command comment
     for: 
-      code: rlRun "abrt-auto-reporting $arg"
+      THIS comment
     conditionassss
 else: conditionsdaswewqw
   conditionttttttttttttt
@@ -21,11 +21,12 @@ Additional information:
     conditionassss
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
     do
-      rlRun "abrt-auto-reporting $arg"
+      rlRun "abrt-auto-reporting $arg" #@ After command comment
     done
 
     for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
     do
+      rlRun "abrt-auto-reporting $arg" 0 "THIS comment" #@ Not this comment
     done
 
     conditionassss
