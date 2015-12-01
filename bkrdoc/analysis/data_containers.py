@@ -139,10 +139,15 @@ class PhaseContainer:
         self.func_list = function_copy
         self.variables = variable_copy
         self.generator_ref = generator_ref
-        command_translator = bkrdoc.analysis.StatementDataSearcher(generator_ref, self)
+        command_translator = bkrdoc.analysis.StatementDataSearcher()
         for statement in self.statement_list:
             try:
-                self.statement_classes.append(command_translator.parse_command(statement))
+                replaced_statement_variables = self.variables.replace_variable_in_string(statement)
+                self.get_cmd_line_params(replaced_statement_variables)
+                self.get_environmental_variable(replaced_statement_variables)
+                argparse_data, pom_variables = command_translator.parse_command(replaced_statement_variables)
+                self.variables.copy_variables_from_variable_class(pom_variables)
+                self.statement_classes.append(argparse_data)
             except ValueError:
                 sys.stdout.write("********************************************")
                 print("ERROR in line: " + str(statement))
@@ -159,7 +164,7 @@ class PhaseContainer:
         Searching data in function object
         :param function: function object
         """
-        command_translator = bkrdoc.analysis.StatementDataSearcher(self.generator_ref, self)
+        command_translator = bkrdoc.analysis.StatementDataSearcher()
         function.data_list = []
         for statement in function.statement_list:
             try:
@@ -234,6 +239,34 @@ class PhaseContainer:
         for inf in self.phase_documentation_information:
             phase_weigh += inf.get_information_weigh()
         return phase_weigh
+
+    def get_cmd_line_params(self, line):
+        """
+        This method searches for command line variables in code represented as $1 $2 ...
+        :param line: statement line of code
+        """
+        regular = re.compile("(.*)(\$(\d+))(.*)")
+        match = regular.match(line)
+        if match:
+            self.generator_ref.set_test_launch(match.group(3))
+
+    def get_environmental_variable(self, line):
+        """
+        Searches environmental variables in code line
+        :param line: code line
+        """
+        minimum_variable_size = 4
+        lexer = shlex.shlex(line)
+        word = lexer.get_token()
+        while word:
+            if word == "$":
+                word = lexer.get_token()
+                if not self.variables.is_existing_variable(word) and len(word) > minimum_variable_size:
+                    self.generator_ref.set_environmental_variable_information(word)
+
+            elif word[0:1] == '"':  # shlex doesn't returns whole string so for searching in strings I'm using recursion
+                self.get_environmental_variable(word[1:-1])
+            word = lexer.get_token()
 
     def get_function_list(self):
         """

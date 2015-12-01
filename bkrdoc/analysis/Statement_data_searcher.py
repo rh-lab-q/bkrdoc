@@ -3,26 +3,23 @@ import argparse
 import re
 import shlex
 import bkrdoc.analysis
+from bkrdoc.analysis.test_variables import TestVariables
 
 __author__ = 'Jiri_Kulda'
+
 
 class StatementDataSearcher:
     """
     This class is responsible for parsing data from statement lines. This parsing is done by
     setting argparse modules for every BeakerLib command. These setting we can see under
     big switch.
-    :param generator_ref: parser reference
-    :param phase_ref: reference to phase where was StatementDataSearcher instance made.
     """
     parsed_param_ref = ""
-    generator_ref = ""
-    phase_ref = ""
+    variables = ""
 
     minimum_variable_size = 4
 
-    def __init__(self, generator_ref, phase_ref):
-        self.generator_ref = generator_ref
-        self.phase_ref = phase_ref
+    def __init__(self):
         self.minimum_variable_size = 4
 
     def parse_command(self, statement_line):
@@ -32,10 +29,9 @@ class StatementDataSearcher:
         :param statement_line: singe line of code from test
         :return: argparse object with parsed data
         """
-        pom_statement_line = self.phase_ref.variables.replace_variable_in_string(statement_line)
-        self.get_cmd_line_params(pom_statement_line)
-        self.get_environmental_variable(pom_statement_line)
-        pom_list = shlex.split(pom_statement_line, True, posix=True)
+
+        self.variables = TestVariables()
+        pom_list = shlex.split(statement_line, True, posix=True)
         first = pom_list[0]
 
         # if self.is_beakerLib_command(first, self.parser_ref):
@@ -155,39 +151,12 @@ class StatementDataSearcher:
             self.get_rlvirtualx_xxx_data(pom_list)
 
         else:
-            self.unknown_command(pom_list, pom_statement_line)
+            self.unknown_command(statement_line)
 
-        return self.parsed_param_ref
+        return self.parsed_param_ref, self.variables
 
     def find_and_replace_variable(self, statement):
         pass
-
-    def get_cmd_line_params(self, line):
-        """
-        This method searches for command line variables in code represented as $1 $2 ...
-        :param line: statement line of code
-        """
-        regular = re.compile("(.*)(\$(\d+))(.*)")
-        match = regular.match(line)
-        if match:
-            self.generator_ref.set_test_launch(match.group(3))
-
-    def get_environmental_variable(self, line):
-        """
-        Searches environmental variables in code line
-        :param line: code line
-        """
-        lexer = shlex.shlex(line)
-        word = lexer.get_token()
-        while word:
-            if word == "$":
-                word = lexer.get_token()
-                if not self.phase_ref.variables.is_existing_variable(word) and len(word) > self.minimum_variable_size:
-                    self.generator_ref.set_environmental_variable_information(word)
-
-            elif word[0:1] == '"':  # shlex doesn't returns whole string so for searching in strings I'm using recursion
-                self.get_environmental_variable(word[1:-1])
-            word = lexer.get_token()
 
     def is_variable_assignment(self, statement):
         """
@@ -214,11 +183,11 @@ class StatementDataSearcher:
                 regular = re.compile("\"(/.*/)(.*)\"")
                 match = regular.match(value)
                 if match:
-                    self.phase_ref.variables.add_variable(member, match.group(1) + match.group(2))
+                    self.variables.add_variable(member, match.group(1) + match.group(2))
                     # TODO keywords from not outside phases
                     # self.keywords_list.append(match.group(2))
                 else:
-                    self.phase_ref.variables.add_variable(member, value)
+                    self.variables.add_variable(member, value)
 
             member = equal_to
             equal_to = read.get_token()
@@ -322,18 +291,19 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def unknown_command(self, pom_param_list, statement_list):
+    def unknown_command(self, statement_line):
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"])
         # Trying to find variable assignment in statement line
-        self.is_variable_assignment(statement_list)
-        self.is_function_name_in_statement(statement_list)
+        self.is_variable_assignment(statement_line)
+        # TODO make searching in function
+        # self.is_function_name_in_statement(statement_list)
 
-    def is_function_name_in_statement(self, line):
-        for function in self.phase_ref.get_function_list():
-            if function.name in line and function.is_function_data_empty():
-                self.phase_ref.search_data_in_function(function)
+    # def is_function_name_in_statement(self, line):
+    #    for function in self.phase_ref.get_function_list():
+    #        if function.name in line and function.is_function_data_empty():
+    #            self.phase_ref.search_data_in_function(function)
 
     def get_rlwatchdog_data(self, pom_param_list):
         """

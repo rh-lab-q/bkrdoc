@@ -354,8 +354,8 @@ class DocumentationTranslator:
         :param command: command line
         :return: argparse object
         """
-        pom_phase = bkrdoc.analysis.PhaseContainer("Helpful phase")
-        return bkrdoc.analysis.StatementDataSearcher(self.generator_ref, pom_phase).parse_command(command)
+        argparse_data, pom_var = bkrdoc.analysis.StatementDataSearcher().parse_command(command)
+        return argparse_data
 
     def set_rlvirtualx_xxx_data(self, argparse_data):
         """

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 __author__ = 'Jiri_Kulda'
 
+
 class TestVariables:
     """Class contains variables from BeakerLib test"""
     variable_names_list = []
@@ -41,6 +42,14 @@ class TestVariables:
                 return i
             i += 1
         return -1
+
+    def get_variable_names(self):
+        return self.variable_names_list
+
+    def copy_variables_from_variable_class(self, variable_container):
+        second_variables_names = variable_container.get_variable_names()
+        for sec_name in second_variables_names:
+            self.add_variable(sec_name, variable_container.get_variable_value(sec_name))
 
     def replace_variable_in_string(self, string):
         i = 0
