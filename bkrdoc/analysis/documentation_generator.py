@@ -8,7 +8,6 @@ import bkrdoc.analysis
 
 
 class DocumentationGenerator:
-
     _parser_ref = ""
     _phases = ""
 
@@ -17,8 +16,8 @@ class DocumentationGenerator:
         self._phases = ""
 
     def parse_given_file(self, file):
-            self._parser_ref = bkrdoc.analysis.Parser(file)
-            self._phases = self._parser_ref.get_phases()
+        self._parser_ref = bkrdoc.analysis.Parser(file)
+        self._phases = self._parser_ref.get_phases()
 
     def set_test_launch(self, number_of_variables):
         """
@@ -171,6 +170,7 @@ class DocumentationGenerator:
         self.print_test_environmental_variables_information()
         print("")
         test_weigh = self.get_test_weigh()
+        has_low_credibility = False
 
         if not cmd_options.print_all and test_weigh > cmd_options.size:
             knapsack_list = self.setup_phases_lists_for_knapsack()
@@ -181,8 +181,12 @@ class DocumentationGenerator:
             if not self.is_phase_outside(member):
                 member.print_phase_documentation(cmd_options)
                 print("")
+                has_low_credibility = member.get_phase_credibility().get_credibility() in ["None", "Low", "Very low"] \
+                    or has_low_credibility
 
         print("Overall credibility of generated documentation is " + self.get_overall_credibility() + ".")
+        if has_low_credibility:
+            print("Phases with below Medium credibility are present.")
 
     # items in [["information", weigh, value], ...] format
     def solve_knapsack_dp(self, items, limit):
@@ -250,7 +254,8 @@ class DocumentationGenerator:
                 total_commands += phase.get_total_commands()
         return bkrdoc.analysis.credibility.DocumentationCredibility(unknown_commands, total_commands).get_credibility()
 
-#  ***************** MAIN ******************
+
+# ***************** MAIN ******************
 def set_cmd_arguments():
     """
     This method contains set upped argparse object to parse
@@ -282,6 +287,7 @@ def run_analysis_doc_generator(parser_arg):
         doc_generator.get_documentation_information()
         doc_generator.generate_documentation()
         doc_generator.print_documentation(parser_arg)
+
 
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()

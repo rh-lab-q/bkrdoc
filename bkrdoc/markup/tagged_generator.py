@@ -45,17 +45,21 @@ class Generator(object):
     def get_documentation_title_doc(self):
         self.get_title_data()
         title_data = self.phases[0].comments_list[0].get_title_data()
-        documentation = "Description: {0}\n".format(title_data["description"])
-        documentation += "Author: {0}\n".format(title_data["author"])
+        documentation = "Description: {0}\n".format(self.decide_if_empty(title_data["description"]))
+        documentation += "Author: {0}\n".format(self.decide_if_empty(title_data["author"]))
         if title_data["key"] and title_data["keywords"]:
             documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
-        elif title_data["key"] and not title_data["keywords"]:
-            documentation += "Keywords: {0}".format(title_data["key"])
+        elif title_data["key"] or title_data["keywords"]:
+            documentation += "Keywords: {0}".format(title_data["key"] if title_data["key"] else title_data["keywords"])
         else:
-            documentation += "Keywords: {0}".format(title_data["keywords"])
+            documentation += "Keywords: -"
         # need to erase shared title data
         self.erase_title_data()
         return documentation
+
+    @staticmethod
+    def decide_if_empty(string):
+        return "-" if not string else string
 
     def get_phase_data_documentation(self, parsed_arg):
         documentation = ""
