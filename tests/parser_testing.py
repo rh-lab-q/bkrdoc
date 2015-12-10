@@ -7,7 +7,6 @@ sys.path.insert(0, '..')
 sys.path.insert(0, './bkrdoc_not_tagged/')
 import bkrdoc.analysis
 import bkrdoc.markup
-from bkrdoc.markup.tagged_generator import Generator
 
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -493,66 +492,6 @@ class TestSequenceFunctions(unittest.TestCase):
             if phase.phase_name == "Test":
                 credibility = phase.get_phase_credibility().get_credibility()
         self.assertEquals(credibility, generator.get_overall_credibility())
-
-    def test_markup_description(self):
-        generator = Generator("./examples/tests/headers/empty-lines.sh")
-        generator.parse_file()
-        generator.comments_set_up()
-        doc = generator.get_documentation_title_doc()
-        dummy = "Description: further describes nothing\n" + \
-            "Author: No One <noone@redhat.com>\n" + \
-            "Keywords: sthsth"
-        self.assertEquals(doc, dummy)
-
-        generator2 = Generator("./examples/tests/headers/just-keys.sh")
-        generator2.parse_file()
-        generator2.comments_set_up()
-        doc2 = generator2.get_documentation_title_doc()
-        dummy2 = "Description: -\n" + \
-            "Author: -\n" + \
-            "Keywords: sthsth, puppy, dummykey"
-        self.assertEquals(doc2, dummy2)
-
-        generator3 = Generator("./examples/tests/headers/keys-and-keywords.sh")
-        generator3.parse_file()
-        generator3.comments_set_up()
-        doc3 = generator3.get_documentation_title_doc()
-        dummy3 = "Description: -\n" + \
-            "Author: -\n" + \
-            "Keywords: yay keywords, sthsth, puppy, dummykey"
-        self.assertEquals(doc3, dummy3)
-
-        generator4 = Generator("./examples/tests/headers/multiline.sh")
-        generator4.parse_file()
-        generator4.comments_set_up()
-        doc4 = generator4.get_documentation_title_doc()
-        dummy4 = "Description: this is a sample description\n" + \
-            ' ' * len("Description: ") + "that constitutes of so many lines\n" + \
-            ' ' * len("Description: ") + "we are still describing\n" + \
-            ' ' * len("Description: ") + "so MANY lines\n" + \
-            "Author: author1 <rh>, authr37, another sample author, author4? <??@redhat.com>\n" + \
-            "Keywords: yay keywords, more keywords, sthsth, i dont like keys, dummykey"
-        self.assertEquals(doc4, dummy4)
-
-        generator5 = Generator("./examples/tests/headers/no-nothing.sh")
-        generator5.parse_file()
-        generator5.comments_set_up()
-        doc5 = generator5.get_documentation_title_doc()
-        dummy5 = "Description: -\n" + \
-            "Author: -\n" + \
-            "Keywords: -"
-        self.assertEquals(doc5, dummy5)
-
-        generator6 = Generator("./examples/tests/headers/tildes.sh")
-        generator6.parse_file()
-        generator6.comments_set_up()
-        doc6 = generator6.get_documentation_title_doc()
-        dummy6 = "Description: this is a sample description\n" + \
-            ' ' * len("Description: ") + "that constitutes of so many lines\n" + \
-            ' ' * len("Description: ") + "so MANY lines\n" + \
-            "Author: author1 <rh>, authr37\n" + \
-            "Keywords: yay keywords, more keywords, sthsth, dummykey"
-        self.assertEquals(doc6, dummy6)
 
 
 if __name__ == '__main__':

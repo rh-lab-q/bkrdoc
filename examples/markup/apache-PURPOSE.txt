@@ -1,6 +1,6 @@
 Description: Apache example test
 Author: Petr Splichal <psplicha@redhat.com>
-Keywords: 
+Keywords: -
 
 key apache
 
