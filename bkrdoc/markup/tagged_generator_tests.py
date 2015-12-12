@@ -187,5 +187,41 @@ class TaggedGeneratorTests(unittest.TestCase):
         data = first_doc.read()
         self.assertEqual(doc, data)
 
+    def test_purpose1(self):
+        generator = Generator("./examples/markup/purpose1_test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation(PomArgparse())
+        first_doc = open("./examples/markup/purpose1-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_purpose2(self):
+        generator = Generator("./examples/markup/purpose2_test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation(PomArgparse())
+        first_doc = open("./examples/markup/purpose2-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_purpose3(self):
+        generator = Generator("./examples/markup/purpose3_test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation(PomArgparse())
+        first_doc = open("./examples/markup/purpose3-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
+    def test_purpose4(self):
+        generator = Generator("./examples/markup/purpose4_test.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        doc = generator.get_documentation(PomArgparse())
+        first_doc = open("./examples/markup/purpose4-PURPOSE.txt", 'r')
+        data = first_doc.read()
+        self.assertEqual(doc, data)
+
 if __name__ == '__main__':
     unittest.main()

@@ -118,7 +118,7 @@ class SimpleContainer(object):
                 if self.is_simple_container_instance(comment):
                     # print "LOL {0}".format(documentation_tag)
                     # print self.comments_list
-                    if first and not self.is_test_phase_container():
+                    if first and not self.is_test_phase_container() and not self.is_outside_phase_container():
                         # print "???..."
                         documentation += "{0}{1}:\n".format(offset[2:], documentation_tag)
                         first = False
@@ -153,8 +153,11 @@ class SimpleContainer(object):
                                 # print "{0} /////////////////// {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
                                 documentation += comment.print_data(offset, documentation_tag, self)
                         else:
-                            # print "{0} --------- {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
-                            documentation += comment.print_data(offset, documentation_tag, self)
+                            if not self.is_outside_phase_container():
+                                # print "{0} --------- {1} in {2}".format(documentation_tag, type(comment).__name__, type(self).__name__)
+                                documentation += comment.print_data(offset, documentation_tag, self)
+                            else:
+                                documentation += comment.print_data(offset, "", self)
                         first = False
                     else:
                         # print "{0} :::::::: {1}".format(documentation_tag, type(comment).__name__)
@@ -202,14 +205,20 @@ class SimpleContainer(object):
         return type(container).__name__ == "TaggedCommentContainer"
 
 
+class LineNotFoundException(Exception):
+    pass
+
+
 class PhaseOutsideContainer(SimpleContainer):
 
     name = "Outside Phase"
+    purpose_comments = []
 
     def __init__(self):
         self.comments_list = []
         self.statement_list = []
         self.common_comments = []
+        self.purpose_comments = []
 
     def search_for_title_data(self):
         new_coment = TaggedCommentContainer("")
@@ -254,6 +263,62 @@ class PhaseOutsideContainer(SimpleContainer):
         except ValueError:
             return 0
 
+    def get_and_set_purpose_comments(self, file_string):
+        splitted_file_string = file_string.split("\n")
+        comment_padding = list(['#', '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'])
+        # this below line is for erasing empty lines from file_string
+        splitted_file_string = [line for line in splitted_file_string if line.strip() != '']
+        comment_list_copy = list(self.comments_list)
+        if not self.is_empty(comment_list_copy) and \
+                not self.is_simple_container_instance(comment_list_copy[0]):
+            for comment_container in comment_list_copy:
+                first_comment = self.concatenate_list_items_by_item(comment_container.comments[0])
+                first_comment_index = self.get_item_index(first_comment, splitted_file_string)
+                if not self.is_empty(self.statement_list):
+                    statement_index = self.get_item_index(self.statement_list[0], splitted_file_string)
+                    if (statement_index is None) or (first_comment_index is None):
+                        raise LineNotFoundException("Cannot found comment or statement line in test. Please raise new "
+                                                    "issue at https://github.com/rh-lab-q/bkrdoc/issues.")
+                    if first_comment_index < statement_index:
+                        common_copy = list(self.common_comments)
+                        common_copy.reverse()
+                        comment_padding_index = self.get_item_index(comment_padding, common_copy)
+                        first_common_comment_index = len(self.common_comments) - comment_padding_index
+                        if not len(self.common_comments) == first_common_comment_index and \
+                                first_common_comment_index < first_comment_index:
+                            return
+                        self.purpose_comments.append(comment_container)
+                        self.comments_list.remove(comment_container)
+                    else:
+                        return
+                else:
+                    return
+        return
+
+    def is_empty(self, tested_list):
+        return tested_list == []
+
+    def get_item_index(self, item, tested_list):
+        i = 0
+        for list_item in tested_list:
+            if item == list_item:
+                return i
+            i += 1
+
+    def concatenate_list_items_by_item(self, list_line, item=' '):
+        output_line = ""
+        for member in list_line:
+            output_line += "{0}{1}".format(item, member)
+        return output_line.strip()
+
+    def get_end_index_of_generated_test_description(self):
+        index = 0
+        i = 0
+        for line in self.common_comments:
+            if line[1].find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"):
+                index = i
+            i += 1
+        return index
 
 class TestPhaseContainer(SimpleContainer):
 
@@ -525,8 +590,7 @@ class TaggedCommentContainer(object):
                         self.known_tags[self.get_tag_from_word(found_tag)] = known_tags_data
                     else:
                         self.known_tags[self.get_tag_from_word(found_tag)] += ", {0}".format(known_tags_data)
-                    # print self.known_tags
-                    # print self.known_tags[self.get_tag_from_word(found_tag)]
+
                 else:
                     raise UnknownTagException("Not supported tag: {0}. If it's needed write an e-mail to "
                                               "jkulda@redhat.com.".format(self.get_tag_from_word(found_tag)))
@@ -535,7 +599,6 @@ class TaggedCommentContainer(object):
                 if self.is_specified_tag("after_code"):
                     erased_comment_line = self.erase_comments_start_tags(self.tagged_line)
                 self.documentation_comments.append(self.set_documentation_comment(erased_comment_line))
-                # print self.documentation_comments
 
     def is_know_tag_empty(self, key):
         return self.known_tags[key] == ""
