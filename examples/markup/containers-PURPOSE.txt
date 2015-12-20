@@ -1,7 +1,7 @@
 Description: AHOOOOJ svete
-Author: 
+Author: -
 Purpose: 
-Keywords: 
+Keywords: -
 
 Phases:
 if: condition

@@ -447,7 +447,6 @@ class TestSequenceFunctions(unittest.TestCase):
         inf = "File(directory): \"gener.html\" must exist"
         self.assertEqual(inf_data.information, inf)
 
-
     def test_autopart_test(self):
         generator = bkrdoc.analysis.DocumentationGenerator()
         generator.parse_given_file("./examples/tests/autopart-test.sh")
@@ -493,6 +492,7 @@ class TestSequenceFunctions(unittest.TestCase):
             if phase.phase_name == "Test":
                 credibility = phase.get_phase_credibility().get_credibility()
         self.assertEquals(credibility, generator.get_overall_credibility())
+
 
 if __name__ == '__main__':
     unittest.main()

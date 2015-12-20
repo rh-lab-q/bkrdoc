@@ -1,7 +1,7 @@
 Description: Apache example test
 Author: Petr Splichal <psplicha@redhat.com>
 Purpose: 
-Keywords: 
+Keywords: -
 
 key apache
 

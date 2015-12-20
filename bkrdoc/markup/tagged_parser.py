@@ -38,8 +38,9 @@ class Parser(object):
                         i_temp += 1
                         splitted_next = shlex.split(splitted_file_string[i_temp].strip(), posix=False)
                         if self.same_keyword_span(splitted_next):
-                            splitted_line += self.comma_or_newline(splitted_line[1][:-1])
+                            splitted_line[-1] += self.comma_or_newline(splitted_line[1][:-1])
                             splitted_line += splitted_next[1:]
+                            i += 1
                         else:
                             break
 
@@ -298,7 +299,7 @@ class Parser(object):
                 and (not self.has_keyword(line)) and (line[1][1] != '~')
 
     def comma_or_newline(self, word):
-        table = {'Description': '\n      ',
+        table = {'Description': '\n' + ' ' * 12,
                  'Author': ',',
                  'Keywords': ','}
         return table.get(word, "")

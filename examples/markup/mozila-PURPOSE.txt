@@ -1,9 +1,9 @@
-Description: This test is for testing Bugzilla version 3.6. It first installs the required rpm 
-             dependencies via yum, then executes all of the test files in t/ directory to test the Bugzilla 
+Description: This test is for testing Bugzilla version 3.6. It first installs the required rpm
+             dependencies via yum, then executes all of the test files in t/ directory to test the Bugzilla
              code and report the related results.
-Author: Dave Lawrence <dkl@redhat.com> , Dave Lawrence <dkl@mozilla.com>
+Author: Dave Lawrence <dkl@redhat.com>, Dave Lawrence <dkl@mozilla.com>
 Purpose: 
-Keywords: 
+Keywords: -
 
 function: function which run test case
   test if previous action has passed

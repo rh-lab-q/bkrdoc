@@ -1,7 +1,7 @@
-Description: 
-Author: 
+Description: -
+Author: -
 Purpose: 
-Keywords: 
+Keywords: -
 
 Phases:
 if: condition
