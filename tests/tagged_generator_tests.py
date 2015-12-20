@@ -194,6 +194,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation_title_doc()
         dummy = "Description: further describes nothing\n" + \
             "Author: No One <noone@redhat.com>\n" + \
+            "Purpose: -\n" + \
             "Keywords: sthsth"
         self.assertEquals(doc, dummy)
 
@@ -203,6 +204,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc2 = generator2.get_documentation_title_doc()
         dummy2 = "Description: -\n" + \
             "Author: -\n" + \
+            "Purpose: -\n" + \
             "Keywords: sthsth, puppy, dummykey"
         self.assertEquals(doc2, dummy2)
 
@@ -212,6 +214,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc3 = generator3.get_documentation_title_doc()
         dummy3 = "Description: -\n" + \
             "Author: -\n" + \
+            "Purpose: -\n" + \
             "Keywords: yay keywords, sthsth, puppy, dummykey"
         self.assertEquals(doc3, dummy3)
 
@@ -224,6 +227,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             ' ' * len("Description: ") + "we are still describing\n" + \
             ' ' * len("Description: ") + "so MANY lines\n" + \
             "Author: author1 <rh>, authr37, another sample author, author4? <??@redhat.com>\n" + \
+            "Purpose: -\n" + \
             "Keywords: yay keywords, more keywords, sthsth, i dont like keys, dummykey"
         self.assertEquals(doc4, dummy4)
 
@@ -233,6 +237,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc5 = generator5.get_documentation_title_doc()
         dummy5 = "Description: -\n" + \
             "Author: -\n" + \
+            "Purpose: -\n" + \
             "Keywords: -"
         self.assertEquals(doc5, dummy5)
 
@@ -244,6 +249,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             ' ' * len("Description: ") + "that constitutes of so many lines\n" + \
             ' ' * len("Description: ") + "so MANY lines\n" + \
             "Author: author1 <rh>, authr37\n" + \
+            "Purpose: -\n" + \
             "Keywords: yay keywords, more keywords, sthsth, dummykey"
         self.assertEquals(doc6, dummy6)
 

@@ -59,7 +59,7 @@ class Generator(object):
         # get purpose data
         if self.is_outside_phase_container(self.phases[0]):
             self.phases[0].get_and_set_purpose_comments(self.file_string)
-        documentation += "Purpose: {0}\n".format(self.get_purpose_title_data())
+        documentation += "Purpose: {0}\n".format(self.decide_if_empty(self.get_purpose_title_data()))
 
         if title_data["key"] and title_data["keywords"]:
             documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])

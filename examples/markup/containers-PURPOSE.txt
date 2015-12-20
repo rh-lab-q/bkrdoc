@@ -1,6 +1,6 @@
 Description: AHOOOOJ svete
 Author: -
-Purpose: 
+Purpose: -
 Keywords: -
 
 Phases:
