@@ -41,20 +41,32 @@ class Generator(object):
     def erase_title_data(self):
         help_comment = TaggedCommentContainer("")
         help_comment.erase_known_tags()
+        self.phases[0].comments_list.pop(0)
+
+    def get_purpose_title_data(self):
+        output_purpose_doc = ""
+        for comment_container in self.phases[0].purpose_comments:
+            for comment in comment_container.documentation_comments:
+                output_purpose_doc += "{0}{1}\n".format("         ", comment)
+        return output_purpose_doc.strip()
 
     def get_documentation_title_doc(self):
         self.get_title_data()
-        title_data = self.phases[0].comments_list[0].get_title_data()
+        title_data = self.phases[0].comments_list[0].get_title_data().copy()
+        self.erase_title_data()
         documentation = "Description: {0}\n".format(self.decide_if_empty(title_data["description"]))
         documentation += "Author: {0}\n".format(self.decide_if_empty(title_data["author"]))
+        # get purpose data
+        if self.is_outside_phase_container(self.phases[0]):
+            self.phases[0].get_and_set_purpose_comments(self.file_string)
+        documentation += "Purpose: {0}\n".format(self.get_purpose_title_data())
+
         if title_data["key"] and title_data["keywords"]:
             documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
         elif title_data["key"] or title_data["keywords"]:
             documentation += "Keywords: {0}".format(title_data["key"] if title_data["key"] else title_data["keywords"])
         else:
             documentation += "Keywords: -"
-        # need to erase shared title data
-        self.erase_title_data()
         return documentation
 
     @staticmethod
@@ -95,6 +107,9 @@ class Generator(object):
 
     def is_outside_phase_documentation(self, splitted_lines):
         return splitted_lines[0] == "Outside Phase"
+
+    def is_outside_phase_container(self, container):
+        return type(container).__name__ == "PhaseOutsideContainer"
 
     def print_additional_container_data(self, name, additional_containers):
         documentation = ""
@@ -182,4 +197,3 @@ def run_markup_doc_generator(parsed_arg):
 if __name__ == "__main__":
     CMD_args = set_cmd_arguments()
     run_markup_doc_generator(CMD_args)
-

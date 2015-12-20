@@ -1,9 +1,10 @@
 Description: Apache example test
 Author: Petr Splichal <psplicha@redhat.com>
-Purpose: 
-Keywords: -
+Purpose: Sums up phase asserts and reports the overall phase result
+         Check if the file is correct
+Keywords: apache
 
-key apache
+keys for purpose are set
 
 Setup "Setup"
   Sums up phase asserts and reports the overall phase result
