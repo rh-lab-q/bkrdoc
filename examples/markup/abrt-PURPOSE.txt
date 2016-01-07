@@ -1,5 +1,6 @@
 Description: does what it does, does sanity on abrt-auto-reporting
 Author: Janosik Karel, Jakub Filak <jfilak@redhat.com>
+Purpose: -
 Keywords: auto-reporting, mamut
 
 Phases:
