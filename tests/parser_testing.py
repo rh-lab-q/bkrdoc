@@ -2,6 +2,7 @@
 
 import unittest
 import sys
+from cStringIO import StringIO  # redirecting stdout
 
 sys.path.insert(0, '..')
 sys.path.insert(0, './bkrdoc_not_tagged/')
@@ -457,7 +458,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_credibility(self):
         cr = bkrdoc.analysis.DocumentationCredibility(0, 0)
         perc = cr.compute_percent_correct(0, 0)
-        self.assertEqual(cr.compute_credibility_key(perc), list(cr.credibilityTable)[-1])  # "0 total, should be MAX"
+        self.assertEqual(cr.compute_credibility_key(perc), list(cr.credibilityTable)[-1])  # 0 total, should be MAX
 
         cr0 = bkrdoc.analysis.DocumentationCredibility(100, 100)
         self.assertEquals(cr0.get_credibility(), cr0.credibilityTable[0])
@@ -492,6 +493,60 @@ class TestSequenceFunctions(unittest.TestCase):
             if phase.phase_name == "Test":
                 credibility = phase.get_phase_credibility().get_credibility()
         self.assertEquals(credibility, generator.get_overall_credibility())
+
+    def test_below_medium_credibility_present_low(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+
+        # subprocess.call(['python', "./bkrdoc/analysis/documentation_generator.py", "./examples/tests/mozila-test.sh"])
+        # ^ hard to redirect stdout
+
+        d = dict(locals(), **globals())  # because of calling execfile from a function (non-globally)
+        sys.argv = ['./bkrdoc/analysis/documentation_generator.py', './examples/tests/mozila-test.sh']
+        execfile('./bkrdoc/analysis/documentation_generator.py', d, d)
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_present_very_low(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        d = dict(locals(), **globals())  # because of calling execfile from a function (non-globally)
+        sys.argv = ['./bkrdoc/analysis/documentation_generator.py', './examples/tests/pxe-boot-test.sh']
+        execfile('./bkrdoc/analysis/documentation_generator.py', d, d)
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_present_none(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        d = dict(locals(), **globals())  # because of calling execfile from a function (non-globally)
+        sys.argv = ['./bkrdoc/analysis/documentation_generator.py', './examples/tests/none.sh']
+        execfile('./bkrdoc/analysis/documentation_generator.py', d, d)
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_not_present_high(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        d = dict(locals(), **globals())  # because of calling execfile from a function (non-globally)
+        sys.argv = ['./bkrdoc/analysis/documentation_generator.py', './examples/tests/apache-test.sh']
+        execfile('./bkrdoc/analysis/documentation_generator.py', d, d)
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_not_present_medium(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        d = dict(locals(), **globals())  # because of calling execfile from a function (non-globally)
+        sys.argv = ['./bkrdoc/analysis/documentation_generator.py', './examples/markup/testFromBugzila.sh']
+        execfile('./bkrdoc/analysis/documentation_generator.py', d, d)
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertEqual(my_stdout.getvalue().find(credibility), -1)
 
 
 if __name__ == '__main__':
