@@ -140,6 +140,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/abrt-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_condition(self):
@@ -149,6 +150,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/condition-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_containers(self):
@@ -158,6 +160,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/containers-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_loops(self):
@@ -167,6 +170,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse(additional_info=True))
         first_doc = open("./examples/markup/loop-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_apache_without_additional_info(self):
@@ -176,6 +180,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse())
         first_doc = open("./examples/markup/apache-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_mozilla_without_additional_info(self):
@@ -185,6 +190,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse())
         first_doc = open("./examples/markup/mozila-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_markup_headers(self):
@@ -196,7 +202,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             "Author: No One <noone@redhat.com>\n" + \
             "Purpose: -\n" + \
             "Keywords: sthsth"
-        self.assertEquals(doc, dummy)
+        self.assertEqual(doc, dummy)
 
         generator2 = Generator("./examples/markup/headers/just-keys.sh")
         generator2.parse_file()
@@ -206,7 +212,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             "Author: -\n" + \
             "Purpose: -\n" + \
             "Keywords: sthsth, puppy, dummykey"
-        self.assertEquals(doc2, dummy2)
+        self.assertEqual(doc2, dummy2)
 
         generator3 = Generator("./examples/markup/headers/keys-and-keywords.sh")
         generator3.parse_file()
@@ -216,7 +222,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             "Author: -\n" + \
             "Purpose: -\n" + \
             "Keywords: yay keywords, sthsth, puppy, dummykey"
-        self.assertEquals(doc3, dummy3)
+        self.assertEqual(doc3, dummy3)
 
         generator4 = Generator("./examples/markup/headers/multiline.sh")
         generator4.parse_file()
@@ -229,7 +235,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             "Author: author1 <rh>, authr37, another sample author, author4? <??@redhat.com>\n" + \
             "Purpose: -\n" + \
             "Keywords: yay keywords, more keywords, sthsth, i dont like keys, dummykey"
-        self.assertEquals(doc4, dummy4)
+        self.assertEqual(doc4, dummy4)
 
         generator5 = Generator("./examples/markup/headers/no-nothing.sh")
         generator5.parse_file()
@@ -239,7 +245,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             "Author: -\n" + \
             "Purpose: -\n" + \
             "Keywords: -"
-        self.assertEquals(doc5, dummy5)
+        self.assertEqual(doc5, dummy5)
 
         generator6 = Generator("./examples/markup/headers/tildes.sh")
         generator6.parse_file()
@@ -251,7 +257,7 @@ class TaggedGeneratorTests(unittest.TestCase):
             "Author: author1 <rh>, authr37\n" + \
             "Purpose: -\n" + \
             "Keywords: yay keywords, more keywords, sthsth, dummykey"
-        self.assertEquals(doc6, dummy6)
+        self.assertEqual(doc6, dummy6)
 
     def test_purpose1(self):
         generator = Generator("./examples/markup/purpose1_test.sh")
@@ -260,6 +266,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse())
         first_doc = open("./examples/markup/purpose1-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_purpose2(self):
@@ -269,6 +276,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse())
         first_doc = open("./examples/markup/purpose2-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_purpose3(self):
@@ -278,6 +286,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse())
         first_doc = open("./examples/markup/purpose3-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
     def test_purpose4(self):
@@ -287,6 +296,7 @@ class TaggedGeneratorTests(unittest.TestCase):
         doc = generator.get_documentation(PomArgparse())
         first_doc = open("./examples/markup/purpose4-PURPOSE.txt", 'r')
         data = first_doc.read()
+        first_doc.close()
         self.assertEqual(doc, data)
 
 if __name__ == '__main__':
