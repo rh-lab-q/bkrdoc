@@ -53,6 +53,12 @@ def parse_cmd_arguments():
                                type=str,
                                default=False,
                                help='Save documentation into file with specified name.')
+
+    parser_markup.add_argument('--additional',
+                               dest='additional_info',
+                               default=False,
+                               action='store_true',
+                               help='This option shows additional information section in test documentation')
     parser_markup.set_defaults(func=markup_run)
     parser_arg = parser.parse_args()
 
