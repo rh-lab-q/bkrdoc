@@ -3,10 +3,28 @@
 import unittest
 import sys
 
+# redirecting stdout
+try:
+    from cStringIO import StringIO  #Python2
+except ImportError:
+    from io import StringIO  #Python3
+
 sys.path.insert(0, '..')
 sys.path.insert(0, './bkrdoc_not_tagged/')
 import bkrdoc.analysis
 import bkrdoc.markup
+
+
+class PomArgparse(object):
+        FILE_NAME = ""
+        additional_info = False
+
+        def __init__(self, file_name="", additional_info=False):
+            self.FILE_NAME = file_name
+            self.additional_info = additional_info
+
+        def print_all(self):
+            return ""
 
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -457,32 +475,32 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_credibility(self):
         cr = bkrdoc.analysis.DocumentationCredibility(0, 0)
         perc = cr.compute_percent_correct(0, 0)
-        self.assertEqual(cr.compute_credibility_key(perc), list(cr.credibilityTable)[-1])  # "0 total, should be MAX"
+        self.assertEqual(cr.compute_credibility_key(perc), list(cr.credibilityTable)[-1])  # 0 total, should be MAX
 
         cr0 = bkrdoc.analysis.DocumentationCredibility(100, 100)
-        self.assertEquals(cr0.get_credibility(), cr0.credibilityTable[0])
+        self.assertEqual(cr0.get_credibility(), cr0.credibilityTable[0])
         cr1 = bkrdoc.analysis.DocumentationCredibility(99, 100)
-        self.assertEquals(cr1.get_credibility(), cr1.credibilityTable[1])
+        self.assertEqual(cr1.get_credibility(), cr1.credibilityTable[1])
         cr2 = bkrdoc.analysis.DocumentationCredibility(81, 100)
-        self.assertEquals(cr2.get_credibility(), cr2.credibilityTable[1])
+        self.assertEqual(cr2.get_credibility(), cr2.credibilityTable[1])
         cr3 = bkrdoc.analysis.DocumentationCredibility(80, 100)
-        self.assertEquals(cr3.get_credibility(), cr3.credibilityTable[2])
+        self.assertEqual(cr3.get_credibility(), cr3.credibilityTable[2])
         cr4 = bkrdoc.analysis.DocumentationCredibility(61, 100)
-        self.assertEquals(cr4.get_credibility(), cr4.credibilityTable[2])
+        self.assertEqual(cr4.get_credibility(), cr4.credibilityTable[2])
         cr5 = bkrdoc.analysis.DocumentationCredibility(60, 100)
-        self.assertEquals(cr5.get_credibility(), cr5.credibilityTable[3])
+        self.assertEqual(cr5.get_credibility(), cr5.credibilityTable[3])
         cr6 = bkrdoc.analysis.DocumentationCredibility(41, 100)
-        self.assertEquals(cr6.get_credibility(), cr6.credibilityTable[3])
+        self.assertEqual(cr6.get_credibility(), cr6.credibilityTable[3])
         cr7 = bkrdoc.analysis.DocumentationCredibility(40, 100)
-        self.assertEquals(cr7.get_credibility(), cr7.credibilityTable[4])
+        self.assertEqual(cr7.get_credibility(), cr7.credibilityTable[4])
         cr8 = bkrdoc.analysis.DocumentationCredibility(21, 100)
-        self.assertEquals(cr8.get_credibility(), cr8.credibilityTable[4])
+        self.assertEqual(cr8.get_credibility(), cr8.credibilityTable[4])
         cr9 = bkrdoc.analysis.DocumentationCredibility(20, 100)
-        self.assertEquals(cr9.get_credibility(), cr9.credibilityTable[5])
+        self.assertEqual(cr9.get_credibility(), cr9.credibilityTable[5])
         cr10 = bkrdoc.analysis.DocumentationCredibility(1, 100)
-        self.assertEquals(cr10.get_credibility(), cr10.credibilityTable[5])
+        self.assertEqual(cr10.get_credibility(), cr10.credibilityTable[5])
         cr11 = bkrdoc.analysis.DocumentationCredibility(0, 100)
-        self.assertEquals(cr11.get_credibility(), cr11.credibilityTable[5])
+        self.assertEqual(cr11.get_credibility(), cr11.credibilityTable[5])
 
     def test_overall_credibility(self):
         generator = bkrdoc.analysis.DocumentationGenerator()
@@ -491,7 +509,58 @@ class TestSequenceFunctions(unittest.TestCase):
         for phase in generator._phases:
             if phase.phase_name == "Test":
                 credibility = phase.get_phase_credibility().get_credibility()
-        self.assertEquals(credibility, generator.get_overall_credibility())
+        self.assertEqual(credibility, generator.get_overall_credibility())
+
+
+    def test_below_medium_credibility_present_low(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        generator = bkrdoc.analysis.DocumentationGenerator()
+        generator.parse_given_file("./examples/tests/mozila-test.sh")
+        generator.print_documentation(PomArgparse())
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_present_very_low(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        generator = bkrdoc.analysis.DocumentationGenerator()
+        generator.parse_given_file("./examples/tests/pxe-boot-test.sh")
+        generator.print_documentation(PomArgparse())
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_present_none(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        generator = bkrdoc.analysis.DocumentationGenerator()
+        generator.parse_given_file("./examples/tests/none.sh")
+        generator.print_documentation(PomArgparse())
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_not_present_high(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        generator = bkrdoc.analysis.DocumentationGenerator()
+        generator.parse_given_file("./examples/tests/apache-test.sh")
+        generator.print_documentation(PomArgparse())
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertEqual(my_stdout.getvalue().find(credibility), -1)
+
+    def test_below_medium_credibility_not_present_medium(self):
+        old_stdout = sys.stdout
+        sys.stdout = my_stdout = StringIO()
+        generator = bkrdoc.analysis.DocumentationGenerator()
+        generator.parse_given_file("./examples/markup/testFromBugzila.sh")
+        generator.print_documentation(PomArgparse())
+        sys.stdout = old_stdout
+        credibility = "Phases with below Medium credibility are present."
+        self.assertEqual(my_stdout.getvalue().find(credibility), -1)
 
 
 if __name__ == '__main__':

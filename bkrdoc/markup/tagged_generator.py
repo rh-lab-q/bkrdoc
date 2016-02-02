@@ -54,23 +54,25 @@ class Generator(object):
         self.get_title_data()
         title_data = self.phases[0].comments_list[0].get_title_data().copy()
         self.erase_title_data()
-        documentation = "Description: {0}\n".format(self.decide_if_empty(title_data["description"]))
-        documentation += "Author: {0}\n".format(self.decide_if_empty(title_data["author"]))
+        documentation = "Description: {0}\n".format(self.get_adapted_header_line(title_data["description"]))
+        documentation += "Author: {0}\n".format(self.get_adapted_header_line(title_data["author"]))
         # get purpose data
         if self.is_outside_phase_container(self.phases[0]):
             self.phases[0].get_and_set_purpose_comments(self.file_string)
-        documentation += "Purpose: {0}\n".format(self.decide_if_empty(self.get_purpose_title_data()))
+        documentation += "Purpose: {0}\n".format(self.get_adapted_header_line(self.get_purpose_title_data()))
 
         if title_data["key"] and title_data["keywords"]:
             documentation += "Keywords: {0}, {1}".format(title_data["keywords"], title_data["key"])
-        elif title_data["key"] or title_data["keywords"]:
-            documentation += "Keywords: {0}".format(title_data["key"] if title_data["key"] else title_data["keywords"])
+        elif title_data["key"]:
+            documentation += "Keywords: {0}".format(title_data["key"])
+        elif title_data["keywords"]:
+            documentation += "Keywords: {0}".format(title_data["keywords"])
         else:
             documentation += "Keywords: -"
         return documentation
 
     @staticmethod
-    def decide_if_empty(string):
+    def get_adapted_header_line(string):
         return "-" if not string else string
 
     def get_phase_data_documentation(self, parsed_arg):
