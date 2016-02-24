@@ -77,12 +77,12 @@ Author: Jan Kresla
 Keywords: httpd
 ```
 
-Also tagged generator supports block comments. Block comments must start with `#@` but following documentation comments can start with simple `#` as you can see on this example:
+Also tagged generator supports block comments. Each block comment must start with `#@` as you can see on this example:
 
 ```bash
     #@ Somenthing in start of the test
-    # Could be anything
-    # Make temporary directory and saves work in it
+    #@ Could be anything
+    #@ Make temporary directory and saves work in it
     rlPhaseStartSetup
         TmpDir=$(mktemp -d)
         pushd $TmpDir
@@ -95,6 +95,49 @@ will generate:
     Somenthing in start of the test
     Could be anything
     Make temporary directory and saves work in it
+```
+
+useful feature is that bkrdoc generator could use existing BeakerLib command comment as you can see from below example:
+```bash
+rlPhaseStartSetup
+  rlRun 'ps aux' 'ps command should not traceback' #@
+  rlRun 'ps aux' 'ps command should not traceback' #@ check for traceback
+rlPhaseEnd
+```
+will reproduce:
+
+```
+Setup
+  ps command should not traceback
+  check for traceback
+```
+
+Also markup version supports initial comment as a global whole test comment. This initial comment or block comment must be after shebang(also could be after test description made by beaker-wizard) and must start as usuall with `#@`. You can see little example below:
+
+```bash
+#!/usr/bin/env bash
+
+#@ This is the first line of initial documentation comment
+#@ second line
+#@ third line
+
+PACKAGE="httpd"
+HttpdPages="/var/www/html"
+HttpdLogs="/var/log/httpd"
+.
+.
+```
+will reproduce:
+
+```bash
+Description: -
+Author: -
+Purpose: This is the first line of initial documentation comment
+         second line
+         third line
+Keywords: -
+.
+.
 ```
 
 ## 4. Package contents
