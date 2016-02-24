@@ -121,7 +121,11 @@ class Parser(object):
                 argparse_data, var = data_searcher.parse_command(line)
                 try:
                     if argparse_data.comment is not None:
-                        tagged_comment_container.add_condition_tag("after_code", argparse_data.comment)
+                        after_line_comment = self.get_after_code_doc_commment(splitted_line)
+                        if len(after_line_comment) > 0:
+                            tagged_comment_container.add_condition_tag("after_code", after_line_comment)
+                        else:
+                            tagged_comment_container.add_condition_tag("after_code", argparse_data.comment)
                     else:
                         tagged_comment_container.add_condition_tag("after_code",
                                                                    self.get_after_code_doc_commment(splitted_line))

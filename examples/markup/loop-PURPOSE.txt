@@ -11,7 +11,7 @@ if:
     for: conditionassss
       After command comment
     for: 
-      THIS comment
+      Not this comment
     conditionassss
 else: conditionsdaswewqw
   conditionttttttttttttt
