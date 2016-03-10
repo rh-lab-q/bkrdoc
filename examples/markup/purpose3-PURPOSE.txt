@@ -1,0 +1,28 @@
+Description: Apache example test
+Author: Petr Splichal <psplicha@redhat.com>
+Purpose: Sums up phase asserts and reports the overall phase result
+         Check if the file is correct
+Keywords: apache
+
+keys for purpose are set
+
+Setup "Setup"
+  Sums up phase asserts and reports the overall phase result
+    Make sure the httpd package is installed
+    Make sure the httpd service is running with fresh configuration
+
+Test "Test Existing Page"
+  Check if the file is correct
+    Make sure the content is OK
+    Check the access log for the corresponding record
+
+Test "Test Missing Page"
+  Trying to access a nonexistent page
+    An error message should be reported to stderr
+    The access log should contain a 404 record
+
+Cleanup "Cleanup"
+  Cleanup after test
+    Restore the www and log directories to their original state
+    Restore httpd service to it's original state
+

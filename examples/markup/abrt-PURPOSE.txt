@@ -1,0 +1,83 @@
+Description: does what it does, does sanity on abrt-auto-reporting
+Author: Janosik Karel, Jakub Filak <jfilak@redhat.com>
+Purpose: -
+Keywords: auto-reporting, mamut
+
+Phases:
+function: Function that configure selected value
+ - does not require any parameter
+  comment on the beggining
+  Important case
+  comment on the end
+
+Somenthing in start of the test
+
+  Setup 
+    Make temporary directory and saves work in it
+
+Additional info
+Print help informations
+blah sfsdf sdf sdfsd f
+
+  Test "--help"
+    This could be usefull
+      TESTING
+      Back phase testing
+
+  Test "no args"
+    Runs script with no arguments
+
+  Test "enabled"
+    Single enablned as a argument
+
+  Test "disabled"
+    Disabled as a argument
+
+  Test "enabled (once more)"
+    More than just one enabled as a argument
+
+  Test "various argument types"
+    Various types of arguments will start this part
+      for: for every argument in selected word will do...
+        if: Test if actualy value in arg is not "enabled" and "disabled"
+          wee will seee
+          Mangles the configuration value
+        something which is connected to this loop
+        Adding new data to OLD variable
+      Documentation test
+
+  Cleanup 
+    clean after test
+      Disable auto reporting
+
+Something on the end of the test
+
+
+Additional information:
+  Functions:
+    function get_configured_value()
+    {
+      Function that configure selected value
+      does not require any parameter
+      comment on the beggining
+      Important case
+      comment on the end
+    }
+
+  Loops:
+    for every argument in selected word will do...
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      rlRun "abrt-auto-reporting $arg"
+      get_configured_value
+      something which is connected to this loop
+      OLD=$CONF_VALUE #@ Adding new data to OLD variable
+    done
+
+  Conditions:
+    Test if actualy value in arg is not "enabled" and "disabled"
+    if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
+      wee will seee
+      rlFail "Mangles the configuration value"
+    fi
+

@@ -1,0 +1,30 @@
+Description: This test is for testing Bugzilla version 3.6. It first installs the required rpm
+             dependencies via yum, then executes all of the test files in t/ directory to test the Bugzilla
+             code and report the related results.
+Author: Dave Lawrence <dkl@redhat.com>, Dave Lawrence <dkl@mozilla.com>
+Purpose: -
+Keywords: -
+
+function: function which run test case
+  test if previous action has passed
+function: Function which creates test data
+
+Setup 
+    Copy yum repo config and install all necessary rpms for testing
+    Remove the i386 Firefox if installed
+    Setup up Bugzilla configuration files
+    Start the MySQL service
+    Create the initial test data needed by the testsuite
+    Fix the firefox path in the selenium config file
+
+test if previous action has passed
+
+Test 
+    Set the testoutputlog to the current beaker log dir
+    Running basic Bugzilla sanity test scripts as shipped with Bugzilla
+    Running the automated web UI tests using Selenium
+    Running the XMLRPC WebService test scripts
+
+Cleanup 
+  Stoping httpd and mysqld services
+

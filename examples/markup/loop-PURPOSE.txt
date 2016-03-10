@@ -1,0 +1,56 @@
+Description: -
+Author: MAN
+Purpose: -
+Keywords: -
+
+Phases:
+if:
+  if: conditioneeeeeeeeeee
+    conditionesss
+  else:
+    for: conditionassss
+      After command comment
+    for: 
+      Not this comment
+    conditionassss
+else: conditionsdaswewqw
+  conditionttttttttttttt
+
+
+Additional information:
+  Loops:
+    conditionassss
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      rlRun "abrt-auto-reporting $arg" #@ After command comment
+    done
+
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      rlRun "abrt-auto-reporting $arg" 0 "THIS comment" #@ Not this comment
+    done
+
+    conditionassss
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+    done
+
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+    done
+
+
+  Conditions:
+    if [ $year -eq 0 ]; then
+    conditionsdaswewqw
+    else
+      conditionttttttttttttt
+    fi
+
+    conditioneeeeeeeeeee
+    if [ $year -ne 0 ]; then
+      conditionesss
+    else
+    fi
+
+

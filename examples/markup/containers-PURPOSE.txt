@@ -1,0 +1,56 @@
+Description: AHOOOOJ svete
+Author: -
+Purpose: -
+Keywords: -
+
+Phases:
+if: condition
+  conditionaaaaaaaaaaaa
+elif: conditionoooooooooooo
+  if: conditioneeeeeeeeeee
+    conditionesss
+  else:
+    for: conditionassss
+      if: Test if actualy value in arg is not "enabled" and "disabled"
+        wee will seee
+        Mangles the configuration value
+      something which is connected to this loop
+else: conditionsdaswewqw
+  conditionttttttttttttt
+
+
+Additional information:
+  Loops:
+    conditionassss
+    for arg in disabled EnAbLeD dIsAblEd enabled no Yes nO yes 0 1
+    do
+      rlRun "abrt-auto-reporting $arg"
+      get_configured_value
+      something which is connected to this loop
+      OLD=$CONF_VALUE
+    done
+
+  Conditions:
+    condition
+    if [ $year -eq "0" ]; then
+      conditionaaaaaaaaaaaa
+    conditionoooooooooooo
+    elif [ $year -eq 0 ]; then
+    conditionsdaswewqw
+    else
+      conditionttttttttttttt
+    fi
+
+    conditioneeeeeeeeeee
+    if [ $year -ne 0 ]; then
+      conditionesss
+    else
+    fi
+
+    Test if actualy value in arg is not "enabled" and "disabled"
+    if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
+      wee will seee
+      rlFail "Mangles the configuration value"
+    fi
+
+

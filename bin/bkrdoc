@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+__author__ = 'jkulda'
+import argparse
+from bkrdoc.analysis.documentation_generator import run_analysis_doc_generator
+from bkrdoc.markup.tagged_generator import run_markup_doc_generator
+
+
+def analysis_run(args):
+    run_analysis_doc_generator(args)
+
+
+def markup_run(args):
+    run_markup_doc_generator(args)
+
+
+#  ***************** MAIN ******************
+def parse_cmd_arguments():
+    """
+    This method contains set upped argparse object to parse
+    command line options and files
+
+    :return: argparse object
+    """
+    parser = argparse.ArgumentParser(description='Director of bkrdoc generator type choosing')
+    subparsers = parser.add_subparsers()
+    parser.add_argument('files',
+                        metavar='file',
+                        type=str,
+                        nargs='+',
+                        help='script file')
+
+    parser_analysis = subparsers.add_parser("analysis")
+    parser_analysis.add_argument('-l', '--log',
+                                 dest='log_in',
+                                 action='store_true',
+                                 default=False,
+                                 help='Show log data if they are possible')
+    parser_analysis.add_argument('-s', '--size',
+                                 type=int,
+                                 help="Size of output documentation in lines, default is 32 lines(A4 size) per"
+                                      " documentation",
+                                 default=32)
+    parser_analysis.add_argument('--all', '--print-all',
+                                 dest='print_all',
+                                 action='store_true',
+                                 default=False,
+                                 help='Printing all possible data.')
+    parser_analysis.set_defaults(func=analysis_run)
+
+    parser_markup = subparsers.add_parser("markup")
+    parser_markup.add_argument('-o', '--output',
+                               dest='FILE_NAME',
+                               type=str,
+                               default=False,
+                               help='Save documentation into file with specified name.')
+
+    parser_markup.add_argument('--additional',
+                               dest='additional_info',
+                               default=False,
+                               action='store_true',
+                               help='This option shows additional information section in test documentation')
+    parser_markup.set_defaults(func=markup_run)
+    parser_arg = parser.parse_args()
+
+    try:
+        parser_arg.func(parser_arg)
+    except Exception as exc:
+        print ("Error with function parsing. If this is a bug make an issue in github repo")
+        print (exc)
+
+if __name__ == "__main__":
+    parse_cmd_arguments()

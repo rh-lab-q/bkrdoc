@@ -1,8 +1,12 @@
 language: python
 python:
-  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
 install: pip install bashlex
 # command to run tests
+install: python setup.py install
 script:
-  - python bkrdoc_not_tagged/tests/parser_testing.py -v
-  - python bkrdoc_tagged/bkrdoc_tagged/tagged_generator_tests.py -v
+  - python tests/parser_testing.py -v
+  - python tests/tagged_generator_tests.py -v

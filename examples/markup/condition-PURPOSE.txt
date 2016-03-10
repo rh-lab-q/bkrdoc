@@ -1,0 +1,74 @@
+Description: -
+Author: -
+Purpose: -
+Keywords: -
+
+Phases:
+if: condition
+  conditionaaaaaaaaaaaa
+elif: conditionoooooooooooo
+  if: conditioneeeeeeeeeee
+    conditionesss
+  else: 
+    conditionassss
+else: conditionsdaswewqw
+  conditionttttttttttttt
+  Little condition description without inside conditions
+if: 
+  Big condition description with inside conditions
+if: Little condition description without inside conditions
+  Little condition description without inside conditions
+  Little condition description without inside conditions ELIF
+
+
+Additional information:
+  Conditions:
+    if [ $? -eq 0 ]
+    else
+    fi
+
+    if [ $year -eq "0" ]; then
+    elif [ $year -eq 0 ]; then
+    else
+    fi
+
+    condition
+    if [ $year -eq "0" ]; then
+      conditionaaaaaaaaaaaa
+    conditionoooooooooooo
+    elif [ $year -eq 0 ]; then
+    conditionsdaswewqw
+    else
+      conditionttttttttttttt
+    fi
+
+    conditioneeeeeeeeeee
+    if [ $year -ne 0 ]; then
+      conditionesss
+    else
+    fi
+
+    Little condition description without inside conditions
+    if [ $year -eq "0" ]; then
+    elif [ $year -eq 0 ]; then
+    else
+    fi
+
+    if [ $year -eq "0" ]; then
+    elif [ $year -eq 0 ]; then
+    else
+    fi
+
+    if [ $year -ne 0 ]; then
+    else
+    fi
+
+    Little condition description without inside conditions
+    if [ $year -eq "0" ]; then
+      Little condition description without inside conditions
+    Little condition description without inside conditions ELIF
+    elif [ $year -eq 0 ]; then
+    else
+    fi
+
+
