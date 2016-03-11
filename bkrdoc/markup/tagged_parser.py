@@ -1,8 +1,7 @@
 __author__ = 'jkulda'
 
-import shlex
 from bkrdoc.markup.data_containers import *
-from bkrdoc.analysis.Statement_data_searcher import StatementDataSearcher
+from bkrdoc.analysis.bkrdoc_parser import Parser as AnalysisParser
 
 
 class UnknownStatementDataParsingException(Exception):
@@ -117,8 +116,9 @@ class Parser(object):
                     tagged_comment_container = ""
             if not self.is_empty_line(splitted_line) and self.is_after_code_doc_comment(splitted_line):
                 tagged_comment_container = TaggedCommentContainer([""])
-                data_searcher = StatementDataSearcher()
-                argparse_data, var = data_searcher.parse_command(line)
+                parser = AnalysisParser("nothing")
+                parser.parse_data(line)
+                argparse_data = parser.argparse_data_list[0]
                 try:
                     if argparse_data.comment is not None:
                         after_line_comment = self.get_after_code_doc_commment(splitted_line)
@@ -138,6 +138,7 @@ class Parser(object):
                     raise UnknownStatementDataParsingException("Unknown parsing exception. Please contact "
                                                                "jkulda@redhat, Kulda12@seznam.cz"
                                                                "Detail of exception: {0}".format(detail))
+                print(splitted_line)
                 tagged_comment_container.add_tagged_line(splitted_line)
                 container.add_comment(tagged_comment_container)
                 tagged_comment_container = ""
