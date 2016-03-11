@@ -262,12 +262,7 @@ class PhaseContainer:
         return len(self.statement_list)
 
     def get_unknown_commands(self):
-        sys.stderr.writelines("/////////////////////////////////////////////////////\n")
-        for st in self.statement_list:
-            sys.stderr.write("{0}\n".format(st))
-            sys.stderr.writelines("/////////////////////////////////////////////////////>>>>>>\n")
-        sys.stderr.writelines("/////////////////////////////////////////////////////\n")
-        return sum(st.partition(' ')[0] not in Parser.all_commands for st in self.statement_list)
+        return sum(st.argname not in Parser.all_commands for st in self.statement_list)
 
 
 class DataContainer(object):
