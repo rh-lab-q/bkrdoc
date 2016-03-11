@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='bkrdoc',
-    version='1.2.9',
+    version='1.3.0',
     packages=['bkrdoc', 'bkrdoc.markup', 'bkrdoc.analysis'],
     url='https://github.com/rh-lab-q/bkrdoc',
     license='BSD',
