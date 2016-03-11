@@ -3,7 +3,6 @@ import argparse
 import shlex
 import bkrdoc.analysis
 import re
-from bkrdoc.analysis.test_variables import TestVariables
 
 
 __author__ = 'Jiri_Kulda'
@@ -35,7 +34,7 @@ class StatementDataSearcher:
         # self.get_environmental_variable(pom_statement_line)
         # pom_list = shlex.split(pom_statement_line, True, posix=True)
         pom_list = data_container.get_argparse_list()
-        #print(pom_list)
+
         pom_list = self.erase_empty_list_mmebers(pom_list)
         first = pom_list[0]
 
@@ -58,6 +57,9 @@ class StatementDataSearcher:
 
             elif condition.is_assert0(first):
                 self.get_assert0_data(pom_list)
+
+            elif condition.is_rlpass_or_rlfail_command(first):
+                self.get_rlpass_or_rlfail_data(pom_list)
 
             elif condition.is_assert_comparasion(first):
                 self.get_assert_comparison_data(pom_list)
@@ -118,9 +120,6 @@ class StatementDataSearcher:
 
         elif condition.is_rlbundlelogs_command(first):
             self.get_rlbundlelogs_data(pom_list)
-
-        elif condition.is_rlpass_or_rlfail_command(first):
-                self.get_rlpass_or_rlfail_data(pom_list)
 
         elif condition.is_rlservicexxx(first):
             self.get_rlservicexxx_data(pom_list)
