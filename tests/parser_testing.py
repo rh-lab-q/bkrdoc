@@ -69,17 +69,17 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(my.environmental_variable, [])
 
     def test_assert_equal(self):
-        generator = bkrdoc.analysis.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/apache-test.sh")
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlAssertEquals \"Saves the configuration\" \"_enabled\" \"$CONF_VALUE\"")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlAssertEquals")
-        self.assertEqual(mys.parsed_param_ref.value1,"_enabled")
-        self.assertEqual(mys.parsed_param_ref.comment, "Saves the configuration")
-        self.assertEqual(mys.parsed_param_ref.value2, "$CONF_VALUE")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlAssertEquals \"Saves the configuration\" \"_enabled\" \"$CONF_VALUE\"")
+        command_argparse = parser.argparse_data_list[0]
+
+        self.assertEqual(command_argparse.argname, "rlAssertEquals")
+        self.assertEqual(command_argparse.value1, "_enabled")
+        self.assertEqual(command_argparse.comment, "Saves the configuration")
+        self.assertEqual(command_argparse.value2, "$CONF_VALUE")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Value1 _enabled must be equal to value2 $CONF_VALUE"
@@ -87,17 +87,19 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 4)
 
     def test_automata(self):
-        my = bkrdoc.analysis.StatementDataSearcher()
-        my.parse_command("rlAssertRpm \"httpd\"")
-        self.assertEqual(my.parsed_param_ref.argname,"rlAssertRpm")
-        self.assertEqual(my.parsed_param_ref.name,"httpd")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlAssertRpm \"httpd\"")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlAssertRpm")
+        self.assertEqual(command_argparse.name, "httpd")
 
     def test_rlRpm_commands(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlAssertRpm \"httpd\" 22 23  44")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlAssertRpm \"httpd\" 22 23  44")
+        command_argparse = parser.argparse_data_list[0]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Package httpd must be installed with version: 22, release: 23 and architecture: 44"
@@ -105,22 +107,23 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 4)
 
     def test_unknown_command(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        unknown, var = mys.parse_command("poppd asdas")
-        self.assertEqual(unknown.argname,"UNKNOWN")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("poppd asdas")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "UNKNOWN")
 
     def test_first_command(self):
-        generator = bkrdoc.analysis.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/apache-test.sh")
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlRun \"rm -r $TmpDir\" 2,3,4,26 \"Removing tmp directory\"")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
-        self.assertEqual(mys.parsed_param_ref.command,"rm -r $TmpDir")
-        self.assertEqual(mys.parsed_param_ref.comment, "Removing tmp directory")
-        self.assertEqual(mys.parsed_param_ref.status, "2,3,4,26")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlRun \"rm -r $TmpDir\" 2,3,4,26 \"Removing tmp directory\"")
+        command_argparse = parser.argparse_data_list[0]
 
-        sec = bkrdoc.analysis.DocumentationTranslator(generator)
-        inf_unit = sec.translate_data(test)
+        self.assertEqual(command_argparse.argname, "rlRun")
+        self.assertEqual(command_argparse.command.data, ["rm", "-r", "$TmpDir"])
+        self.assertEqual(command_argparse.comment, "Removing tmp directory")
+        self.assertEqual(command_argparse.status, "2,3,4,26")
+
+        sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.DocumentationGenerator())
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -129,20 +132,24 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 5)
 
     def test_assert_commands(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        mys.parse_command("rlAssertGrep \"Not Found\" \"stderr\"")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlAssertGrep")
-        self.assertEqual(mys.parsed_param_ref.pattern,"Not Found")
-        self.assertEqual(mys.parsed_param_ref.file, "stderr")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlAssertGrep \"Not Found\" \"stderr\"")
+        command_argparse = parser.argparse_data_list[0]
+
+        self.assertEqual(command_argparse.argname, "rlAssertGrep")
+        self.assertEqual(command_argparse.pattern, "Not Found")
+        self.assertEqual(command_argparse.file, "stderr")
 
     def test_hash_command(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlHash \"text\" --algorithm magic!")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlHash")
-        self.assertEqual(mys.parsed_param_ref.STRING,"text")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlHash \"text\" --algorithm magic!")
+        command_argparse = parser.argparse_data_list[0]
+
+        self.assertEqual(command_argparse.argname, "rlHash")
+        self.assertEqual(command_argparse.STRING, "text")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -150,12 +157,13 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance,3)
 
-        test, var = mys.parse_command("rlHash --stdin --algorithm magic!")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlHash")
-        self.assertEqual(mys.parsed_param_ref.stdin,True)
+        parser.parse_data("rlHash --stdin --algorithm magic!")
+        command_argparse = parser.argparse_data_list[1]
+        self.assertEqual(command_argparse.argname, "rlHash")
+        self.assertEqual(command_argparse.stdin, True)
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -164,14 +172,16 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
 
     def test_backup_command(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        argparse_parsed_command, var = mys.parse_command("rlFileBackup --clean cleandir")
-        self.assertEqual(argparse_parsed_command.argname,"rlFileBackup")
-        self.assertEqual(argparse_parsed_command.file[0],"cleandir")
-        self.assertEqual(argparse_parsed_command.clean,True)
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlFileBackup --clean cleandir")
+        command_argparse = parser.argparse_data_list[0]
+
+        self.assertEqual(command_argparse.argname, "rlFileBackup")
+        self.assertEqual(command_argparse.file[0], "cleandir")
+        self.assertEqual(command_argparse.clean, True)
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(argparse_parsed_command)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -180,23 +190,25 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
 
     def test_virtual_command(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        mys.parse_command("rlVirtualXStart $TEST")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlVirtualXStart")
-        self.assertEqual(mys.parsed_param_ref.name,"$TEST")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlVirtualXStart $TEST")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname,"rlVirtualXStart")
+        self.assertEqual(command_argparse.name, "$TEST")
 
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        mys.parse_command("rlAssert0 \"Virtual X server started\" $?")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlAssert0")
-        self.assertEqual(mys.parsed_param_ref.comment,"Virtual X server started")
-        self.assertEqual(mys.parsed_param_ref.value,"$?")
+        parser.parse_data("rlAssert0 \"Virtual X server started\" $?")
+        command_argparse = parser.argparse_data_list[1]
+        self.assertEqual(command_argparse.argname, "rlAssert0")
+        self.assertEqual(command_argparse.comment, "Virtual X server started")
+        self.assertEqual(command_argparse.value, "$?")
 
     def test_ServiceXXX(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlServiceStart boolean boool asda ")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlServiceStart boolean boool asda ")
+        command_argparse = parser.argparse_data_list[0]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -204,10 +216,11 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 3)
 
-        test, var = mys.parse_command("rlServiceRestore boolean boool asda ")
+        parser.parse_data("rlServiceRestore boolean boool asda ")
+        command_argparse = parser.argparse_data_list[1]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Services boolean, boool and asda are restored into original state"
@@ -215,40 +228,38 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 3)
 
     def test_SEBooleanXX(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlSEBooleanOn boolean boool asda ")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlSEBooleanOn boolean boool asda ")
+        command_argparse = parser.argparse_data_list[0]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
-
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Sets booleans boolean, boool and asda to true"
-        self.assertEqual(inf_data.information,inf)
-        self.assertEqual(sec.inf_ref.importance,3)
+        self.assertEqual(inf_data.information, inf)
+        self.assertEqual(sec.inf_ref.importance, 3)
 
-        test, var = mys.parse_command("rlSEBooleanRestore boolean boool asda ")
+        parser.parse_data("rlSEBooleanRestore boolean boool asda ")
+        command_argparse = parser.argparse_data_list[1]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
-
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Restore booleans boolean, boool and asda into original state"
         self.assertEqual(inf_data.information, inf)
-        self.assertEqual(sec.inf_ref.importance,3)
+        self.assertEqual(sec.inf_ref.importance, 3)
 
     def test_rlRun_command(self):
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlRun -l 'rm -r $TmpDir' ")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlRun")
+        self.assertEqual(command_argparse.command.data, ["rm", "-r", "$TmpDir"])
 
-        generator = bkrdoc.analysis.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/apache-test.sh")
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlRun -l 'rm -r $TmpDir' ")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
-        self.assertEqual(mys.parsed_param_ref.command,"rm -r $TmpDir")
-
-        sec = bkrdoc.analysis.DocumentationTranslator(generator)
-        inf_unit = sec.translate_data(test)
+        sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.DocumentationGenerator())
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -256,34 +267,32 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 5)
 
-    # @unittest.skip("Missing implementation of searching in rlRun commands for possible BeakerLib commands")
     def test_rlRun_rlFileBackup_extend(self):
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlRun \"rlFileBackup --clean $HttpdPages $HttpdLogs\" \"1-2\" \"Backing up\"")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlRun")
 
-        generator = bkrdoc.analysis.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/apache-test.sh")
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlRun \"rlFileBackup --clean $HttpdPages $HttpdLogs\" \"1-2\" \"Backing up\"")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
-        #self.assertEqual(mys.parsed_param_ref.command,"rlFileBackup --clean $HttpdPages $HttpdLogs")
-
-        sec = bkrdoc.analysis.DocumentationTranslator(generator)
-        inf_unit = sec.translate_data(test)
+        sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.DocumentationGenerator())
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
-        inf = "Files or directories $HttpdPages and $HttpdLogs are backed up and must finished with return code matching: 1-2"
+        inf = "Files or directories $HttpdPages and $HttpdLogs are backed up and must finished with return " \
+              "code matching: 1-2"
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 3)
 
-    # @unittest.skip("Missing implementation of searching in rlRun commands for possible BeakerLib commands")
     def test_rlRun_rlServiceStart_extend(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlRun \"rlServiceStart httpd\" ")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlRun")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlRun \"rlServiceStart httpd\" ")
+        command_argparse = parser.argparse_data_list[0]
+
+        self.assertEqual(command_argparse.argname, "rlRun")
         #self.assertEqual(mys.parsed_param_ref.command,"rlFileBackup --clean $HttpdPages $HttpdLogs")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -292,12 +301,13 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 3)
 
     def test_rlGet_commands(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlGetPrimaryArch")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlGetPrimaryArch")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlGetPrimaryArch")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlGetPrimaryArch")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -305,11 +315,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 3)
 
-        test, var = mys.parse_command("rlGetDistroRelease")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlGetDistroRelease")
+        parser.parse_data("rlGetDistroRelease")
+        command_argparse = parser.argparse_data_list[1]
+        self.assertEqual(command_argparse.argname, "rlGetDistroRelease")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -317,11 +328,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 3)
 
-        test, var = mys.parse_command("rlShowRunningKernel")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlShowRunningKernel")
+        parser.parse_data("rlShowRunningKernel")
+        command_argparse = parser.argparse_data_list[2]
+        self.assertEqual(command_argparse.argname, "rlShowRunningKernel")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -329,11 +341,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 2)
 
-        test, var = mys.parse_command("rlGetTestState")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlGetTestState")
+        parser.parse_data("rlGetTestState")
+        command_argparse = parser.argparse_data_list[3]
+        self.assertEqual(command_argparse.argname, "rlGetTestState")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -342,15 +355,16 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance,3)
 
     def test_rlLog_commands(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlLogWarning ahoj logfile priorita --prio-label")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlLogWarning")
-        self.assertEqual(mys.parsed_param_ref.logfile,"logfile")
-        self.assertEqual(mys.parsed_param_ref.priority,"priorita")
-        self.assertEqual(mys.parsed_param_ref.prio_label,True)
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlLogWarning ahoj logfile priorita --prio-label")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlLogWarning")
+        self.assertEqual(command_argparse.logfile, "logfile")
+        self.assertEqual(command_argparse.priority, "priorita")
+        self.assertEqual(command_argparse.prio_label, True)
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -358,11 +372,12 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 1)
 
-        test, var = mys.parse_command("rlDie message ")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlDie")
+        parser.parse_data("rlDie message ")
+        command_argparse = parser.argparse_data_list[1]
+        self.assertEqual(command_argparse.argname, "rlDie")
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
 
         inf_data = ref.get_information_from_facts(inf_unit)
@@ -371,14 +386,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 1)
 
     def test_rlBundleLogs(self):
-
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlBundleLogs package file1 file2 file3 file4")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlBundleLogs")
-        self.assertEqual(mys.parsed_param_ref.file,["file1","file2","file3", "file4"])
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlBundleLogs package file1 file2 file3 file4")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlBundleLogs")
+        self.assertEqual(command_argparse.file, ["file1", "file2", "file3", "file4"])
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Creates a tarball of files file1, file2 and file3... and attached it/them to test result"
@@ -386,15 +401,16 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 1)
 
     def test_filesubmit(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlFileSubmit path_to_file  required -s as")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlFileSubmit")
-        self.assertEqual(mys.parsed_param_ref.s,"as")
-        self.assertEqual(mys.parsed_param_ref.path_to_file,"path_to_file")
-        self.assertEqual(mys.parsed_param_ref.required_name,'required')
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlFileSubmit path_to_file  required -s as")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlFileSubmit")
+        self.assertEqual(command_argparse.s, "as")
+        self.assertEqual(command_argparse.path_to_file, "path_to_file")
+        self.assertEqual(command_argparse.required_name, 'required')
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Resolves absolute path path_to_file, replaces / for as and rename file to required"
@@ -402,85 +418,86 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(sec.inf_ref.importance, 2)
 
     def test_showpackageversion(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlShowPackageVersion as km")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlShowPackageVersion")
-        self.assertEqual(mys.parsed_param_ref.package,["as","km"])
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlShowPackageVersion as km")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlShowPackageVersion")
+        self.assertEqual(command_argparse.package, ["as", "km"])
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         self.assertEqual(inf_data.information, "Shows information about as and km version")
         self.assertEqual(sec.inf_ref.importance, 2)
 
     def test_JournalPrint(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlJournalPrintText --full-journal")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlJournalPrintText")
-        self.assertEqual(mys.parsed_param_ref.full_journal,True)
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlJournalPrintText --full-journal")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlJournalPrintText")
+        self.assertEqual(command_argparse.full_journal, True)
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
-        self.assertEqual(inf_data.information, "Prints the content of the journal in pretty text format with additional information")
+        inf_line = "Prints the content of the journal in pretty text format with additional information"
+        self.assertEqual(inf_data.information, inf_line)
         self.assertEqual(sec.inf_ref.importance, 1)
 
     def test_rlWaitxxx(self):
-
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlWaitForFile path")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlWaitForFile path")
+        command_argparse = parser.argparse_data_list[0]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "Pauses script until file or directory with this path path starts listening"
         self.assertEqual(inf_data.information, inf)
-        self.assertEqual(sec.inf_ref.importance,2)
+        self.assertEqual(sec.inf_ref.importance, 2)
 
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlWaitForCmd path -p TENTO -r 1")
+        parser.parse_data("rlWaitForCmd path -p TENTO -r 1")
+        command_argparse = parser.argparse_data_list[1]
 
         sec = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf_unit = sec.translate_data(test)
+        inf_unit = sec.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
-        inf = "Pauses script execution until command path exit status is unsuccessful\n and process with this PID TENTO must be running"
+        inf = "Pauses script execution until command path exit status is unsuccessful\n and process with this " \
+              "PID TENTO must be running"
         self.assertEqual(inf_data.information, inf)
         self.assertEqual(sec.inf_ref.importance, 2)
 
     def test_backup_doc(self):
-
-        generator = bkrdoc.analysis.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/apache-test.sh")
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        mys.parse_command("rlFileBackup --clean cleandir")
-        doc = bkrdoc.analysis.DocumentationTranslator(mys.parsed_param_ref)
-
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlFileBackup --clean cleandir")
+        command_argparse = parser.argparse_data_list[0]
+        doc = bkrdoc.analysis.DocumentationTranslator(command_argparse)
 
     def test_assert2_commands(self):
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlAssertGrep \"Not Found\" \"stderr\"")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlAssertGrep")
-        self.assertEqual(mys.parsed_param_ref.pattern,"Not Found")
-        self.assertEqual(mys.parsed_param_ref.file, "stderr")
+        parser = bkrdoc.analysis.Parser("nothing")
+        parser.parse_data("rlAssertGrep \"Not Found\" \"stderr\"")
+        command_argparse = parser.argparse_data_list[0]
+        self.assertEqual(command_argparse.argname, "rlAssertGrep")
+        self.assertEqual(command_argparse.pattern, "Not Found")
+        self.assertEqual(command_argparse.file, "stderr")
         pokus = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf = pokus.translate_data(test)
-        inf_unit = pokus.translate_data(test)
+
+        inf_unit = pokus.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "File: \"stderr\" must contain pattern: \"Not Found\""
         self.assertEqual(inf_data.information, inf)
 
-        mys = bkrdoc.analysis.StatementDataSearcher()
-        test, var = mys.parse_command("rlAssertExists gener.html")
-        self.assertEqual(mys.parsed_param_ref.argname,"rlAssertExists")
-        self.assertEqual(mys.parsed_param_ref.file_directory,"gener.html")
+        parser.parse_data("rlAssertExists gener.html")
+        command_argparse = parser.argparse_data_list[1]
+        self.assertEqual(command_argparse.argname, "rlAssertExists")
+        self.assertEqual(command_argparse.file_directory, "gener.html")
         pokus = bkrdoc.analysis.DocumentationTranslator(bkrdoc.analysis.Parser("./examples/tests/apache-test.sh"))
-        inf = pokus.translate_data(test)
-        inf_unit = pokus.translate_data(test)
+        inf_unit = pokus.translate_data(command_argparse)
         ref = bkrdoc.analysis.GetInformation()
         inf_data = ref.get_information_from_facts(inf_unit)
         inf = "File(directory): \"gener.html\" must exist"
@@ -491,7 +508,6 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.parse_given_file("./examples/tests/autopart-test.sh")
         generator.get_documentation_information()
         generator.generate_documentation()
-
 
     def test_credibility(self):
         cr = bkrdoc.analysis.DocumentationCredibility(0, 0)

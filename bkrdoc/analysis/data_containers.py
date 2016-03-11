@@ -4,6 +4,8 @@ __author__ = 'Jiri_Kulda'
 import shlex
 import bkrdoc.analysis
 import sys
+from bkrdoc.analysis.credibility import DocumentationCredibility
+from bkrdoc.analysis.bkrdoc_parser import Parser
 
 
 class PhaseOutside:
@@ -99,6 +101,7 @@ class PhaseContainer:
         self.generator_ref = ""
 
     def setup_statement(self, line):
+        sys.stderr.write("{0}\n".format(line))
         self.statement_list.append(line)
 
     def search_data(self, generator_ref, variable_copy, function_copy):
@@ -252,6 +255,20 @@ class PhaseContainer:
         """
         return self.func_list
 
+    def get_phase_credibility(self):
+        return DocumentationCredibility(self.get_unknown_commands(), self.get_total_commands())
+
+    def get_total_commands(self):
+        return len(self.statement_list)
+
+    def get_unknown_commands(self):
+        sys.stderr.writelines("/////////////////////////////////////////////////////\n")
+        for st in self.statement_list:
+            sys.stderr.write("{0}\n".format(st))
+            sys.stderr.writelines("/////////////////////////////////////////////////////>>>>>>\n")
+        sys.stderr.writelines("/////////////////////////////////////////////////////\n")
+        return sum(st.partition(' ')[0] not in Parser.all_commands for st in self.statement_list)
+
 
 class DataContainer(object):
     _argparse_list = []
@@ -349,8 +366,8 @@ class SimpleContainer(object):
         return type(data).__name__ in pom_containers
 
     def search_data(self, parser_ref, nodevisitor):
-        data_searcher = bkrdoc.StatementDataSearcher()
-        conditions = bkrdoc.ConditionsForCommands()
+        data_searcher = bkrdoc.analysis.StatementDataSearcher()
+        conditions = bkrdoc.analysis.ConditionsForCommands()
         for command in self.command_list:
             if self.is_container(command):
                 command.search_data(parser_ref, nodevisitor)
@@ -361,7 +378,6 @@ class SimpleContainer(object):
                 if conditions.is_rlrun_command(data.argname):
                     data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
                 self.statement_list.append(data)
-
 
 
 class FunctionContainer(SimpleContainer):

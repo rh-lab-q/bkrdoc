@@ -2,7 +2,7 @@
 # author Jiri Kulda
 import bkrdoc
 import os
-from __future__ import division  # floating-point division
+# from __future__ import division  # floating-point division
 import argparse
 import bkrdoc.analysis
 
@@ -16,7 +16,7 @@ class DocumentationGenerator:
         self._phases = ""
 
     def parse_given_file(self, file):
-        self._parser_ref = bkrdoc.Parser(file)
+        self._parser_ref = bkrdoc.analysis.Parser(file)
         self._parser_ref.parse_data()
         self._parser_ref.divide_parsed_argparse_data_into_phase_conainers()
         self._phases = self._parser_ref.get_phases()

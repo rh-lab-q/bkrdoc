@@ -3,9 +3,10 @@
 __author__ = 'Jiri_Kulda'
 
 from bashlex import ast
-from bkrdoc import data_containers
+from bkrdoc.analysis import data_containers
 import shlex
 import copy
+
 
 class node(object):
     """

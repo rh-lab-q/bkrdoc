@@ -167,7 +167,7 @@ class StatementDataSearcher:
         else:
             self.unknown_command(pom_list)
 
-        return self.parsed_param_ref, self.variables
+        return self.parsed_param_ref
 
     def find_and_replace_variable(self, statement):
         pass
@@ -200,7 +200,6 @@ class StatementDataSearcher:
             elif word[0:1] == '"':  # shlex doesn't returns whole string so for searching in strings I'm using recursion
                 self.get_environmental_variable(word[1:-1])
             word = lexer.get_token()"""
-
 
     def is_variable_assignment(self, statement):
         """
@@ -382,7 +381,7 @@ class StatementDataSearcher:
         statement_list = ""
         for member in pom_param_list:
             statement_list += " " + member
-        self.is_variable_assignment(statement_list)
+       #self.is_variable_assignment(statement_list)
        # self.is_function_name_in_statement(statement_list)
 
     # TODO
