@@ -33,7 +33,7 @@
              baseurl=$protocol://$RepoUrl
              enabled=1
              gpgcheck=0
-             EOF
+			EOF
          rlAssert0 "Adding the $protocol-test repository" $?
      done
      rlRun "yum --noplugins repolist" \
