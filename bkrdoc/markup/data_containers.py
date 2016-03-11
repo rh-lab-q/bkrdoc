@@ -204,6 +204,9 @@ class SimpleContainer(object):
     def is_tagged_comment_container(self, container):
         return type(container).__name__ == "TaggedCommentContainer"
 
+    def is_container_in_comments(self, container):
+        return container in self.comments_list
+
 
 class LineNotFoundException(Exception):
     pass

@@ -1,5 +1,5 @@
 Description: AHOOOOJ svete
-Author: -
+Author: Karel Nejezchleb
 Purpose: -
 Keywords: -
 
@@ -14,6 +14,7 @@ elif: conditionoooooooooooo
       if: Test if actualy value in arg is not "enabled" and "disabled"
         wee will seee
         Mangles the configuration value
+        ????????
       something which is connected to this loop
 else: conditionsdaswewqw
   conditionttttttttttttt
@@ -51,6 +52,7 @@ Additional information:
     if [ $CONF_VALUE != "enabled" ] && [ $CONF_VALUE != "disabled" ]; then
       wee will seee
       rlFail "Mangles the configuration value"
+      ????????
     fi
 
 
