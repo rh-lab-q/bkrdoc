@@ -138,7 +138,7 @@ class Parser(object):
                     raise UnknownStatementDataParsingException("Unknown parsing exception. Please contact "
                                                                "jkulda@redhat, Kulda12@seznam.cz"
                                                                "Detail of exception: {0}".format(detail))
-                print(splitted_line)
+                # print(splitted_line)
                 tagged_comment_container.add_tagged_line(splitted_line)
                 container.add_comment(tagged_comment_container)
                 tagged_comment_container = ""

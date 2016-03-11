@@ -599,7 +599,7 @@ class TaggedCommentContainer(object):
                 erased_comment_line = self.erase_comments_start_tags(comment)
                 if self.is_specified_tag("after_code"):
                     erased_comment_line = self.erase_comments_start_tags(self.tagged_line)
-                print("After {0}\n".format(erased_comment_line))
+                # print("After {0}\n".format(erased_comment_line))
                 self.documentation_comments.append(self.set_documentation_comment(erased_comment_line))
 
     def is_know_tag_empty(self, key):
@@ -624,7 +624,7 @@ class TaggedCommentContainer(object):
         return tag in self.known_tags.keys()
 
     def erase_comments_start_tags(self, splitted_line):
-        print(splitted_line)
+        # print(splitted_line)
         if splitted_line[0] == "#@":
             return splitted_line[1:]
         elif len(splitted_line) > 1 and splitted_line[0] == "#" and splitted_line[1] == "@":
