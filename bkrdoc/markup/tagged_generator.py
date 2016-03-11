@@ -149,6 +149,8 @@ class Generator(object):
         documentation = self.get_documentation_title_doc()
         documentation += "\n\n"
         documentation += self.get_phase_data_documentation(parsed_arg)
+        if self.is_file_without_bkrdoc_markup(documentation):
+            sys.exit("Given file has no bkrdoc markup!")
         if parsed_arg.additional_info:
             documentation += "\n"
             documentation += self.generate_additional_info()
@@ -161,6 +163,17 @@ class Generator(object):
             file_out.write(documentation)
         else:
             sys.stdout.write(documentation)
+
+    def is_file_without_bkrdoc_markup(self, recent_documentation):
+        minimum_purpose_size = 1
+        splitted_purpose_data = (self.get_purpose_title_data().strip()).split('\n')
+
+        if len((recent_documentation.strip()).split('\n')) > len(self.get_documentation_title_doc().split('\n')):
+            return False
+        elif (len(splitted_purpose_data) >= minimum_purpose_size) and (len(splitted_purpose_data[0]) != 0):
+            return False
+        else:
+            return True
 
 
 # !!!!!!!!!!MAIN!!!!!!!!!!!!!!!!!!!
