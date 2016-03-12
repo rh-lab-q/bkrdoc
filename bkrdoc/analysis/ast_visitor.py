@@ -46,7 +46,13 @@ class NodeVisitor(ast.nodevisitor):
 
     def visit(self, n):
         k = n.kind
-        if k == 'operator':
+        if k == 'pattern':
+            dochild = self._visitnode(n, n.pattern)
+            if dochild is None or dochild:
+                for child in n.pattern:
+                    self.visit(child)
+            self._visitnode(n, n.actions)
+        elif k == 'operator':
             self._visitnode(n, n.op)
         elif k == 'list':
             dochild = self._visitnode(n, n.parts)
@@ -74,6 +80,11 @@ class NodeVisitor(ast.nodevisitor):
             # if dochild is None or dochild:
                 # for child in n.parts:
                     # self.visit(child)
+        elif k == 'case':
+            dochild = self._visitnode(n, n.parts)
+            if dochild is None or dochild:
+                for child in n.parts:
+                    self.visit(child)
         elif k == 'command':
             dochild = self._visitnode(n, n.parts)
             if dochild is None or dochild:
@@ -143,7 +154,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitcompound(self, n, list, redirects):
-        print("VISIT COMPOUND NOT IMPLEMENTED")
+        # print("VISIT COMPOUND NOT IMPLEMENTED")
         pass
 
     def visitif(self, node, parts):
@@ -185,6 +196,14 @@ class NodeVisitor(ast.nodevisitor):
         # print("Until ******************************** NOT IMPLEMENTED")
         loop = data_containers.LoopContainer(node, "until")
         self.visit_loops(loop, parts)
+
+    def visitpattern(self, n, parts):
+        print("PATTERN visitor NOT IMPLEMENTED")
+        pass
+
+    def visitcase(self, node, parts):
+        print("CASE visitor NOT IMPLEMENTED")
+        pass
 
     def visitcommand(self, n, parts):
         #print("command ********************************")
@@ -254,7 +273,7 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.add_variable(member, value)
 
     def visitreservedword(self, n, word):
-        print("Reserved WOOOOOOOOOOOORD NOT IMPLEMENTED")
+        print("RESERVEDWORD visitor NOT IMPLEMENTED")
         print("Reserved word: " + str(word))
         # if self.is_end_of_function(word):
         #    print("SAve last command into function container")
@@ -277,7 +296,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitheredoc(self, n, value):
-        print("HEREDOC NOT IMPLEMENTED")
+        print("HEREDOC visitor NOT IMPLEMENTED")
         pass
 
     def visitprocesssubstitution(self, n, command):
