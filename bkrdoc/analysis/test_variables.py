@@ -76,6 +76,7 @@ class TestVariables:
             self.add_variable(sec_name, variable_container.get_variable_value(sec_name))
 
     def replace_variable_in_string(self, string):
+        '''
         i = 0
         pom_str = string
         if len(self.variable_names_list):
@@ -85,8 +86,11 @@ class TestVariables:
             return pom_str
         else:
             return string
+        '''
+        return string
 
     def replace_variable_in_string_with_specified_variable(self, string, spec_variable):
+        '''
         original_string = string
         pom_str = string
         if len(self.variable_names_list) and self.is_existing_variable(spec_variable):
@@ -104,4 +108,6 @@ class TestVariables:
             return pom_str
         else:
             return string
+        '''
+        return string
 
