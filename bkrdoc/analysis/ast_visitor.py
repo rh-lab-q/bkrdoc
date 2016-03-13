@@ -224,15 +224,17 @@ class NodeVisitor(ast.nodevisitor):
         self._variables = copy.deepcopy(self._variables)
         function = data_containers.FunctionContainer(body)
         function.set_function_name(name.word)
-        if self.is_list_node((parts[4]).list[1]):
-            for member in (parts[4]).list[1].parts:
+
+        compound = self.get_compound_from_function(parts)
+        if self.is_list_node(compound.list[1]):
+            for member in compound.list[1].parts:
                 self.visit(member)
                 # print(self._parsing_subject)
                 if not self.is_parsing_subject_empty():
                     function.add_command(self.get_parsed_container())
                 self.erase_parsing_subject_variable()
         else:
-            self.visit((parts[4]).list[1].parts)
+            self.visit(compound.list[1].parts)
             function.add_command(self.get_parsed_container())
             self.erase_parsing_subject_variable()
         function.set_variables(self._variables)
@@ -420,3 +422,10 @@ class NodeVisitor(ast.nodevisitor):
 
     def get_parsing_subject_ast(self):
         return self._parsing_subject.get_ast()
+
+    def get_compound_from_function(self, parts):
+        if parts[2].kind == 'compound':
+            return parts[2]
+        else:
+            return parts[4]
+
