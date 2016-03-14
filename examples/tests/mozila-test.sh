@@ -33,7 +33,7 @@
 
 PACKAGE="bugzilla"
 BZ_HOME_DIR="/var/www/html/bugzilla"
-LOG=""
+#LOG=""
 RESULT="PASS"
 TESTOUTPUTFILE=""
 
@@ -46,7 +46,7 @@ YUM_PACKAGES="httpd mysql-server firefox.x86_64 tigervnc-server-minimal perl-Tes
 function run_test_case ()
  {
     echo $1 >> $TESTOUTPUTFILE
-    rlRun $LOG "perl -I. -Ilib -It/lib $1 >>$TESTOUTPUTFILE 2>&1 2;" 0 $1
+    rlRun "perl -I. -Ilib -It/lib $1 >>$TESTOUTPUTFILE 2>&1 2;" 0 $1
     #@ test if previous action has passed 
     if [ $? -eq 0 ]
     then
@@ -61,11 +61,11 @@ function run_test_case ()
 function create_test_data () 
 {
     rlLog "Creating Bugzilla test data"
-    rlRun $LOG "echo 'drop database bugs;' | mysql" 0,1 "Dropping current bugs database"
-    rlRun $LOG "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl first time"
-    rlRun $LOG "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl second time"
-    rlRun $LOG "perl t/config/generate_test_data.pl" 0 "Generating test data"
-    rlRun $LOG "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl third time"
+    rlRun "echo 'drop database bugs;' | mysql" 0,1 "Dropping current bugs database"
+    rlRun "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl first time"
+    rlRun "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl second time"
+    rlRun "perl t/config/generate_test_data.pl" 0 "Generating test data"
+    rlRun "perl checksetup.pl t/config/checksetup_answers.txt" 0 "Running checksetup.pl third time"
 }
 
 rlJournalStart
@@ -74,9 +74,9 @@ rlJournalStart
         # rlRun $LOG "/usr/sbin/setenforce 0" 0 "Turning off SELinux"
 
         # Extract the Bugzilla code
-        rlRun $LOG "tar zxvf bugzilla.tar.gz" 0 "Unarchiving Bugzilla code"
+        rlRun "tar zxvf bugzilla.tar.gz" 0 "Unarchiving Bugzilla code"
 
-        rlRun $LOG "yum -y install $YUM_PACKAGES" 0 "Installing required packages"
+        rlRun "yum -y install $YUM_PACKAGES" 0 "Installing required packages"
         #@ Copy yum repo config and install all necessary rpms for testing
         for i in $YUM_PACKAGES
         do
@@ -87,24 +87,24 @@ rlJournalStart
         rlRun "yum -y remove firefox.i386" 0,1 "Removing i386 Firefox if installed"
  
         # Setup the Bugzilla web root directory
-        rlRun $LOG "rm -rf /var/www/html/bugzilla" 0 "Deleting old Bugzilla installation and installing test"
-        rlRun $LOG "mv bugzilla $BZ_HOME_DIR" 0 "Moving Bugzilla directory to webroot"
-        rlRun $LOG "cd $BZ_HOME_DIR" 0 "Changing to Bugzilla directory"
+        rlRun "rm -rf /var/www/html/bugzilla" 0 "Deleting old Bugzilla installation and installing test"
+        rlRun "mv bugzilla $BZ_HOME_DIR" 0 "Moving Bugzilla directory to webroot"
+        rlRun "cd $BZ_HOME_DIR" 0 "Changing to Bugzilla directory"
 
         # @ Setup up Bugzilla configuration files
-        rlRun $LOG "mkdir -p data" 0 "Creating data directory"
-        rlRun $LOG "cp t/config/params data/." 0 "Copying data/params file into right place"
-        # rlRun $LOG "chmod 644 data/params" 0 "Setting permissions on data/params file"
+        rlRun "mkdir -p data" 0 "Creating data directory"
+        rlRun "cp t/config/params data/." 0 "Copying data/params file into right place"
+        # rlRun "chmod 644 data/params" 0 "Setting permissions on data/params file"
   
         #@ Start the MySQL service
         rlServiceStart mysqld
 
         # Some initial MySQL configuration
-        rlRun $LOG "echo 'set global max_allowed_packet=1000000000000;' | mysql" 0 "Increase the value of max_allow_packet variable"
-        rlRun $LOG "cat t/config/create_bugs_user.sql | mysql" 0 "Creating bugs user in database"
+        rlRun "echo 'set global max_allowed_packet=1000000000000;' | mysql" 0 "Increase the value of max_allow_packet variable"
+        rlRun "cat t/config/create_bugs_user.sql | mysql" 0 "Creating bugs user in database"
 
         # Setup Apache to find the Bugzilla installation
-        rlRun $LOG "cp t/config/bugzilla.conf /etc/httpd/conf.d/" 0 "Setting up web server and starting httpd service"
+        rlRun "cp t/config/bugzilla.conf /etc/httpd/conf.d/" 0 "Setting up web server and starting httpd service"
         rlServiceStart httpd
 
         # @ Create the initial test data needed by the testsuite
@@ -142,7 +142,7 @@ rlJournalStart
         done
 
         # We need to refresh the database now for the WebService testsuite
-        rlRun $LOG "cd $BZ_HOME_DIR" 0 "Changing to Bugzilla directory"
+        rlRun "cd $BZ_HOME_DIR" 0 "Changing to Bugzilla directory"
         create_test_data
 
         rlLog "Running WebService tests"
