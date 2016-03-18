@@ -4,7 +4,9 @@ python:
 install:
   - wget https://github.com/petr-muller/bashlex/releases/download/bkrdoc-enablement-v1/bashlex-0.8.tar.gz
   - tar -xzvf bashlex-0.8.tar.gz
-  - python ./bashlex-0.8/setup.py install
+  - cd ./bashlex-0.8/
+  - python setup.py install
+  - cd -
   - python setup.py install
 script:
   - python tests/parser_testing.py -v
