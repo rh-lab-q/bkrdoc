@@ -119,8 +119,8 @@ class PhaseContainer:
         for statement in self.statement_list:
             try:
                 replaced_statement_variables = self.variables.replace_variable_in_string(statement)
-                self.get_cmd_line_params(replaced_statement_variables)
-                self.get_environmental_variable(replaced_statement_variables)
+                # self.get_cmd_line_params(replaced_statement_variables)
+                # self.get_environmental_variable(replaced_statement_variables)
                 argparse_data, pom_variables = command_translator.parse_command(replaced_statement_variables)
                 self.variables.copy_variables_from_variable_class(pom_variables)
                 self.statement_classes.append(argparse_data)
@@ -238,6 +238,7 @@ class PhaseContainer:
         """
         minimum_variable_size = 4
         lexer = shlex.shlex(line)
+        print("????? line {0}".format(line))
         word = lexer.get_token()
         while word:
             if word == "$":

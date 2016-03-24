@@ -33,25 +33,20 @@ class TestSequenceFunctions(unittest.TestCase):
         generator = bkrdoc.analysis.DocumentationGenerator()
         generator.parse_given_file("./examples/tests/apache-test.sh")
         my = generator._parser_ref
-        generator.get_doc_data()
+        # generator.get_doc_data()
         pom_list = ['/examples/beakerlib/Sanity/apache', 'httpd', '/var/www/', '/var/log/httpd', '$(mktemp -d)']
-        self.assertListEqual(my.phases[-3].variables.variable_values_list, pom_list,"EQUAL")
+        self.assertListEqual(my.variables.variable_values_list, pom_list, "EQUAL")
         
-        self.assertEqual(len(my.phases),10)
-        self.assertEqual(my.phases[1].phase_name,"Setup \"Setup\"")
-        self.assertEqual(my.phases[3].phase_name,"Test \"Test Existing Page\"")
-        self.assertEqual(my.phases[5].phase_name,"Test \"Test Missing Page\"")
-        self.assertEqual(my.phases[7].phase_name,"Cleanup \"Cleanup\"")
-        list1 = ['rlAssertRpm "httpd"', "rlRun 'TmpDir=$(mktemp -d)' 0",
-        'pushd $TmpDir', 'rlRun "rlFileBackup --clean $HttpdPages $HttpdLogs" 0 "Backing up"',
-         'rlRun "echo \'Welcome to Test Page!\' > $HttpdPages/index.html" 0 "Creating a simple welcome page"',
-          'rlRun "rm -f $HttpdLogs/*"', 'rlRun "rlServiceStart httpd"']
-        self.assertEqual(my.phases[1].statement_list,list1)
+        self.assertEqual(len(my.phases), 11)
+        self.assertEqual(my.phases[2].phase_name, "Setup: Setup")
+        self.assertEqual(my.phases[4].phase_name, "Test: Test Existing Page")
+        self.assertEqual(my.phases[6].phase_name, "Test: Test Missing Page")
+        self.assertEqual(my.phases[8].phase_name, "Cleanup: Cleanup")
         
     def test_func(self):
         generator = bkrdoc.analysis.DocumentationGenerator()
         generator.parse_given_file("./examples/tests/mozila-test.sh")
-        generator.get_doc_data()
+        # generator.get_doc_data()
         #print my.phases[0].func_list
 
     def test_environmental_variables(self):
@@ -59,13 +54,13 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.parse_given_file("./examples/tests/mozila-test.sh")
 
         my = generator._parser_ref
-        generator.get_doc_data()
-        self.assertEqual(my.environmental_variable, ['BEAKERLIB_DIR', 'OUTPUTFILE'])
+        # generator.get_doc_data()
+        self.assertEqual(my.get_environmental_variables(), ['BEAKERLIB_DIR', 'OUTPUTFILE'])
 
         generator = bkrdoc.analysis.DocumentationGenerator()
         generator.parse_given_file("./examples/tests/apache-test.sh")
         my = generator._parser_ref
-        generator.get_doc_data()
+        # generator.get_doc_data()
         self.assertEqual(my.environmental_variable, [])
 
     def test_assert_equal(self):

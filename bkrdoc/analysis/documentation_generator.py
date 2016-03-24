@@ -46,36 +46,6 @@ class DocumentationGenerator:
     def get_parser_ref(self):
         return self._parser_ref
 
-    def get_doc_data(self):
-        """
-        Method which is responsible for starting the first analysis of code lines.
-        After this method finishes all phase containers will have argparse object
-        with parsed data.
-        """
-        pom_var = bkrdoc.analysis.TestVariables()
-        pom_func = []
-        for member in self._phases:
-            if not self.is_phase_outside(member):
-                member.search_data(self, pom_var, pom_func)
-                pom_var = bkrdoc.analysis.TestVariables()
-
-            else:
-                member.search_data(pom_var, pom_func)
-                pom_var = bkrdoc.analysis.TestVariables()
-
-            # copying variables to new variable instance
-            for var in member.variables.variable_names_list:
-                pom_value = member.variables.get_variable_value(var)
-                pom_var.add_variable(var, pom_value)
-
-            # copying keywords to new variable instance
-            for key in member.variables.keywords:
-                pom_var.add_keyword(key)
-
-            # copying functions to new function list
-            copy_func_list = member.func_list
-            pom_func = copy_func_list
-
     def get_documentation_information(self):
         """
         This method is responsible for starting of replacement of argparse object to
