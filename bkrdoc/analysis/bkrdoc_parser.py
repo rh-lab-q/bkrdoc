@@ -83,7 +83,6 @@ class Parser(object):
         else:
             self.open_file()
 
-
         self.phases.append(bkrdoc.analysis.PhaseOutside())
 
         self.variables = bkrdoc.analysis.TestVariables()
@@ -94,15 +93,19 @@ class Parser(object):
 
         for command_line in parsed_file:
             # print(command_line)
+            # print(command_line.kind)
+            # print("")
             nodevistor.visit(command_line)
             container = nodevistor.get_parsed_container()
             if self.is_loop_function_or_condition_container(container):
                 if self.is_function_container(container):
                     self.test_functions.append(container)
-                elif self.is_loop_container(container) or self.is_condition_container(container):
-                    self.argparse_data_list.append(container)
-                nodevistor.erase_parsing_subject_variable()
-                container.search_data(self, nodevistor)
+                    nodevistor.erase_parsing_subject_variable()
+                else:
+                    if self.is_loop_container(container) or self.is_condition_container(container):
+                        self.argparse_data_list.append(container)
+                    nodevistor.erase_parsing_subject_variable()
+                    container.search_data(self, nodevistor)
             else:
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()
@@ -118,6 +121,11 @@ class Parser(object):
         # print(variables.variable_values_list)
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
+        # print("////////////////////////////////////")
+        # print(nodevisitor)
+        # print()
+        # print(rlrun_argparse)
+        # print("////////////////////////////////////")
         data_searcher = bkrdoc.analysis.StatementDataSearcher()
         command_parse = bashlex.parse(rlrun_argparse.command)
         nodevisitor.visit(command_parse[0])

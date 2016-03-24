@@ -101,7 +101,7 @@ class PhaseContainer:
         self.generator_ref = ""
 
     def setup_statement(self, line):
-        sys.stderr.write("{0}\n".format(line))
+        # sys.stderr.write("{0}\n".format(line))
         self.statement_list.append(line)
 
     def search_data(self, generator_ref, variable_copy, function_copy):

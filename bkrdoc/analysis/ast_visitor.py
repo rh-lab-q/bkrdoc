@@ -5,6 +5,7 @@ __author__ = 'Jiri_Kulda'
 from bashlex import ast
 from bkrdoc.analysis import data_containers
 import shlex
+import sys
 import copy
 
 
@@ -63,6 +64,7 @@ class NodeVisitor(ast.nodevisitor):
                 for child in n.parts:
                     self.visit(child)
         elif k == 'compound':
+            # print("compound")
             dochild = self._visitnode(n, n.list, n.redirects)
             if dochild is None or dochild:
                 for child in n.list:
@@ -75,6 +77,8 @@ class NodeVisitor(ast.nodevisitor):
                 # for child in n.parts:
                     # self.visit(child)
         elif k == 'command':
+            # print("COMMAND")
+            # print(n)
             dochild = self._visitnode(n, n.parts)
             if dochild is None or dochild:
                 for child in n.parts:
@@ -107,7 +111,6 @@ class NodeVisitor(ast.nodevisitor):
             raise ValueError('unknown node kind %r' % k)
         self.visitnodeend(n)
 
-
     def visitnode(self, n):
         #print(n)
         pass
@@ -122,12 +125,12 @@ class NodeVisitor(ast.nodevisitor):
 
     def visitoperator(self, n, op):
         if not op == "\n":
-            print("visitoperator NOT IMPLEMENTED")
-            print(n)
-            print(op)
+            sys.stderr.writelines("visitoperator NOT IMPLEMENTED\n")
+            #print(n)
+            #print(op)
 
     def visitlist(self, n, parts):
-        print("visitlist NOT IMPLEMENTED")
+        sys.stderr.writelines("visitlist NOT IMPLEMENTED\n")
         # print(n)
         # print(parts)
         pass
@@ -143,7 +146,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitcompound(self, n, list, redirects):
-        print("VISIT COMPOUND NOT IMPLEMENTED")
+        sys.stderr.writelines("VISIT COMPOUND NOT IMPLEMENTED\n")
         pass
 
     def visitif(self, node, parts):
@@ -254,8 +257,8 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.add_variable(member, value)
 
     def visitreservedword(self, n, word):
-        print("Reserved WOOOOOOOOOOOORD NOT IMPLEMENTED")
-        print("Reserved word: " + str(word))
+        sys.stderr.writelines("Reserved WOOOOOOOOOOOORD NOT IMPLEMENTED\n")
+        # print("Reserved word: " + str(word))
         # if self.is_end_of_function(word):
         #    print("SAve last command into function container")
 
@@ -269,7 +272,7 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.set_unknown_variable(value)
 
     def visittilde(self, n, value):
-        print("TILDE NOT IMPLEMENTED")
+        sys.stderr.writelines("TILDE NOT IMPLEMENTED\n")
         pass
 
     def visitredirect(self, n, input, type, output, heredoc):
@@ -277,11 +280,11 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitheredoc(self, n, value):
-        print("HEREDOC NOT IMPLEMENTED")
+        sys.stderr.writelines("HEREDOC NOT IMPLEMENTED\n")
         pass
 
     def visitprocesssubstitution(self, n, command):
-        print("------------------------------------------SUBSTITUTION process NOT IMPLEMENTED")
+        sys.stderr.writelines("------------------------------------------SUBSTITUTION process NOT IMPLEMENTED\n")
         pass
 
     def visitcommandsubstitution(self, n, command):
@@ -385,7 +388,6 @@ class NodeVisitor(ast.nodevisitor):
     def is_list_node(self, n):
         return n.kind == "list"
 
-
     def set_for_loop_variable_settings(self, node):
         for_variable = node[1].word
         for_variable_value = ""
@@ -397,7 +399,6 @@ class NodeVisitor(ast.nodevisitor):
         # Erasing last empty space.
         for_variable_value = for_variable_value.strip()
         self._variables.add_variable(for_variable, for_variable_value)
-
 
     def get_parsing_subject_ast(self):
         return self._parsing_subject.get_ast()
