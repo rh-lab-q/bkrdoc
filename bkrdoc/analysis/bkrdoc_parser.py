@@ -92,9 +92,6 @@ class Parser(object):
         conditions = bkrdoc.analysis.ConditionsForCommands()
 
         for command_line in parsed_file:
-            # print(command_line)
-            # print(command_line.kind)
-            # print("")
             nodevistor.visit(command_line)
             container = nodevistor.get_parsed_container()
             if self.is_loop_function_or_condition_container(container):
@@ -114,18 +111,7 @@ class Parser(object):
                     data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
                 self.argparse_data_list.append(data_argparse)
 
-        # print("Started =======================================")
-        # self.print_statement()
-
-        # print(variables.variable_names_list)
-        # print(variables.variable_values_list)
-
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
-        # print("////////////////////////////////////")
-        # print(nodevisitor)
-        # print()
-        # print(rlrun_argparse)
-        # print("////////////////////////////////////")
         data_searcher = bkrdoc.analysis.StatementDataSearcher()
         command_parse = bashlex.parse(rlrun_argparse.command)
         nodevisitor.visit(command_parse[0])
@@ -148,9 +134,6 @@ class Parser(object):
                     self.phases[-1].setup_statement(argparse_data)
             elif cond.is_phase_journal_end(argparse_data.argname) or cond.is_journal_start(argparse_data.argname):
                 self.phases.append(bkrdoc.analysis.PhaseOutside())
-
-        # print("Started =======================================")
-        # self.print_statement()
 
     def print_statement(self):
         for i in self.phases:

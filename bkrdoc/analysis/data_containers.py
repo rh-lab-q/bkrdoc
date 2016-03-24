@@ -259,10 +259,27 @@ class PhaseContainer:
         return DocumentationCredibility(self.get_unknown_commands(), self.get_total_commands())
 
     def get_total_commands(self):
-        return len(self.statement_list)
+        phase_length = 0
+        for statement in self.statement_list:
+            if self.is_loop_function_or_condition_container(statement):
+                phase_length += statement.container_length()
+            else:
+                phase_length += 1
+        return phase_length
 
     def get_unknown_commands(self):
-        return sum(st.argname not in Parser.all_commands for st in self.statement_list)
+        unknown = 0
+        for statement in self.statement_list:
+            if self.is_loop_function_or_condition_container(statement):
+                unknown += statement.unknown_commands_num()
+            elif statement.argname == "UNKNOWN":
+                unknown += 1
+        return unknown
+
+    @staticmethod
+    def is_loop_function_or_condition_container(container):
+        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer"]
+        return type(container).__name__ in pom_containers
 
 
 class DataContainer(object):
@@ -374,6 +391,12 @@ class SimpleContainer(object):
                     data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
                 self.statement_list.append(data)
 
+    def container_length(self):
+        pass
+
+    def unknown_commands_num(self):
+        pass
+
 
 class FunctionContainer(SimpleContainer):
     _function_ast = ""
@@ -392,6 +415,28 @@ class FunctionContainer(SimpleContainer):
     def get_function_name(self):
         return self.function_name
 
+    def container_length(self):
+        # function 1line; { 2nd line and } is a third line
+        function_header = 3
+        function_size = 0
+        for statement in self.statement_list:
+            if self.is_container(statement):
+                function_size += statement.container_length()
+            else:
+                function_size += 1
+        return function_size + function_header
+
+    def unknown_commands_num(self):
+        # function 1line; { 2nd line and } is a third line
+        function_header = 3
+        unknown_size = 0
+        for statement in self.statement_list:
+            if self.is_container(statement):
+                unknown_size += statement.unknown_commands_num()
+            elif statement.argname == "UNKNOWN":
+                unknown_size += 1
+        return unknown_size + function_header
+
 
 class LoopContainer(SimpleContainer):
     _loop_ast = ""
@@ -400,9 +445,31 @@ class LoopContainer(SimpleContainer):
     def __init__(self, ast, name):
         self.argname = name + " " + self.argname
         self._loop_ast = ast
-        self.command_list =[]
+        self.command_list = []
         self.statement_list = []
         self._variables = ""
+
+    def container_length(self):
+        # loop 1line; do 2nd line and do is a third line
+        loop_header = 3
+        loop_size = 0
+        for statement in self.statement_list:
+            if self.is_container(statement):
+                loop_size += statement.container_length()
+            else:
+                loop_size += 1
+        return loop_size + loop_header
+
+    def unknown_commands_num(self):
+        # loop 1line; do 2nd line and do is a third line
+        loop_header = 3
+        unknown_size = 0
+        for statement in self.statement_list:
+            if self.is_container(statement):
+                unknown_size += statement.unknown_commands_num()
+            elif statement.argname == "UNKNOWN":
+                unknown_size += 1
+        return unknown_size + loop_header
 
 
 class ConditionContainer(SimpleContainer):
@@ -411,9 +478,31 @@ class ConditionContainer(SimpleContainer):
 
     def __init__(self, ast):
         self._condition_ast = ast
-        self.command_list =[]
+        self.command_list = []
         self.statement_list = []
         self._variables = ""
+
+    def container_length(self):
+        # if 1line then; and 2nd line ended with fi
+        cond_header = 2
+        cond_size = 0
+        for statement in self.statement_list:
+            if self.is_container(statement):
+                cond_size += statement.container_length()
+            else:
+                cond_size += 1
+        return cond_size + cond_header
+
+    def unknown_commands_num(self):
+        # if 1line then; and 2nd line ended with fi
+        cond_header = 2
+        unknown_size = 0
+        for statement in self.statement_list:
+            if self.is_container(statement):
+                unknown_size += statement.unknown_commands_num()
+            elif statement.argname == "UNKNOWN":
+                unknown_size += 1
+        return unknown_size + cond_header
 
 
 class AssignmentContainer(DataContainer):
