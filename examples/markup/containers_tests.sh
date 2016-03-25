@@ -23,6 +23,7 @@ elif [ $year -eq 0 ]; then
                     #@ wee will seee
                     rlFail "Mangles the configuration value"#@
                     #@ @author Karel Nejezchleb
+                    #@ ????????
                 fi
                 #@ something which is connected to this loop
                 OLD=$CONF_VALUE #@

@@ -63,9 +63,10 @@ class Parser(object):
 
     def comments_and_containers_parsing(self, splitted_line, tagged_comment_container, container, splitted_file_string,
                                         i, line):
-
+        # print("line {0} with container {1}".format(splitted_line, container))
         if not self.is_empty_line(splitted_line) and self.is_tagged_comment_start(splitted_line) and \
            not self.is_tagged_comment_container(tagged_comment_container):
+                # print(splitted_line)
                 tagged_comment_container = TaggedCommentContainer(splitted_line)
         elif not self.is_empty_line(splitted_line) and self.is_common_comment_line(splitted_line):
             if self.is_tagged_comment_container(tagged_comment_container) and \
@@ -85,6 +86,9 @@ class Parser(object):
                     i, tagged_comment_container, condition = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
                                                                       ConditionContainer(), ["fi"],
                                                                       splitted_file_string)
+                    if self.is_tagged_comment_container(tagged_comment_container) and \
+                            not condition.is_container_in_comments(tagged_comment_container):
+                        condition.add_comment(tagged_comment_container)
                     container.add_statement_line(condition)
                     container.add_comment(condition)
                     tagged_comment_container = ""
@@ -92,6 +96,9 @@ class Parser(object):
                     loop = LoopContainer()
                     i, tagged_comment_container, loop = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
                                                                  loop, ["done"], splitted_file_string)
+                    if self.is_tagged_comment_container(tagged_comment_container) and \
+                            not loop.is_container_in_comments(tagged_comment_container):
+                        loop.add_comment(tagged_comment_container)
                     container.add_statement_line(loop)
                     container.add_comment(loop)
                     tagged_comment_container = ""
@@ -100,6 +107,9 @@ class Parser(object):
                     function = FunctionContainer()
                     i, tagged_comment_container, function = self.specific_container_parse_call(i, tagged_comment_container, splitted_line,
                                                                      function, ["}"], splitted_file_string)
+                    if self.is_tagged_comment_container(tagged_comment_container) and \
+                            not function.is_container_in_comments(tagged_comment_container):
+                        function.add_comment(tagged_comment_container)
                     container.add_comment(function)
                     container.add_statement_line(function)
                     tagged_comment_container = ""
@@ -142,6 +152,7 @@ class Parser(object):
                 tagged_comment_container.add_tagged_line(splitted_line)
                 container.add_comment(tagged_comment_container)
                 tagged_comment_container = ""
+        # print("Ending with {0} with container {1}".format(splitted_line, container))
 
         return i, tagged_comment_container, container
 

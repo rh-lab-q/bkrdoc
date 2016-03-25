@@ -299,5 +299,14 @@ class TaggedGeneratorTests(unittest.TestCase):
         first_doc.close()
         self.assertEqual(doc, data)
 
+    def test_file_without_markup(self):
+        generator = Generator("./examples/markup/test_without_markup.sh")
+        generator.parse_file()
+        generator.comments_set_up()
+        with self.assertRaises(SystemExit) as cm:
+            generator.get_documentation(PomArgparse())
+            self.assertEqual(cm.exception, "Given file has no bkrdoc markup!")
+            self.assertEqual(cm.exception.code, 1)
+
 if __name__ == '__main__':
     unittest.main()
