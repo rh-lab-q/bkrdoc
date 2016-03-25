@@ -41,7 +41,7 @@ blah sfsdf sdf sdfsd f
       for: for every argument in selected word will do...
         if: Test if actualy value in arg is not "enabled" and "disabled"
           wee will seee
-          Mangles the configuration value
+          Mangles the configuration value#@
         something which is connected to this loop
         Adding new data to OLD variable
       Documentation test
