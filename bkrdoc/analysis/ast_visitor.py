@@ -49,6 +49,12 @@ class NodeVisitor(ast.nodevisitor):
         k = n.kind
         if k == 'operator':
             self._visitnode(n, n.op)
+        elif k == 'pattern':
+            dochild = self._visitnode(n, n.pattern)
+            if dochild is None or dochild:
+                for child in n.pattern:
+                    self.visit(child)
+            self._visitnode(n, n.actions)
         elif k == 'list':
             dochild = self._visitnode(n, n.parts)
             if dochild is None or dochild:
@@ -63,6 +69,11 @@ class NodeVisitor(ast.nodevisitor):
             if dochild is None or dochild:
                 for child in n.parts:
                     self.visit(child)
+        elif k == 'case':
+            self._visitnode(n, n.parts)
+            # if dochild is None or dochild:
+            #    for child in n.parts:
+            #       self.visit(child)
         elif k == 'compound':
             # print("compound")
             dochild = self._visitnode(n, n.list, n.redirects)
@@ -113,6 +124,15 @@ class NodeVisitor(ast.nodevisitor):
 
     def visitnode(self, n):
         #print(n)
+        pass
+
+    def visitpattern(self, n, parts):
+        # TODO rewrite it to a condition simmilar container
+        if self._parsing_subject is "":
+            self._parsing_subject = data_containers.CommandContainer(n)
+        else:
+            if not self.get_parsed_data():
+                self._parsing_subject = data_containers.CommandContainer(n)
         pass
 
     def visitnodeend(self, n):
@@ -177,8 +197,8 @@ class NodeVisitor(ast.nodevisitor):
         loop = data_containers.LoopContainer(node, "for")
         self.set_for_loop_variable_settings(parts)
         self.visit_loops(loop, parts)
-
         pass
+
     def visitwhile(self, node, parts):
         # print("While ******************************** NOT IMPLEMENTED")
         loop = data_containers.LoopContainer(node, "while")
@@ -197,6 +217,15 @@ class NodeVisitor(ast.nodevisitor):
         else:
             if not self.get_parsed_data():
                 self._parsing_subject = data_containers.CommandContainer(n)
+
+    def visitcase(self, node, parts):
+        # TODO make it as a case container
+        # print("IN CASE! {0}".format(parts))
+        # print("Velikost {0}".format(len(parts)))
+        for pattern in parts[3:-1]:
+            # print pattern
+            self.visit(pattern)
+        pass
 
     def visitfunction(self, n, name, body, parts):
         # print("function ******************************** NOT IMPLEMENTED")
@@ -224,11 +253,7 @@ class NodeVisitor(ast.nodevisitor):
         self._parsing_subject = function
 
     def visitword(self, n, word):
-        # print("word!")
-        # print(word)
-        #if self.is_function_container() and not self.is_parsing_subject_empty():
-        #    self._parsing_subject.set_argparse_list(word)
-        #elif not self.is_function_container():
+        # print("word! {0}".format(word))
         self._parsing_subject.set_argparse_list(word)
 
     def visitassignment(self, n, word):
