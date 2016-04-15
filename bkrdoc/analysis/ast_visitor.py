@@ -50,11 +50,8 @@ class NodeVisitor(ast.nodevisitor):
         if k == 'operator':
             self._visitnode(n, n.op)
         elif k == 'pattern':
-            dochild = self._visitnode(n, n.pattern)
-            if dochild is None or dochild:
-                for child in n.pattern:
-                    self.visit(child)
-            self._visitnode(n, n.actions)
+            self._visitnode(n, n.actions, n.pattern)
+
         elif k == 'list':
             dochild = self._visitnode(n, n.parts)
             if dochild is None or dochild:
@@ -126,14 +123,17 @@ class NodeVisitor(ast.nodevisitor):
         #print(n)
         pass
 
-    def visitpattern(self, n, parts):
+    def visitpattern(self, n, actions, parts):
         # TODO rewrite it to a condition simmilar container
-        if self._parsing_subject is "":
-            self._parsing_subject = data_containers.CommandContainer(n)
-        else:
-            if not self.get_parsed_data():
-                self._parsing_subject = data_containers.CommandContainer(n)
-        pass
+        # self.visit(parts.actions)
+        case_condition = data_containers.ConditionContainer(n)
+        for child in actions:
+            if child is not None:
+                if not self.is_end_of_line(child):
+                    self.visit(child)
+                    case_condition.add_command(self._parsing_subject)
+                    self.erase_parsing_subject_variable()
+        self._parsing_subject = case_condition
 
     def visitnodeend(self, n):
         #print("++++++++++++++++++++END++++++++++++++++++++++")
@@ -219,13 +219,17 @@ class NodeVisitor(ast.nodevisitor):
                 self._parsing_subject = data_containers.CommandContainer(n)
 
     def visitcase(self, node, parts):
-        # TODO make it as a case container
-        # print("IN CASE! {0}".format(parts))
+        pom_variables = self._variables
+        self._variables = copy.deepcopy(self._variables)
+        case_container = data_containers.CaseContainer(node)
         # print("Velikost {0}".format(len(parts)))
         for pattern in parts[3:-1]:
-            # print pattern
             self.visit(pattern)
-        pass
+            case_container.add_condition(self._parsing_subject)
+            self.erase_parsing_subject_variable()
+        case_container.set_variables(self._variables)
+        self._variables = pom_variables
+        self._parsing_subject = case_container
 
     def visitfunction(self, n, name, body, parts):
         # print("function ******************************** NOT IMPLEMENTED")
@@ -253,15 +257,9 @@ class NodeVisitor(ast.nodevisitor):
         self._parsing_subject = function
 
     def visitword(self, n, word):
-        # print("word! {0}".format(word))
         self._parsing_subject.set_argparse_list(word)
 
     def visitassignment(self, n, word):
-        # print("AssingmentTTTTTTTT NOT IMPLEMENTED")
-        # print("ASSINGMENT")
-        # print(word)
-        # print(n)
-        # print("")
         self._parsing_subject = data_containers.AssignmentContainer(n)
         read = shlex.shlex(word)
         member = read.get_token()
@@ -282,10 +280,8 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.add_variable(member, value)
 
     def visitreservedword(self, n, word):
-        sys.stderr.writelines("Reserved WOOOOOOOOOOOORD NOT IMPLEMENTED\n")
-        # print("Reserved word: " + str(word))
-        # if self.is_end_of_function(word):
-        #    print("SAve last command into function container")
+        sys.stderr.writelines("Reserved WORD NOT IMPLEMENTED\n")
+
 
     def visitparameter(self, n, value):
         # print("PARAMETR VISIT")
@@ -301,7 +297,6 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitredirect(self, n, input, type, output, heredoc):
-        #print("REDIRECT NOT IMPLEMENTED")
         pass
 
     def visitheredoc(self, n, value):
@@ -313,7 +308,6 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitcommandsubstitution(self, n, command):
-        #print("------------------------------------------SUBSTITUTION command NOT IMPLEMENTED")
         self._parsing_subject.set_command_substitution_ast(n)
 
     def erase_parsing_subject_variable(self):
@@ -325,9 +319,6 @@ class NodeVisitor(ast.nodevisitor):
     def visit_loops(self, loop_ref, parts):
         pom_variables = self._variables
         self._variables = copy.deepcopy(self._variables)
-        # print("node " + str(node))
-        # print("WORD: " + str(parts[self.get_loop_body_position(parts)]))
-        # print("parts: " + str(parts))
         if self.is_list_node(parts[self.get_loop_body_position(parts)]):
             for member in parts[self.get_loop_body_position(parts)].parts:
                 self.visit(member)
@@ -412,6 +403,9 @@ class NodeVisitor(ast.nodevisitor):
 
     def is_list_node(self, n):
         return n.kind == "list"
+
+    def is_end_of_line(self, node):
+        return node.kind == "operator" and node.op == '\n'
 
     def set_for_loop_variable_settings(self, node):
         for_variable = node[1].word

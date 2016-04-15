@@ -262,7 +262,7 @@ class PhaseContainer:
     def get_total_commands(self):
         phase_length = 0
         for statement in self.statement_list:
-            if self.is_loop_function_or_condition_container(statement):
+            if self.is_simple_container_instance(statement):
                 phase_length += statement.container_length()
             else:
                 phase_length += 1
@@ -271,15 +271,15 @@ class PhaseContainer:
     def get_unknown_commands(self):
         unknown = 0
         for statement in self.statement_list:
-            if self.is_loop_function_or_condition_container(statement):
+            if self.is_simple_container_instance(statement):
                 unknown += statement.unknown_commands_num()
             elif statement.argname == "UNKNOWN":
                 unknown += 1
         return unknown
 
     @staticmethod
-    def is_loop_function_or_condition_container(container):
-        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer"]
+    def is_simple_container_instance(container):
+        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer", "CaseContainer"]
         return type(container).__name__ in pom_containers
 
 
@@ -375,7 +375,7 @@ class SimpleContainer(object):
         return pom_statement_list
 
     def is_container(self, data):
-        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer"]
+        pom_containers = ["FunctionContainer", "LoopContainer", "ConditionContainer", "CaseContainer"]
         return type(data).__name__ in pom_containers
 
     def search_data(self, parser_ref, nodevisitor):
@@ -484,7 +484,7 @@ class ConditionContainer(SimpleContainer):
         self._variables = ""
 
     def container_length(self):
-        # if 1line then; and 2nd line ended with fi
+        # if 1line then; 2nd line ended with fi
         cond_header = 2
         cond_size = 0
         for statement in self.statement_list:
@@ -495,7 +495,7 @@ class ConditionContainer(SimpleContainer):
         return cond_size + cond_header
 
     def unknown_commands_num(self):
-        # if 1line then; and 2nd line ended with fi
+        # if 1line then; 2nd line ended with fi
         cond_header = 2
         unknown_size = 0
         for statement in self.statement_list:
@@ -530,3 +530,31 @@ class AssignmentContainer(DataContainer):
     def get_ast(self):
         return self._assign_ast
 
+
+class CaseContainer(SimpleContainer):
+    _case_ast = ""
+    argname = "case"
+
+    def __init__(self, ast):
+        self._case_ast = ast
+        self.command_list = []
+        self.statement_list = []
+        self._variables = ""
+
+    def container_length(self):
+        case_header = 2
+        case_size = 0
+        for condition in self.statement_list:
+            case_size += condition.container_length()
+        return case_size + case_header
+
+    def unknown_commands_num(self):
+        # case 1line in; 2nd line ended with esac
+        case_header = 2
+        unknown_size = 0
+        for condition in self.statement_list:
+            unknown_size += condition.unknown_commands_num()
+        return unknown_size + case_header
+
+    def add_condition(self, condition):
+        self.command_list.append(condition)

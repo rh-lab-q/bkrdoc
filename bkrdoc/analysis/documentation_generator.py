@@ -159,6 +159,7 @@ class DocumentationGenerator:
             self.set_phases_information_lists(finished_knapsack)
 
         for member in self._phases:
+            # print("pahse member {0}".format(member))
             if not self.is_phase_outside(member):
                 member.print_phase_documentation(cmd_options)
                 print("")
