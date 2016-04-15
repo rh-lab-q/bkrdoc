@@ -2,9 +2,9 @@ language: python
 python:
   - "2.7"
 install:
-  - curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4
-  - tar -xzvf bashlex-0.8.tar.gz
-  - cd ./bashlex-0.8/
+  - wget $(curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
+  - tar -xzvf $(basename $(curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4))
+  - cd ./$(basename $(curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4) .tar.gz)/
   - python setup.py install
   - cd -
   - python setup.py install
