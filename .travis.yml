@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 install:
-  - wget https://github.com/petr-muller/bashlex/releases/download/bkrdoc-enablement-v1/bashlex-0.8.tar.gz
+  - curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4
   - tar -xzvf bashlex-0.8.tar.gz
   - cd ./bashlex-0.8/
   - python setup.py install
