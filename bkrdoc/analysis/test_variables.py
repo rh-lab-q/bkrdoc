@@ -50,7 +50,7 @@ class TestVariables:
     def set_unknown_variable(self, variable):
         if variable.isdigit() and self.test_launch_variables < int(variable):
             self.test_launch_variables = int(variable)
-        elif not variable.isdigit():
+        elif not variable.isdigit() and not self.is_question_mark(variable):
             self.set_environmental_variable(variable)
 
     def get_test_launch(self):
@@ -105,3 +105,5 @@ class TestVariables:
         else:
             return string
 
+    def is_question_mark(self, elem):
+        return elem == "?"
