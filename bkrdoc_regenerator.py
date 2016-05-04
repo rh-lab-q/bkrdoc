@@ -9,6 +9,25 @@ class BkrdocException(Exception):
     pass
 
 
+def get_ran_command_data(command):
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return out, err, p.returncode
+
+
+def get_purpose_from_markup(test_file_name):
+    command = "bkrdoc markup {0}".format(test_file_name)
+    out, err, returncode = get_ran_command_data(command)
+    if err.find("Given file has no bkrdoc markup!") == 0:
+        out, err, returncode = get_purpose_from_analysis(test_file_name)
+    return out, err, returncode
+
+
+def get_purpose_from_analysis(test_file_name):
+    command = "bkrdoc analysis {0}".format(test_file_name)
+    return get_ran_command_data(command)
+
+
 def do_purpose_regeneration(yaml_doc, test_file_name, purpose_name):
     parsed_yaml = yaml.load(yaml_doc)
     bkrdoc_front_matter = "---\n" \
@@ -16,15 +35,14 @@ def do_purpose_regeneration(yaml_doc, test_file_name, purpose_name):
                           "bkrdoc : {0}\n" \
                           "---\n"
     if parsed_yaml["bkrdoc"]:
-        command = "bkrdoc markup {0}".format(test_file_name)
+        out, err, returncode = get_purpose_from_markup(test_file_name)
         bkrdoc_front_matter = bkrdoc_front_matter.format("true")
     else:
-        command = "bkrdoc analysis {0}".format(test_file_name)
+        out, err, returncode = get_purpose_from_analysis(test_file_name)
         bkrdoc_front_matter = bkrdoc_front_matter.format("false")
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-    if p.returncode != 0:
-        raise BkrdocException("Error occurred by execution of {0}".format(command))
+
+    if returncode != 0:
+        raise BkrdocException("Error occurred by execution of bkrdoc tool")
     purpose = open(purpose_name, "w")
     purpose.write(bkrdoc_front_matter + out)
     purpose.close()
