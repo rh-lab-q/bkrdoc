@@ -5,7 +5,12 @@ __author__ = 'Jiri_Kulda'
 import shlex
 import sys
 import bashlex
-import bkrdoc.analysis
+
+from . import data_containers
+from bkrdoc.analysis.parser import ast_visitor
+from bkrdoc.analysis.parser.test_variables import TestVariables
+from bkrdoc.analysis.parser.Statement_data_searcher import StatementDataSearcher
+from bkrdoc.analysis.parser.conditions_for_commands import ConditionsForCommands
 
 
 class Parser(object):
@@ -83,13 +88,13 @@ class Parser(object):
         else:
             self.open_file()
 
-        self.phases.append(bkrdoc.analysis.PhaseOutside())
+        self.phases.append(data_containers.PhaseOutside())
 
-        self.variables = bkrdoc.analysis.TestVariables()
+        self.variables = TestVariables()
         parsed_file = bashlex.parse(self.file_test)
-        data_searcher = bkrdoc.analysis.StatementDataSearcher()
-        nodevistor = bkrdoc.analysis.NodeVisitor(self.variables)
-        conditions = bkrdoc.analysis.ConditionsForCommands()
+        data_searcher = StatementDataSearcher()
+        nodevistor = ast_visitor.NodeVisitor(self.variables)
+        conditions = ConditionsForCommands()
 
         for command_line in parsed_file:
             nodevistor.visit(command_line)
@@ -113,7 +118,7 @@ class Parser(object):
                 self.argparse_data_list.append(data_argparse)
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
-        data_searcher = bkrdoc.analysis.StatementDataSearcher()
+        data_searcher = StatementDataSearcher()
         command_parse = bashlex.parse(rlrun_argparse.command)
         nodevisitor.visit(command_parse[0])
         data_searcher.parse_command(nodevisitor.get_parsed_container())
@@ -122,19 +127,19 @@ class Parser(object):
         return rlrun_argparse
 
     def divide_parsed_argparse_data_into_phase_conainers(self):
-        cond = bkrdoc.analysis.ConditionsForCommands()
+        cond = ConditionsForCommands()
         for argparse_data in self.argparse_data_list:
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
                 if cond.is_phase(argparse_data.argname):
                     p_name = argparse_data.argname[len("rlPhaseStart"):]
                     if argparse_data.description is not None and argparse_data.description is not "":
-                        self.phases.append(bkrdoc.analysis.PhaseContainer(p_name + ": " + argparse_data.description))
+                        self.phases.append(data_containers.PhaseContainer(p_name + ": " + argparse_data.description))
                     else:
-                        self.phases.append(bkrdoc.analysis.PhaseContainer(p_name))
+                        self.phases.append(data_containers.PhaseContainer(p_name))
                 else:
                     self.phases[-1].setup_statement(argparse_data)
             elif cond.is_phase_journal_end(argparse_data.argname) or cond.is_journal_start(argparse_data.argname):
-                self.phases.append(bkrdoc.analysis.PhaseOutside())
+                self.phases.append(data_containers.PhaseOutside())
 
     def print_statement(self):
         for i in self.phases:

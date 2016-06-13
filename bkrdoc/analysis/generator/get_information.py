@@ -1,7 +1,6 @@
 #!/usr/bin/python
 __author__ = 'Jiri_Kulda'
-from bkrdoc.analysis import *
-
+from bkrdoc.analysis.generator.information_units import *
 
 
 class GetInformation(object):

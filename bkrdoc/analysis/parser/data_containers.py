@@ -2,10 +2,14 @@
 __author__ = 'Jiri_Kulda'
 
 import shlex
-import bkrdoc.analysis
 import sys
-from bkrdoc.analysis.credibility import DocumentationCredibility
-from bkrdoc.analysis.bkrdoc_parser import Parser
+
+from bkrdoc.analysis.generator.credibility import DocumentationCredibility
+from bkrdoc.analysis.parser.test_variables import TestVariables
+from bkrdoc.analysis.parser.Statement_data_searcher import StatementDataSearcher
+from bkrdoc.analysis.parser.conditions_for_commands import ConditionsForCommands
+from bkrdoc.analysis.generator.documentation_translator import DocumentationTranslator
+from bkrdoc.analysis.generator.get_information import GetInformation
 
 
 class PhaseOutside:
@@ -19,7 +23,7 @@ class PhaseOutside:
         # self.parse_ref = parse_cmd
         self.phase_name = "Outside phase"
         self.statement_list = []
-        self.variables = bkrdoc.analysis.TestVariables()
+        self.variables = TestVariables()
         self.func_list = []
 
     def setup_statement(self, line):
@@ -93,7 +97,7 @@ class PhaseContainer:
         self.phase_name = name
         self.statement_list = []
         self.doc = []
-        self.variables = bkrdoc.analysis.TestVariables()
+        self.variables = TestVariables()
         self.statement_classes = []
         self.documentation_units = []
         self.phase_documentation_information = []
@@ -114,7 +118,7 @@ class PhaseContainer:
         self.func_list = function_copy
         self.variables = variable_copy
         self.generator_ref = generator_ref
-        command_translator = bkrdoc.analysis.StatementDataSearcher()
+        command_translator = StatementDataSearcher()
 
         for statement in self.statement_list:
             try:
@@ -141,7 +145,7 @@ class PhaseContainer:
         :param function: function object
         """
 
-        command_translator = bkrdoc.analysis.StatementDataSearcher()
+        command_translator = StatementDataSearcher()
         function.data_list = []
         for statement in function.statement_list:
             try:
@@ -163,7 +167,7 @@ class PhaseContainer:
         :param parser_ref: parser reference
         """
 
-        data_translator = bkrdoc.analysis.DocumentationTranslator(parser_ref)
+        data_translator = DocumentationTranslator(parser_ref)
         for data in self.statement_list:
             if data.argname != "UNKNOWN":
                 self.documentation_units.append(data_translator.translate_data(data))
@@ -172,7 +176,7 @@ class PhaseContainer:
         """
         Transforms DocumentationInformation into small classes using GetInformation
         """
-        information_translator = bkrdoc.analysis.GetInformation()
+        information_translator = GetInformation()
         for information in self.documentation_units:
             if information:
                 self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
@@ -183,7 +187,7 @@ class PhaseContainer:
         :param cmd_options: possible command line options
         """
         self.print_phase_name_with_documentation_credibility()
-        conditions = bkrdoc.analysis.ConditionsForCommands()
+        conditions = ConditionsForCommands()
 
         for information in self.phase_documentation_information:
             if cmd_options.log_in or cmd_options.print_all:
@@ -379,8 +383,8 @@ class SimpleContainer(object):
         return type(data).__name__ in pom_containers
 
     def search_data(self, parser_ref, nodevisitor):
-        data_searcher = bkrdoc.analysis.StatementDataSearcher()
-        conditions = bkrdoc.analysis.ConditionsForCommands()
+        data_searcher = StatementDataSearcher()
+        conditions = ConditionsForCommands()
         for command in self.command_list:
             if self.is_container(command):
                 command.search_data(parser_ref, nodevisitor)

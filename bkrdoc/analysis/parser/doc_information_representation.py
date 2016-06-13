@@ -1,7 +1,7 @@
 #!/usr/bin/python
 __author__ = 'Jiri_Kulda'
 
-from bkrdoc.analysis import Option
+from bkrdoc.analysis.parser.option_object import Option
 
 
 class DocumentationInformation(object):

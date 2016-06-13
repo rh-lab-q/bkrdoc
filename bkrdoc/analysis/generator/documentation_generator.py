@@ -4,7 +4,9 @@ import bkrdoc
 import os
 # from __future__ import division  # floating-point division
 import argparse
-import bkrdoc.analysis
+
+from bkrdoc.analysis.parser.bkrdoc_parser import Parser
+from bkrdoc.analysis.generator.credibility import DocumentationCredibility
 
 
 class DocumentationGenerator:
@@ -16,7 +18,7 @@ class DocumentationGenerator:
         self._phases = ""
 
     def parse_given_file(self, file):
-        self._parser_ref = bkrdoc.analysis.Parser(file)
+        self._parser_ref = Parser(file)
         self._parser_ref.parse_data()
         self._parser_ref.divide_parsed_argparse_data_into_phase_conainers()
         self._phases = self._parser_ref.get_phases()
@@ -234,7 +236,7 @@ class DocumentationGenerator:
             if not self.is_phase_outside(phase):
                 unknown_commands += phase.get_unknown_commands()
                 total_commands += phase.get_total_commands()
-        return bkrdoc.analysis.credibility.DocumentationCredibility(unknown_commands, total_commands).get_credibility()
+        return DocumentationCredibility(unknown_commands, total_commands).get_credibility()
 
 
 # ***************** MAIN ******************
