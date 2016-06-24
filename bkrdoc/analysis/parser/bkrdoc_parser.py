@@ -6,7 +6,7 @@ import shlex
 import sys
 import bashlex
 
-from . import data_containers
+from bkrdoc.analysis.parser import data_containers
 from bkrdoc.analysis.parser import ast_visitor
 from bkrdoc.analysis.parser.test_variables import TestVariables
 from bkrdoc.analysis.parser.Statement_data_searcher import StatementDataSearcher

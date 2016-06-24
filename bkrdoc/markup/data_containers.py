@@ -280,7 +280,7 @@ class PhaseOutsideContainer(SimpleContainer):
                 if not self.is_empty(self.statement_list):
                     statement_index = self.get_item_index(self.statement_list[0], splitted_file_string)
                     if (statement_index is None) or (first_comment_index is None):
-                        raise LineNotFoundException("Cannot found comment or statement line in test. Please raise new "
+                        raise LineNotFoundException("Cannot find comment or statement line in test. Please raise new "
                                                     "issue at https://github.com/rh-lab-q/bkrdoc/issues.")
                     if first_comment_index < statement_index:
                         common_copy = list(self.common_comments)
