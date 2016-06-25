@@ -2,7 +2,7 @@
 __author__ = 'Jiri_Kulda'
 
 from bkrdoc.analysis.parser import conditions_for_commands, \
-    topic_object, doc_information_representation, option_object, statements_data_searcher
+    topic_object, doc_information_representation, option_object, statement_data_searcher
 
 
 class DocumentationTranslator:
@@ -362,7 +362,7 @@ class DocumentationTranslator:
         :param command: command line
         :return: argparse object
         """
-        argparse_data, pom_var = statements_data_searcher.StatementDataSearcher().parse_command(command)
+        argparse_data, pom_var = statement_data_searcher.StatementDataSearcher().parse_command(command)
         return argparse_data
 
 

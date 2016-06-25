@@ -7,7 +7,7 @@ import sys
 import bashlex
 
 from bkrdoc.analysis.parser import data_containers, ast_visitor, test_variables, \
-    statements_data_searcher, conditions_for_commands
+    statement_data_searcher, conditions_for_commands
 
 
 class Parser(object):
@@ -89,7 +89,7 @@ class Parser(object):
 
         self.variables = test_variables.TestVariables()
         parsed_file = bashlex.parse(self.file_test)
-        data_searcher = statements_data_searcher.StatementDataSearcher()
+        data_searcher = statement_data_searcher.StatementDataSearcher()
         nodevistor = ast_visitor.NodeVisitor(self.variables)
         conditions = conditions_for_commands.ConditionsForCommands()
 
@@ -115,7 +115,7 @@ class Parser(object):
                 self.argparse_data_list.append(data_argparse)
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
-        data_searcher = statements_data_searcher.StatementDataSearcher()
+        data_searcher = statement_data_searcher.StatementDataSearcher()
         command_parse = bashlex.parse(rlrun_argparse.command)
         nodevisitor.visit(command_parse[0])
         data_searcher.parse_command(nodevisitor.get_parsed_container())

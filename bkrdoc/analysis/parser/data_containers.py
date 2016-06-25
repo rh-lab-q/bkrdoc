@@ -4,7 +4,7 @@ __author__ = 'Jiri_Kulda'
 import shlex
 
 import sys
-from bkrdoc.analysis.parser import test_variables, statements_data_searcher, conditions_for_commands, \
+from bkrdoc.analysis.parser import test_variables, statement_data_searcher, conditions_for_commands, \
     documentation_translator
 
 
@@ -114,7 +114,7 @@ class PhaseContainer:
         self.func_list = function_copy
         self.variables = variable_copy
         self.generator_ref = generator_ref
-        command_translator = statements_data_searcher.StatementDataSearcher()
+        command_translator = statement_data_searcher.StatementDataSearcher()
 
         for statement in self.statement_list:
             try:
@@ -141,7 +141,7 @@ class PhaseContainer:
         :param function: function object
         """
 
-        command_translator = statements_data_searcher.StatementDataSearcher()
+        command_translator = statement_data_searcher.StatementDataSearcher()
         function.data_list = []
         for statement in function.statement_list:
             try:
@@ -347,7 +347,7 @@ class SimpleContainer(object):
         return type(data).__name__ in pom_containers
 
     def search_data(self, parser_ref, nodevisitor):
-        data_searcher = statements_data_searcher.StatementDataSearcher()
+        data_searcher = statement_data_searcher.StatementDataSearcher()
         conditions = conditions_for_commands.ConditionsForCommands()
         for command in self.command_list:
             if self.is_container(command):
