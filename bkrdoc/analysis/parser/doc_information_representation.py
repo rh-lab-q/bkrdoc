@@ -1,7 +1,7 @@
 #!/usr/bin/python
 __author__ = 'Jiri_Kulda'
 
-from bkrdoc.analysis.parser.option_object import Option
+from bkrdoc.analysis.parser import option_object
 
 
 class DocumentationInformation(object):
@@ -17,7 +17,7 @@ class DocumentationInformation(object):
 
     topic = ""
 
-    options = Option
+    options = option_object.Option
 
     action = []
 
@@ -25,7 +25,7 @@ class DocumentationInformation(object):
 
     def __init__(self, cmd_name, topic_object, action, importance, options=None):
         if options is None:
-            self.options = Option()
+            self.options = option_object.Option()
         else:
             self.options = options
         self.command_name = cmd_name

@@ -2,7 +2,7 @@
 import argparse
 import shlex
 import re
-from bkrdoc.analysis.parser.conditions_for_commands import ConditionsForCommands
+from bkrdoc.analysis.parser import conditions_for_commands
 
 
 __author__ = 'Jiri_Kulda'
@@ -39,7 +39,7 @@ class StatementDataSearcher:
         first = pom_list[0]
 
         # if self.is_beakerLib_command(first, self.parser_ref):
-        condition = ConditionsForCommands()
+        condition = conditions_for_commands.ConditionsForCommands()
 
         if condition.is_rlrun_command(first):
             self.get_rlrun_data(pom_list)
@@ -469,15 +469,15 @@ class StatementDataSearcher:
         parser_arg.add_argument("-t", type=str, help="time")
         parser_arg.add_argument("-d", type=int, help="delay", default=1)
 
-        if ConditionsForCommands().is_rlwaitforcmd_command(command):
+        if conditions_for_commands.ConditionsForCommands().is_rlwaitforcmd_command(command):
             parser_arg.add_argument("command", type=str)
             parser_arg.add_argument("-m", type=str, help="count")
             parser_arg.add_argument("-r", type=str, help="retrval", default="0")
 
-        elif ConditionsForCommands().is_rlwaitforfile_command(command):
+        elif conditions_for_commands.ConditionsForCommands().is_rlwaitforfile_command(command):
             parser_arg.add_argument("path", type=str)
 
-        elif ConditionsForCommands().is_rlwaitforsocket_command(command):
+        elif conditions_for_commands.ConditionsForCommands().is_rlwaitforsocket_command(command):
             parser_arg.add_argument("port_path", type=str)
             parser_arg.add_argument('--close', dest='close', action='store_true',
                                     default=False)

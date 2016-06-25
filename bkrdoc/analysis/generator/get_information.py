@@ -6,7 +6,7 @@ from bkrdoc.analysis.generator.information_units import *
 class GetInformation(object):
     """
     This class is responsible for transformation from DocumentationInformation class
-    to small InformationUnit class. This class contain big 2D array with reference to
+    to small InformationUnit class. This class contains big 2D array with reference to
     small InformationUnit classes.
     """
     array = [

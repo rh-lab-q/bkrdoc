@@ -2,14 +2,10 @@
 __author__ = 'Jiri_Kulda'
 
 import shlex
-import sys
 
-from bkrdoc.analysis.generator.credibility import DocumentationCredibility
-from bkrdoc.analysis.parser.test_variables import TestVariables
-from bkrdoc.analysis.parser.Statement_data_searcher import StatementDataSearcher
-from bkrdoc.analysis.parser.conditions_for_commands import ConditionsForCommands
-from bkrdoc.analysis.generator.documentation_translator import DocumentationTranslator
-from bkrdoc.analysis.generator.get_information import GetInformation
+import sys
+from bkrdoc.analysis.parser import test_variables, statements_data_searcher, conditions_for_commands, \
+    documentation_translator
 
 
 class PhaseOutside:
@@ -23,7 +19,7 @@ class PhaseOutside:
         # self.parse_ref = parse_cmd
         self.phase_name = "Outside phase"
         self.statement_list = []
-        self.variables = TestVariables()
+        self.variables = test_variables.TestVariables()
         self.func_list = []
 
     def setup_statement(self, line):
@@ -97,7 +93,7 @@ class PhaseContainer:
         self.phase_name = name
         self.statement_list = []
         self.doc = []
-        self.variables = TestVariables()
+        self.variables = test_variables.TestVariables()
         self.statement_classes = []
         self.documentation_units = []
         self.phase_documentation_information = []
@@ -118,7 +114,7 @@ class PhaseContainer:
         self.func_list = function_copy
         self.variables = variable_copy
         self.generator_ref = generator_ref
-        command_translator = StatementDataSearcher()
+        command_translator = statements_data_searcher.StatementDataSearcher()
 
         for statement in self.statement_list:
             try:
@@ -145,7 +141,7 @@ class PhaseContainer:
         :param function: function object
         """
 
-        command_translator = StatementDataSearcher()
+        command_translator = statements_data_searcher.StatementDataSearcher()
         function.data_list = []
         for statement in function.statement_list:
             try:
@@ -167,39 +163,10 @@ class PhaseContainer:
         :param parser_ref: parser reference
         """
 
-        data_translator = DocumentationTranslator(parser_ref)
+        data_translator = documentation_translator.DocumentationTranslator(parser_ref)
         for data in self.statement_list:
             if data.argname != "UNKNOWN":
                 self.documentation_units.append(data_translator.translate_data(data))
-
-    def generate_documentation(self):
-        """
-        Transforms DocumentationInformation into small classes using GetInformation
-        """
-        information_translator = GetInformation()
-        for information in self.documentation_units:
-            if information:
-                self.phase_documentation_information.append(information_translator.get_information_from_facts(information))
-
-    def print_phase_documentation(self, cmd_options):
-        """
-        Prints nature language information
-        :param cmd_options: possible command line options
-        """
-        self.print_phase_name_with_documentation_credibility()
-        conditions = ConditionsForCommands()
-
-        for information in self.phase_documentation_information:
-            if cmd_options.log_in or cmd_options.print_all:
-                information.print_information()
-            elif not conditions.is_rllog_command(information.get_command_name()):
-                information.print_information()
-
-    def print_phase_name_with_documentation_credibility(self):
-        inf = self.phase_name + " [Unknown commands: " + str(self.get_unknown_commands()) \
-                              + ", Total: " + str(self.get_total_commands()) \
-                              + ", Documentation credibility: " + self.get_phase_credibility().get_credibility() + "]"
-        print(inf)
 
     def get_information_list(self):
         return self.phase_documentation_information
@@ -259,9 +226,6 @@ class PhaseContainer:
         :return: list of functions
         """
         return self.func_list
-
-    def get_phase_credibility(self):
-        return DocumentationCredibility(self.get_unknown_commands(), self.get_total_commands())
 
     def get_total_commands(self):
         phase_length = 0
@@ -383,8 +347,8 @@ class SimpleContainer(object):
         return type(data).__name__ in pom_containers
 
     def search_data(self, parser_ref, nodevisitor):
-        data_searcher = StatementDataSearcher()
-        conditions = ConditionsForCommands()
+        data_searcher = statements_data_searcher.StatementDataSearcher()
+        conditions = conditions_for_commands.ConditionsForCommands()
         for command in self.command_list:
             if self.is_container(command):
                 command.search_data(parser_ref, nodevisitor)

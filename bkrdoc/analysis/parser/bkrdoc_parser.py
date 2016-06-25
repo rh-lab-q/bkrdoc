@@ -6,11 +6,8 @@ import shlex
 import sys
 import bashlex
 
-from bkrdoc.analysis.parser import data_containers
-from bkrdoc.analysis.parser import ast_visitor
-from bkrdoc.analysis.parser.test_variables import TestVariables
-from bkrdoc.analysis.parser.Statement_data_searcher import StatementDataSearcher
-from bkrdoc.analysis.parser.conditions_for_commands import ConditionsForCommands
+from bkrdoc.analysis.parser import data_containers, ast_visitor, test_variables, \
+    statements_data_searcher, conditions_for_commands
 
 
 class Parser(object):
@@ -90,11 +87,11 @@ class Parser(object):
 
         self.phases.append(data_containers.PhaseOutside())
 
-        self.variables = TestVariables()
+        self.variables = test_variables.TestVariables()
         parsed_file = bashlex.parse(self.file_test)
-        data_searcher = StatementDataSearcher()
+        data_searcher = statements_data_searcher.StatementDataSearcher()
         nodevistor = ast_visitor.NodeVisitor(self.variables)
-        conditions = ConditionsForCommands()
+        conditions = conditions_for_commands.ConditionsForCommands()
 
         for command_line in parsed_file:
             nodevistor.visit(command_line)
@@ -118,7 +115,7 @@ class Parser(object):
                 self.argparse_data_list.append(data_argparse)
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
-        data_searcher = StatementDataSearcher()
+        data_searcher = statements_data_searcher.StatementDataSearcher()
         command_parse = bashlex.parse(rlrun_argparse.command)
         nodevisitor.visit(command_parse[0])
         data_searcher.parse_command(nodevisitor.get_parsed_container())
@@ -127,7 +124,7 @@ class Parser(object):
         return rlrun_argparse
 
     def divide_parsed_argparse_data_into_phase_conainers(self):
-        cond = ConditionsForCommands()
+        cond = conditions_for_commands.ConditionsForCommands()
         for argparse_data in self.argparse_data_list:
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
                 if cond.is_phase(argparse_data.argname):
