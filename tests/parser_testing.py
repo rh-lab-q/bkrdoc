@@ -506,94 +506,46 @@ class TestSequenceFunctions(unittest.TestCase):
         generator.get_documentation_information()
         generator.generate_documentation()
 
-    def test_credibility(self):
+    def test_credibility_percentage(self):
         cr = credibility.DocumentationCredibility(0, 0)
         perc = cr.compute_percent_correct(0, 0)
         self.assertEqual(cr.compute_credibility_key(perc), list(cr.credibilityTable)[-1])  # 0 total, should be MAX
 
-        cr0 = credibility.DocumentationCredibility(100, 100)
-        self.assertEqual(cr0.get_credibility(), cr0.credibilityTable[0])
-        cr1 = credibility.DocumentationCredibility(99, 100)
-        self.assertEqual(cr1.get_credibility(), cr1.credibilityTable[1])
-        cr2 = credibility.DocumentationCredibility(81, 100)
-        self.assertEqual(cr2.get_credibility(), cr2.credibilityTable[1])
-        cr3 = credibility.DocumentationCredibility(80, 100)
-        self.assertEqual(cr3.get_credibility(), cr3.credibilityTable[2])
-        cr4 = credibility.DocumentationCredibility(61, 100)
-        self.assertEqual(cr4.get_credibility(), cr4.credibilityTable[2])
-        cr5 = credibility.DocumentationCredibility(60, 100)
-        self.assertEqual(cr5.get_credibility(), cr5.credibilityTable[3])
-        cr6 = credibility.DocumentationCredibility(41, 100)
-        self.assertEqual(cr6.get_credibility(), cr6.credibilityTable[3])
-        cr7 = credibility.DocumentationCredibility(40, 100)
-        self.assertEqual(cr7.get_credibility(), cr7.credibilityTable[4])
-        cr8 = credibility.DocumentationCredibility(21, 100)
-        self.assertEqual(cr8.get_credibility(), cr8.credibilityTable[4])
-        cr9 = credibility.DocumentationCredibility(20, 100)
-        self.assertEqual(cr9.get_credibility(), cr9.credibilityTable[5])
-        cr10 = credibility.DocumentationCredibility(1, 100)
-        self.assertEqual(cr10.get_credibility(), cr10.credibilityTable[5])
-        cr11 = credibility.DocumentationCredibility(0, 100)
-        self.assertEqual(cr11.get_credibility(), cr11.credibilityTable[5])
+        def compare(percent, expected_credibility):
+            cr = credibility.DocumentationCredibility(percent, 100)
+            self.assertEqual(cr.get_credibility(), cr.credibilityTable[expected_credibility])
+
+        for (perc, cred) in [(100,0),(99,1),(81,1),(80,2),(61,2),(60,3),(41,3),(40,4),(21,4),(20,5),(1,5),(0,5)]:
+            compare(perc, cred)
 
     def test_overall_credibility(self):
         generator = documentation_generator.DocumentationGenerator()
         generator.parse_given_file("./examples/tests/autopart-test.sh")
-        credibility = ""
         for phase in generator._phases:
             if phase.phase_name == "Test":
                 credibility = generator.get_phase_credibility(phase).get_credibility()
         self.assertEqual(credibility, generator.get_overall_credibility())
 
-    def test_below_medium_credibility_present_low(self):
-        old_stdout = sys.stdout
-        sys.stdout = my_stdout = StringIO()
-        generator = documentation_generator.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/mozila-test.sh")
-        generator.print_documentation(PomArgparse())
-        sys.stdout = old_stdout
-        credibility = "Phases with below Medium credibility are present."
-        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
 
-    def test_below_medium_credibility_present_very_low(self):
-        old_stdout = sys.stdout
-        sys.stdout = my_stdout = StringIO()
-        generator = documentation_generator.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/pxe-boot-test.sh")
-        generator.print_documentation(PomArgparse())
-        sys.stdout = old_stdout
-        credibility = "Phases with below Medium credibility are present."
-        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+    def test_credibility_computation_of_file(self):
 
-    def test_below_medium_credibility_present_none(self):
-        old_stdout = sys.stdout
-        sys.stdout = my_stdout = StringIO()
-        generator = documentation_generator.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/none.sh")
-        generator.print_documentation(PomArgparse())
-        sys.stdout = old_stdout
-        credibility = "Phases with below Medium credibility are present."
-        self.assertNotEqual(my_stdout.getvalue().find(credibility), -1)
+        def test_file(file, below_medium_present):
+            old_stdout = sys.stdout
+            sys.stdout = my_stdout = StringIO()
+            generator = documentation_generator.DocumentationGenerator()
+            generator.parse_given_file(file)
+            generator.print_documentation(PomArgparse())
+            sys.stdout = old_stdout
+            phrase = "Phases with below Medium credibility are present."
+            assert_ = self.assertNotEqual if below_medium_present else self.assertEqual
+            assert_(my_stdout.getvalue().find(phrase), -1)
 
-    def test_below_medium_credibility_not_present_high(self):
-        old_stdout = sys.stdout
-        sys.stdout = my_stdout = StringIO()
-        generator = documentation_generator.DocumentationGenerator()
-        generator.parse_given_file("./examples/tests/apache-test.sh")
-        generator.print_documentation(PomArgparse())
-        sys.stdout = old_stdout
-        credibility = "Phases with below Medium credibility are present."
-        self.assertEqual(my_stdout.getvalue().find(credibility), -1)
-
-    def test_below_medium_credibility_not_present_medium(self):
-        old_stdout = sys.stdout
-        sys.stdout = my_stdout = StringIO()
-        generator = documentation_generator.DocumentationGenerator()
-        generator.parse_given_file("./examples/markup/testFromBugzila.sh")
-        generator.print_documentation(PomArgparse())
-        sys.stdout = old_stdout
-        credibility = "Phases with below Medium credibility are present."
-        self.assertEqual(my_stdout.getvalue().find(credibility), -1)
+        for (file, is_present) in [("tests/mozila-test", True),
+                                    ("tests/pxe-boot-test", True),
+                                    ("tests/none", True),
+                                    ("tests/apache-test", False),
+                                    ("markup/testFromBugzila", False)]:
+            test_file("./examples/" + file + ".sh", is_present)
 
 
 if __name__ == '__main__':
