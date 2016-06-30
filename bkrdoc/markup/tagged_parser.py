@@ -1,7 +1,7 @@
 __author__ = 'jkulda'
 
 from bkrdoc.markup.data_containers import *
-from bkrdoc.analysis.bkrdoc_parser import Parser as AnalysisParser
+from bkrdoc.analysis.parser.bkrdoc_parser import Parser as AnalysisParser
 
 
 class UnknownStatementDataParsingException(Exception):

@@ -1,9 +1,11 @@
 from __future__ import division  # floating-point division
 
+__author__ = 'Zuzana Baranova'
+
 
 class DocumentationCredibility:
     """
-    DocumentationCredibility class provides simple key(0-5 (LOW to HIGH)) to credibility conversion
+    DocumentationCredibility class provides a simple key(0-5 (LOW to HIGH)) to credibility conversion
     based on Unknown to Total commands ratio.
     :param credibility: credibility computed from number of unknown vs. total commands provided to the constructor
     :param credibilityTable: dictionary-like key-to-credibility conversion
@@ -29,9 +31,9 @@ class DocumentationCredibility:
         Computes credibility key by 20% increments (known/total commands ratio), starting from zero.
         :return: key for credibility computation (0-5)
         """
-        if self.is_zero(percent_correct):
+        if self.equals(percent_correct, 0):
             return 0
-        elif self.all_correct(percent_correct):
+        elif self.equals(percent_correct, 100):
             return 5
         else:
             return (percent_correct // 20) + 1
@@ -44,18 +46,14 @@ class DocumentationCredibility:
         return self.credibility
 
     def compute_percent_correct(self, unknown_commands, total_commands):
-        if self.is_zero(total_commands):
+        if self.equals(total_commands, 0):
             return 100
         else:
             return self.round_to_two_places((1 - (unknown_commands / total_commands)) * 100)
 
     @staticmethod
-    def is_zero(number):
-        return round(number) == 0
-
-    @staticmethod
-    def all_correct(number):
-        return round(number) == 100
+    def equals(floatnum, number):
+        return round(floatnum) == number
 
     @staticmethod
     def round_to_two_places(number):

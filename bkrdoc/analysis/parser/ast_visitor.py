@@ -3,7 +3,7 @@
 __author__ = 'Jiri_Kulda'
 
 from bashlex import ast
-from bkrdoc.analysis import data_containers
+from bkrdoc.analysis.parser import data_containers
 import shlex
 import sys
 import copy
@@ -178,8 +178,7 @@ class NodeVisitor(ast.nodevisitor):
         condition_body = self.get_condition_body_position(parts)
         keys = condition_body.keys()
         # keys need to be sorted to be in right position.
-        keys.sort()
-        for key in keys:
+        for key in sorted(keys):
             if self.is_list_node(parts[condition_body[key]]):
                 for member in parts[condition_body[key]].parts:
                     self.visit(member)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 __author__ = 'jkulda'
 import argparse
-from bkrdoc.analysis.documentation_generator import run_analysis_doc_generator
+from bkrdoc.analysis.generator.documentation_generator import run_analysis_doc_generator
 from bkrdoc.markup.tagged_generator import run_markup_doc_generator
 
 

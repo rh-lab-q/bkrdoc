@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # author Jiri Kulda
-import bkrdoc
+
 import os
 # from __future__ import division  # floating-point division
 import argparse
-import bkrdoc.analysis
+
+from bkrdoc.analysis.parser import bkrdoc_parser, conditions_for_commands
+from bkrdoc.analysis.generator import credibility, get_information
 
 
 class DocumentationGenerator:
@@ -16,7 +18,7 @@ class DocumentationGenerator:
         self._phases = ""
 
     def parse_given_file(self, file):
-        self._parser_ref = bkrdoc.analysis.Parser(file)
+        self._parser_ref = bkrdoc_parser.Parser(file)
         self._parser_ref.parse_data()
         self._parser_ref.divide_parsed_argparse_data_into_phase_conainers()
         self._phases = self._parser_ref.get_phases()
@@ -62,7 +64,7 @@ class DocumentationGenerator:
         """
         for member in self._phases:
             if not self.is_phase_outside(member):
-                member.generate_documentation()
+                self.generate_phase_documentation(member)
 
     def get_test_weigh(self):
         """
@@ -161,9 +163,9 @@ class DocumentationGenerator:
         for member in self._phases:
             # print("pahse member {0}".format(member))
             if not self.is_phase_outside(member):
-                member.print_phase_documentation(cmd_options)
+                self.print_phase_documentation(member, cmd_options)
                 print("")
-                has_low_credibility = member.get_phase_credibility().get_credibility() in ["None", "Low", "Very low"] \
+                has_low_credibility = self.get_phase_credibility(member).get_credibility() in ["None", "Low", "Very low"] \
                     or has_low_credibility
 
         print("Overall credibility of generated documentation is " + self.get_overall_credibility() + ".")
@@ -234,7 +236,39 @@ class DocumentationGenerator:
             if not self.is_phase_outside(phase):
                 unknown_commands += phase.get_unknown_commands()
                 total_commands += phase.get_total_commands()
-        return bkrdoc.analysis.credibility.DocumentationCredibility(unknown_commands, total_commands).get_credibility()
+        return credibility.DocumentationCredibility(unknown_commands, total_commands).get_credibility()
+
+    def generate_phase_documentation(self, phase):
+        """
+        Transforms DocumentationInformation into small classes using GetInformation
+        """
+        information_translator = get_information.GetInformation()
+        for information in phase.documentation_units:
+            if information:
+                phase.phase_documentation_information.append(information_translator.get_information_from_facts(information))
+
+    def print_phase_documentation(self, phase, cmd_options):
+        """
+        Prints nature language information
+        :param cmd_options: possible command line options
+        """
+        self.print_phase_name_with_documentation_credibility(phase)
+        conditions = conditions_for_commands.ConditionsForCommands()
+
+        for information in phase.phase_documentation_information:
+            if cmd_options.log_in or cmd_options.print_all:
+                information.print_information()
+            elif not conditions.is_rllog_command(information.get_command_name()):
+                information.print_information()
+
+    def print_phase_name_with_documentation_credibility(self, phase):
+        inf = phase.phase_name + " [Unknown commands: " + str(phase.get_unknown_commands()) \
+                              + ", Total: " + str(phase.get_total_commands()) \
+                              + ", Documentation credibility: " + self.get_phase_credibility(phase).get_credibility() + "]"
+        print(inf)
+
+    def get_phase_credibility(self, phase):
+        return credibility.DocumentationCredibility(phase.get_unknown_commands(), phase.get_total_commands())
 
 
 # ***************** MAIN ******************

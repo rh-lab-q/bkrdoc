@@ -4,7 +4,7 @@ __author__ = 'Jiri_Kulda'
 
 class Option(object):
     """
-    Option class which is consist of option and status of BeakerLib command
+    Option class which consists of option and status of BeakerLib command
     :param option_data: BeakerLib command options data
     :param status_data: BeakerLib command future exit status
     """
