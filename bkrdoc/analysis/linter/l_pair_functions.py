@@ -1,0 +1,121 @@
+__author__ = 'Zuzana Baranova'
+
+import copy
+from bkrdoc.analysis.linter import error
+
+
+class Match(object):
+    """
+    Class defining a matching pair of commands.
+
+    :param func: Opening command
+    :param pair: Closing command
+    :param before: List of commands (if any) which should be preceded by a Closing command if the Opening one was present,
+                   i.e. Start -> Stop -> Restore;  Restore should not appear before Stop
+    :param each_needs_match: Bool value stating whether each Opening command needs a Closing one or
+                             a single Closing command closes all Opening commands (with matching flag)
+    :param flag_source: String defining an attribute value of Namespace where the flag/name is located, can be None
+    :param flag: Concrete flag of a command whose pair with matching flag is searched for
+    :param restores_all: a flagless Closing command closes everything regardless of flag
+    """
+    def __init__(self, func, pair, before=[], each=False, flag_source=None, restores_all=False):
+        self.func = func
+        self.pair = pair
+        self.before = before
+        self.each_needs_match = each
+        self.restores_all = restores_all
+        self.flag_source = flag_source
+        self.flag = None
+
+    def set_flag(self, flag):
+        self.flag = flag
+
+
+class LinterPairFunctions:
+    """Does the logical analysis of matching paired commands."""
+
+    start_phase_names = ['rlPhaseStart', 'rlPhaseStartTest', 'rlPhaseStartSetup', 'rlPhaseStartCleanup']
+
+    pairs = {'rlPhaseStart': Match('rlPhaseStart', 'rlPhaseEnd', before=start_phase_names, each=True),
+             'rlPhaseStartTest': Match('rlPhaseStartTest', 'rlPhaseEnd', before=start_phase_names, each=True),
+             'rlPhaseStartSetup': Match('rlPhaseStartSetup', 'rlPhaseEnd', before=start_phase_names, each=True),
+             'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', 'rlPhaseEnd', before=start_phase_names, each=True),
+             'rlFileBackup': Match('rlFileBackup', 'rlFileRestore', flag_source='namespace'),
+             'rlVirtualXStart': Match('rlVirtualXStart', 'rlVirtualXStop', flag_source='name'),
+             'rlServiceStart': Match('rlServiceStart', 'rlServiceStop', before=['rlServiceRestore'], flag_source='service')}
+    # Pair(func = 'rlSEBooleanOn', pair = 'rlSEBooleanRestore'), # boolean(s)
+    # Pair(func = 'rlSEBooleanOff', pair = 'rlSEBooleanRestore') } # restore potentially all w/ no arguments given
+
+    currently_unmatched = []
+    errors = []
+
+    def __init__(self):
+        self.currently_unmatched = []
+        self.errors = []
+
+    def analyse(self, list):
+
+        for line in list:
+            match = self.get_match(line.argname)
+            line_flags = self.get_flag(line, match)
+            if type(line_flags) == type([]):
+                for x in line_flags:
+                    setattr(line, match.flag_source, x)
+                    self.analyse_single_line(line)
+            else:
+                self.analyse_single_line(line)
+
+        for elem in self.currently_unmatched:
+            self.add_error(elem.func + " without a matching " + elem.pair, flag=elem.flag)
+
+    def analyse_single_line(self, line):
+
+        for elem in self.currently_unmatched:
+                if self.command_is_before_end_function(line, elem):
+                    self.add_error(line.argname + " before matching " + elem.pair)
+                    break
+
+        for elem in self.currently_unmatched:
+            if self.matches_opposite(line, elem):
+                self.currently_unmatched.remove(elem)
+                return  # would mess looking for Ends without Begins
+
+        if line.argname in self.pairs.keys() and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
+            match = copy.deepcopy(self.pairs[line.argname])
+            match.set_flag(self.get_flag(line, match))
+            self.currently_unmatched.insert(0, match)
+
+        elif line.argname in [x.pair for x in self.pairs.values()]:
+            self.add_error(line.argname + " without a previous begin", flag=self.get_flag(line, self.get_match(line.argname)))
+
+    def get_match(self, command):
+        if command in self.pairs.keys():
+            return self.pairs[command]
+        for entry in self.pairs.values():
+            if command == entry.pair or command in entry.before:
+                return entry
+
+    def command_is_before_end_function(self, line, elem):
+        return elem.before is not None and line.argname in elem.before and elem.flag == self.get_flag(line, elem)
+
+    def matches_opposite(self, line, elem):
+        return line.argname == elem.pair and (elem.flag_source is None or elem.flag == self.get_flag(line, elem))
+
+    def already_present(self, line):
+        match = self.pairs[line.argname]
+        line_flag = self.get_flag(line, match)
+        return (match.pair, line_flag) in [(x.pair, x.flag) for x in self.currently_unmatched]
+
+    @staticmethod
+    def get_flag(line, elem):
+        if elem is None or elem.flag_source is None:
+            return None
+        return getattr(line, elem.flag_source)
+
+    def add_error(self, msg, flag=None):
+        if flag is not None:
+            msg += " with flag " + flag
+        self.errors.append(error.Error(message=msg))
+
+    def get_errors(self):
+        return self.errors
