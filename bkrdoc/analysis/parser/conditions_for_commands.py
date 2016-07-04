@@ -44,9 +44,12 @@ class ConditionsForCommands:
     def is_rlcleanup_apend_or_prepend_command(self, command):
         return command == "rlCleanupAppend" or command == "rlCleanupPrepend"
 
-    def is_sebooleanxxx_command(self, command):
-        pom_list = ["rlSEBooleanOn", "rlSEBooleanOff", "rlSEBooleanRestore"]
+    def is_sebooleansetup_command(self, command):
+        pom_list = ["rlSEBooleanOn", "rlSEBooleanOff"]
         return command in pom_list
+
+    def is_sebooleanrestore_command(self, command):
+        return command == "rlSEBooleanRestore"
 
     def is_rlservicexxx(self, command):
         pom_list = ["rlServiceStart", "rlServiceStop", "rlServiceRestore"]

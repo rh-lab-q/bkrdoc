@@ -124,8 +124,11 @@ class StatementDataSearcher:
         elif condition.is_rlservicexxx(first):
             self.get_rlservicexxx_data(pom_list)
 
-        elif condition.is_sebooleanxxx_command(first):
-            self.get_sebooleanxxx_data(pom_list)
+        elif condition.is_sebooleansetup_command(first):
+            self.get_sebooleansetup_data(pom_list)
+
+        elif condition.is_sebooleanrestore_command(first):
+            self.get_sebooleanrestore_data(pom_list)
 
         elif condition.is_rlshowrunningkernel_command(first):
             self.get_rlshowrunningkernel_data(pom_list)
@@ -527,7 +530,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("string", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def get_sebooleanxxx_data(self, pom_param_list):
+    def get_sebooleansetup_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
@@ -535,6 +538,16 @@ class StatementDataSearcher:
         parser_arg = argparse.ArgumentParser()
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("boolean", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_sebooleanrestore_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = argparse.ArgumentParser()
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("boolean", type=str, nargs='*')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlservicexxx_data(self, pom_param_list):

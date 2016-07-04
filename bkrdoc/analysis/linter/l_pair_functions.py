@@ -42,9 +42,9 @@ class LinterPairFunctions:
              'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', 'rlPhaseEnd', before=start_phase_names, each=True),
              'rlFileBackup': Match('rlFileBackup', 'rlFileRestore', flag_source='namespace'),
              'rlVirtualXStart': Match('rlVirtualXStart', 'rlVirtualXStop', flag_source='name'),
-             'rlServiceStart': Match('rlServiceStart', 'rlServiceStop', before=['rlServiceRestore'], flag_source='service')}
-    # Pair(func = 'rlSEBooleanOn', pair = 'rlSEBooleanRestore'), # boolean(s)
-    # Pair(func = 'rlSEBooleanOff', pair = 'rlSEBooleanRestore') } # restore potentially all w/ no arguments given
+             'rlServiceStart': Match('rlServiceStart', 'rlServiceStop', before=['rlServiceRestore'], flag_source='service'),
+             'rlSEBooleanOn': Match('rlSEBooleanOn', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True),
+             'rlSEBooleanOff': Match('rlSEBooleanOff', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True)}
 
     currently_unmatched = []
     errors = []
@@ -53,12 +53,14 @@ class LinterPairFunctions:
         self.currently_unmatched = []
         self.errors = []
 
-    def analyse(self, list):
+    def analyse(self, _list):
 
-        for line in list:
-            match = self.get_match(line.argname)
+        for line in _list:
+            match = self.get_relevant_match(line.argname)
             line_flags = self.get_flag(line, match)
-            if type(line_flags) == type([]):
+            if isinstance(line_flags, list):
+                if not line_flags:
+                    line_flags = [None]       # analyse commands with empty optional argument lists
                 for x in line_flags:
                     setattr(line, match.flag_source, x)
                     self.analyse_single_line(line)
@@ -73,12 +75,17 @@ class LinterPairFunctions:
         for elem in self.currently_unmatched:
                 if self.command_is_before_end_function(line, elem):
                     self.add_error(line.argname + " before matching " + elem.pair)
-                    break
+
+        if self.is_end_function_that_restores_all(line):
+            size_before_filter = len(self.currently_unmatched)
+            self.currently_unmatched = [x for x in self.currently_unmatched if x.pair != line.argname]
+            if size_before_filter > len(self.currently_unmatched):
+                return   # would mess looking for Ends without Begins
 
         for elem in self.currently_unmatched:
             if self.matches_opposite(line, elem):
                 self.currently_unmatched.remove(elem)
-                return  # would mess looking for Ends without Begins
+                return
 
         if line.argname in self.pairs.keys() and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
             match = copy.deepcopy(self.pairs[line.argname])
@@ -86,9 +93,9 @@ class LinterPairFunctions:
             self.currently_unmatched.insert(0, match)
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
-            self.add_error(line.argname + " without a previous begin", flag=self.get_flag(line, self.get_match(line.argname)))
+            self.add_error(line.argname + " without a previous begin", flag=self.get_flag(line, self.get_relevant_match(line.argname)))
 
-    def get_match(self, command):
+    def get_relevant_match(self, command):
         if command in self.pairs.keys():
             return self.pairs[command]
         for entry in self.pairs.values():
@@ -97,6 +104,10 @@ class LinterPairFunctions:
 
     def command_is_before_end_function(self, line, elem):
         return elem.before is not None and line.argname in elem.before and elem.flag == self.get_flag(line, elem)
+
+    def is_end_function_that_restores_all(self, line):
+        match = self.get_relevant_match(line.argname)
+        return match is not None and line.argname == match.pair and match.restores_all and not self.get_flag(line, match)
 
     def matches_opposite(self, line, elem):
         return line.argname == elem.pair and (elem.flag_source is None or elem.flag == self.get_flag(line, elem))
@@ -114,7 +125,7 @@ class LinterPairFunctions:
 
     def add_error(self, msg, flag=None):
         if flag is not None:
-            msg += " with flag " + flag
+            msg += " with flag `" + flag + "`"
         self.errors.append(error.Error(message=msg))
 
     def get_errors(self):
