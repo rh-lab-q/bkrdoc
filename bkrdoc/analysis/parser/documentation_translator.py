@@ -102,7 +102,10 @@ class DocumentationTranslator:
         elif condition.is_rlservicexxx(argname):
             self.set_rlservicexxx_data(argparse_data)
 
-        elif condition.is_sebooleanxxx_command(argname):
+        elif condition.is_sebooleansetup_command(argname):
+            self.set_sebooleanxxx_data(argparse_data)
+
+        elif condition.is_sebooleanrestore_command(argname):
             self.set_sebooleanxxx_data(argparse_data)
 
         elif condition.is_rlshowrunningkernel_command(argname):

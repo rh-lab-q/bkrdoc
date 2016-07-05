@@ -1,7 +1,8 @@
 __author__ = 'Zuzana Baranova'
 
 import copy
-from bkrdoc.analysis.linter import error
+from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.parser import bkrdoc_parser
 
 
 class Match(object):
@@ -31,10 +32,10 @@ class Match(object):
         self.flag = flag
 
 
-class LinterPairFunctions:
+class LinterPairFunctions(common.LinterRule):
     """Does the logical analysis of matching paired commands."""
 
-    start_phase_names = ['rlPhaseStart', 'rlPhaseStartTest', 'rlPhaseStartSetup', 'rlPhaseStartCleanup']
+    start_phase_names = bkrdoc_parser.Parser.start_phase_names
 
     pairs = {'rlPhaseStart': Match('rlPhaseStart', 'rlPhaseEnd', before=start_phase_names, each=True),
              'rlPhaseStartTest': Match('rlPhaseStartTest', 'rlPhaseEnd', before=start_phase_names, each=True),
@@ -47,15 +48,15 @@ class LinterPairFunctions:
              'rlSEBooleanOff': Match('rlSEBooleanOff', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True)}
 
     currently_unmatched = []
-    errors = []
 
-    def __init__(self):
+    def __init__(self, _list):
         self.currently_unmatched = []
         self.errors = []
+        self._list = _list
 
-    def analyse(self, _list):
+    def analyse(self):
 
-        for line in _list:
+        for line in self._list:
             match = self.get_relevant_match(line.argname)
             line_flags = self.get_flag(line, match)
             if isinstance(line_flags, list):
@@ -93,9 +94,12 @@ class LinterPairFunctions:
             self.currently_unmatched.insert(0, match)
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
-            self.add_error(line.argname + " without a previous begin", flag=self.get_flag(line, self.get_relevant_match(line.argname)))
+            flag = self.get_flag(line, self.get_relevant_match(line.argname))
+            self.add_error(line.argname + " without a previous begin", flag=flag)
 
     def get_relevant_match(self, command):
+        """Fetches the Match instance from 'pairs' map associated with 'command'
+        (is the command, its pair or in 'before' of the command)."""
         if command in self.pairs.keys():
             return self.pairs[command]
         for entry in self.pairs.values():
@@ -103,6 +107,8 @@ class LinterPairFunctions:
                 return entry
 
     def command_is_before_end_function(self, line, elem):
+        """Checks whether analysed line consists of a command that is
+        (and should not happen) before elem's ending pair."""
         return elem.before is not None and line.argname in elem.before and elem.flag == self.get_flag(line, elem)
 
     def is_end_function_that_restores_all(self, line):
@@ -123,10 +129,3 @@ class LinterPairFunctions:
             return None
         return getattr(line, elem.flag_source)
 
-    def add_error(self, msg, flag=None):
-        if flag is not None:
-            msg += " with flag `" + flag + "`"
-        self.errors.append(error.Error(message=msg))
-
-    def get_errors(self):
-        return self.errors

@@ -35,9 +35,11 @@ class Parser(object):
                     "rlWaitForFile", "rlWaitForCmd", "rlImport", "rlDejaSum", "rlPerfTime_AvgFromRuns",
                     "rlPerfTime_RunsInTime", "rlLogMetricLow", "rlLogMetricHigh", "rlShowRunningKernel",
                     "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch",
-                    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie",
+                    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", "rlPass", "rlFail",
                     "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",
                     "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText"]
+
+    start_phase_names = ['rlPhaseStart', 'rlPhaseStartTest', 'rlPhaseStartSetup', 'rlPhaseStartCleanup']
 
     phases = []
     test_functions = []
@@ -123,7 +125,7 @@ class Parser(object):
         rlrun_argparse.command = data_searcher.parsed_param_ref
         return rlrun_argparse
 
-    def divide_parsed_argparse_data_into_phase_conainers(self):
+    def divide_parsed_argparse_data_into_phase_containers(self):
         cond = conditions_for_commands.ConditionsForCommands()
         for argparse_data in self.argparse_data_list:
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
