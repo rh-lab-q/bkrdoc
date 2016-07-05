@@ -1,6 +1,10 @@
 language: python
 python:
   - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
 install:
   - wget $(curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
   - tar -xzvf $(basename $(curl -s https://api.github.com/repos/petr-muller/bashlex/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4))
