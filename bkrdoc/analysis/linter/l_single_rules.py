@@ -10,7 +10,10 @@ class LinterSingleRules(common.LinterRule):
     As of now this includes:
         Beakerlib environment must be set at the beginning.
         Journal must be started before any other command.
+        Deprecated commands.
     """
+
+    deprecated_commands = {'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch']}
 
     ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
@@ -22,6 +25,7 @@ class LinterSingleRules(common.LinterRule):
     def analyse(self):
         self.check_environment_set()
         self.check_journal_started()
+        self.check_deprecated_commands()
 
     def check_environment_set(self):
         self.constraint_check(self.sets_beaker_env, self.ENV_NOT_SET)
@@ -40,6 +44,17 @@ class LinterSingleRules(common.LinterRule):
             if self.is_beakerlib_command(line.argname):
                 self.add_error(msg=error_msg)
                 return
+
+    def check_deprecated_commands(self):
+
+        for line in self._list:
+            if line.argname in self.deprecated_commands:
+                msg = line.argname + " command is deprecated"
+                use_instead = self.deprecated_commands[line.argname]
+                if use_instead:
+                    msg += ", instead use: " + ', '.join(use_instead)
+                self.add_error(msg=msg)
+
 
     @staticmethod
     def is_beakerlib_command(command):
