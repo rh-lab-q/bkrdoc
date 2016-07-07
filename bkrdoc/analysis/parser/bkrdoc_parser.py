@@ -58,6 +58,7 @@ class Parser(object):
         self.argparse_data_list = []
         self.variables = ""
         self.test_functions = []
+        self.errors = []
 
     def open_file(self):
         if self.file_name[(len(self.file_name) - 3):len(self.file_name)] == ".sh":
@@ -109,12 +110,16 @@ class Parser(object):
                     nodevistor.erase_parsing_subject_variable()
                     container.search_data(self, nodevistor)
             else:
+                data_searcher.parsed_param_ref = ""
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()
                 data_argparse = data_searcher.parsed_param_ref
+                if not data_argparse:
+                    continue
                 if conditions.is_rlrun_command(data_argparse.argname):
                     data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
                 self.argparse_data_list.append(data_argparse)
+        self.errors += data_searcher.get_errors()
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
         data_searcher = statement_data_searcher.StatementDataSearcher()
@@ -123,6 +128,7 @@ class Parser(object):
         data_searcher.parse_command(nodevisitor.get_parsed_container())
         nodevisitor.erase_parsing_subject_variable()
         rlrun_argparse.command = data_searcher.parsed_param_ref
+        self.errors += data_searcher.get_errors() ##
         return rlrun_argparse
 
     def divide_parsed_argparse_data_into_phase_containers(self):
@@ -182,3 +188,6 @@ class Parser(object):
 
     def set_test_launch(self, number_of_variable):
         self.test_launch = number_of_variable
+
+    def get_errors(self):
+        return self.errors

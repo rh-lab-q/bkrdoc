@@ -62,8 +62,8 @@ class LinterPairFunctions(common.LinterRule):
             if isinstance(line_flags, list):
                 if not line_flags:
                     line_flags = [None]       # analyse commands with empty optional argument lists
-                for x in line_flags:
-                    setattr(line, match.flag_source, x)
+                for _flag in line_flags:
+                    setattr(line, match.flag_source, _flag)
                     self.analyse_single_line(line)
             else:
                 self.analyse_single_line(line)
@@ -116,7 +116,7 @@ class LinterPairFunctions(common.LinterRule):
         return match is not None and line.argname == match.pair and match.restores_all and not self.get_flag(line, match)
 
     def matches_opposite(self, line, elem):
-        return line.argname == elem.pair and (elem.flag_source is None or elem.flag == self.get_flag(line, elem))
+        return line.argname == elem.pair and (not elem.flag_source or elem.flag == self.get_flag(line, elem))
 
     def already_present(self, line):
         match = self.pairs[line.argname]
@@ -125,7 +125,7 @@ class LinterPairFunctions(common.LinterRule):
 
     @staticmethod
     def get_flag(line, elem):
-        if elem is None or elem.flag_source is None:
+        if not elem or not elem.flag_source:
             return None
         return getattr(line, elem.flag_source)
 

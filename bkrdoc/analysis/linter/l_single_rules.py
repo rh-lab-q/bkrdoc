@@ -30,6 +30,9 @@ class LinterSingleRules(common.LinterRule):
         self.constraint_check(self.is_journal_start, self.JOURNAL_NOT_STARTED)
 
     def constraint_check(self, constraint_met, error_msg):
+        if not self._list:
+            self.add_error(msg=error_msg)
+
         for line in self._list:
             if constraint_met(line):
                 return

@@ -22,7 +22,7 @@ class LinterRule(object):
         pass
 
     def add_error(self, msg, flag=None):
-        if flag is not None:
+        if flag:
             msg += " with flag `" + flag + "`"
         self.errors.append(Error(message=msg))
 
