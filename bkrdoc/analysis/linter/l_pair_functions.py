@@ -109,14 +109,20 @@ class LinterPairFunctions(common.LinterRule):
     def command_is_before_end_function(self, line, elem):
         """Checks whether analysed line consists of a command that is
         (and should not happen) before elem's ending pair."""
-        return elem.before is not None and line.argname in elem.before and elem.flag == self.get_flag(line, elem)
+        return elem.before is not None \
+               and line.argname in elem.before \
+               and elem.flag == self.get_flag(line, elem)
 
     def is_end_function_that_restores_all(self, line):
         match = self.get_relevant_match(line.argname)
-        return match is not None and line.argname == match.pair and match.restores_all and not self.get_flag(line, match)
+        return match is not None \
+               and line.argname == match.pair \
+               and match.restores_all \
+               and not self.get_flag(line, match)
 
     def matches_opposite(self, line, elem):
-        return line.argname == elem.pair and (not elem.flag_source or elem.flag == self.get_flag(line, elem))
+        return line.argname == elem.pair \
+               and (not elem.flag_source or elem.flag == self.get_flag(line, elem))
 
     def already_present(self, line):
         match = self.pairs[line.argname]

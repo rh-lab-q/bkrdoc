@@ -8,6 +8,12 @@ class Error(object):
         self.line = line
         self.message = message
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class LinterRule(object):
     """Superclass for individual classes that check for a specific type of errors.

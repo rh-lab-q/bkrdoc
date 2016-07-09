@@ -15,3 +15,4 @@ install:
 script:
   - python tests/parser_testing.py -v
   - python tests/tagged_generator_tests.py -v
+  - python tests/linter_tests.py -v
