@@ -1,7 +1,7 @@
 __author__ = 'Zuzana Baranova'
 
 import unittest
-import argparse
+import argparse, sys
 from bkrdoc.analysis.linter import output_generator, common, l_single_rules, linter, l_pair_functions
 from bkrdoc.analysis.parser import statement_data_searcher
 
@@ -142,19 +142,22 @@ class TestPairFunctions(unittest.TestCase):
 
 class TestArgparseParsingErrors(unittest.TestCase):
 
+    # Py2 vs Py3: argparse returns a different error message
+    if sys.version_info[0] == 2:
+        TOO_FEW_ARGS = "too few arguments"
+    else:
+        TOO_FEW_ARGS = "the following arguments are required: command"
+
     def test_rlrun_error(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
         st_data_search.check_err(st_data_search.get_rlrun_data, ['rlRun'])
-        err_msg = "rlRun [-h] [-t] [-l] [-c] [-s] argname command [status] [comment] " \
-                  "|| the following arguments are required: command"
+        err_msg = "rlRun [-t] [-l] [-c] [-s] command [status] [comment] || " + self.TOO_FEW_ARGS
         self.assertEqual([err(err_msg)], st_data_search.get_errors())
 
-    # the only method that takes multiple params -- realized as a tuple
     def test_rlwaitfor_error(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
-        st_data_search.check_err(st_data_search.get_rlwaitforxxx_data, (['rlWaitForCmd'], 'rlWaitForCmd'))
-        err_msg = "rlWaitForCmd [-h] [-p P] [-t T] [-d D] [-m M] [-r R] argname command " \
-                  "|| the following arguments are required: command"
+        st_data_search.check_err(st_data_search.get_rlwaitforxxx_data, ['rlWaitForCmd'])
+        err_msg = "rlWaitForCmd [-p P] [-t T] [-d D] [-m M] [-r R] command || " + self.TOO_FEW_ARGS
         self.assertEqual([err(err_msg)], st_data_search.get_errors())
 
 
@@ -166,9 +169,8 @@ class TestComplexFile(unittest.TestCase):
         gener = output_generator.OutputGenerator("./examples/bkrlint/test.sh")
         gener.analyse()
         errors = gener._linter.errors
-        self.assertEqual(len(errors), 6)
-        expected_errors = [err("rlRun [-h] [-t] [-l] [-c] [-s] argname command [status] [comment] || unrecognized arguments: -o"),
-                           err("rlMount server share mountpoint || the following arguments are required: share, mountpoint"),
+        self.assertEqual(len(errors), 5)
+        expected_errors = [err("rlRun [-t] [-l] [-c] [-s] command [status] [comment] || unrecognized arguments: -o"),
                            err("rlPhaseEnd without a previous begin"),
                            err("rlFileBackup without a matching rlFileRestore with flag `wut`"),
                            err("Journal was not started before a beakerlib command was used."),

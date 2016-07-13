@@ -353,9 +353,9 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_rlLog_commands(self):
         parser = bkrdoc_parser.Parser("nothing")
-        parser.parse_data("rlLogWarning ahoj logfile priorita --prio-label")
+        parser.parse_data("rlLog ahoj logfile priorita --prio-label")
         command_argparse = parser.argparse_data_list[0]
-        self.assertEqual(command_argparse.argname, "rlLogWarning")
+        self.assertEqual(command_argparse.argname, "rlLog")
         self.assertEqual(command_argparse.logfile, "logfile")
         self.assertEqual(command_argparse.priority, "priorita")
         self.assertEqual(command_argparse.prio_label, True)

@@ -61,7 +61,7 @@ class Parser(object):
         self.errors = []
 
     def open_file(self):
-        if self.file_name[(len(self.file_name) - 3):len(self.file_name)] == ".sh":
+        if self.file_name.endswith(".sh"):
             try:
                 with open(self.file_name, "r") as input_file:
                     self.file_name = self.file_name
@@ -135,10 +135,10 @@ class Parser(object):
         cond = conditions_for_commands.ConditionsForCommands()
         for argparse_data in self.argparse_data_list:
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
-                if cond.is_phase(argparse_data.argname):
+                if cond.is_phase_start(argparse_data.argname) or cond.is_phase_startxxx(argparse_data.argname):
                     p_name = argparse_data.argname[len("rlPhaseStart"):]
-                    if argparse_data.description is not None and argparse_data.description is not "":
-                        self.phases.append(data_containers.PhaseContainer(p_name + ": " + argparse_data.description))
+                    if argparse_data.name is not None and argparse_data.name is not "":
+                        self.phases.append(data_containers.PhaseContainer(p_name + ": " + argparse_data.name))
                     else:
                         self.phases.append(data_containers.PhaseContainer(p_name))
                 else:

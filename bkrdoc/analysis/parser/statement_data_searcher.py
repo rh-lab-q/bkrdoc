@@ -81,7 +81,10 @@ class StatementDataSearcher:
         elif condition.is_rlfilerestore_command(first):
             self.check_err(self.get_rlfile_restore_data, pom_list)
 
-        elif condition.is_phase(first):
+        elif condition.is_phase_start(first):
+            self.check_err(self.get_rlphasestart_data, pom_list)
+
+        elif condition.is_phase_startxxx(first):
             self.check_err(self.get_rlphasestartxxx_data, pom_list)
 
         elif condition.is_phase_journal_end(first):
@@ -160,7 +163,7 @@ class StatementDataSearcher:
             self.check_err(self.get_rlimport_data, pom_list)
 
         elif condition.is_rlwaitforxxx_command(first):
-            self.check_err(self.get_rlwaitforxxx_data, (pom_list, first))
+            self.check_err(self.get_rlwaitforxxx_data, pom_list)
 
         elif condition.is_rlwaitfor_command(first):
             self.check_err(self.get_rlwaitfor_data, pom_list)
@@ -259,6 +262,17 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
+    def get_rlphasestart_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("type", type=str)
+        parser_arg.add_argument("name", type=str, nargs="?")
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+
     def get_rlphasestartxxx_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
@@ -266,25 +280,28 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("description", type=str, nargs="?")
+        parser_arg.add_argument("name", type=str, nargs="?")
         self.parsed_param_ref, unknown = parser_arg.parse_known_args([pom_param_list[0]])
         # hack for --help message
         rest = ""
         for member in pom_param_list[1:]:
             rest += member + " "
         rest = rest.strip()
-        self.parsed_param_ref.description = rest
+        self.parsed_param_ref.name = rest
 
     def get_rljournalprint_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        command = pom_param_list[0]
+        parser_arg = custom_argparse.ArgumentParser(prog=command)
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("type", type=str, nargs="?")
-        parser_arg.add_argument('--full-journal', dest='full_journal',
+        if command.endswith("Text"):
+            parser_arg.add_argument('--full-journal', dest='full_journal',
                                 action='store_true', default=False)
+        else:
+            parser_arg.add_argument("type", type=str, nargs="?")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlshowpackageversion_data(self, pom_param_list):
@@ -340,10 +357,16 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("message", type=str)
         parser_arg.add_argument("logfile", type=str, nargs="?")
-        parser_arg.add_argument("priority", type=str, nargs="?")
-        parser_arg.add_argument('--prio-label', dest='prio_label',
-                                action='store_true', default=False)
+        command_suffix = pom_param_list[0][len("rllog"):]
+        if not command_suffix:
+            parser_arg.add_argument("priority", type=str, nargs="?")
+            parser_arg.add_argument('--prio-label', dest='prio_label',
+                                    action='store_true', default=False)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        if command_suffix:
+            self.parsed_param_ref.priority = command_suffix.upper()
+            self.parsed_param_ref.prio_label = True
+
 
     def get_rlshowrunningkernel_data(self, pom_param_list):
         """
@@ -462,14 +485,14 @@ class StatementDataSearcher:
         parser_arg.add_argument("-s", type=str, help="SIGNAL", default="SIGTERM")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def get_rlwaitforxxx_data(self, list_command_tuple):
-        pom_param_list, command = list_command_tuple
+    def get_rlwaitforxxx_data(self, pom_param_list):
+        command = pom_param_list[0]
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         :param command: command name
         """
-        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg = custom_argparse.ArgumentParser(prog=command)
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("-p", type=str, help="PID")
         parser_arg.add_argument("-t", type=str, help="time")
@@ -759,4 +782,8 @@ class StatementDataSearcher:
 
     @staticmethod
     def strip_argparse_error_of_usage_info(str):
-        return str[len('usage: '):].replace(' [-h] argname', '').replace('\n', ' || ')
+        """Gets rid of 'usage: ', '[-h]' for help, 'argname'
+        and replaces the last newline with ||"""
+        str = str[len('usage: '):].replace(' [-h]', '').replace(' argname', '')
+        str = str.rsplit('\n', 1)
+        return ' || '.join(str)

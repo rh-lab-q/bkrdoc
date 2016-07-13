@@ -21,7 +21,6 @@ rlPhaseStartTest
 		
 	rlRun "touch dir/a"
 	rlRun "touch dir2/t"
-	rlMount server 
 
 rlPhaseEnd
 

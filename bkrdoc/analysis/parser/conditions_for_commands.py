@@ -149,8 +149,13 @@ class ConditionsForCommands:
     def is_rlshowrunningkernel_command(self, command):
         return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
 
-    def is_phase(self, line):
-        return line[0:len("rlphasestart")] == "rlPhaseStart"
+    def is_phase_start(self, line):
+        return line == "rlPhaseStart"
+
+    def is_phase_startxxx(self, line):
+        return any([self.is_phase_clean(line),
+                    self.is_phase_setup(line),
+                    self.is_phase_test(line)])
 
     def is_phase_clean(self, line):
         return line[0:len("rlphasestartcleanup")] == "rlPhaseStartCleanup"
