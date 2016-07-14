@@ -117,6 +117,9 @@ class StatementDataSearcher:
         elif condition.is_rlgetphase_or_test_state_command(first):
             self.check_err(self.get_rlget_commands_data, pom_list)
 
+        elif condition.is_rllogmetric_command(first):
+            self.check_err(self.get_rllogmetric_data, pom_list)
+
         elif condition.is_rlreport_command(first):
             self.check_err(self.get_rlreport_data, pom_list)
 
@@ -346,6 +349,18 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("message", type=str)
         parser_arg.add_argument("file", type=str, nargs="*")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_rllogmetric_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("name", type=str)
+        parser_arg.add_argument("value", type=float)
+        parser_arg.add_argument("tolerance", type=float, nargs="?")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rllog_data(self, pom_param_list):
@@ -774,16 +789,18 @@ class StatementDataSearcher:
         try:
             get_data_method(argument_list)
         except argparse.ArgumentError as exc:
-            msg = self.strip_argparse_error_of_usage_info(exc.message)
+            msg = self.strip_argparse_error_of_usage_info(exc.message, argument_list[0])
             self.errors.append(common.Error(message=msg))
 
     def get_errors(self):
         return self.errors
 
     @staticmethod
-    def strip_argparse_error_of_usage_info(str):
-        """Gets rid of 'usage: ', '[-h]' for help, 'argname'
-        and replaces the last newline with ||"""
-        str = str[len('usage: '):].replace(' [-h]', '').replace(' argname', '')
+    def strip_argparse_error_of_usage_info(str, command):
+        """Gets rid of '[-h]' for help, 'argname',
+         prefixes command name and replaces the last newline with ||"""
+        str = str.replace(' [-h]', '').replace(' argname', '')
+        if not str.startswith(command):
+            str = command + ", " + str
         str = str.rsplit('\n', 1)
         return ' || '.join(str)
