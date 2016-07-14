@@ -20,6 +20,11 @@ class DocumentationGenerator:
     def parse_given_file(self, file):
         self._parser_ref = bkrdoc_parser.Parser(file)
         self._parser_ref.parse_data()
+
+        errors = self._parser_ref.errors
+        if errors:
+            raise argparse.ArgumentError(None, message=errors[0].message)
+
         self._parser_ref.divide_parsed_argparse_data_into_phase_containers()
         self._phases = self._parser_ref.get_phases()
 

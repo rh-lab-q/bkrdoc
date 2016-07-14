@@ -482,7 +482,7 @@ class DocumentationTranslator:
         action = ["measures"]
         self.inf_ref = doc_information_representation.DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
-    def set_rlcleanup_apend_or_prepend_data(self, argparse_data):
+    def set_rlcleanup_append_or_prepend_data(self, argparse_data):
         """
         Sets DocumentationInformation object to specified BeakerLib command
         :param argparse_data: argparse object

@@ -511,7 +511,7 @@ class InformationCommandWait(InformationUnit):
                 self.information += " must be running"
         else:  # rlWait
             if subjects:
-                self.information = "Wait for " + self.connect_multiple_facts(subjects, 3)
+                self.information = "Waits for " + self.connect_multiple_facts(subjects, 3)
             else:
                 self.information = "All currently active child processes are"
                 self.information += " waited for, and the return status is zero"
@@ -759,7 +759,7 @@ class InformationFileBackup(InformationUnit):
         else:
             self.information += " is backed up"
         if not self.is_list_empty(option):
-            self.information += "with namespace " + option[0]
+            self.information += " with namespace " + option[0]
         self.check_status_and_add_information(status)
 
 
@@ -820,7 +820,7 @@ class InformationMountpointExists(InformationUnit):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Directory "
         self.information += subjects[0]
-        self.information += "must be a mountpoint"
+        self.information += " must be a mountpoint"
 
         if subjects[1]:
             self.information += " to server " + subjects[1]
@@ -855,9 +855,9 @@ class InformationMountpointCheck(InformationUnit):
         subjects = self.information_obj.get_topic_subject()
         self.information = "Checks if directory "
         self.information += subjects[0]
-        self.information += "is a mountpoint"
+        self.information += " is a mountpoint"
 
-        if subjects[1]:
+        if len(subjects)==2:
             self.information += " to server " + subjects[1]
         self.check_status_and_add_information(self.information_obj.get_status())
 
