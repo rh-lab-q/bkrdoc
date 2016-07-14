@@ -17,7 +17,7 @@ class ConditionsForCommands:
         return command in pom_list
 
     def is_rlwaitfor_command(self, command):
-        return command == "rlWaitFor"
+        return command == "rlWait"
 
     def is_rlwaitforsocket_command(self, command):
         return command == "rlWaitForSocket"
@@ -41,7 +41,7 @@ class ConditionsForCommands:
     def is_rlperftime_avgfromruns_command(self, command):
         return command == "rlPerfTime_AvgFromRuns"
 
-    def is_rlcleanup_apend_or_prepend_command(self, command):
+    def is_rlcleanup_append_or_prepend_command(self, command):
         return command == "rlCleanupAppend" or command == "rlCleanupPrepend"
 
     def is_seboolean_on_off_command(self, command):
@@ -69,6 +69,9 @@ class ConditionsForCommands:
 
     def is_get_or_check_makefile_requires(self, command):
         return command == "rlCheckMakefileRequires" or command == "rlGetMakefileRequires"
+
+    def is_checkrequirements(self, command):
+        return command == "rlCheckRequirements"
 
     def is_rlmount(self, command):
         return command == "rlMount"
@@ -104,7 +107,8 @@ class ConditionsForCommands:
         return line[0:len("rlAssert")] == "rlAssert" or line in pom_list
 
     def is_rpm_command(self, command):
-        return command[-3:] == "Rpm"
+        pom_list = ["rlCheckRpm", "rlAssertRpm", "rlAssertNotRpm"]
+        return command in pom_list
 
     def is_rlrun_command(self, line):
         return line[0:len("rlRun")] == "rlRun"

@@ -114,8 +114,8 @@ class DocumentationTranslator:
         elif condition.is_get_or_check_makefile_requires(argname):
             self.set_rlget_or_rlcheck_makefilerequeries_data(argparse_data)
 
-        elif condition.is_rlcleanup_apend_or_prepend_command(argname):
-            self.set_rlcleanup_apend_or_prepend_data(argparse_data)
+        elif condition.is_rlcleanup_append_or_prepend_command(argname):
+            self.set_rlcleanup_append_or_prepend_data(argparse_data)
 
         elif condition.is_rlfilesubmit_command(argname):
             self.set_rlfilesubmit_data(argparse_data)

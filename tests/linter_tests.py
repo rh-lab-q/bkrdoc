@@ -151,13 +151,19 @@ class TestArgparseParsingErrors(unittest.TestCase):
     def test_rlrun_error(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
         st_data_search.check_err(st_data_search.get_rlrun_data, ['rlRun'])
-        err_msg = "rlRun [-t] [-l] [-c] [-s] command [status] [comment] || " + self.TOO_FEW_ARGS
+        err_msg = "rlRun, usage: rlRun [-t] [-l] [-c] [-s] command [status] [comment] || " + self.TOO_FEW_ARGS
         self.assertEqual([err(err_msg)], st_data_search.get_errors())
 
     def test_rlwaitfor_error(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
         st_data_search.check_err(st_data_search.get_rlwaitforxxx_data, ['rlWaitForCmd'])
-        err_msg = "rlWaitForCmd [-p P] [-t T] [-d D] [-m M] [-r R] command || " + self.TOO_FEW_ARGS
+        err_msg = "rlWaitForCmd, usage: rlWaitForCmd [-p P] [-t T] [-d D] [-m M] [-r R] command || " + self.TOO_FEW_ARGS
+        self.assertEqual([err(err_msg)], st_data_search.get_errors())
+
+    def test_float_error(self):
+        st_data_search = statement_data_searcher.StatementDataSearcher()
+        st_data_search.check_err(st_data_search.get_rllogmetric_data, ['rlLogMetricLow', "0.9", 'notint'])
+        err_msg = "rlLogMetricLow, invalid float value: 'notint'"
         self.assertEqual([err(err_msg)], st_data_search.get_errors())
 
 
@@ -170,7 +176,7 @@ class TestComplexFile(unittest.TestCase):
         gener.analyse()
         errors = gener._linter.errors
         self.assertEqual(len(errors), 5)
-        expected_errors = [err("rlRun [-t] [-l] [-c] [-s] command [status] [comment] || unrecognized arguments: -o"),
+        expected_errors = [err("rlRun, usage: rlRun [-t] [-l] [-c] [-s] command [status] [comment] || unrecognized arguments: -o"),
                            err("rlPhaseEnd without a previous begin"),
                            err("rlFileBackup without a matching rlFileRestore with flag `wut`"),
                            err("Journal was not started before a beakerlib command was used."),
