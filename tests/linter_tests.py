@@ -143,22 +143,24 @@ class TestPairFunctions(unittest.TestCase):
 class TestArgparseParsingErrors(unittest.TestCase):
 
     # Py2 vs Py3: argparse returns a different error message
-    if sys.version_info[0] == 2:
-        TOO_FEW_ARGS = "too few arguments"
-    else:
-        TOO_FEW_ARGS = "the following arguments are required: command"
+    TOO_FEW_ARGS = ["too few arguments",
+                    "the following arguments are required: command"]
+
+    def _test_command(self, command, command_list, err_expected):
+        st_data_search = statement_data_searcher.StatementDataSearcher()
+        st_data_search.check_err(getattr(st_data_search, command), command_list)
+        err_msg_got = st_data_search.get_errors()[0].message
+        self.assertTrue(err_msg_got.startswith(err_expected))
+        remainder = err_msg_got[len(err_expected):]
+        self.assertTrue(remainder in self.TOO_FEW_ARGS, "got msg: " + remainder)
 
     def test_rlrun_error(self):
-        st_data_search = statement_data_searcher.StatementDataSearcher()
-        st_data_search.check_err(st_data_search.get_rlrun_data, ['rlRun'])
-        err_msg = "rlRun, usage: rlRun [-t] [-l] [-c] [-s] command [status] [comment] || " + self.TOO_FEW_ARGS
-        self.assertEqual([err(err_msg)], st_data_search.get_errors())
+        message = "rlRun, usage: rlRun [-t] [-l] [-c] [-s] command [status] [comment] || "
+        self._test_command("get_rlrun_data", ['rlRun'], message)
 
     def test_rlwaitfor_error(self):
-        st_data_search = statement_data_searcher.StatementDataSearcher()
-        st_data_search.check_err(st_data_search.get_rlwaitforxxx_data, ['rlWaitForCmd'])
-        err_msg = "rlWaitForCmd, usage: rlWaitForCmd [-p P] [-t T] [-d D] [-m M] [-r R] command || " + self.TOO_FEW_ARGS
-        self.assertEqual([err(err_msg)], st_data_search.get_errors())
+        message = "rlWaitForCmd, usage: rlWaitForCmd [-p P] [-t T] [-d D] [-m M] [-r R] command || "
+        self._test_command("get_rlwaitforxxx_data", ['rlWaitForCmd'], message)
 
     def test_float_error(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
