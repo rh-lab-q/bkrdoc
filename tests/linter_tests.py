@@ -18,8 +18,8 @@ def err(msg):
 def get_errors_from_parse_list(parse_list):
     """Uses full linter analysis"""
     gener = output_generator.OutputGenerator("")
-    gener._linter.analyse(parse_list)
-    return gener._linter.errors
+    gener.main_linter.analyse(parse_list)
+    return gener.main_linter.errors
 
 
 def list_contains(self, sublist,_list):
@@ -176,7 +176,7 @@ class TestComplexFile(unittest.TestCase):
     def test_complex(self):
         gener = output_generator.OutputGenerator("./examples/bkrlint/test.sh")
         gener.analyse()
-        errors = gener._linter.errors
+        errors = gener.main_linter.errors
         self.assertEqual(len(errors), 5)
         expected_errors = [err("rlRun, usage: rlRun [-t] [-l] [-c] [-s] command [status] [comment] || unrecognized arguments: -o"),
                            err("rlPhaseEnd without a previous begin"),

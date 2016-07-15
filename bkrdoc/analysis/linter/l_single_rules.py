@@ -18,9 +18,9 @@ class LinterSingleRules(common.LinterRule):
     ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
 
-    def __init__(self, _list):
+    def __init__(self, parsed_input_list):
         self.errors = []
-        self._list = _list
+        self.parsed_input_list = parsed_input_list
 
     def analyse(self):
         self.check_environment_set()
@@ -34,10 +34,10 @@ class LinterSingleRules(common.LinterRule):
         self.constraint_check(self.is_journal_start, self.JOURNAL_NOT_STARTED)
 
     def constraint_check(self, constraint_met, error_msg):
-        if not self._list:
+        if not self.parsed_input_list:
             self.add_error(msg=error_msg)
 
-        for line in self._list:
+        for line in self.parsed_input_list:
             if constraint_met(line):
                 return
 
@@ -47,13 +47,14 @@ class LinterSingleRules(common.LinterRule):
 
     def check_deprecated_commands(self):
 
-        for line in self._list:
-            if line.argname in self.deprecated_commands:
-                msg = line.argname + " command is deprecated"
-                use_instead = self.deprecated_commands[line.argname]
-                if use_instead:
-                    msg += ", instead use: " + ', '.join(use_instead)
-                self.add_error(msg=msg)
+        for line in self.parsed_input_list:
+            if line.argname not in self.deprecated_commands:
+                continue
+            msg = line.argname + " command is deprecated"
+            use_instead = self.deprecated_commands[line.argname]
+            if use_instead:
+                msg += ", instead use: " + ', '.join(use_instead)
+            self.add_error(msg=msg)
 
 
     @staticmethod

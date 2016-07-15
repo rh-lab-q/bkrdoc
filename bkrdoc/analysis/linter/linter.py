@@ -1,4 +1,4 @@
-__author__ = 'blurry'
+__author__ = 'Zuzana Baranova'
 
 from bkrdoc.analysis.linter import l_pair_functions, l_single_rules
 

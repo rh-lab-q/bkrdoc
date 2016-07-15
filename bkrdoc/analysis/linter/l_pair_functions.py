@@ -49,21 +49,21 @@ class LinterPairFunctions(common.LinterRule):
 
     currently_unmatched = []
 
-    def __init__(self, _list):
+    def __init__(self, parsed_input_list):
         self.currently_unmatched = []
         self.errors = []
-        self._list = _list
+        self.parsed_input_list = parsed_input_list
 
     def analyse(self):
 
-        for line in self._list:
+        for line in self.parsed_input_list:
             match = self.get_relevant_match(line.argname)
             line_flags = self.get_flag(line, match)
             if isinstance(line_flags, list):
                 if not line_flags:
                     line_flags = [None]       # analyse commands with empty optional argument lists
-                for _flag in line_flags:
-                    setattr(line, match.flag_source, _flag)
+                for flag in line_flags:
+                    setattr(line, match.flag_source, flag)
                     self.analyse_single_line(line)
             else:
                 self.analyse_single_line(line)
@@ -74,7 +74,7 @@ class LinterPairFunctions(common.LinterRule):
     def analyse_single_line(self, line):
 
         for elem in self.currently_unmatched:
-                if self.command_is_before_end_function(line, elem):
+                if self.is_command_before_end_function(line, elem):
                     self.add_error(line.argname + " before matching " + elem.pair)
 
         if self.is_end_function_that_restores_all(line):
@@ -106,7 +106,7 @@ class LinterPairFunctions(common.LinterRule):
             if command == entry.pair or command in entry.before:
                 return entry
 
-    def command_is_before_end_function(self, line, elem):
+    def is_command_before_end_function(self, line, elem):
         """Checks whether analysed line consists of a command that is
         (and should not happen) before elem's ending pair."""
         return elem.before is not None \
