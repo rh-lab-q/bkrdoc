@@ -2,6 +2,7 @@ __author__ = 'Zuzana Baranova'
 
 import copy
 from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.linter.catalogue import catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
 
 
@@ -69,13 +70,15 @@ class LinterPairFunctions(common.LinterRule):
                 self.analyse_single_line(line)
 
         for elem in self.currently_unmatched:
-            self.add_error(elem.func + " without a matching " + elem.pair, flag=elem.flag)
+            id, severity = catalogue['1000'][elem.func]
+            self.add_error(id, severity, elem.func + " without a matching " + elem.pair, flag=elem.flag)
 
     def analyse_single_line(self, line):
 
         for elem in self.currently_unmatched:
                 if self.is_command_before_end_function(line, elem):
-                    self.add_error(line.argname + " before matching " + elem.pair)
+                    id, severity = catalogue['1100'][elem.pair]
+                    self.add_error(id, severity, line.argname + " before matching " + elem.pair)
 
         if self.is_end_function_that_restores_all(line):
             size_before_filter = len(self.currently_unmatched)
@@ -95,7 +98,8 @@ class LinterPairFunctions(common.LinterRule):
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
             flag = self.get_flag(line, self.get_relevant_match(line.argname))
-            self.add_error(line.argname + " without a previous begin", flag=flag)
+            id, severity = catalogue['1200'][line.argname]
+            self.add_error(id, severity, line.argname + " without a previous begin", flag=flag)
 
     def get_relevant_match(self, command):
         """Fetches the Match instance from 'pairs' map associated with 'command'

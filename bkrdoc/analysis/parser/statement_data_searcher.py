@@ -4,6 +4,7 @@ import shlex
 import re
 from bkrdoc.analysis.parser import conditions_for_commands, custom_argparse
 from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.linter.catalogue import catalogue
 
 
 __author__ = 'Jiri_Kulda'
@@ -802,7 +803,8 @@ class StatementDataSearcher:
             get_data_method(argument_list)
         except argparse.ArgumentError as exc:
             msg = self.strip_argparse_error_of_usage_info(exc.message, argument_list[0])
-            self.errors.append(common.Error(message=msg))
+            id, severity = catalogue['3000']['parse_err']
+            self.errors.append(common.Error(id, severity, message=msg))
 
     def get_errors(self):
         return self.errors

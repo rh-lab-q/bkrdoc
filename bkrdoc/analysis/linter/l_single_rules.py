@@ -1,8 +1,8 @@
 __author__ = 'Zuzana Baranova'
 
 from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.linter.catalogue import catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
-
 
 class LinterSingleRules(common.LinterRule):
     """
@@ -34,15 +34,21 @@ class LinterSingleRules(common.LinterRule):
         self.constraint_check(self.is_journal_start, self.JOURNAL_NOT_STARTED)
 
     def constraint_check(self, constraint_met, error_msg):
+        if error_msg == self.ENV_NOT_SET:
+            catalogue_lookup = 'beaker_env'
+        else:
+            catalogue_lookup = 'journal_beg'
+        id, severity = catalogue['2400'][catalogue_lookup]
+
         if not self.parsed_input_list:
-            self.add_error(msg=error_msg)
+            self.add_error(id, severity, msg=error_msg)
 
         for line in self.parsed_input_list:
             if constraint_met(line):
                 return
 
             if self.is_beakerlib_command(line.argname):
-                self.add_error(msg=error_msg)
+                self.add_error(id, severity, msg=error_msg)
                 return
 
     def check_deprecated_commands(self):
@@ -54,7 +60,8 @@ class LinterSingleRules(common.LinterRule):
             use_instead = self.deprecated_commands[line.argname]
             if use_instead:
                 msg += ", instead use: " + ', '.join(use_instead)
-            self.add_error(msg=msg)
+            id, severity = catalogue['2000'][line.argname]
+            self.add_error(id, severity, msg=msg)
 
 
     @staticmethod
