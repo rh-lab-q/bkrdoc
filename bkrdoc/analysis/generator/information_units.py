@@ -240,7 +240,12 @@ class InformationJournalPrint(InformationUnit):
         Sets nature language information. This setting depends on small
         InformationUnit class.
         """
-        self.information = "Prints the content of the journal in pretty " + self.information_obj.get_topic_subject()[0]
+        self.information = "Prints the content of the journal in "
+        journal_type = self.information_obj.get_topic_subject()
+        if journal_type:
+            self.information += journal_type[0]
+        else:
+            self.information += "pretty"
         self.information += " format"
         if len(self.information_obj.get_option()):
             self.information += " with additional information"

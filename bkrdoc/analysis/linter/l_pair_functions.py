@@ -51,6 +51,7 @@ class LinterPairFunctions(common.LinterRule):
     currently_unmatched = []
 
     def __init__(self, parsed_input_list):
+        super(LinterPairFunctions, self).__init__()
         self.currently_unmatched = []
         self.errors = []
         self.parsed_input_list = parsed_input_list

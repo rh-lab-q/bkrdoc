@@ -10,7 +10,9 @@ class LinterSingleRules(common.LinterRule):
     As of now this includes:
         Beakerlib environment must be set at the beginning.
         Journal must be started before any other command.
+        Journal end should be followed by no command (other than journal print).
         Deprecated commands.
+        Presence of empty phases.
     """
 
     deprecated_commands = {'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch'],
@@ -20,14 +22,19 @@ class LinterSingleRules(common.LinterRule):
 
     ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
+    JOURNAL_END = "Journal end was followed by a command other than journal print."
+    EMPTY_PHASE = "Useless empty phase found."
 
     def __init__(self, parsed_input_list):
+        super(LinterSingleRules, self).__init__()
         self.errors = []
         self.parsed_input_list = parsed_input_list
 
     def analyse(self):
         self.check_environment_set()
         self.check_journal_started()
+        self.check_journal_last_command()
+        self.check_empty_phases()
         self.check_deprecated_commands()
 
     def check_environment_set(self):
@@ -66,6 +73,24 @@ class LinterSingleRules(common.LinterRule):
             id, severity = catalogue['2000'][line.argname]
             self.add_error(id, severity, msg=msg)
 
+    def check_journal_last_command(self):
+        iter_parsed_list = iter(self.parsed_input_list)
+        for line in iter_parsed_list:
+            if not self.is_journal_end(line):
+                continue
+            for line_inner in iter_parsed_list:
+                if not self.is_journal_print_or_end(line_inner):
+                    id, severity = catalogue['2400']['journal_end']
+                    self.add_error(id, severity, self.JOURNAL_END)
+                    return
+
+    def check_empty_phases(self):
+        max_index = len(self.parsed_input_list)
+        for index in range(max_index-1):
+            if self.parsed_input_list[index].argname in bkrdoc_parser.Parser.start_phase_names \
+                and self.parsed_input_list[index+1].argname == 'rlPhaseEnd':
+                id, severity = catalogue['2400']['empty_phase']
+                self.add_error(id, severity, self.EMPTY_PHASE)
 
     @staticmethod
     def is_beakerlib_command(command):
@@ -76,6 +101,14 @@ class LinterSingleRules(common.LinterRule):
     @staticmethod
     def is_journal_start(line):
         return line.argname == "rlJournalStart"
+
+    @staticmethod
+    def is_journal_end(line):
+        return line.argname == "rlJournalEnd"
+
+    @staticmethod
+    def is_journal_print_or_end(line):
+        return line in ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd']
 
     @staticmethod
     def sets_beaker_env(command):

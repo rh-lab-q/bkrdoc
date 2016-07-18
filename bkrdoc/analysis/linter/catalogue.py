@@ -32,7 +32,8 @@ catalogue = {
 
     '2400' : { 'beaker_env': ('E2401', Severity.error), # beakerlib environment not set
              'journal_beg': ('E2402', Severity.warning), # journal not started
-             'journal_end': ('E2403', Severity.warning) }, # journal end followed by a command
+             'journal_end': ('E2403', Severity.warning), # journal end followed by a command
+             'empty_phase': ('E2404', Severity.warning)}, # empty phase
 
     # argument errors (parsing/type)
     '3000' : { 'parse_err': ('E3001', Severity.error) }

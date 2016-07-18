@@ -164,12 +164,10 @@ class DocumentationTranslator:
         subject = []
         param_option = []
         if argparse_data.argname == "rlJournalPrint":
-            if len(argparse_data.type):
+            if argparse_data.type:
                 subject.append(argparse_data.type)
-            else:
-                subject.append("xml")
         else:
-            subject.append("text")
+            subject.append("pretty text")
             if argparse_data.full_journal:
                 param_option.append("additional information")
 

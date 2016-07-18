@@ -19,7 +19,8 @@ def get_errors_from_parse_list(parse_list):
     """Uses full linter analysis"""
     gener = output_generator.OutputGenerator(Namespace(file_in="",
                                                        enabled=None,
-                                                       suppressed=None))
+                                                       suppressed=None,
+                                                       suppress_first=False))
     gener.main_linter.analyse(parse_list)
     return gener.main_linter.errors
 
@@ -179,7 +180,7 @@ class TestComplexFile(unittest.TestCase):
 
     def test_complex(self):
         gener = output_generator.OutputGenerator(Namespace(file_in="./examples/bkrlint/test.sh",
-                                                           enabled=None, suppressed=None))
+                                                           enabled=None, suppressed=None, suppress_first=False))
 
         gener.analyse()
         errors = gener.main_linter.errors
