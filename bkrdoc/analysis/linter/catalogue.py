@@ -25,7 +25,10 @@ catalogue = {
              'rlSEBooleanRestore': ('E1205', Severity.error) },
 
     # deprecated commands
-    '2000' : { 'rlGetArch': ('E2001', Severity.error) },
+    '2000' : { 'rlGetArch': ('E2001', Severity.error),
+               'rlLogLowMetric': ('E2002', Severity.error),
+               'rlLogHighMetric': ('E2002', Severity.error),
+               'rlShowPkgVersion': ('E2003', Severity.error)},
 
     '2400' : { 'beaker_env': ('E2401', Severity.error), # beakerlib environment not set
              'journal_beg': ('E2402', Severity.warning), # journal not started

@@ -175,3 +175,8 @@ class ConditionsForCommands:
 
     def is_journal_start(self, command):
         return command == "rlJournalStart"
+
+    def is_deprecated_command(self, command):
+        deprecated = ['rlLogLowMetric', 'rlLogHighMetric', 'rlShowPkgVersion']
+        return command in deprecated
+

@@ -178,6 +178,9 @@ class StatementDataSearcher:
         elif condition.is_virtualxxx_command(first):
             self.check_err(self.get_rlvirtualx_xxx_data, pom_list)
 
+        elif condition.is_deprecated_command(first):
+            self.get_deprecated_data(pom_list)
+
         else:
             self.unknown_command(pom_list)
 
@@ -445,6 +448,12 @@ class StatementDataSearcher:
     #    for function in self.phase_ref.get_function_list():
     #        if function.name in line and function.is_function_data_empty():
     #           self.phase_ref.search_data_in_function(function)
+
+    def get_deprecated_data(self, pom_param_list):
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("data", type=str, nargs='*')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlwatchdog_data(self, pom_param_list):
         """

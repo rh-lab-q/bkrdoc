@@ -24,7 +24,7 @@ class OutputGenerator(object):
         self.main_linter.analyse(self.parser_ref.argparse_data_list)
 
     def print_to_stdout(self):
-        #for elem in self._parser.argparse_data_list:
+        #for elem in self.parser_ref.argparse_data_list:
         #    print(elem)
 
         if not self.main_linter.errors:

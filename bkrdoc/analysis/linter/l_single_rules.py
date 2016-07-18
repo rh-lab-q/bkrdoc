@@ -13,7 +13,10 @@ class LinterSingleRules(common.LinterRule):
         Deprecated commands.
     """
 
-    deprecated_commands = {'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch']}
+    deprecated_commands = {'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch'],
+                           'rlLogLowMetric': ['rlLogMetricLow'],
+                           'rlLogHighMetric': ['rlLogMetricHigh'],
+                           'rlShowPkgVersion': ['rlShowPackageVersion']}
 
     ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
