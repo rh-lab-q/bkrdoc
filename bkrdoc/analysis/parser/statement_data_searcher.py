@@ -41,7 +41,8 @@ class StatementDataSearcher:
 
         pom_list = self.erase_empty_list_mmebers(pom_list)
         first = pom_list[0]
-        self.lineno = data_container._command_ast.lineno
+        if type(data_container).__name__ == "CommandContainer":
+            self.lineno = data_container._command_ast.lineno
 
         # if self.is_beakerLib_command(first, self.parser_ref):
         condition = conditions_for_commands.ConditionsForCommands()

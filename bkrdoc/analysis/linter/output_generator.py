@@ -87,17 +87,17 @@ class OutputGenerator(object):
             else:
                 option_order = [options.enabled, options.suppressed]
 
-            for error_list in option_order:
-                if error_list:
-                    is_enabled = True if error_list == options.enabled else False
-                    for err in error_list:
-                        self.set_err_list(err, is_enabled=is_enabled)
+            for option_list in option_order:
+                if option_list:
+                    is_enabled = True if option_list == options.enabled else False
+                    for opt in option_list:
+                        self.set_opt_list(opt, is_enabled=is_enabled)
 
-        def set_err_list(self, err_data, is_enabled):
+        def set_opt_list(self, opt_data, is_enabled):
             set_severity_to, related_list = self.get_related_member_list(is_enabled)
             severities = self.enabled.keys()
 
-            if err_data == "all":
+            if opt_data == "all":
                 for severity in severities:
                     self.enabled[severity] = set_severity_to
                     if is_enabled:
@@ -105,16 +105,16 @@ class OutputGenerator(object):
                     else:
                         self.enabled_by_id = []
             else:
-                for single_err in err_data.split(','):
+                for single_opt in opt_data.split(','):
 
-                    if single_err in [sev.name for sev in Severity]:
-                        self.enabled[Severity[single_err]] = set_severity_to
-                    elif single_err in self.known_errors:
-                        related_list.append(single_err)
-                    elif single_err in catalogue.keys():
-                        related_list += (catalogue[single_err][key][0] for key in catalogue[single_err])
+                    if single_opt in [sev.name for sev in Severity]:
+                        self.enabled[Severity[single_opt]] = set_severity_to
+                    elif single_opt in self.known_errors:
+                        related_list.append(single_opt)
+                    elif single_opt in catalogue.keys():
+                        related_list += (catalogue[single_opt][key][0] for key in catalogue[single_opt])
                     else:
-                        msg = '{} not recognized, continuing anyway--'.format(single_err)
+                        msg = '{} not recognized, continuing anyway--'.format(single_opt)
                         self.unrecognized_options.append(common.Error(id='UNK_FLAG',message=msg))
 
         def get_related_member_list(self, is_enabled):
