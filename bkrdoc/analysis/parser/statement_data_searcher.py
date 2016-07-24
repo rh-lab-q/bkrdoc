@@ -13,7 +13,7 @@ __author__ = 'Jiri_Kulda'
 class StatementDataSearcher:
     """
     This class is responsible for parsing data from statement lines. This parsing is done by
-    setting argparse modules for every BeakerLib command. These setting we can see under
+    setting argparse modules for every BeakerLib command. The setting we can see under
     big switch.
     """
     parsed_param_ref = ""
@@ -24,6 +24,7 @@ class StatementDataSearcher:
     def __init__(self):
         self.minimum_variable_size = 4
         self.errors = []
+        self.lineno = 0
 
     def parse_command(self, data_container):
         # Splitting statement using shlex lexicator
@@ -40,6 +41,7 @@ class StatementDataSearcher:
 
         pom_list = self.erase_empty_list_mmebers(pom_list)
         first = pom_list[0]
+        self.lineno = data_container._command_ast.lineno
 
         # if self.is_beakerLib_command(first, self.parser_ref):
         condition = conditions_for_commands.ConditionsForCommands()
@@ -813,7 +815,7 @@ class StatementDataSearcher:
         except argparse.ArgumentError as exc:
             msg = self.strip_argparse_error_of_usage_info(exc.message, argument_list[0])
             id, severity = catalogue['3000']['parse_err']
-            self.errors.append(common.Error(id, severity, message=msg))
+            self.errors.append(common.Error(id, severity, msg, self.lineno))
 
     def get_errors(self):
         return self.errors

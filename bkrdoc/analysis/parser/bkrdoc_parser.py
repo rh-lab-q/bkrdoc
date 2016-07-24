@@ -116,6 +116,7 @@ class Parser(object):
                 data_argparse = data_searcher.parsed_param_ref
                 if not data_argparse:
                     continue
+                data_argparse.lineno = command_line.lineno
                 if conditions.is_rlrun_command(data_argparse.argname):
                     data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
                 self.argparse_data_list.append(data_argparse)

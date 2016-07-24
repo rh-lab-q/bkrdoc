@@ -20,7 +20,7 @@ class Match(object):
     :param flag: Concrete flag of a command whose pair with matching flag is searched for
     :param restores_all: a flagless Closing command closes everything regardless of flag
     """
-    def __init__(self, func, pair, before=[], each=False, flag_source=None, restores_all=False):
+    def __init__(self, func, pair, before=[], each=False, flag_source=None, restores_all=False, lineno=0):
         self.func = func
         self.pair = pair
         self.before = before
@@ -28,6 +28,7 @@ class Match(object):
         self.restores_all = restores_all
         self.flag_source = flag_source
         self.flag = None
+        self.lineno = lineno
 
     def set_flag(self, flag):
         self.flag = flag
@@ -72,14 +73,15 @@ class LinterPairFunctions(common.LinterRule):
 
         for elem in self.currently_unmatched:
             id, severity = catalogue['1000'][elem.func]
-            self.add_error(id, severity, elem.func + " without a matching " + elem.pair, flag=elem.flag)
+            self.add_error(id, severity, elem.func + " without a matching " + elem.pair,
+                           elem.lineno, flag=elem.flag)
 
     def analyse_single_line(self, line):
 
         for elem in self.currently_unmatched:
                 if self.is_command_before_end_function(line, elem):
                     id, severity = catalogue['1100'][elem.pair]
-                    self.add_error(id, severity, line.argname + " before matching " + elem.pair)
+                    self.add_error(id, severity, line.argname + " before matching " + elem.pair, line.lineno)
 
         if self.is_end_function_that_restores_all(line):
             size_before_filter = len(self.currently_unmatched)
@@ -94,13 +96,15 @@ class LinterPairFunctions(common.LinterRule):
 
         if line.argname in self.pairs.keys() and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
             match = copy.deepcopy(self.pairs[line.argname])
+            match.lineno = line.lineno
             match.set_flag(self.get_flag(line, match))
             self.currently_unmatched.insert(0, match)
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
             flag = self.get_flag(line, self.get_relevant_match(line.argname))
             id, severity = catalogue['1200'][line.argname]
-            self.add_error(id, severity, line.argname + " without a previous begin", flag=flag)
+            self.add_error(id, severity, line.argname + " without a previous begin",
+                           line.lineno, flag=flag)
 
     def get_relevant_match(self, command):
         """Fetches the Match instance from 'pairs' map associated with 'command'

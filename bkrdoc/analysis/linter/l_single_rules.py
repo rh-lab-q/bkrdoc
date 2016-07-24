@@ -71,7 +71,7 @@ class LinterSingleRules(common.LinterRule):
             if use_instead:
                 msg += ", instead use: " + ', '.join(use_instead)
             id, severity = catalogue['2000'][line.argname]
-            self.add_error(id, severity, msg=msg)
+            self.add_error(id, severity, msg, line.lineno)
 
     def check_journal_last_command(self):
         iter_parsed_list = iter(self.parsed_input_list)
@@ -81,7 +81,7 @@ class LinterSingleRules(common.LinterRule):
             for line_inner in iter_parsed_list:
                 if not self.is_journal_print_or_end(line_inner):
                     id, severity = catalogue['2400']['journal_end']
-                    self.add_error(id, severity, self.JOURNAL_END)
+                    self.add_error(id, severity, self.JOURNAL_END, line_inner.lineno)
                     return
 
     def check_empty_phases(self):
@@ -90,7 +90,7 @@ class LinterSingleRules(common.LinterRule):
             if self.parsed_input_list[index].argname in bkrdoc_parser.Parser.start_phase_names \
                 and self.parsed_input_list[index+1].argname == 'rlPhaseEnd':
                 id, severity = catalogue['2400']['empty_phase']
-                self.add_error(id, severity, self.EMPTY_PHASE)
+                self.add_error(id, severity, self.EMPTY_PHASE, self.parsed_input_list[index+1].lineno)
 
     @staticmethod
     def is_beakerlib_command(command):

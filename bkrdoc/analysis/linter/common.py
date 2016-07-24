@@ -1,26 +1,37 @@
 __author__ = 'Zuzana Baranova'
 
 from enum import Enum
+import functools
 
 class Severity(Enum):
     error = 1
     warning = 2
     info = 3
 
+@functools.total_ordering
 class Error(object):
     """Class symbolizing a static analysis error."""
 
-    def __init__(self, id=None, type=None,  message="", line=0):
-        self.line = line
+    def __init__(self, id=None, type=None,  message="", lineno=0):
+        self.lineno = lineno
         self.message = message
         self.severity = type
         self.id = id
 
     def __eq__(self, other):
+        if not isinstance(other, Error):
+            return False
         return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if self.lineno == other.lineno:
+            if self.id == 'UNK_FLAG':
+                return True
+            return other.id != 'UNK_FLAG'
+        return self.lineno <= other.lineno
 
 
 class LinterRule(object):
@@ -35,10 +46,10 @@ class LinterRule(object):
     def analyse(self):
         pass
 
-    def add_error(self, id, severity, msg, flag=None):
+    def add_error(self, id, severity, msg, lineno=0, flag=None):
         if flag:
             msg += " with flag `" + flag + "`"
-        self.errors.append(Error(id, severity, message=msg))
+        self.errors.append(Error(id, severity, msg, lineno))
 
     def get_errors(self):
         return self.errors

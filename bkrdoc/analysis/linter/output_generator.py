@@ -22,7 +22,8 @@ class OutputGenerator(object):
         try:
             self.parser_ref.parse_data()
         except bashlex.errors.ParsingError:
-            print("bashlex parse error: cannot continue~\ntraceback follows:\n", file=sys.stderr)
+            print("bashlex parse error: cannot continue~\n"
+                  "traceback follows:\n", file=sys.stderr)
             raise
         self.main_linter.errors += self.parser_ref.get_errors()
         self.main_linter.analyse(self.parser_ref.argparse_data_list)
@@ -33,9 +34,17 @@ class OutputGenerator(object):
         err_list = self.main_linter.errors
 
         if not err_list or all([err.id == 'UNK_FLAG' for err in err_list]):
-            print("Static analysis revealed no errors.")
-        else:
             for elem in err_list:
+                print(self.pretty_format(elem))
+            print("\nStatic analysis revealed no errors.")
+        else:
+            sorted_list = sorted(err_list)
+            # insert newline after unknown flags
+            for elem in sorted_list:
+                if elem.id != 'UNK_FLAG':
+                    elem.message = '\n' + elem.message
+                    break
+            for elem in sorted_list:
                 if not elem.severity or elem.severity and self.is_enabled_error(elem):
                     print(self.pretty_format(elem))
 
@@ -50,9 +59,12 @@ class OutputGenerator(object):
     @staticmethod
     def pretty_format(err):
         if err.id and err.id is not 'UNK_FLAG' :
-            return '{} [{}]'.format(err.message, err.id)
+            result = '{} [{}]'.format(err.message, err.id)
         else:
-            return err.message
+            result = err.message
+        if err.lineno != 0:
+            return '{}: {}'.format(str(err.lineno), result)
+        return result
 
 
     class Options(object):
