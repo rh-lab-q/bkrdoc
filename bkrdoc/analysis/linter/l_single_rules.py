@@ -12,7 +12,6 @@ class LinterSingleRules(common.LinterRule):
         Journal must be started before any other command.
         Journal end should be followed by no command (other than journal print).
         Deprecated commands.
-        Presence of empty phases.
     """
 
     deprecated_commands = {'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch'],
@@ -23,7 +22,6 @@ class LinterSingleRules(common.LinterRule):
     ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
     JOURNAL_END = "Journal end was followed by a command other than journal print."
-    EMPTY_PHASE = "Useless empty phase found."
 
     def __init__(self, parsed_input_list):
         super(LinterSingleRules, self).__init__()
@@ -34,7 +32,6 @@ class LinterSingleRules(common.LinterRule):
         self.check_environment_set()
         self.check_journal_started()
         self.check_journal_last_command()
-        self.check_empty_phases()
         self.check_deprecated_commands()
 
     def check_environment_set(self):
@@ -84,14 +81,6 @@ class LinterSingleRules(common.LinterRule):
                     self.add_error(id, severity, self.JOURNAL_END, line_inner.lineno)
                     return
 
-    def check_empty_phases(self):
-        max_index = len(self.parsed_input_list)
-        for index in range(max_index-1):
-            if self.parsed_input_list[index].argname in bkrdoc_parser.Parser.start_phase_names \
-                and self.parsed_input_list[index+1].argname == 'rlPhaseEnd':
-                id, severity = catalogue['2400']['empty_phase']
-                self.add_error(id, severity, self.EMPTY_PHASE, self.parsed_input_list[index+1].lineno)
-
     @staticmethod
     def is_beakerlib_command(command):
         commands = bkrdoc_parser.Parser.all_commands + bkrdoc_parser.Parser.start_phase_names
@@ -108,7 +97,7 @@ class LinterSingleRules(common.LinterRule):
 
     @staticmethod
     def is_journal_print_or_end(line):
-        return line in ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd']
+        return line.argname in ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd']
 
     @staticmethod
     def sets_beaker_env(command):

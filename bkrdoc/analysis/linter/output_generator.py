@@ -12,6 +12,10 @@ Severity = common.Severity
 
 class OutputGenerator(object):
 
+    NOERRORS = "Static analysis revealed no errors."
+    BASHLEX_ERR = "bashlex parse error: cannot continue~\n" \
+                  "traceback follows:\n"
+
     def __init__(self, args):
         self.main_linter = linter.Linter()
         self.parser_ref = bkrdoc_parser.Parser(args.file_in)
@@ -22,8 +26,7 @@ class OutputGenerator(object):
         try:
             self.parser_ref.parse_data()
         except bashlex.errors.ParsingError:
-            print("bashlex parse error: cannot continue~\n"
-                  "traceback follows:\n", file=sys.stderr)
+            print(self.BASHLEX_ERR, file=sys.stderr)
             raise
         self.main_linter.errors += self.parser_ref.get_errors()
         self.main_linter.analyse(self.parser_ref.argparse_data_list)
@@ -31,22 +34,21 @@ class OutputGenerator(object):
     def print_to_stdout(self):
         #for elem in self.parser_ref.argparse_data_list:
         #    print(elem)
-        err_list = self.main_linter.errors
 
-        if not err_list or all([err.id == 'UNK_FLAG' for err in err_list]):
-            for elem in err_list:
-                print(self.pretty_format(elem))
-            print("\nStatic analysis revealed no errors.")
-        else:
-            sorted_list = sorted(err_list)
-            # insert newline after unknown flags
-            for elem in sorted_list:
-                if elem.id != 'UNK_FLAG':
-                    elem.message = '\n' + elem.message
-                    break
-            for elem in sorted_list:
-                if not elem.severity or elem.severity and self.is_enabled_error(elem):
-                    print(self.pretty_format(elem))
+        sorted_err_list = iter(sorted(self.main_linter.errors))
+        for err in sorted_err_list:
+            if err.id != 'UNK_FLAG':
+                break
+            print(self.pretty_format(err))
+
+        print("")
+        error_was_printed = False
+        for err in sorted_err_list:
+            if not err.severity or err.severity and self.is_enabled_error(err):
+                print(self.pretty_format(err))
+                error_was_printed = True
+        if not error_was_printed:
+            print(self.NOERRORS)
 
 
     def is_enabled_error(self, error):

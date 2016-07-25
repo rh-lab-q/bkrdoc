@@ -48,7 +48,7 @@ class DocumentationTranslator:
             elif condition.is_assert0(argname):
                 self.set_rlassert0_data(argparse_data)
 
-            elif condition.is_assert_comparasion(argname):
+            elif condition.is_assert_comparison(argname):
                 self.set_assert_comparison_data(argparse_data)
 
             elif condition.is_assert_exists(argname):

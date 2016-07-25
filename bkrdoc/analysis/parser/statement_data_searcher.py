@@ -67,7 +67,7 @@ class StatementDataSearcher:
             elif condition.is_rlpass_or_rlfail_command(first):
                 self.check_err(self.get_rlpass_or_rlfail_data, pom_list)
 
-            elif condition.is_assert_comparasion(first):
+            elif condition.is_assert_comparison(first):
                 self.check_err(self.get_assert_comparison_data, pom_list)
 
             elif condition.is_assert_exists(first):

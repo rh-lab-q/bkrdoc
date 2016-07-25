@@ -24,6 +24,10 @@ catalogue = {
              'rlServiceStop': ('E1204', Severity.error),
              'rlSEBooleanRestore': ('E1205', Severity.error) },
 
+    # within phase
+    '1500' : { 'rlLogMetric': ('E1501', Severity.error), # metric name has to be unique
+               'empty_phase': ('E2404', Severity.warning)}, # empty phase
+
     # deprecated commands
     '2000' : { 'rlGetArch': ('E2001', Severity.error),
                'rlLogLowMetric': ('E2002', Severity.error),
@@ -32,8 +36,7 @@ catalogue = {
 
     '2400' : { 'beaker_env': ('E2401', Severity.error), # beakerlib environment not set
              'journal_beg': ('E2402', Severity.warning), # journal not started
-             'journal_end': ('E2403', Severity.warning), # journal end followed by a command
-             'empty_phase': ('E2404', Severity.warning)}, # empty phase
+             'journal_end': ('E2403', Severity.warning)}, # journal end followed by a command
 
     # argument errors (parsing/type)
     '3000' : { 'parse_err': ('E3001', Severity.error) }

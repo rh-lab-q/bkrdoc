@@ -88,7 +88,7 @@ class ConditionsForCommands:
     def is_assert_exists(self, command):
         return command == "rlAssertExists" or command == "rlAssertNotExists"
 
-    def is_assert_comparasion(self, command):
+    def is_assert_comparison(self, command):
         pom_list = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",
                     "rlAssertGreaterOrEqual"]
         return command in pom_list
@@ -169,6 +169,9 @@ class ConditionsForCommands:
 
     def is_phase_setup(self, command):
         return command == "rlPhaseStartSetup"
+
+    def is_phase_end(self, command):
+        return command == "rlPhaseEnd"
 
     def is_phase_journal_end(self, command):
         return command in ["rlPhaseEnd", "rlJournalEnd"]
