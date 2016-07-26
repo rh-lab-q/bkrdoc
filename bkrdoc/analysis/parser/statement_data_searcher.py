@@ -314,7 +314,7 @@ class StatementDataSearcher:
             parser_arg.add_argument('--full-journal', dest='full_journal',
                                 action='store_true', default=False)
         else:
-            parser_arg.add_argument("type", type=str, nargs="?")
+            parser_arg.add_argument("type", type=str, nargs="?", choices=['raw', 'pretty'], default='pretty')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlshowpackageversion_data(self, pom_param_list):
@@ -466,7 +466,7 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
-        parser_arg.add_argument("timeout", type=str)
+        parser_arg.add_argument("timeout", type=float)
         parser_arg.add_argument("signal", type=str, nargs='?', default="KILL")
         parser_arg.add_argument("callback", type=str, nargs='?')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -762,8 +762,10 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
-        parser_arg.add_argument('value1', type=str)
-        parser_arg.add_argument('value2', type=str)
+
+        type_ = str if pom_param_list[0].endswith('Equals') else int
+        parser_arg.add_argument('value1', type=type_)
+        parser_arg.add_argument('value2', type=type_)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert0_data(self, pom_param_list):

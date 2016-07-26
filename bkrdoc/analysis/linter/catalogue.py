@@ -39,6 +39,10 @@ catalogue = {
              'journal_end': ('E2403', Severity.warning)}, # journal end followed by a command
 
     # argument errors (parsing/type)
-    '3000' : { 'parse_err': ('E3001', Severity.error) }
+    '3000' : { 'parse_err': ('E3001', Severity.error),
+               'rlRun': ('E3010', Severity.error), # rlRun status not a float(int)
+               'rlWatchdog': ('E3011', Severity.info), # rlWatchdog signal not a common one
+               'rlReport': ('E3012', Severity.info), # rlReport result not in (PASS,WARN,FAIL)
+               'rhel_fedora': ('E3013', Severity.error),} # rlIsRHEL/Fedora invalid type
 
 }
