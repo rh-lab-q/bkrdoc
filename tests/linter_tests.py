@@ -1,15 +1,17 @@
 __author__ = 'Zuzana Baranova'
 
 import unittest
-import argparse, sys
-from bkrdoc.analysis.linter import output_generator, common, l_single_rules, linter, l_pair_functions
+import argparse
+from bkrdoc.analysis.linter import output_generator, common, catalogue
+from bkrdoc.analysis.linter import l_single_rules, linter, l_pair_functions, l_arg_types
 from bkrdoc.analysis.parser import statement_data_searcher
 
 
 LSingleRules = l_single_rules.LinterSingleRules
 LPairFunc = l_pair_functions.LinterPairFunctions
+LArgTypes = l_arg_types.LinterArgTypes
 Namespace = argparse.Namespace
-Severity  = common.Severity
+Severity  = catalogue.Severity
 
 
 def err(id, severity, msg, lineno):
@@ -28,9 +30,13 @@ def get_errors_from_parse_list(parse_list):
     return gener.main_linter.errors
 
 
-def list_contains(self, sublist,_list):
+def list_contains(self, sublist, list_):
         for elem in sublist:
-            unittest.TestCase.assertIn(self, elem, _list)
+            unittest.TestCase.assertIn(self, elem, list_)
+
+
+def assert_empty(self, list_):
+    self.assertFalse(list_)
 
 
 class TestLinterClassInstances(unittest.TestCase):
@@ -44,17 +50,15 @@ class TestLinterClassInstances(unittest.TestCase):
 class TestStandaloneRules(unittest.TestCase):
 
     list_contains_ = list_contains
+    assert_empty_  = assert_empty
 
     def test_empty(self):
         errors = get_errors_from_parse_list([])
-        self.assertEqual(len(errors), 2)
-        self.list_contains_([err('E2401','error',LSingleRules.ENV_NOT_SET, 0),
-                             err('E2402','warning',LSingleRules.JOURNAL_NOT_STARTED, 0)],
-                            errors)
+        self.assert_empty_(errors)
 
     ns_beaker_env = Namespace(argname='UNKNOWN', data=['.', 'beakerlib.sh'], lineno=0)
     ns_journal = Namespace(argname='rlJournalStart', lineno=0)
-    ns_rlrun = Namespace(argname='rlRun', command='command', lineno=0)
+    ns_rlrun = Namespace(argname='rlRun', command='command', lineno=0, status='0')
     ns_rlarch_depr = Namespace(argname='rlGetArch', lineno=0)
 
     def test_deprecated(self):
@@ -62,17 +66,17 @@ class TestStandaloneRules(unittest.TestCase):
         errors = get_errors_from_parse_list(parse_list)
         err_msg = "rlGetArch command is deprecated, instead use: " + \
                   ', '.join(LSingleRules.deprecated_commands['rlGetArch'])
-        self.assertEqual([err('E2001','error',err_msg, 0)], errors)
+        self.assertEqual([err('E2001', 'error', err_msg, 0)], errors)
 
     def test_beaker_env(self):
         parse_list = [self.ns_journal, self.ns_rlrun]
         errors = get_errors_from_parse_list(parse_list)
-        self.assertEqual([err('E2401','error',LSingleRules.ENV_NOT_SET, 0)], errors)
+        self.assertEqual([err('E2401', 'error', LSingleRules.ENV_NOT_SET, 0)], errors)
 
     def test_journal_not_started(self):
         parse_list = [self.ns_beaker_env, self.ns_rlrun]
         errors = get_errors_from_parse_list(parse_list)
-        self.assertEqual([err('E2402','warning',LSingleRules.JOURNAL_NOT_STARTED, 0)], errors)
+        self.assertEqual([err('E2402', 'warning', LSingleRules.JOURNAL_NOT_STARTED, 0)], errors)
 
 
 def get_func_pair_errors(parse_list):
@@ -84,12 +88,11 @@ def get_func_pair_errors(parse_list):
 
 class TestPairFunctions(unittest.TestCase):
 
-    def assertEmpty(self, _list):
-        self.assertFalse(_list)
+    assert_empty_ = assert_empty
 
     def test_empty(self):
         errors = get_func_pair_errors([])
-        self.assertEmpty(errors)
+        self.assert_empty_(errors)
 
     ns_phase_start = Namespace(argname='rlPhaseStart', lineno=1)
     ns_phase_end = Namespace(argname='rlPhaseEnd', lineno=2)
@@ -97,18 +100,18 @@ class TestPairFunctions(unittest.TestCase):
     def test_no_end_present(self):
         parse_list = [self.ns_phase_start]
         errors = get_func_pair_errors(parse_list)
-        self.assertEqual([err('E1001','error',"rlPhaseStart without a matching rlPhaseEnd", 1)], errors)
+        self.assertEqual([err('E1001', 'error', "rlPhaseStart without a matching rlPhaseEnd", 1)], errors)
 
     def test_no_begin_present(self):
         parse_list = [self.ns_phase_end]
         errors = get_func_pair_errors(parse_list)
-        self.assertEqual([err('E1201','error',"rlPhaseEnd without a previous begin", 2)], errors)
+        self.assertEqual([err('E1201', 'error', "rlPhaseEnd without a previous begin", 2)], errors)
 
     def test_before(self):
         parse_list = [self.ns_phase_start, self.ns_phase_start,
                       self.ns_phase_end, self.ns_phase_end]
         errors = get_func_pair_errors(parse_list)
-        self.assertEqual([err('E1101','warning',"rlPhaseStart before matching rlPhaseEnd", 1)], errors)
+        self.assertEqual([err('E1101', 'warning', "rlPhaseStart before matching rlPhaseEnd", 1)], errors)
 
     def test_flags(self):
 
@@ -118,12 +121,12 @@ class TestPairFunctions(unittest.TestCase):
 
         parse_list = [ns_file_backup_a, ns_file_restore_a]
         errors = get_func_pair_errors(parse_list)
-        self.assertEmpty(errors)
+        self.assert_empty_(errors)
 
         parse_list = [ns_file_backup_a, ns_file_restore]
         errors = get_func_pair_errors(parse_list)
-        self.assertEqual([err('E1202','error',"rlFileRestore without a previous begin", 3),
-                          err('E1002','error',"rlFileBackup without a matching rlFileRestore with flag `a`", 1)],
+        self.assertEqual([err('E1202', 'error', "rlFileRestore without a previous begin", 3),
+                          err('E1002', 'error', "rlFileBackup without a matching rlFileRestore with flag `a`", 1)],
                          errors)
 
     def test_list_flags(self):
@@ -134,7 +137,7 @@ class TestPairFunctions(unittest.TestCase):
 
         parse_list = [ns_service_start_a, ns_service_start_b, ns_service_stop_a_b]
         errors = get_func_pair_errors(parse_list)
-        self.assertEmpty(errors)
+        self.assert_empty_(errors)
 
     def test_restores_all(self):
 
@@ -145,7 +148,7 @@ class TestPairFunctions(unittest.TestCase):
 
         parse_list = [ns_bool_on_a, ns_bool_off_a, ns_bool_off_b, ns_bool_restore_all]
         errors = get_func_pair_errors(parse_list)
-        self.assertEmpty(errors)
+        self.assert_empty_(errors)
 
 
 class TestArgparseParsingErrors(unittest.TestCase):
@@ -197,7 +200,7 @@ class TestComplexFile(unittest.TestCase):
         expected_errors = [err('E3001', 'error', RLRUN, 12),
                            err('E1201', 'error', PHASEEND, 35),
                            err('E1002', 'error', FILEBACKUP, 14),
-                           err('E2402', 'warning', JOURNAL, 0),
+                           err('E2402', 'warning', JOURNAL, 9),
                            err('E2001', 'error', GETARCH, 17)]
         self.list_contains_(expected_errors, errors)
 
@@ -206,10 +209,10 @@ class TestOptions(unittest.TestCase):
 
     list_contains_ = list_contains
 
-    args = Namespace(suppressed = ['E2102','3000','E4523','E1102'],
-                     enabled = ['warning','E4523', 'E3001'],
-                     suppress_first = True,
-                     file_in = "")
+    args = Namespace(suppressed=['E2102', '3000', 'E4523', 'E1102'],
+                     enabled=['warning', 'E4523', 'E3001'],
+                     suppress_first=True,
+                     file_in="")
 
     def test_option_setting(self):
         options = output_generator.OutputGenerator.Options(self.args)
@@ -231,6 +234,63 @@ class TestOptions(unittest.TestCase):
         self.assertTrue(out_gen.is_enabled_severity(Severity.warning))
         self.assertTrue(out_gen.is_enabled_error(err1))
         self.assertFalse(out_gen.is_enabled_error(err2))
+
+
+class TestArgTypes(unittest.TestCase):
+
+    assert_empty_  = assert_empty
+    list_contains_ = list_contains
+
+    def test_rlrun_valid(self):
+        argtypes = LArgTypes([])
+        for status in ['0', '1,2,3,4', '2-5', '12,3-9,8,255', '0.3,5.2-9.1']:
+            argtypes.check_status(status, "")
+            self.assert_empty_(argtypes.errors)
+
+    def test_rlrun_invalid(self):
+        argtypes = LArgTypes([])
+        for status in ['0.0.0', '256', '-3', '5-3', 'a', '3,1,e.2', '1.b', '3-']:
+            argtypes.check_status(status, argtypes.STATUS_NOT_INT)
+        self.assertEqual(len(argtypes.errors), 8)
+
+    def test_rlwatchdog_valid(self):
+        argtypes = LArgTypes([])
+        for signal in ['KILL', 'SIGABRT', 'CHLD', 'SIGTSTP']:
+            argtypes.check_signal(signal, "")
+        self.assert_empty_(argtypes.errors)
+
+    def test_rlwatchdog_invalid(self):
+        argtypes = LArgTypes([])
+        argtypes.argname = 'rlWatchdog'
+        for signal in ['puppies', '7']:
+            argtypes.check_signal(signal, argtypes.SIGNAL)
+        self.assertEqual(len(argtypes.errors), 2)
+        self.list_contains_([err('E3012', 'info',
+                                 "{}, `{}` {}".format(argtypes.argname, 'puppies', argtypes.SIGNAL), 0)],
+                            argtypes.errors)
+
+    def test_rlreport(self):
+        argtypes = LArgTypes([])
+        argtypes.argname = 'rlReport'
+        for result in ['PASS', 'FAIL', 'FALL', 'WARN', 'sthelse', 'PasS']:
+            argtypes.check_result(result, argtypes.RESULT)
+        self.assertEqual(len(argtypes.errors), 2)
+        self.list_contains_([err('E3013', 'warning',
+                                 "{}, `{}` {}".format(argtypes.argname, 'FALL', argtypes.RESULT), 0)],
+                            argtypes.errors)
+
+    def test_rhel_fedora(self):
+        argtypes = LArgTypes([])
+        argtypes.argname = 'rlOS'
+        types = ['>=3', '=>2', '=0', '=-1', '<1', 'a', '=e', '>2.3']
+        argtypes.check_os_type(types, argtypes.OS_TYPE_INVALID)
+        self.assertEqual(len(argtypes.errors), 5)
+        self.list_contains_([err('E3014', 'error',
+                                 "{}, `{}` - {}".format(argtypes.argname, '=e', argtypes.OS_TYPE_INVALID), 0),
+                             err('E3015', 'info',
+                                 "{}, `{}` - {}".format(argtypes.argname, '=-1',
+                                                        "a negative number was used, this is valid but odd"), 0)],
+                            argtypes.errors)
 
 
 if __name__ == '__main__':

@@ -1,8 +1,8 @@
 __author__ = 'Zuzana Baranova'
 
 from bkrdoc.analysis.linter import common
-from bkrdoc.analysis.linter.catalogue import catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
+
 
 class LinterSingleRules(common.LinterRule):
     """
@@ -45,17 +45,17 @@ class LinterSingleRules(common.LinterRule):
             catalogue_lookup = 'beaker_env'
         else:
             catalogue_lookup = 'journal_beg'
-        id, severity = catalogue['2400'][catalogue_lookup]
 
         if not self.parsed_input_list:
-            self.add_error(id, severity, msg=error_msg)
+            return
 
         for line in self.parsed_input_list:
             if constraint_met(line):
                 return
 
             if self.is_beakerlib_command(line.argname):
-                self.add_error(id, severity, msg=error_msg)
+                self.add_error('2400', catalogue_lookup,
+                               msg=error_msg, lineno=line.lineno)
                 return
 
     def check_deprecated_commands(self):
@@ -67,8 +67,7 @@ class LinterSingleRules(common.LinterRule):
             use_instead = self.deprecated_commands[line.argname]
             if use_instead:
                 msg += ", instead use: " + ', '.join(use_instead)
-            id, severity = catalogue['2000'][line.argname]
-            self.add_error(id, severity, msg, line.lineno)
+            self.add_error('2000', line.argname, msg, line.lineno)
 
     def check_journal_last_command(self):
         iter_parsed_list = iter(self.parsed_input_list)
@@ -77,8 +76,7 @@ class LinterSingleRules(common.LinterRule):
                 continue
             for line_inner in iter_parsed_list:
                 if not self.is_journal_print_or_end(line_inner):
-                    id, severity = catalogue['2400']['journal_end']
-                    self.add_error(id, severity, self.JOURNAL_END, line_inner.lineno)
+                    self.add_error('2400', 'journal_end', self.JOURNAL_END, line_inner.lineno)
                     return
 
     @staticmethod

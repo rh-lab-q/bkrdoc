@@ -2,7 +2,6 @@ __author__ = 'Zuzana Baranova'
 
 import copy
 from bkrdoc.analysis.linter import common
-from bkrdoc.analysis.linter.catalogue import catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
 
 
@@ -20,6 +19,7 @@ class Match(object):
     :param flag: Concrete flag of a command whose pair with matching flag is searched for
     :param restores_all: a flagless Closing command closes everything regardless of flag
     """
+
     def __init__(self, func, pair, before=[], each=False, flag_source=None, restores_all=False, lineno=0):
         self.func = func
         self.pair = pair
@@ -64,7 +64,7 @@ class LinterPairFunctions(common.LinterRule):
             line_flags = self.get_flag(line, match)
             if isinstance(line_flags, list):
                 if not line_flags:
-                    line_flags = [None]       # analyse commands with empty optional argument lists
+                    line_flags = [None]  # analyse commands with empty optional argument lists
                 for flag in line_flags:
                     setattr(line, match.flag_source, flag)
                     self.analyse_single_line(line)
@@ -72,29 +72,31 @@ class LinterPairFunctions(common.LinterRule):
                 self.analyse_single_line(line)
 
         for elem in self.currently_unmatched:
-            id, severity = catalogue['1000'][elem.func]
-            self.add_error(id, severity, elem.func + " without a matching " + elem.pair,
+            self.add_error('1000', elem.func,
+                           elem.func + " without a matching " + elem.pair,
                            elem.lineno, flag=elem.flag)
 
     def analyse_single_line(self, line):
 
         for elem in self.currently_unmatched:
-                if self.is_command_before_end_function(line, elem):
-                    id, severity = catalogue['1100'][elem.pair]
-                    self.add_error(id, severity, line.argname + " before matching " + elem.pair, line.lineno)
+            if self.is_command_before_end_function(line, elem):
+                self.add_error('1100', elem.pair,
+                               line.argname + " before matching " + elem.pair,
+                               line.lineno)
 
         if self.is_end_function_that_restores_all(line):
             size_before_filter = len(self.currently_unmatched)
             self.currently_unmatched = [x for x in self.currently_unmatched if x.pair != line.argname]
             if size_before_filter > len(self.currently_unmatched):
-                return   # would mess looking for Ends without Begins
+                return  # would mess looking for Ends without Begins
 
         for elem in self.currently_unmatched:
             if self.matches_opposite(line, elem):
                 self.currently_unmatched.remove(elem)
                 return
 
-        if line.argname in self.pairs.keys() and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
+        if line.argname in self.pairs.keys() and (
+                    self.pairs[line.argname].each_needs_match or not self.already_present(line)):
             match = copy.deepcopy(self.pairs[line.argname])
             match.lineno = line.lineno
             match.set_flag(self.get_flag(line, match))
@@ -102,8 +104,8 @@ class LinterPairFunctions(common.LinterRule):
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
             flag = self.get_flag(line, self.get_relevant_match(line.argname))
-            id, severity = catalogue['1200'][line.argname]
-            self.add_error(id, severity, line.argname + " without a previous begin",
+            self.add_error('1200', line.argname,
+                           line.argname + " without a previous begin",
                            line.lineno, flag=flag)
 
     def get_relevant_match(self, command):
@@ -143,4 +145,3 @@ class LinterPairFunctions(common.LinterRule):
         if not elem or not elem.flag_source:
             return None
         return getattr(line, elem.flag_source)
-

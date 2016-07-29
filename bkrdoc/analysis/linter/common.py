@@ -1,12 +1,8 @@
 __author__ = 'Zuzana Baranova'
 
-from enum import Enum
 import functools
+from bkrdoc.analysis.linter.catalogue import catalogue
 
-class Severity(Enum):
-    error = 1
-    warning = 2
-    info = 3
 
 @functools.total_ordering
 class Error(object):
@@ -46,7 +42,8 @@ class LinterRule(object):
     def analyse(self):
         pass
 
-    def add_error(self, id, severity, msg, lineno=0, flag=None):
+    def add_error(self, err_class, err_label, msg, lineno=0, flag=None):
+        id, severity = catalogue[err_class][err_label]
         if flag:
             msg += " with flag `" + flag + "`"
         self.errors.append(Error(id, severity, msg, lineno))

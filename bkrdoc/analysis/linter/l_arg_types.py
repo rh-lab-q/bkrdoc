@@ -2,10 +2,12 @@ __author__ = 'Zuzana Baranova'
 
 import re
 from bkrdoc.analysis.linter import common
-from bkrdoc.analysis.linter.catalogue import catalogue
 
 
 class LinterArgTypes(common.LinterRule):
+    """Class that checks for specific type errors of beakerlib arguments,
+    such as: a status (bash command return code) must be an integer within range 0-255 etc.
+    Some are of info type for it is unclear whether the input is invalid for certain."""
 
     STATUS_NOT_INT = "status must be an enumeration (1,2), a range (2-5) or a combination of the two (of integral type)"
     SIGNAL = "is not recognized as one of the most common signals - make sure it's valid"
@@ -48,30 +50,46 @@ class LinterArgTypes(common.LinterRule):
         for single_range in [n for n in statuses.split(',')]:
             numbers = single_range.split('-')
             if len(numbers) > 2 or any(not is_valid_status(number) for number in numbers):
-                id, severity = catalogue['3000']['rlRun']
-                self.add_error(id, severity, self.argname + ", " + msg, self.lineno)
+                self.add_error('3000', 'rlRun_type',
+                               "{}, {} in `{}`".format(self.argname, msg, single_range),
+                               self.lineno)
                 return
+            if len(numbers) == 2 and self.int_(numbers[0]) > self.int_(numbers[1]):
+                msg2 = "first bound has to be smaller in `{}`".format(single_range)
+                self.add_error('3000', 'rlRun_bounds',
+                               self.argname + ", " + msg2,
+                               self.lineno)
 
     def check_signal(self, tested_signal, msg):
         for signal in self.common_signals:
-            if tested_signal in [signal, "SIG"+signal]:
+            if tested_signal.upper() in [signal, "SIG"+signal]:
                 return
-        id, severity = catalogue['3000']['rlWatchdog']
-        self.add_error(id, severity, "{}, `{}` {}".format(self.argname,tested_signal,msg), self.lineno)
+        self.add_error('3000', 'rlWatchdog',
+                       "{}, `{}` {}".format(self.argname, tested_signal, msg),
+                       self.lineno)
 
     def check_result(self, result, msg):
-        if result not in ['PASS', 'WARN', 'FAIL']:
-            id, severity = catalogue['3000']['rlReport']
-            self.add_error(id, severity, "{}, `{}` {}".format(self.argname,result,msg), self.lineno)
+        if result.upper() not in ['PASS', 'WARN', 'FAIL']:
+            self.add_error('3000', 'rlReport',
+                           "{}, `{}` {}".format(self.argname, result, msg),
+                           self.lineno)
 
     def check_os_type(self, types, msg):
-        for type in types:
-            split_string = re.split('(\d)', type, 1) # split on first number
-            numeric_part = ('').join(split_string[1:3])
-            if split_string[0] in ['<=','<','>=','>','','='] and self.can_cast_to_type(numeric_part, float):
+        valid_prefixes = ['<=','<','>=','>','','=']
+        for type_ in types:
+            split_string = re.split('(\d)', type_, 1)  # split on first number
+            numeric_part = ''.join(split_string[1:3])
+
+            if split_string[0] in valid_prefixes and self.can_cast_to_type(numeric_part, float):
                 continue
-            id, severity = catalogue['3000']['rhel_fedora']
-            self.add_error(id, severity, "{}, `{}` - {}".format(self.argname,type,msg), self.lineno)
+            if split_string[0][0:-1] in valid_prefixes and split_string[0][-1] == '-':
+                msg2 = "a negative number was used, this is valid but odd"
+                self.add_error('3000', 'rhel_fedora_neg',
+                               "{}, `{}` - {}".format(self.argname, type_, msg2),
+                               self.lineno)
+            self.add_error('3000', 'rhel_fedora',
+                           "{}, `{}` - {}".format(self.argname, type_, msg),
+                           self.lineno)
 
     @staticmethod
     def can_cast_to_type(argument, type):
@@ -81,7 +99,10 @@ class LinterArgTypes(common.LinterRule):
             return False
         return True
 
-    @staticmethod
-    def is_within_range(num, min, max):
-        num = int(num)
+    def is_within_range(self, num, min, max):
+        num = self.int_(num)
         return min <= num < max
+
+    @staticmethod
+    def int_(num):
+        return int(float(num))

@@ -3,12 +3,13 @@ from __future__ import print_function
 import argparse, bashlex
 import sys
 from bkrdoc.analysis.parser import bkrdoc_parser
-from bkrdoc.analysis.linter import linter, common
-from bkrdoc.analysis.linter.catalogue import catalogue
+from bkrdoc.analysis.linter import linter, common, catalogue
 
 __author__ = 'Zuzana Baranova'
 
-Severity = common.Severity
+Severity = catalogue.Severity
+catalog = catalogue.catalogue
+
 
 class OutputGenerator(object):
 
@@ -42,6 +43,7 @@ class OutputGenerator(object):
             print(self.pretty_format(err))
 
         print("")
+        print(self.pretty_format(err))
         error_was_printed = False
         for err in sorted_err_list:
             if not err.severity or err.severity and self.is_enabled_error(err):
@@ -49,7 +51,6 @@ class OutputGenerator(object):
                 error_was_printed = True
         if not error_was_printed:
             print(self.NOERRORS)
-
 
     def is_enabled_error(self, error):
         return (self.is_enabled_severity(error.severity) and error.id not in self.options.suppressed_by_id) \
@@ -113,8 +114,8 @@ class OutputGenerator(object):
                         self.enabled[Severity[single_opt]] = set_severity_to
                     elif single_opt in self.known_errors:
                         related_list.append(single_opt)
-                    elif single_opt in catalogue.keys():
-                        related_list += (catalogue[single_opt][key][0] for key in catalogue[single_opt])
+                    elif single_opt in catalog.keys():
+                        related_list += (catalog[single_opt][key][0] for key in catalog[single_opt])
                     else:
                         msg = '{} not recognized, continuing anyway--'.format(single_opt)
                         self.unrecognized_options.append(common.Error(id='UNK_FLAG',message=msg))
@@ -128,15 +129,15 @@ class OutputGenerator(object):
         @staticmethod
         def get_known_errors():
             known_errs = []
-            for err_class in catalogue:
-                known_errs += (catalogue[err_class][key][0] for key in catalogue[err_class])
+            for err_class in catalog:
+                known_errs += (catalog[err_class][key][0] for key in catalog[err_class])
             return known_errs
 
 
 def set_args():
-    argp = argparse.ArgumentParser()
-    argp.add_argument('file_in', type=str)
-    argp.add_argument('-s', dest='suppress_first', action='store_true', default=False)
+    argp = argparse.ArgumentParser(description='Linter for beakerlib-specific mistakes in beakerlib tests.')
+    argp.add_argument('file_in', type=str, help='input file')
+    argp.add_argument('-s', dest='suppress_first', action='store_true', default=False, help='suppress first')
     argp.add_argument('--enable', type=str, dest='enabled', action='append')
     argp.add_argument('--suppress', type=str, dest='suppressed', action='append')
     parsed_args = argp.parse_args()

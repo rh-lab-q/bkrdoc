@@ -1,7 +1,6 @@
 __author__ = 'Zuzana Baranova'
 
 from bkrdoc.analysis.linter import common
-from bkrdoc.analysis.linter.catalogue import catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser, conditions_for_commands
 
 
@@ -33,18 +32,22 @@ class LinterWithinPhase(common.LinterRule):
             if self.is_phase_begin(line.argname):
                 self.depth_of_nesting += 1
                 self.log_metric_names.append([])
+
             elif cond.is_phase_end(line.argname):
                 # empty phases
                 if self.is_phase_begin(self.last_command):
-                    id, severity = catalogue['1500']['empty_phase']
-                    self.add_error(id, severity, self.EMPTY_PHASE, line.lineno)
+                    self.add_error('1500', 'empty_phase',
+                                   self.EMPTY_PHASE,
+                                   line.lineno)
                 if self.depth_of_nesting > 0:
                     self.depth_of_nesting -= 1
                     del self.log_metric_names[-1]
+
             elif cond.is_rllogmetric_command(line.argname):
-                if line.name in [name for namelist in self.log_metric_names for name in namelist]:
-                    id, severity = catalogue['1500']['rlLogMetric']
-                    self.add_error(id, severity, "{} ({})".format(self.METRICNAME, line.name), line.lineno)
+                if line.name in self.get_used_metric_names():
+                    self.add_error('1500', 'rlLogMetric',
+                                   "{} ({})".format(self.METRICNAME, line.name),
+                                   line.lineno)
                 else:
                     self.log_metric_names[-1].append(line.name)
             self.last_command = line.argname
@@ -53,3 +56,6 @@ class LinterWithinPhase(common.LinterRule):
     @staticmethod
     def is_phase_begin(command):
         return command in bkrdoc_parser.Parser.start_phase_names
+
+    def get_used_metric_names(self):
+        return [name for namelist in self.log_metric_names for name in namelist]
