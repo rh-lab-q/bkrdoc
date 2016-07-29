@@ -79,6 +79,9 @@ class StatementDataSearcher:
             elif condition.is_assert_binary_origin(first):
                 self.check_err(self.get_assertbinaryorigin_data, pom_list)
 
+            else:
+                self.unknown_command(pom_list)
+
         elif condition.is_rlfilebackup_command(first):
             self.check_err(self.get_rlfilebackup_data, pom_list)
 

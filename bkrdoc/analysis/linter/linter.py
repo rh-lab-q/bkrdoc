@@ -1,6 +1,6 @@
 __author__ = 'Zuzana Baranova'
 
-from bkrdoc.analysis.linter import l_pair_functions, l_single_rules, l_within_phase, l_arg_types
+from bkrdoc.analysis.linter import l_pair_functions, l_single_rules, l_within_phase, l_arg_types, l_command_typos
 
 
 class Linter(object):
@@ -9,7 +9,8 @@ class Linter(object):
     linter_rules = [l_pair_functions.LinterPairFunctions,
                     l_single_rules.LinterSingleRules,
                     l_within_phase.LinterWithinPhase,
-                    l_arg_types.LinterArgTypes]
+                    l_arg_types.LinterArgTypes,
+                    l_command_typos.LinterCommandTypos]
 
     def __init__(self):
         self.errors = []

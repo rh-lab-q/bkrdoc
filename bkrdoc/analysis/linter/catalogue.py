@@ -52,5 +52,9 @@ catalogue = {
              'rlWatchdog': ('E3012', Severity.info),  # rlWatchdog signal not a common one
              'rlReport': ('E3013', Severity.warning),  # rlReport result not in (PASS,WARN,FAIL)
              'rhel_fedora': ('E3014', Severity.error),  # rlIsRHEL/Fedora invalid type
-             'rhel_fedora_neg': ('E3015', Severity.info)}  # rlIsRHEL/Fedora negative number
+             'rhel_fedora_neg': ('E3015', Severity.info)},  # rlIsRHEL/Fedora negative number
+
+    # command typos
+    '4000': {'letter_case': ('E4001', Severity.error),  # command differs by upper/lowercase
+             'end_s': ('E4002', Severity.error)}  # Equals vs. Equal
 }

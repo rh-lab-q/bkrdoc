@@ -8,7 +8,7 @@ from bkrdoc.analysis.linter.catalogue import catalogue
 class Error(object):
     """Class symbolizing a static analysis error."""
 
-    def __init__(self, id=None, type=None,  message="", lineno=0):
+    def __init__(self, id=None, type=None, message="", lineno=0):
         self.lineno = lineno
         self.message = message
         self.severity = type

@@ -41,6 +41,8 @@ class Parser(object):
 
     start_phase_names = ['rlPhaseStart', 'rlPhaseStartTest', 'rlPhaseStartSetup', 'rlPhaseStartCleanup']
 
+    beakerlib_commands = all_commands + start_phase_names + ['rlJournalStart', 'rlJournalEnd', 'rlPhaseEnd']
+
     phases = []
     test_functions = []
     outside = ""

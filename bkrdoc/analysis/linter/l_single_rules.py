@@ -53,7 +53,7 @@ class LinterSingleRules(common.LinterRule):
             if constraint_met(line):
                 return
 
-            if self.is_beakerlib_command(line.argname):
+            if line.argname in bkrdoc_parser.Parser.beakerlib_commands:
                 self.add_error('2400', catalogue_lookup,
                                msg=error_msg, lineno=line.lineno)
                 return
@@ -78,12 +78,6 @@ class LinterSingleRules(common.LinterRule):
                 if not self.is_journal_print_or_end(line_inner):
                     self.add_error('2400', 'journal_end', self.JOURNAL_END, line_inner.lineno)
                     return
-
-    @staticmethod
-    def is_beakerlib_command(command):
-        commands = bkrdoc_parser.Parser.all_commands + bkrdoc_parser.Parser.start_phase_names
-        commands += ['rlJournalStart', 'rlJournalEnd', 'rlPhaseEnd']
-        return command in commands
 
     @staticmethod
     def is_journal_start(line):
