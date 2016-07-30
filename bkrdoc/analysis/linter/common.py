@@ -14,6 +14,9 @@ class Error(object):
         self.severity = type
         self.id = id
 
+    def __repr__(self):
+        return "{} [{}]".format(self.message, self.id)
+
     def __eq__(self, other):
         if not isinstance(other, Error):
             return False
@@ -43,7 +46,10 @@ class LinterRule(object):
         pass
 
     def add_error(self, err_class, err_label, msg, lineno=0, flag=None):
-        id, severity = catalogue[err_class][err_label]
+        try:
+            id, severity = catalogue[err_class][err_label]
+        except KeyError:
+            id, severity = None, None
         if flag:
             msg += " with flag `" + flag + "`"
         self.errors.append(Error(id, severity, msg, lineno))

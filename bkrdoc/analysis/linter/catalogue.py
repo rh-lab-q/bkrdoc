@@ -47,6 +47,7 @@ catalogue = {
 
     # argument errors (parsing/type)
     '3000': {'parse_err': ('E3001', Severity.error),
+             'too_many_args': ('E3002', Severity.warning),
              'rlRun_type': ('E3010', Severity.error),  # rlRun status not a float(int)
              'rlRun_bounds': ('E3011', Severity.error),  # rlRun range status a-b : a>b
              'rlWatchdog': ('E3012', Severity.info),  # rlWatchdog signal not a common one

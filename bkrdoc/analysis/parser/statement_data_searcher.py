@@ -267,7 +267,8 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rljournal_phase_end_data(self, pom_param_list):
         """
@@ -276,7 +277,8 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlphasestart_data(self, pom_param_list):
         """
@@ -288,6 +290,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("type", type=str)
         parser_arg.add_argument("name", type=str, nargs="?")
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlphasestartxxx_data(self, pom_param_list):
         """
@@ -297,13 +300,8 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str, nargs="?")
-        self.parsed_param_ref, unknown = parser_arg.parse_known_args([pom_param_list[0]])
-        # hack for --help message
-        rest = ""
-        for member in pom_param_list[1:]:
-            rest += member + " "
-        rest = rest.strip()
-        self.parsed_param_ref.name = rest
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rljournalprint_data(self, pom_param_list):
         """
@@ -318,7 +316,8 @@ class StatementDataSearcher:
                                 action='store_true', default=False)
         else:
             parser_arg.add_argument("type", type=str, nargs="?", choices=['raw', 'pretty'], default='pretty')
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlshowpackageversion_data(self, pom_param_list):
         """
@@ -340,7 +339,8 @@ class StatementDataSearcher:
         parser_arg.add_argument("-s", type=str, help="sets separator")
         parser_arg.add_argument("path_to_file", type=str)
         parser_arg.add_argument("required_name", type=str, nargs="?")
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlbundlelogs_data(self, pom_param_list):
         """
@@ -374,7 +374,8 @@ class StatementDataSearcher:
         parser_arg.add_argument("name", type=str)
         parser_arg.add_argument("value", type=float)
         parser_arg.add_argument("tolerance", type=float, nargs="?")
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rllog_data(self, pom_param_list):
         """
@@ -390,11 +391,11 @@ class StatementDataSearcher:
             parser_arg.add_argument("priority", type=str, nargs="?")
             parser_arg.add_argument('--prio-label', dest='prio_label',
                                     action='store_true', default=False)
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
         if command_suffix:
             self.parsed_param_ref.priority = command_suffix.upper()
             self.parsed_param_ref.prio_label = True
-
 
     def get_rlshowrunningkernel_data(self, pom_param_list):
         """
@@ -403,6 +404,7 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlget_or_rlcheck_makefilerequeries_data(self, pom_param_list):
@@ -412,6 +414,7 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_checkrequirements_data(self, pom_param_list):
@@ -431,6 +434,7 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def unknown_command(self, pom_param_list):
@@ -472,6 +476,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("timeout", type=float)
         parser_arg.add_argument("signal", type=str, nargs='?', default="KILL")
         parser_arg.add_argument("callback", type=str, nargs='?')
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlreport_data(self, pom_param_list):
@@ -485,6 +490,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("result", type=str)
         parser_arg.add_argument("score", type=str, nargs='?')
         parser_arg.add_argument("log", type=str, nargs='?')
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlrun_data(self, pom_param_list):
@@ -501,7 +507,8 @@ class StatementDataSearcher:
         parser_arg.add_argument("command", type=str)
         parser_arg.add_argument("status", type=str, nargs='?', default="0")
         parser_arg.add_argument("comment", type=str, nargs='?')
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
         ref = self.parsed_param_ref
         # TODO
         # self.parse_command(self.parsed_param_ref.command)  # for getting variables from command
@@ -515,6 +522,7 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlwaitfor_data(self, pom_param_list):
@@ -527,7 +535,8 @@ class StatementDataSearcher:
         parser_arg.add_argument('n', type=str, nargs='*')
         parser_arg.add_argument("-t", type=int, help="time")
         parser_arg.add_argument("-s", type=str, help="SIGNAL", default="SIGTERM")
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlwaitforxxx_data(self, pom_param_list):
         """
@@ -554,7 +563,8 @@ class StatementDataSearcher:
             parser_arg.add_argument("port_path", type=str)
             parser_arg.add_argument('--close', dest='close', action='store_true',
                                     default=False)
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlimport_data(self, pom_param_list):
         """
@@ -576,6 +586,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("command", type=str)
         parser_arg.add_argument("time", type=float, nargs='?', default=30)
         parser_arg.add_argument("runs", type=int, nargs='?', default=3)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlperftime_avgfromruns_data(self, pom_param_list):
@@ -588,6 +599,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("command", type=str)
         parser_arg.add_argument("count", type=int, nargs='?', default=3)
         parser_arg.add_argument("warmup", type=str, nargs='?', default="warmup")
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlcleanup_append_or_prepend_data(self, pom_param_list):
@@ -598,6 +610,7 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("string", type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_seboolean_on_off_data(self, pom_param_list):
@@ -639,7 +652,8 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("--namespace", type=str,
                                 help="specified namespace to use")
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_rlfilebackup_data(self, pom_param_list):
         """
@@ -668,7 +682,8 @@ class StatementDataSearcher:
                                 help="given hash algorithm")
         parser_arg.add_argument("STRING", type=str, nargs='?')
         parser_arg.add_argument('--stdin', action='store_true', default=False)
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def get_check_or_assert_mount_data(self, pom_param_list):
         """
@@ -680,6 +695,7 @@ class StatementDataSearcher:
         parser_arg.add_argument('server', type=str, nargs='?')
         parser_arg.add_argument('share', type=str, nargs='?')
         parser_arg.add_argument('mountpoint', type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlmount_data(self, pom_param_list):
@@ -692,6 +708,7 @@ class StatementDataSearcher:
         parser_arg.add_argument('server', type=str)
         parser_arg.add_argument('share', type=str)
         parser_arg.add_argument('mountpoint', type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assertbinaryorigin_data(self, pom_param_list):
@@ -715,7 +732,8 @@ class StatementDataSearcher:
         if len(pom_param_list) == 2 and pom_param_list[1] == "--all":
             parser_arg.add_argument('--all', dest='all', action='store_true',
                                     default=False, help='assert all packages')
-            self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+            self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+            self.parsed_param_ref.remainder = unknown
         else:
             parser_arg.add_argument('name', type=str)
             parser_arg.add_argument('version', type=str, nargs='?')
@@ -724,7 +742,8 @@ class StatementDataSearcher:
             # this line is for information translator
             parser_arg.add_argument('--all', dest='all', action='store_true',
                                     default=False, help='assert all packages')
-            self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+            self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+            self.parsed_param_ref.remainder = unknown
 
     def get_isrhel_or_isfedora_data(self, pom_param_list):
         """
@@ -745,6 +764,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('file1', type=str)
         parser_arg.add_argument('file2', type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_exists_data(self, pom_param_list):
@@ -755,6 +775,7 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('file_directory', type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_comparison_data(self, pom_param_list):
@@ -769,6 +790,7 @@ class StatementDataSearcher:
         type_ = str if pom_param_list[0].endswith('Equals') else int
         parser_arg.add_argument('value1', type=type_)
         parser_arg.add_argument('value2', type=type_)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert0_data(self, pom_param_list):
@@ -780,6 +802,7 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
         parser_arg.add_argument('value', type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlpass_or_rlfail_data(self, pom_param_list):
@@ -790,6 +813,7 @@ class StatementDataSearcher:
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
+        parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_assert_grep_data(self, pom_param_list):
@@ -807,7 +831,8 @@ class StatementDataSearcher:
                                 default=False, help='Extended grep')
         parser_arg.add_argument('-p', '-P', dest='out_in', action='store_true',
                                 default=False, help='perl regular expression')
-        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
 
     def is_beakerlib_command(self, testing_command, parser_ref):
         return parser_ref.is_beakerlib_command(testing_command)
@@ -816,12 +841,20 @@ class StatementDataSearcher:
         return list(filter(None, input_list))
 
     def check_err(self, get_data_method, argument_list):
+        def add_error(err_class, err_label, msg, lineno):
+            id, severity = catalogue[err_class][err_label]
+            self.errors.append(common.Error(id, severity, msg, lineno))
+
         try:
             get_data_method(argument_list)
+            if hasattr(self.parsed_param_ref, 'remainder') and self.parsed_param_ref.remainder:
+                msg = "{}, too many arguments (unrecognized args: {})".format(self.parsed_param_ref.argname,
+                                                                       self.parsed_param_ref.remainder)
+                add_error('3000', 'too_many_args', msg, self.lineno)
         except argparse.ArgumentError as exc:
             msg = self.strip_argparse_error_of_usage_info(exc.message, argument_list[0])
-            id, severity = catalogue['3000']['parse_err']
-            self.errors.append(common.Error(id, severity, msg, self.lineno))
+            add_error('3000', 'parse_err', msg, self.lineno)
+
 
     def get_errors(self):
         return self.errors

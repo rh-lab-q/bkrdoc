@@ -32,7 +32,7 @@ def get_errors_from_parse_list(parse_list):
 
 def list_contains(self, sublist, list_):
         for elem in sublist:
-            unittest.TestCase.assertIn(self, elem, list_)
+            unittest.TestCase.assertIn(self, elem, list_, "{} not found".format(elem))
 
 
 def assert_empty(self, list_):
@@ -175,9 +175,16 @@ class TestArgparseParsingErrors(unittest.TestCase):
 
     def test_float_error(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
-        st_data_search.check_err(st_data_search.get_rllogmetric_data, ['rlLogMetricLow', "0.9", 'notint'])
+        st_data_search.check_err(st_data_search.get_rllogmetric_data, ['rlLogMetricLow', '0.9', 'notint'])
         err_msg = "rlLogMetricLow, invalid float value: 'notint'"
-        self.assertEqual([err('E3001','error',err_msg,0)], st_data_search.get_errors())
+        self.assertEqual([err('E3001', 'error', err_msg, 0)], st_data_search.get_errors())
+
+    def test_too_many_args(self):
+        st_data_search = statement_data_searcher.StatementDataSearcher()
+        st_data_search.check_err(st_data_search.get_rlfilesubmit_data,
+                                 ['rlFileSubmit', '-s', '/', 'path', 'req_name', 'fluff', 'more_fluff'])
+        err_msg = "rlFileSubmit, too many arguments (unrecognized args: ['fluff', 'more_fluff'])"
+        self.assertEqual([err('E3002', 'warning', err_msg, 0)], st_data_search.get_errors())
 
 
 class TestComplexFile(unittest.TestCase):
@@ -188,7 +195,7 @@ class TestComplexFile(unittest.TestCase):
         gener = output_generator.OutputGenerator(Namespace(file_in="./examples/bkrlint/test.sh",
                                                            enabled=None, suppressed=None, suppress_first=False))
 
-        RLRUN = "rlRun, usage: rlRun [-t] [-l] [-c] [-s] command [status] [comment] || unrecognized arguments: -o"
+        RLRUN = "rlRun, too many arguments (unrecognized args: ['-o'])"
         PHASEEND = "rlPhaseEnd without a previous begin"
         FILEBACKUP = "rlFileBackup without a matching rlFileRestore with flag `wut`"
         JOURNAL = "Journal was not started before a beakerlib command was used."
@@ -197,7 +204,7 @@ class TestComplexFile(unittest.TestCase):
         gener.analyse()
         errors = gener.main_linter.errors
         self.assertEqual(len(errors), 5)
-        expected_errors = [err('E3001', 'error', RLRUN, 12),
+        expected_errors = [err('E3002', 'warning', RLRUN, 12),
                            err('E1201', 'error', PHASEEND, 35),
                            err('E1002', 'error', FILEBACKUP, 14),
                            err('E2402', 'warning', JOURNAL, 9),
