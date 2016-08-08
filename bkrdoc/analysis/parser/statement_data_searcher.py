@@ -4,8 +4,9 @@ import shlex
 import re
 from bkrdoc.analysis.parser import conditions_for_commands, custom_argparse
 from bkrdoc.analysis.linter import common
-from bkrdoc.analysis.linter.catalogue import catalogue
+from bkrdoc.analysis.linter.catalogue import Catalogue
 
+catalogue = Catalogue.table
 
 __author__ = 'Jiri_Kulda'
 
@@ -842,7 +843,10 @@ class StatementDataSearcher:
 
     def check_err(self, get_data_method, argument_list):
         def add_error(err_class, err_label, msg, lineno):
-            id, severity = catalogue[err_class][err_label]
+            try:
+                id, severity = catalogue[err_class].value[err_label]
+            except ValueError:
+                id, severity, _ = catalogue[err_class].value[err_label]
             self.errors.append(common.Error(id, severity, msg, lineno))
 
         try:

@@ -1,7 +1,9 @@
 __author__ = 'Zuzana Baranova'
 
 import functools
-from bkrdoc.analysis.linter.catalogue import catalogue
+from bkrdoc.analysis.linter.catalogue import Catalogue
+
+catalogue = Catalogue.table
 
 
 @functools.total_ordering
@@ -47,7 +49,9 @@ class LinterRule(object):
 
     def add_error(self, err_class, err_label, msg, lineno=0, flag=None):
         try:
-            id, severity = catalogue[err_class][err_label]
+            id, severity = catalogue[err_class].value[err_label]
+        except ValueError:
+            id, severity, _ = catalogue[err_class].value[err_label]
         except KeyError:
             id, severity = None, None
         if flag:

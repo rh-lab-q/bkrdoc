@@ -87,6 +87,7 @@ class LinterArgTypes(common.LinterRule):
                 self.add_error('3000', 'rhel_fedora_neg',
                                "{}, `{}` - {}".format(self.argname, type_, msg2),
                                self.lineno)
+                continue
             self.add_error('3000', 'rhel_fedora',
                            "{}, `{}` - {}".format(self.argname, type_, msg),
                            self.lineno)

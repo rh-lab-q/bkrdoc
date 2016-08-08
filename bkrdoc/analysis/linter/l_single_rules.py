@@ -1,6 +1,7 @@
 __author__ = 'Zuzana Baranova'
 
 from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.linter.catalogue import Catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
 
 
@@ -13,11 +14,6 @@ class LinterSingleRules(common.LinterRule):
         Journal end should be followed by no command (other than journal print).
         Deprecated commands.
     """
-
-    deprecated_commands = {'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch'],
-                           'rlLogLowMetric': ['rlLogMetricLow'],
-                           'rlLogHighMetric': ['rlLogMetricHigh'],
-                           'rlShowPkgVersion': ['rlShowPackageVersion']}
 
     ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
@@ -61,10 +57,10 @@ class LinterSingleRules(common.LinterRule):
     def check_deprecated_commands(self):
 
         for line in self.parsed_input_list:
-            if line.argname not in self.deprecated_commands:
+            if line.argname not in Catalogue.deprecated_commands:
                 continue
             msg = line.argname + " command is deprecated"
-            use_instead = self.deprecated_commands[line.argname]
+            use_instead = Catalogue.deprecated_commands[line.argname]
             if use_instead:
                 msg += ", instead use: " + ', '.join(use_instead)
             self.add_error('2000', line.argname, msg, line.lineno)

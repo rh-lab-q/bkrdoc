@@ -8,7 +8,7 @@ from bkrdoc.analysis.linter import linter, common, catalogue
 __author__ = 'Zuzana Baranova'
 
 Severity = catalogue.Severity
-catalog = catalogue.catalogue
+catalog = catalogue.Catalogue.table
 
 
 class OutputGenerator(object):
@@ -22,6 +22,8 @@ class OutputGenerator(object):
         self.parser_ref = bkrdoc_parser.Parser(args.file_in)
         self.options = self.Options(args)
         self.main_linter.errors += self.options.unrecognized_options
+        if args.catalogue:
+            catalogue.Catalogue().output_as_markdown_file()
 
     def analyse(self):
         try:
@@ -115,7 +117,7 @@ class OutputGenerator(object):
                     elif single_opt in self.known_errors:
                         related_list.append(single_opt)
                     elif single_opt in catalog.keys():
-                        related_list += (catalog[single_opt][key][0] for key in catalog[single_opt])
+                        related_list += (catalog[single_opt].value[key][0] for key in catalog[single_opt].value)
                     else:
                         msg = '{} not recognized, continuing anyway--'.format(single_opt)
                         self.unrecognized_options.append(common.Error(id='UNK_FLAG',message=msg))
@@ -130,7 +132,7 @@ class OutputGenerator(object):
         def get_known_errors():
             known_errs = []
             for err_class in catalog:
-                known_errs += (catalog[err_class][key][0] for key in catalog[err_class])
+                known_errs += (catalog[err_class].value[key][0] for key in catalog[err_class].value)
             return known_errs
 
 
@@ -140,6 +142,7 @@ def set_args():
     argp.add_argument('-s', dest='suppress_first', action='store_true', default=False, help='suppress first')
     argp.add_argument('--enable', type=str, dest='enabled', action='append')
     argp.add_argument('--suppress', type=str, dest='suppressed', action='append')
+    argp.add_argument('--catalogue', dest='catalogue', action='store_true', default=False, help='generate catalogue.md')
     parsed_args = argp.parse_args()
     return parsed_args
 

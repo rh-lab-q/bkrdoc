@@ -1,7 +1,7 @@
 __author__ = 'Zuzana Baranova'
 
 import copy
-from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.linter import common, catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
 
 
@@ -20,9 +20,9 @@ class Match(object):
     :param restores_all: a flagless Closing command closes everything regardless of flag
     """
 
-    def __init__(self, func, pair, before=[], each=False, flag_source=None, restores_all=False, lineno=0):
+    def __init__(self, func, before=[], each=False, flag_source=None, restores_all=False, lineno=0):
         self.func = func
-        self.pair = pair
+        self.pair = catalogue.Catalogue.pair_ends[func]
         self.before = before
         self.each_needs_match = each
         self.restores_all = restores_all
@@ -39,15 +39,15 @@ class LinterPairFunctions(common.LinterRule):
 
     start_phase_names = bkrdoc_parser.Parser.start_phase_names
 
-    pairs = {'rlPhaseStart': Match('rlPhaseStart', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlPhaseStartTest': Match('rlPhaseStartTest', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlPhaseStartSetup': Match('rlPhaseStartSetup', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlFileBackup': Match('rlFileBackup', 'rlFileRestore', flag_source='namespace'),
-             'rlVirtualXStart': Match('rlVirtualXStart', 'rlVirtualXStop', flag_source='name'),
-             'rlServiceStart': Match('rlServiceStart', 'rlServiceStop', before=['rlServiceRestore'], flag_source='service'),
-             'rlSEBooleanOn': Match('rlSEBooleanOn', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True),
-             'rlSEBooleanOff': Match('rlSEBooleanOff', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True)}
+    pairs = {'rlPhaseStart': Match('rlPhaseStart', before=start_phase_names, each=True),
+             'rlPhaseStartTest': Match('rlPhaseStartTest', before=start_phase_names, each=True),
+             'rlPhaseStartSetup': Match('rlPhaseStartSetup', before=start_phase_names, each=True),
+             'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', before=start_phase_names, each=True),
+             'rlFileBackup': Match('rlFileBackup', flag_source='namespace'),
+             'rlVirtualXStart': Match('rlVirtualXStart', flag_source='name'),
+             'rlServiceStart': Match('rlServiceStart', before=['rlServiceRestore'], flag_source='service'),
+             'rlSEBooleanOn': Match('rlSEBooleanOn', flag_source='boolean', restores_all=True),
+             'rlSEBooleanOff': Match('rlSEBooleanOff', flag_source='boolean', restores_all=True)}
 
     currently_unmatched = []
 

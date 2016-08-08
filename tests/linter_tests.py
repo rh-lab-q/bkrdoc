@@ -25,7 +25,8 @@ def get_errors_from_parse_list(parse_list):
     gener = output_generator.OutputGenerator(Namespace(file_in="",
                                                        enabled=None,
                                                        suppressed=None,
-                                                       suppress_first=False))
+                                                       suppress_first=False,
+                                                       catalogue=False))
     gener.main_linter.analyse(parse_list)
     return gener.main_linter.errors
 
@@ -65,7 +66,7 @@ class TestStandaloneRules(unittest.TestCase):
         parse_list = [self.ns_beaker_env, self.ns_journal, self.ns_rlrun, self.ns_rlarch_depr]
         errors = get_errors_from_parse_list(parse_list)
         err_msg = "rlGetArch command is deprecated, instead use: " + \
-                  ', '.join(LSingleRules.deprecated_commands['rlGetArch'])
+                  ', '.join(catalogue.Catalogue.deprecated_commands['rlGetArch'])
         self.assertEqual([err('E2001', 'error', err_msg, 0)], errors)
 
     def test_beaker_env(self):
@@ -193,7 +194,8 @@ class TestComplexFile(unittest.TestCase):
 
     def test_complex(self):
         gener = output_generator.OutputGenerator(Namespace(file_in="./examples/bkrlint/test.sh",
-                                                           enabled=None, suppressed=None, suppress_first=False))
+                                                           enabled=None, suppressed=None,
+                                                           suppress_first=False, catalogue=False))
 
         RLRUN = "rlRun, too many arguments (unrecognized args: ['-o'])"
         PHASEEND = "rlPhaseEnd without a previous begin"
@@ -218,7 +220,7 @@ class TestOptions(unittest.TestCase):
 
     args = Namespace(suppressed=['E2102', '3000', 'E4523', 'E1102'],
                      enabled=['warning', 'E4523', 'E3001'],
-                     suppress_first=True,
+                     suppress_first=True, catalogue=False,
                      file_in="")
 
     def test_option_setting(self):
@@ -291,7 +293,7 @@ class TestArgTypes(unittest.TestCase):
         argtypes.argname = 'rlOS'
         types = ['>=3', '=>2', '=0', '=-1', '<1', 'a', '=e', '>2.3']
         argtypes.check_os_type(types, argtypes.OS_TYPE_INVALID)
-        self.assertEqual(len(argtypes.errors), 5)
+        self.assertEqual(len(argtypes.errors), 4)
         self.list_contains_([err('E3014', 'error',
                                  "{}, `{}` - {}".format(argtypes.argname, '=e', argtypes.OS_TYPE_INVALID), 0),
                              err('E3015', 'info',
