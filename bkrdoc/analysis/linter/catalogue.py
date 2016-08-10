@@ -74,7 +74,7 @@ class Catalogue:
                         "Error class uniting problems that are related to phase composition "
                         "of tests.",
             value={'rlLogMetric': ('E1501', Severity.error, "metric name has to be unique within a single phase"),
-                   'empty_phase': ('E2404', Severity.warning, "empty phase found")}),
+                   'empty_phase': ('E1502', Severity.warning, "empty phase found")}),
 
         '2000': Namespace(
             description="Deprecated commands\n"
@@ -127,7 +127,7 @@ class Catalogue:
         for pair_begin in Catalogue.pair_ends:
             if Catalogue.pair_ends[pair_begin] == command:
                 relevant_begins.append(pair_begin)
-        return "{}, begins: {}".format(command, ', '.join(relevant_begins))
+        return "{}, begins: {}".format(command, ', '.join(sorted(relevant_begins)))
 
     @staticmethod
     def get_deprecated_alternative(command):
@@ -155,6 +155,7 @@ class Catalogue:
 
             for err in error_msgs:
                 output[-1].append(err)
+            output[-1].append('\n')
 
         try:
             with open('catalogue.md', "w") as input_file:

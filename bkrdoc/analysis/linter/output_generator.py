@@ -38,15 +38,19 @@ class OutputGenerator(object):
         #for elem in self.parser_ref.argparse_data_list:
         #    print(elem)
 
+        error_was_printed = False
         sorted_err_list = iter(sorted(self.main_linter.errors))
         for err in sorted_err_list:
             if err.id != 'UNK_FLAG':
+                if not err.severity or err.severity and self.is_enabled_error(err):
+                    print("")
+                    print(self.pretty_format(err))
+                    error_was_printed = True
                 break
             print(self.pretty_format(err))
 
-        print("")
-        print(self.pretty_format(err))
-        error_was_printed = False
+        if not error_was_printed:
+            print("")
         for err in sorted_err_list:
             if not err.severity or err.severity and self.is_enabled_error(err):
                 print(self.pretty_format(err))

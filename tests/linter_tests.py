@@ -2,19 +2,21 @@ __author__ = 'Zuzana Baranova'
 
 import unittest
 import argparse
-from bkrdoc.analysis.linter import output_generator, common, catalogue
-from bkrdoc.analysis.linter import l_single_rules, linter, l_pair_functions, l_arg_types
+from bkrdoc.analysis.linter import output_generator, common, catalogue, linter
+from bkrdoc.analysis.linter import l_single_rules, l_pair_functions, l_arg_types, l_within_phase, l_command_typos
 from bkrdoc.analysis.parser import statement_data_searcher
 
 
 LSingleRules = l_single_rules.LinterSingleRules
 LPairFunc = l_pair_functions.LinterPairFunctions
 LArgTypes = l_arg_types.LinterArgTypes
+LWithinPhase = l_within_phase.LinterWithinPhase
+LTypos = l_command_typos.LinterCommandTypos
 Namespace = argparse.Namespace
 Severity  = catalogue.Severity
 
 
-def err(id, severity, msg, lineno):
+def err(id, severity, msg, lineno=0):
     if severity is not None:
         severity = Severity[severity]
     return common.Error(id, severity, msg, lineno)
@@ -300,6 +302,58 @@ class TestArgTypes(unittest.TestCase):
                                  "{}, `{}` - {}".format(argtypes.argname, '=-1',
                                                         "a negative number was used, this is valid but odd"), 0)],
                             argtypes.errors)
+
+
+class TestTypos(unittest.TestCase):
+
+    UNRECOGNIZED = "not recognized, perhaps you meant"
+
+    list_contains_ = list_contains
+
+    def test_case_sensitivity(self):
+        command_typos = LTypos([Namespace(argname='UNKNOWN', data=['rlPhasestartSetup'], lineno=0),
+                                Namespace(argname='UNKNOWN', data=['rlcheckmakefilerequires'], lineno=0)])
+        command_typos.analyse()
+        self.assertEqual(len(command_typos.errors), 2)
+        self.list_contains_([err('E4001', 'error',
+                                 "{} {} {}?".format('rlPhasestartSetup', self.UNRECOGNIZED, 'rlPhaseStartSetup')),
+                             err('E4001', 'error',
+                                 "{} {} {}?".format('rlcheckmakefilerequires', self.UNRECOGNIZED, 'rlCheckMakefileRequires'))],
+                            command_typos.errors)
+
+    def test_ending_s(self):
+        command_typos = LTypos([Namespace(argname='UNKNOWN', data=['rlAssertEqual'], lineno=0),
+                                Namespace(argname='UNKNOWN', data=['rlAssertExist'], lineno=0)])
+        command_typos.analyse()
+        self.assertEqual(len(command_typos.errors), 2)
+        self.list_contains_([err('E4002', 'error',
+                                 "{} {} {}?".format('rlAssertEqual', self.UNRECOGNIZED, 'rlAssertEquals')),
+                             err('E4002', 'error',
+                                 "{} {} {}?".format('rlAssertExist', self.UNRECOGNIZED, 'rlAssertExists'))],
+                            command_typos.errors)
+
+
+class TestWithinPhase(unittest.TestCase):
+
+    list_contains_ = list_contains
+
+    def test_empty_phase(self):
+        within_phase = LWithinPhase([Namespace(argname='rlPhaseStartTest', lineno=3),
+                                     Namespace(argname='rlPhaseEnd', lineno=4)])
+        within_phase.analyse()
+        self.assertEqual(len(within_phase.errors), 1)
+        self.list_contains_([err('E1502', 'warning', "Useless empty phase found.", 4)],
+                            within_phase.errors)
+
+    def test_metric_name(self):
+        within_phase = LWithinPhase([Namespace(argname='rlPhaseStartTest', lineno=0),
+                                     Namespace(argname='rlLogMetricLow', name='a', lineno=1),
+                                     Namespace(argname='UNKNOWN', lineno=2),
+                                     Namespace(argname='rlLogMetricHigh', name='a', lineno=3)])
+        within_phase.analyse()
+        self.assertEqual(len(within_phase.errors), 1)
+        self.list_contains_([err('E1501', 'error', "{} ({})".format(LWithinPhase.METRICNAME, 'a'), 3)],
+                            within_phase.errors)
 
 
 if __name__ == '__main__':
