@@ -51,30 +51,23 @@ class LinterPairFunctions(common.LinterRule):
 
     currently_unmatched = []
 
-    def __init__(self, parsed_input_list):
+    def __init__(self):
         super(LinterPairFunctions, self).__init__()
         self.currently_unmatched = []
         self.errors = []
-        self.parsed_input_list = parsed_input_list
 
-    def analyse(self):
+    def analyse(self, line):
 
-        for line in self.parsed_input_list:
-            match = self.get_relevant_match(line.argname)
-            line_flags = self.get_flag(line, match)
-            if isinstance(line_flags, list):
-                if not line_flags:
-                    line_flags = [None]  # analyse commands with empty optional argument lists
-                for flag in line_flags:
-                    setattr(line, match.flag_source, flag)
-                    self.analyse_single_line(line)
-            else:
+        match = self.get_relevant_match(line.argname)
+        line_flags = self.get_flag(line, match)
+        if isinstance(line_flags, list):
+            if not line_flags:
+                line_flags = [None]  # analyse commands with empty optional argument lists
+            for flag in line_flags:
+                setattr(line, match.flag_source, flag)
                 self.analyse_single_line(line)
-
-        for elem in self.currently_unmatched:
-            self.add_error('1000', elem.func,
-                           elem.func + " without a matching " + elem.pair,
-                           elem.lineno, flag=elem.flag)
+        else:
+            self.analyse_single_line(line)
 
     def analyse_single_line(self, line):
 
@@ -145,3 +138,11 @@ class LinterPairFunctions(common.LinterRule):
         if not elem or not elem.flag_source:
             return None
         return getattr(line, elem.flag_source)
+
+    # overriding, have to traverse the whole parsed input list to see what is left
+    def get_errors(self):
+        for elem in self.currently_unmatched:
+            self.add_error('1000', elem.func,
+                           elem.func + " without a matching " + elem.pair,
+                           elem.lineno, flag=elem.flag)
+        return self.errors

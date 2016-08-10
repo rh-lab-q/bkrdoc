@@ -14,11 +14,16 @@ class Linter(object):
 
     def __init__(self):
         self.errors = []
-
-    def analyse(self, _list):
+        self.rule_refs = []
 
         for rule in self.linter_rules:
-            rule_ref = rule(_list)
-            rule_ref.analyse()
+            self.rule_refs.append(rule())
+
+    def analyse(self, _list):
+        for line in _list:
+            for rule_ref in self.rule_refs:
+                rule_ref.analyse(line)
+
+        for rule_ref in self.rule_refs:
             self.errors += rule_ref.get_errors()
 

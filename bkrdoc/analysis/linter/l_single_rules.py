@@ -19,61 +19,65 @@ class LinterSingleRules(common.LinterRule):
     JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
     JOURNAL_END = "Journal end was followed by a command other than journal print."
 
-    def __init__(self, parsed_input_list):
+    def __init__(self):
         super(LinterSingleRules, self).__init__()
         self.errors = []
-        self.parsed_input_list = parsed_input_list
+        self.journal_end_found = False
+        self.beaker_env_checked = False
+        self.journal_start_checked = False
 
-    def analyse(self):
-        self.check_environment_set()
-        self.check_journal_started()
-        self.check_journal_last_command()
-        self.check_deprecated_commands()
+    def analyse(self, line):
+        rules = [self.check_environment_set,
+                 self.check_journal_started,
+                 self.check_journal_last_command,
+                 self.check_deprecated_commands]
+        for rule in rules:
+            rule(line)
 
-    def check_environment_set(self):
-        self.constraint_check(self.sets_beaker_env, self.ENV_NOT_SET)
+    def check_environment_set(self, line):
+        self.constraint_check(line, self.sets_beaker_env, self.ENV_NOT_SET, 'beaker_env_checked')
 
-    def check_journal_started(self):
-        self.constraint_check(self.is_journal_start, self.JOURNAL_NOT_STARTED)
+    def check_journal_started(self, line):
+        self.constraint_check(line, self.is_journal_start, self.JOURNAL_NOT_STARTED, 'journal_start_checked')
 
-    def constraint_check(self, constraint_met, error_msg):
+    def constraint_check(self, line, rule_to_check, error_msg, constraint_met):
         if error_msg == self.ENV_NOT_SET:
             catalogue_lookup = 'beaker_env'
         else:
             catalogue_lookup = 'journal_beg'
 
-        if not self.parsed_input_list:
+        if getattr(self, constraint_met):
+            return
+        if rule_to_check(line):
+            setattr(self, constraint_met, True)
             return
 
-        for line in self.parsed_input_list:
-            if constraint_met(line):
-                return
+        if line.argname in bkrdoc_parser.Parser.beakerlib_commands:
+            self.add_error('2400', catalogue_lookup,
+                           msg=error_msg, lineno=line.lineno)
+            setattr(self, constraint_met, True)  # check once
+            return
 
-            if line.argname in bkrdoc_parser.Parser.beakerlib_commands:
-                self.add_error('2400', catalogue_lookup,
-                               msg=error_msg, lineno=line.lineno)
-                return
+    def check_deprecated_commands(self, line):
 
-    def check_deprecated_commands(self):
+        if line.argname not in Catalogue.deprecated_commands:
+            return
 
-        for line in self.parsed_input_list:
-            if line.argname not in Catalogue.deprecated_commands:
-                continue
-            msg = line.argname + " command is deprecated"
-            use_instead = Catalogue.deprecated_commands[line.argname]
-            if use_instead:
-                msg += ", instead use: " + ', '.join(use_instead)
-            self.add_error('2000', line.argname, msg, line.lineno)
+        msg = line.argname + " command is deprecated"
+        use_instead = Catalogue.deprecated_commands[line.argname]
+        if use_instead:
+            msg += ", instead use: " + ', '.join(use_instead)
+        self.add_error('2000', line.argname, msg, line.lineno)
 
-    def check_journal_last_command(self):
-        iter_parsed_list = iter(self.parsed_input_list)
-        for line in iter_parsed_list:
-            if not self.is_journal_end(line):
-                continue
-            for line_inner in iter_parsed_list:
-                if not self.is_journal_print_or_end(line_inner):
-                    self.add_error('2400', 'journal_end', self.JOURNAL_END, line_inner.lineno)
-                    return
+    def check_journal_last_command(self, line):
+
+        if not self.journal_end_found:
+            return
+
+        if not self.is_journal_print_or_end(line):
+            self.add_error('2400', 'journal_end', self.JOURNAL_END, line.lineno)
+            return
+
 
     @staticmethod
     def is_journal_start(line):

@@ -14,43 +14,40 @@ class LinterWithinPhase(common.LinterRule):
     METRICNAME = "rlLogMetric name has to be unique within a phase"
     EMPTY_PHASE = "Useless empty phase found."
 
-    def __init__(self, parsed_input_list):
+    def __init__(self):
         super(LinterWithinPhase, self).__init__()
         self.depth_of_nesting = 0
-        self.parsed_input_list = parsed_input_list
         self.last_command = None
 
         # list of lists of used metric names for each depth level
         # 0 is outside phase
         self.log_metric_names = [[]]
 
-    def analyse(self):
+    def analyse(self, line):
         cond = conditions_for_commands.ConditionsForCommands()
 
-        for line in self.parsed_input_list:
+        if self.is_phase_begin(line.argname):
+            self.depth_of_nesting += 1
+            self.log_metric_names.append([])
 
-            if self.is_phase_begin(line.argname):
-                self.depth_of_nesting += 1
-                self.log_metric_names.append([])
+        elif cond.is_phase_end(line.argname):
+            # empty phases
+            if self.is_phase_begin(self.last_command):
+                self.add_error('1500', 'empty_phase',
+                               self.EMPTY_PHASE,
+                               line.lineno)
+            if self.depth_of_nesting > 0:
+                self.depth_of_nesting -= 1
+                del self.log_metric_names[-1]
 
-            elif cond.is_phase_end(line.argname):
-                # empty phases
-                if self.is_phase_begin(self.last_command):
-                    self.add_error('1500', 'empty_phase',
-                                   self.EMPTY_PHASE,
-                                   line.lineno)
-                if self.depth_of_nesting > 0:
-                    self.depth_of_nesting -= 1
-                    del self.log_metric_names[-1]
-
-            elif cond.is_rllogmetric_command(line.argname):
-                if line.name in self.get_used_metric_names():
-                    self.add_error('1500', 'rlLogMetric',
-                                   "{} ({})".format(self.METRICNAME, line.name),
-                                   line.lineno)
-                else:
-                    self.log_metric_names[-1].append(line.name)
-            self.last_command = line.argname
+        elif cond.is_rllogmetric_command(line.argname):
+            if line.name in self.get_used_metric_names():
+                self.add_error('1500', 'rlLogMetric',
+                               "{} ({})".format(self.METRICNAME, line.name),
+                               line.lineno)
+            else:
+                self.log_metric_names[-1].append(line.name)
+        self.last_command = line.argname
 
 
     @staticmethod

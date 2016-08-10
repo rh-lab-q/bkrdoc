@@ -24,24 +24,22 @@ class LinterArgTypes(common.LinterRule):
                       'ABRT', 'BUS', 'FPE', 'USR1', 'USR2', 'SEGV', 'PIPE', 'ALRM',
                       'CHLD', 'CONT', 'TTIN', 'TTOU', 'IO', 'SYS', 'TSTP']
 
-    def __init__(self, parsed_input_list):
+    def __init__(self):
         super(LinterArgTypes, self).__init__()
-        self.parsed_input_list = parsed_input_list
         self.lineno = 0
         self.argname = ""
 
-    def analyse(self):
-        for line in self.parsed_input_list:
-            args_to_check = self.commands_to_check.get(line.argname)
-            self.argname = line.argname
-            self.lineno = line.lineno
-            if not args_to_check:
-                continue
-            for (arg,func,msg) in args_to_check:
-                attr = getattr(line, arg)
-                func = getattr(self, func)
-                msg  = getattr(self, msg)
-                func(attr, msg)
+    def analyse(self, line):
+        args_to_check = self.commands_to_check.get(line.argname)
+        self.argname = line.argname
+        self.lineno = line.lineno
+        if not args_to_check:
+            return
+        for (arg,func,msg) in args_to_check:
+            attr = getattr(line, arg)
+            func = getattr(self, func)
+            msg  = getattr(self, msg)
+            func(attr, msg)
 
     def check_status(self, statuses, msg):
         def is_valid_status(num):

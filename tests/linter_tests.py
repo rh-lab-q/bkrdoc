@@ -84,8 +84,9 @@ class TestStandaloneRules(unittest.TestCase):
 
 def get_func_pair_errors(parse_list):
     """Uses pair functions analysis only"""
-    pair_func = LPairFunc(parse_list)
-    pair_func.analyse()
+    pair_func = LPairFunc()
+    for line in parse_list:
+        pair_func.analyse(line)
     return pair_func.get_errors()
 
 
@@ -253,25 +254,25 @@ class TestArgTypes(unittest.TestCase):
     list_contains_ = list_contains
 
     def test_rlrun_valid(self):
-        argtypes = LArgTypes([])
+        argtypes = LArgTypes()
         for status in ['0', '1,2,3,4', '2-5', '12,3-9,8,255', '0.3,5.2-9.1']:
             argtypes.check_status(status, "")
             self.assert_empty_(argtypes.errors)
 
     def test_rlrun_invalid(self):
-        argtypes = LArgTypes([])
+        argtypes = LArgTypes()
         for status in ['0.0.0', '256', '-3', '5-3', 'a', '3,1,e.2', '1.b', '3-']:
             argtypes.check_status(status, argtypes.STATUS_NOT_INT)
         self.assertEqual(len(argtypes.errors), 8)
 
     def test_rlwatchdog_valid(self):
-        argtypes = LArgTypes([])
+        argtypes = LArgTypes()
         for signal in ['KILL', 'SIGABRT', 'CHLD', 'SIGTSTP']:
             argtypes.check_signal(signal, "")
         self.assert_empty_(argtypes.errors)
 
     def test_rlwatchdog_invalid(self):
-        argtypes = LArgTypes([])
+        argtypes = LArgTypes()
         argtypes.argname = 'rlWatchdog'
         for signal in ['puppies', '7']:
             argtypes.check_signal(signal, argtypes.SIGNAL)
@@ -281,7 +282,7 @@ class TestArgTypes(unittest.TestCase):
                             argtypes.errors)
 
     def test_rlreport(self):
-        argtypes = LArgTypes([])
+        argtypes = LArgTypes()
         argtypes.argname = 'rlReport'
         for result in ['PASS', 'FAIL', 'FALL', 'WARN', 'sthelse', 'PasS']:
             argtypes.check_result(result, argtypes.RESULT)
@@ -291,7 +292,7 @@ class TestArgTypes(unittest.TestCase):
                             argtypes.errors)
 
     def test_rhel_fedora(self):
-        argtypes = LArgTypes([])
+        argtypes = LArgTypes()
         argtypes.argname = 'rlOS'
         types = ['>=3', '=>2', '=0', '=-1', '<1', 'a', '=e', '>2.3']
         argtypes.check_os_type(types, argtypes.OS_TYPE_INVALID)
@@ -304,56 +305,58 @@ class TestArgTypes(unittest.TestCase):
                             argtypes.errors)
 
 
+def analyse_with_rule(self, rule, parse_list, expected_err_list):
+    rule_ref = rule()
+    for line in parse_list:
+        rule_ref.analyse(line)
+    self.assertEqual(len(rule_ref.errors), len(expected_err_list))
+    self.list_contains_(expected_err_list, rule_ref.errors)
+
+
 class TestTypos(unittest.TestCase):
 
     UNRECOGNIZED = "not recognized, perhaps you meant"
 
     list_contains_ = list_contains
+    analyse_with_rule_ = analyse_with_rule
 
     def test_case_sensitivity(self):
-        command_typos = LTypos([Namespace(argname='UNKNOWN', data=['rlPhasestartSetup'], lineno=0),
-                                Namespace(argname='UNKNOWN', data=['rlcheckmakefilerequires'], lineno=0)])
-        command_typos.analyse()
-        self.assertEqual(len(command_typos.errors), 2)
-        self.list_contains_([err('E4001', 'error',
-                                 "{} {} {}?".format('rlPhasestartSetup', self.UNRECOGNIZED, 'rlPhaseStartSetup')),
-                             err('E4001', 'error',
-                                 "{} {} {}?".format('rlcheckmakefilerequires', self.UNRECOGNIZED, 'rlCheckMakefileRequires'))],
-                            command_typos.errors)
+        parse_list = [Namespace(argname='UNKNOWN', data=['rlPhasestartSetup'], lineno=0),
+                      Namespace(argname='UNKNOWN', data=['rlcheckmakefilerequires'], lineno=0)]
+        expected_errors = [err('E4001', 'error',
+                               "{} {} {}?".format('rlPhasestartSetup', self.UNRECOGNIZED, 'rlPhaseStartSetup')),
+                           err('E4001', 'error',
+                               "{} {} {}?".format('rlcheckmakefilerequires', self.UNRECOGNIZED, 'rlCheckMakefileRequires'))]
+        self.analyse_with_rule_(LTypos, parse_list, expected_errors)
 
     def test_ending_s(self):
-        command_typos = LTypos([Namespace(argname='UNKNOWN', data=['rlAssertEqual'], lineno=0),
-                                Namespace(argname='UNKNOWN', data=['rlAssertExist'], lineno=0)])
-        command_typos.analyse()
-        self.assertEqual(len(command_typos.errors), 2)
-        self.list_contains_([err('E4002', 'error',
-                                 "{} {} {}?".format('rlAssertEqual', self.UNRECOGNIZED, 'rlAssertEquals')),
-                             err('E4002', 'error',
-                                 "{} {} {}?".format('rlAssertExist', self.UNRECOGNIZED, 'rlAssertExists'))],
-                            command_typos.errors)
+        parse_list = [Namespace(argname='UNKNOWN', data=['rlAssertEqual'], lineno=0),
+                      Namespace(argname='UNKNOWN', data=['rlAssertExist'], lineno=0)]
+        expected_errors = [err('E4002', 'error',
+                               "{} {} {}?".format('rlAssertEqual', self.UNRECOGNIZED, 'rlAssertEquals')),
+                           err('E4002', 'error',
+                               "{} {} {}?".format('rlAssertExist', self.UNRECOGNIZED, 'rlAssertExists'))]
+        self.analyse_with_rule_(LTypos, parse_list, expected_errors)
 
 
 class TestWithinPhase(unittest.TestCase):
 
     list_contains_ = list_contains
+    analyse_with_rule_ = analyse_with_rule
 
     def test_empty_phase(self):
-        within_phase = LWithinPhase([Namespace(argname='rlPhaseStartTest', lineno=3),
-                                     Namespace(argname='rlPhaseEnd', lineno=4)])
-        within_phase.analyse()
-        self.assertEqual(len(within_phase.errors), 1)
-        self.list_contains_([err('E1502', 'warning', "Useless empty phase found.", 4)],
-                            within_phase.errors)
+        parse_list = [Namespace(argname='rlPhaseStartTest', lineno=3),
+                      Namespace(argname='rlPhaseEnd', lineno=4)]
+        expected_errors = [err('E1502', 'warning', "Useless empty phase found.", 4)]
+        self.analyse_with_rule_(LWithinPhase, parse_list, expected_errors)
 
     def test_metric_name(self):
-        within_phase = LWithinPhase([Namespace(argname='rlPhaseStartTest', lineno=0),
-                                     Namespace(argname='rlLogMetricLow', name='a', lineno=1),
-                                     Namespace(argname='UNKNOWN', lineno=2),
-                                     Namespace(argname='rlLogMetricHigh', name='a', lineno=3)])
-        within_phase.analyse()
-        self.assertEqual(len(within_phase.errors), 1)
-        self.list_contains_([err('E1501', 'error', "{} ({})".format(LWithinPhase.METRICNAME, 'a'), 3)],
-                            within_phase.errors)
+        parse_list = [Namespace(argname='rlPhaseStartTest', lineno=0),
+                      Namespace(argname='rlLogMetricLow', name='a', lineno=1),
+                      Namespace(argname='UNKNOWN', lineno=2),
+                      Namespace(argname='rlLogMetricHigh', name='a', lineno=3)]
+        expected_errors = [err('E1501', 'error', "{} ({})".format(LWithinPhase.METRICNAME, 'a'), 3)]
+        self.analyse_with_rule_(LWithinPhase, parse_list, expected_errors)
 
 
 if __name__ == '__main__':

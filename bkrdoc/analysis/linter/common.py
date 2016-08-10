@@ -44,7 +44,7 @@ class LinterRule(object):
     def __init__(self):
         self.errors = []
 
-    def analyse(self):
+    def analyse(self, line):
         pass
 
     def add_error(self, err_class, err_label, msg, lineno=0, flag=None):
