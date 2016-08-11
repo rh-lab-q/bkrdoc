@@ -299,9 +299,8 @@ class TestArgTypes(unittest.TestCase):
         self.assertEqual(len(argtypes.errors), 4)
         self.list_contains_([err('E3014', 'error',
                                  "{}, `{}` - {}".format(argtypes.argname, '=e', argtypes.OS_TYPE_INVALID), 0),
-                             err('E3015', 'info',
-                                 "{}, `{}` - {}".format(argtypes.argname, '=-1',
-                                                        "a negative number was used, this is valid but odd"), 0)],
+                             err('E3014', 'error',
+                                 "{}, `{}` - {}".format(argtypes.argname, '=>2', argtypes.OS_TYPE_INVALID), 0)],
                             argtypes.errors)
 
 

@@ -76,6 +76,7 @@ class LinterSingleRules(common.LinterRule):
 
         if not self.is_journal_print_or_end(line):
             self.add_error('2400', 'journal_end', self.JOURNAL_END, line.lineno)
+            self.journal_end_found = False
             return
 
 

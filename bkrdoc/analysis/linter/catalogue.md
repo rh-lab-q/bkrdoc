@@ -55,7 +55,6 @@ A number of commands require specific type of arguments. The simple ones (int/fl
 - [E3012][info] rlWatchdog signal not a common one
 - [E3013][warning] rlReport result not in (PASS,WARN,FAIL)
 - [E3014][error] rlIsRHEL/Fedora invalid format of type
-- [E3015][info] rlIsRHEL/Fedora negative number
 
 
 ### EC4000: Command typos

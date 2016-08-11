@@ -104,8 +104,7 @@ class Catalogue:
                    'rlRun_bounds': ('E3011', Severity.error, "rlRun range status a-b : a>b"),
                    'rlWatchdog': ('E3012', Severity.info, "rlWatchdog signal not a common one"),
                    'rlReport': ('E3013', Severity.warning, "rlReport result not in (PASS,WARN,FAIL)"),
-                   'rhel_fedora': ('E3014', Severity.error, "rlIsRHEL/Fedora invalid format of type"),
-                   'rhel_fedora_neg': ('E3015', Severity.info, "rlIsRHEL/Fedora negative number")}),
+                   'rhel_fedora': ('E3014', Severity.error, "rlIsRHEL/Fedora invalid format of type")}),
 
         '4000': Namespace(
             description="Command typos\n"

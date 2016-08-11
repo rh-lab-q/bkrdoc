@@ -1,7 +1,8 @@
 __author__ = 'Zuzana Baranova'
 
+import argparse
 from bkrdoc.analysis.linter import l_pair_functions, l_single_rules, l_within_phase, l_arg_types, l_command_typos
-
+from bkrdoc.analysis.parser import data_containers
 
 class Linter(object):
 
@@ -21,9 +22,27 @@ class Linter(object):
 
     def analyse(self, _list):
         for line in _list:
-            for rule_ref in self.rule_refs:
-                rule_ref.analyse(line)
-
+            self.recursive_analyse(line)
         for rule_ref in self.rule_refs:
             self.errors += rule_ref.get_errors()
 
+    def recursive_analyse(self, line):
+        if isinstance(line, argparse.Namespace):
+            self.analyse_command(line)
+        elif self.is_type(line, 'for_loop') or self.is_type(line, 'condition'):
+            for statement in line.statement_list:
+                self.recursive_analyse(statement)
+        else:
+            print('line not a loop')
+
+    def analyse_command(self, command):
+        for rule_ref in self.rule_refs:
+            rule_ref.analyse(command)
+
+    def is_type(self, line, argument):
+        return self.is_container(line) and line.argname == argument
+
+    @staticmethod
+    def is_container(line):
+        return any([isinstance(line, data_containers.SimpleContainer),
+                    isinstance(line, data_containers.DataContainer)])

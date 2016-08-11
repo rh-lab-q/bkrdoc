@@ -80,12 +80,6 @@ class LinterArgTypes(common.LinterRule):
 
             if split_string[0] in valid_prefixes and self.can_cast_to_type(numeric_part, float):
                 continue
-            if split_string[0][0:-1] in valid_prefixes and split_string[0][-1] == '-':
-                msg2 = "a negative number was used, this is valid but odd"
-                self.add_error('3000', 'rhel_fedora_neg',
-                               "{}, `{}` - {}".format(self.argname, type_, msg2),
-                               self.lineno)
-                continue
             self.add_error('3000', 'rhel_fedora',
                            "{}, `{}` - {}".format(self.argname, type_, msg),
                            self.lineno)

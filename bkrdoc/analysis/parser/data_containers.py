@@ -358,6 +358,7 @@ class SimpleContainer(object):
                 data = data_searcher.parsed_param_ref
                 if conditions.is_rlrun_command(data.argname):
                     data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
+                data.lineno = data_searcher.lineno
                 self.statement_list.append(data)
 
     def container_length(self):
