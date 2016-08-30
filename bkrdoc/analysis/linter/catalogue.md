@@ -53,8 +53,14 @@ A number of commands require specific type of arguments. The simple ones (int/fl
 - [E3010][error] rlRun status not a float(int)
 - [E3011][error] rlRun range status a-b : a>b
 - [E3012][info] rlWatchdog signal not a common one
-- [E3013][warning] rlReport result not in (PASS,WARN,FAIL)
-- [E3014][error] rlIsRHEL/Fedora invalid format of type
+- [E3013][info] rlWait signal not a common one
+- [E3014][warning] rlReport result not in (PASS,WARN,FAIL)
+- [E3015][error] rlIsRHEL/Fedora invalid format of type
+- [E3016][error] rlHash/rlUnhash invalid hash algorithm
+- [E3017][error] rlWaitForX time not a non-negative integer
+- [E3018][error] rlWaitForX PID not a non-negative integer
+- [E3019][error] rlWaitForCmd count not a non-negative integer
+- [E3020][error] rlWaitForCmd return value not an int within range (0,255)
 
 
 ### EC4000: Command typos

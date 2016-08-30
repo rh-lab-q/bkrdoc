@@ -533,9 +533,9 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument('n', type=str, nargs='*')
-        parser_arg.add_argument("-t", type=int, help="time")
-        parser_arg.add_argument("-s", type=str, help="SIGNAL", default="SIGTERM")
+        parser_arg.add_argument('pids', type=str, nargs='*')
+        parser_arg.add_argument("-t", type=int, help="time", dest='time', default=120)
+        parser_arg.add_argument("-s", type=str, help="SIGNAL", dest='signal', default="SIGTERM")
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
         self.parsed_param_ref.remainder = unknown
 
@@ -548,14 +548,14 @@ class StatementDataSearcher:
         command = pom_param_list[0]
         parser_arg = custom_argparse.ArgumentParser(prog=command)
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("-p", type=str, help="PID")
-        parser_arg.add_argument("-t", type=str, help="time")
-        parser_arg.add_argument("-d", type=int, help="delay", default=1)
+        parser_arg.add_argument("-p", type=str, help="PID", dest='pid')
+        parser_arg.add_argument("-t", type=str, help="time", dest='time', default=120)
+        parser_arg.add_argument("-d", type=int, help="delay", dest='delay', default=1)
 
         if conditions_for_commands.ConditionsForCommands().is_rlwaitforcmd_command(command):
             parser_arg.add_argument("command", type=str)
-            parser_arg.add_argument("-m", type=str, help="count")
-            parser_arg.add_argument("-r", type=str, help="retrval", default="0")
+            parser_arg.add_argument("-m", type=str, help="count", dest='count')
+            parser_arg.add_argument("-r", type=str, help="retrval", default="0", dest='retval')
 
         elif conditions_for_commands.ConditionsForCommands().is_rlwaitforfile_command(command):
             parser_arg.add_argument("path", type=str)
@@ -679,8 +679,8 @@ class StatementDataSearcher:
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('--decode', dest='decode', action='store_true',
                                 default=False, help='unhash given string')
-        parser_arg.add_argument("--algorithm", type=str,
-                                help="given hash algorithm")
+        parser_arg.add_argument("--algorithm", type=str, dest='algorithm',
+                                help="given hash algorithm", default='hex')
         parser_arg.add_argument("STRING", type=str, nargs='?')
         parser_arg.add_argument('--stdin', action='store_true', default=False)
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)

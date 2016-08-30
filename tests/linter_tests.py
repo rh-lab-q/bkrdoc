@@ -165,7 +165,7 @@ class TestArgparseParsingErrors(unittest.TestCase):
         st_data_search = statement_data_searcher.StatementDataSearcher()
         st_data_search.check_err(getattr(st_data_search, command), command_list)
         err_msg_got = st_data_search.get_errors()[0].message
-        self.assertTrue(err_msg_got.startswith(err_expected))
+        self.assertTrue(err_msg_got.startswith(err_expected), "got msg: " + err_msg_got)
         remainder = err_msg_got[len(err_expected):]
         self.assertTrue(remainder in self.TOO_FEW_ARGS, "got msg: " + remainder)
 
@@ -174,7 +174,8 @@ class TestArgparseParsingErrors(unittest.TestCase):
         self._test_command("get_rlrun_data", ['rlRun'], message)
 
     def test_rlwaitfor_error(self):
-        message = "rlWaitForCmd, usage: rlWaitForCmd [-p P] [-t T] [-d D] [-m M] [-r R] command || "
+        message = "rlWaitForCmd, usage: rlWaitForCmd [-p PID] [-t TIME] [-d DELAY] [-m COUNT] [-r RETVAL]\n\
+                    command || "
         self._test_command("get_rlwaitforxxx_data", ['rlWaitForCmd'], message)
 
     def test_float_error(self):
@@ -287,7 +288,7 @@ class TestArgTypes(unittest.TestCase):
         for result in ['PASS', 'FAIL', 'FALL', 'WARN', 'sthelse', 'PasS']:
             argtypes.check_result(result, argtypes.RESULT)
         self.assertEqual(len(argtypes.errors), 2)
-        self.list_contains_([err('E3013', 'warning',
+        self.list_contains_([err('E3014', 'warning',
                                  "{}, `{}` {}".format(argtypes.argname, 'FALL', argtypes.RESULT), 0)],
                             argtypes.errors)
 
@@ -297,9 +298,9 @@ class TestArgTypes(unittest.TestCase):
         types = ['>=3', '=>2', '=0', '=-1', '<1', 'a', '=e', '>2.3']
         argtypes.check_os_type(types, argtypes.OS_TYPE_INVALID)
         self.assertEqual(len(argtypes.errors), 4)
-        self.list_contains_([err('E3014', 'error',
+        self.list_contains_([err('E3015', 'error',
                                  "{}, `{}` - {}".format(argtypes.argname, '=e', argtypes.OS_TYPE_INVALID), 0),
-                             err('E3014', 'error',
+                             err('E3015', 'error',
                                  "{}, `{}` - {}".format(argtypes.argname, '=>2', argtypes.OS_TYPE_INVALID), 0)],
                             argtypes.errors)
 

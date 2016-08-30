@@ -422,8 +422,8 @@ class DocumentationTranslator:
         importance = self.lowMedium
         subject = ["file", argparse_data.path]
         param_option = []
-        if argparse_data.p:
-            param_option.append(argparse_data.p)
+        if argparse_data.pid:
+            param_option.append(argparse_data.pid)
         topic_obj = topic_object.Topic("FILE", subject)
         action = ["wait"]
         self.inf_ref = doc_information_representation.DocumentationInformation(argparse_data.argname, topic_obj, action, importance, option_object.Option(param_option))
@@ -436,11 +436,11 @@ class DocumentationTranslator:
         importance = self.lowMedium
         subject = ["cmd", argparse_data.command]
         param_option = ["", ""]
-        if argparse_data.r:
-            param_option[0] = argparse_data.r
+        if argparse_data.retval:
+            param_option[0] = argparse_data.retval
 
-        if argparse_data.p:
-            param_option[1] = argparse_data.p
+        if argparse_data.pid:
+            param_option[1] = argparse_data.pid
 
         topic_obj = topic_object.Topic("COMMAND", subject)
         action = ["wait"]

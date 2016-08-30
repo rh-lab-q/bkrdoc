@@ -102,9 +102,15 @@ class Catalogue:
                    'too_many_args': ('E3002', Severity.warning, "too many arguments / unrecognized options"),
                    'rlRun_type': ('E3010', Severity.error, "rlRun status not a float(int)"),
                    'rlRun_bounds': ('E3011', Severity.error, "rlRun range status a-b : a>b"),
-                   'rlWatchdog': ('E3012', Severity.info, "rlWatchdog signal not a common one"),
-                   'rlReport': ('E3013', Severity.warning, "rlReport result not in (PASS,WARN,FAIL)"),
-                   'rhel_fedora': ('E3014', Severity.error, "rlIsRHEL/Fedora invalid format of type")}),
+                   'rlWatchdog_signal': ('E3012', Severity.info, "rlWatchdog signal not a common one"),
+                   'rlWait_signal': ('E3013', Severity.info, "rlWait signal not a common one"),
+                   'rlReport': ('E3014', Severity.warning, "rlReport result not in (PASS,WARN,FAIL)"),
+                   'rhel_fedora': ('E3015', Severity.error, "rlIsRHEL/Fedora invalid format of type"),
+                   'hash_algo': ('E3016', Severity.error, "rlHash/rlUnhash invalid hash algorithm"),
+                   'time': ('E3017', Severity.error, "rlWaitForX time not a non-negative integer"),
+                   'pid': ('E3018', Severity.error, "rlWaitForX PID not a non-negative integer"),
+                   'count': ('E3019', Severity.error, 'rlWaitForCmd count not a non-negative integer'),
+                   'retval': ('E3020', Severity.error, 'rlWaitForCmd return value not an int within range (0,255)')}),
 
         '4000': Namespace(
             description="Command typos\n"
