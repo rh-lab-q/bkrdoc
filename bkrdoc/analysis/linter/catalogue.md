@@ -29,7 +29,8 @@ Similarly to begins without ends, an ending without a begin has been found. This
 ### EC1500: Within phase functionality
 Error class uniting problems that are related to phase composition of tests.
 - [E1501][error] metric name has to be unique within a single phase
-- [E1502][warning] empty phase found
+- [E1502][style] empty phase found
+- [E1503][style] out of phase command
 
 
 ### EC2000: Deprecated commands
@@ -67,5 +68,6 @@ A number of commands require specific type of arguments. The simple ones (int/fl
 Class checking for the most common typos that users tend to make, case-sensitivity related errors and not ending the command with 's' where one should (such as Equal vs. Equals).
 - [E4001][error] command differs by upper/lowercase
 - [E4002][error] Equals vs. Equal
+- [E4003][info] rlUppercase command unrecognized
 
 

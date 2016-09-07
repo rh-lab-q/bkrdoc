@@ -9,6 +9,7 @@ class Severity(Enum):
     error = 1
     warning = 2
     info = 3
+    style = 4
 
 
 class Catalogue:
@@ -74,7 +75,8 @@ class Catalogue:
                         "Error class uniting problems that are related to phase composition "
                         "of tests.",
             value={'rlLogMetric': ('E1501', Severity.error, "metric name has to be unique within a single phase"),
-                   'empty_phase': ('E1502', Severity.warning, "empty phase found")}),
+                   'empty_phase': ('E1502', Severity.style, "empty phase found"),
+                   'out_of_phase': ('E1503', Severity.style, "out of phase command")}),
 
         '2000': Namespace(
             description="Deprecated commands\n"
@@ -119,7 +121,8 @@ class Catalogue:
                         "not ending the command with 's' where one should "
                         "(such as Equal vs. Equals).",
             value={'letter_case': ('E4001', Severity.error, "command differs by upper/lowercase"),
-                   'end_s': ('E4002', Severity.error, "Equals vs. Equal")})
+                   'end_s': ('E4002', Severity.error, "Equals vs. Equal"),
+                   'rl_command': ('E4003', Severity.info, "rlUppercase command unrecognized")})
     }
 
     @staticmethod

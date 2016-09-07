@@ -22,6 +22,10 @@ def err(id, severity, msg, lineno=0):
     return common.Error(id, severity, msg, lineno)
 
 
+def filter_outside_phase_errors(err_list):
+    return list(filter(lambda x: x.id != 'E1503', err_list))
+
+
 def get_errors_from_parse_list(parse_list):
     """Uses full linter analysis"""
     gener = output_generator.OutputGenerator(Namespace(file_in="",
@@ -30,7 +34,7 @@ def get_errors_from_parse_list(parse_list):
                                                        suppress_first=False,
                                                        catalogue=False))
     gener.main_linter.analyse(parse_list)
-    return gener.main_linter.errors
+    return filter_outside_phase_errors(gener.main_linter.errors)
 
 
 def list_contains(self, sublist, list_):
@@ -208,7 +212,7 @@ class TestComplexFile(unittest.TestCase):
         GETARCH = "rlGetArch command is deprecated, instead use: rlGetPrimaryArch, rlGetSecondaryArch"
 
         gener.analyse()
-        errors = gener.main_linter.errors
+        errors = filter_outside_phase_errors(gener.main_linter.errors)
         self.assertEqual(len(errors), 5)
         expected_errors = [err('E3002', 'warning', RLRUN, 12),
                            err('E1201', 'error', PHASEEND, 35),
@@ -309,7 +313,7 @@ def analyse_with_rule(self, rule, parse_list, expected_err_list):
     rule_ref = rule()
     for line in parse_list:
         rule_ref.analyse(line)
-    self.assertEqual(len(rule_ref.errors), len(expected_err_list))
+    self.assertEqual(len(filter_outside_phase_errors(rule_ref.errors)), len(expected_err_list))
     self.list_contains_(expected_err_list, rule_ref.errors)
 
 
@@ -347,7 +351,7 @@ class TestWithinPhase(unittest.TestCase):
     def test_empty_phase(self):
         parse_list = [Namespace(argname='rlPhaseStartTest', lineno=3),
                       Namespace(argname='rlPhaseEnd', lineno=4)]
-        expected_errors = [err('E1502', 'warning', "Useless empty phase found.", 4)]
+        expected_errors = [err('E1502', 'style', LWithinPhase.EMPTY_PHASE, 4)]
         self.analyse_with_rule_(LWithinPhase, parse_list, expected_errors)
 
     def test_metric_name(self):

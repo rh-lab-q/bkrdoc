@@ -81,7 +81,8 @@ class OutputGenerator(object):
         def __init__(self, options):
             self.enabled = {Severity.error: True,
                             Severity.warning: False,
-                            Severity.info: False}
+                            Severity.info: False,
+                            Severity.style: False}
             self.enabled_by_id = []
             self.suppressed_by_id = []
             self.unrecognized_options = []

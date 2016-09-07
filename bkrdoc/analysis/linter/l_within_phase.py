@@ -13,6 +13,7 @@ class LinterWithinPhase(common.LinterRule):
 
     METRICNAME = "rlLogMetric name has to be unique within a phase"
     EMPTY_PHASE = "Useless empty phase found."
+    OUTSIDE_PHASE = "Command outside of phase found."
 
     def __init__(self):
         super(LinterWithinPhase, self).__init__()
@@ -39,14 +40,20 @@ class LinterWithinPhase(common.LinterRule):
             if self.depth_of_nesting > 0:
                 self.depth_of_nesting -= 1
                 del self.log_metric_names[-1]
-
-        elif cond.is_rllogmetric_command(line.argname):
-            if line.name in self.get_used_metric_names():
-                self.add_error('1500', 'rlLogMetric',
-                               "{} ({})".format(self.METRICNAME, line.name),
+        else:
+            if self.depth_of_nesting == 0 and line.argname in bkrdoc_parser.Parser.beakerlib_commands:
+                self.add_error('1500', 'out_of_phase',
+                               "{} ({})".format(self.OUTSIDE_PHASE, line.argname),
                                line.lineno)
-            else:
-                self.log_metric_names[-1].append(line.name)
+
+            if cond.is_rllogmetric_command(line.argname):
+                if line.name in self.get_used_metric_names():
+                    self.add_error('1500', 'rlLogMetric',
+                                   "{} ({})".format(self.METRICNAME, line.name),
+                                   line.lineno)
+                else:
+                    self.log_metric_names[-1].append(line.name)
+
         self.last_command = line.argname
 
 

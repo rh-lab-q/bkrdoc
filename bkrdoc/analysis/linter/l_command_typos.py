@@ -23,7 +23,12 @@ class LinterCommandTypos(common.LinterRule):
         for command in bkrdoc_parser.Parser.beakerlib_commands:
             if curr_command.upper() == command.upper():
                 add_err('4000', 'letter_case')
-                break
+                return
             elif curr_command + "s" == command:
                 add_err('4000', 'end_s')
-                break
+                return
+
+        if curr_command.startswith("rl") and len(curr_command)>2 and curr_command[2].isupper():
+            self.add_error('4000', 'rl_command',
+                           "{} is not recognized as a beakerlib command".format(curr_command),
+                           line.lineno)
