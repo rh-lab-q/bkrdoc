@@ -17,7 +17,7 @@ class ConditionsForCommands:
         return command in pom_list
 
     def is_rlwaitfor_command(self, command):
-        return command == "rlWaitFor"
+        return command == "rlWait"
 
     def is_rlwaitforsocket_command(self, command):
         return command == "rlWaitForSocket"
@@ -41,12 +41,15 @@ class ConditionsForCommands:
     def is_rlperftime_avgfromruns_command(self, command):
         return command == "rlPerfTime_AvgFromRuns"
 
-    def is_rlcleanup_apend_or_prepend_command(self, command):
+    def is_rlcleanup_append_or_prepend_command(self, command):
         return command == "rlCleanupAppend" or command == "rlCleanupPrepend"
 
-    def is_sebooleanxxx_command(self, command):
-        pom_list = ["rlSEBooleanOn", "rlSEBooleanOff", "rlSEBooleanRestore"]
+    def is_seboolean_on_off_command(self, command):
+        pom_list = ["rlSEBooleanOn", "rlSEBooleanOff"]
         return command in pom_list
+
+    def is_sebooleanrestore_command(self, command):
+        return command == "rlSEBooleanRestore"
 
     def is_rlservicexxx(self, command):
         pom_list = ["rlServiceStart", "rlServiceStop", "rlServiceRestore"]
@@ -66,6 +69,9 @@ class ConditionsForCommands:
 
     def is_get_or_check_makefile_requires(self, command):
         return command == "rlCheckMakefileRequires" or command == "rlGetMakefileRequires"
+
+    def is_checkrequirements(self, command):
+        return command == "rlCheckRequirements"
 
     def is_rlmount(self, command):
         return command == "rlMount"
@@ -96,15 +102,16 @@ class ConditionsForCommands:
     def is_assert0(self, command):
         return command == "rlAssert0"
 
-    def is_assert_command(self, line):
+    def is_assert_command(self, command):
         pom_list = ["rlPass", "rlFail"]
-        return line[0:len("rlAssert")] == "rlAssert" or line in pom_list
+        return command[0:len("rlAssert")] == "rlAssert" or command in pom_list
 
     def is_rpm_command(self, command):
-        return command[-3:] == "Rpm"
+        pom_list = ["rlCheckRpm", "rlAssertRpm", "rlAssertNotRpm"]
+        return command in pom_list
 
-    def is_rlrun_command(self, line):
-        return line[0:len("rlRun")] == "rlRun"
+    def is_rlrun_command(self, command):
+        return command == "rlRun"
 
     def is_rljournalprint_command(self, command):
         pom_list = ["rlJournalPrint", "rlJournalPrintText"]
@@ -124,16 +131,16 @@ class ConditionsForCommands:
         return command in pom_list
 
     def is_rldie_command(self, command):
-        return command[0:len("rlDie")] == "rlDie"
+        return command == "rlDie"
 
     def is_rlbundlelogs_command(self, command):
-        return command[0:len("rlBundleLogs")] == "rlBundleLogs"
+        return command == "rlBundleLogs"
 
     def is_rlfilesubmit_command(self, command):
-        return command[0:len("rlFileSubmit")] == "rlFileSubmit"
+        return command == "rlFileSubmit"
 
     def is_rlshowpackageversion_command(self, command):
-        return command[0:len("rlShowPackageVersion")] == "rlShowPackageVersion"
+        return command == "rlShowPackageVersion"
 
     def is_rlget_x_arch_command(self, command):
         pom_list = ["rlGetArch", "rlGetPrimaryArch", "rlGetSecondaryArch"]
@@ -144,25 +151,27 @@ class ConditionsForCommands:
         return command in pom_list
 
     def is_rlshowrunningkernel_command(self, command):
-        return command[0:len("rlShowRunningKernel")] == "rlShowRunningKernel"
+        return command == "rlShowRunningKernel"
 
-    def is_phase(self, line):
-        return line[0:len("rlphasestart")] == "rlPhaseStart"
+    def is_phase_start(self, command):
+        return command == "rlPhaseStart"
 
-    def is_phase_clean(self, line):
-        return line[0:len("rlphasestartcleanup")] == "rlPhaseStartCleanup"
+    def is_phase_startxxx(self, command):
+        return any([self.is_phase_clean(command),
+                    self.is_phase_setup(command),
+                    self.is_phase_test(command)])
 
-    def is_phase_test(self, line):
-        return line[0:len("rlphasestarttest")] == "rlPhaseStartTest"
+    def is_phase_clean(self, command):
+        return command == "rlPhaseStartCleanup"
 
-    def is_phase_setup(self, line):
-        return line[0:len("rlphasestartsetup")] == "rlPhaseStartSetup"
+    def is_phase_test(self, command):
+        return command == "rlPhaseStartTest"
 
-    def is_phase_journal_end(self, line):
-        if line[0:len("rlphaseend")] == "rlPhaseEnd":
-            return True
-        else:
-            return line[0:len("rljournalend")] == "rlJournalEnd"
+    def is_phase_setup(self, command):
+        return command == "rlPhaseStartSetup"
 
-    def is_journal_start(self, line):
-        return line[0:len("rljournalstart")].lower() == "rljournalstart"
+    def is_phase_journal_end(self, command):
+        return command in ["rlPhaseEnd", "rlJournalEnd"]
+
+    def is_journal_start(self, command):
+        return command == "rlJournalStart"

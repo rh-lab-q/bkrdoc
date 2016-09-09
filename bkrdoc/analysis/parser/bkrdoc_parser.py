@@ -35,9 +35,11 @@ class Parser(object):
                     "rlWaitForFile", "rlWaitForCmd", "rlImport", "rlDejaSum", "rlPerfTime_AvgFromRuns",
                     "rlPerfTime_RunsInTime", "rlLogMetricLow", "rlLogMetricHigh", "rlShowRunningKernel",
                     "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch",
-                    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie",
+                    "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", "rlPass", "rlFail",
                     "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",
                     "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText"]
+
+    start_phase_names = ['rlPhaseStart', 'rlPhaseStartTest', 'rlPhaseStartSetup', 'rlPhaseStartCleanup']
 
     phases = []
     test_functions = []
@@ -56,9 +58,10 @@ class Parser(object):
         self.argparse_data_list = []
         self.variables = ""
         self.test_functions = []
+        self.errors = []
 
     def open_file(self):
-        if self.file_name[(len(self.file_name) - 3):len(self.file_name)] == ".sh":
+        if self.file_name.endswith(".sh"):
             try:
                 with open(self.file_name, "r") as input_file:
                     self.file_name = self.file_name
@@ -107,12 +110,16 @@ class Parser(object):
                     nodevistor.erase_parsing_subject_variable()
                     container.search_data(self, nodevistor)
             else:
+                data_searcher.parsed_param_ref = ""
                 data_searcher.parse_command(nodevistor.get_parsed_container())
                 nodevistor.erase_parsing_subject_variable()
                 data_argparse = data_searcher.parsed_param_ref
+                if not data_argparse:
+                    continue
                 if conditions.is_rlrun_command(data_argparse.argname):
                     data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
                 self.argparse_data_list.append(data_argparse)
+        self.errors += data_searcher.get_errors()
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
         data_searcher = statement_data_searcher.StatementDataSearcher()
@@ -121,16 +128,17 @@ class Parser(object):
         data_searcher.parse_command(nodevisitor.get_parsed_container())
         nodevisitor.erase_parsing_subject_variable()
         rlrun_argparse.command = data_searcher.parsed_param_ref
+        self.errors += data_searcher.get_errors() ##
         return rlrun_argparse
 
-    def divide_parsed_argparse_data_into_phase_conainers(self):
+    def divide_parsed_argparse_data_into_phase_containers(self):
         cond = conditions_for_commands.ConditionsForCommands()
         for argparse_data in self.argparse_data_list:
             if not cond.is_journal_start(argparse_data.argname) and not cond.is_phase_journal_end(argparse_data.argname):
-                if cond.is_phase(argparse_data.argname):
+                if cond.is_phase_start(argparse_data.argname) or cond.is_phase_startxxx(argparse_data.argname):
                     p_name = argparse_data.argname[len("rlPhaseStart"):]
-                    if argparse_data.description is not None and argparse_data.description is not "":
-                        self.phases.append(data_containers.PhaseContainer(p_name + ": " + argparse_data.description))
+                    if argparse_data.name is not None and argparse_data.name is not "":
+                        self.phases.append(data_containers.PhaseContainer(p_name + ": " + argparse_data.name))
                     else:
                         self.phases.append(data_containers.PhaseContainer(p_name))
                 else:
@@ -180,3 +188,6 @@ class Parser(object):
 
     def set_test_launch(self, number_of_variable):
         self.test_launch = number_of_variable
+
+    def get_errors(self):
+        return self.errors

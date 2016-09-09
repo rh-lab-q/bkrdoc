@@ -2,7 +2,8 @@
 import argparse
 import shlex
 import re
-from bkrdoc.analysis.parser import conditions_for_commands
+from bkrdoc.analysis.parser import conditions_for_commands, custom_argparse
+from bkrdoc.analysis.linter import common
 
 
 __author__ = 'Jiri_Kulda'
@@ -21,6 +22,7 @@ class StatementDataSearcher:
 
     def __init__(self):
         self.minimum_variable_size = 4
+        self.errors = []
 
     def parse_command(self, data_container):
         # Splitting statement using shlex lexicator
@@ -42,126 +44,138 @@ class StatementDataSearcher:
         condition = conditions_for_commands.ConditionsForCommands()
 
         if condition.is_rlrun_command(first):
-            self.get_rlrun_data(pom_list)
+            self.check_err(self.get_rlrun_data, pom_list)
 
         elif condition.is_rpm_command(first):
-            self.get_rpmcommand_data(pom_list)
+            self.check_err(self.get_rpmcommand_data, pom_list)
 
         elif condition.is_check_or_assert_mount(first):
-            self.get_check_or_assert_mount_data(pom_list)
+            self.check_err(self.get_check_or_assert_mount_data, pom_list)
 
         elif condition.is_assert_command(first):
 
             if condition.is_assert_grep(first):
-                self.get_assert_grep_data(pom_list)
+                self.check_err(self.get_assert_grep_data, pom_list)
 
             elif condition.is_assert0(first):
-                self.get_assert0_data(pom_list)
+                self.check_err(self.get_assert0_data, pom_list)
 
             elif condition.is_rlpass_or_rlfail_command(first):
-                self.get_rlpass_or_rlfail_data(pom_list)
+                self.check_err(self.get_rlpass_or_rlfail_data, pom_list)
 
             elif condition.is_assert_comparasion(first):
-                self.get_assert_comparison_data(pom_list)
+                self.check_err(self.get_assert_comparison_data, pom_list)
 
             elif condition.is_assert_exists(first):
-                self.get_assert_exits_data(pom_list)
+                self.check_err(self.get_assert_exists_data, pom_list)
 
             elif condition.is_assert_differ(first):
-                self.get_assert_differ_data(pom_list)
+                self.check_err(self.get_assert_differ_data, pom_list)
 
             elif condition.is_assert_binary_origin(first):
-                self.get_assertbinaryorigin_data(pom_list)
+                self.check_err(self.get_assertbinaryorigin_data, pom_list)
 
         elif condition.is_rlfilebackup_command(first):
-            self.get_rlfilebackup_data(pom_list)
+            self.check_err(self.get_rlfilebackup_data, pom_list)
 
         elif condition.is_rlfilerestore_command(first):
-            self.get_rlfile_restore_data(pom_list)
+            self.check_err(self.get_rlfile_restore_data, pom_list)
 
-        elif condition.is_phase(first):
-            self.get_rlphasestartxxx_data(pom_list)
+        elif condition.is_phase_start(first):
+            self.check_err(self.get_rlphasestart_data, pom_list)
+
+        elif condition.is_phase_startxxx(first):
+            self.check_err(self.get_rlphasestartxxx_data, pom_list)
 
         elif condition.is_phase_journal_end(first):
-            self.get_rljournal_phase_end_data(pom_list)
+            self.check_err(self.get_rljournal_phase_end_data, pom_list)
 
         elif condition.is_journal_start(first):
-            self.get_rljournalstart_data(pom_list)
+            self.check_err(self.get_rljournalstart_data, pom_list)
 
         elif condition.is_rlisrhel_or_rlisfedora_command(first):
-            self.get_isrhel_or_isfedora_data(pom_list)
+            self.check_err(self.get_isrhel_or_isfedora_data, pom_list)
 
         elif condition.is_rlmount(first):
-            self.get_rlmount_data(pom_list)
+            self.check_err(self.get_rlmount_data, pom_list)
 
         elif condition.is_rlhash_or_rlunhash_command(first):
-            self.get_rlhash_or_rlunhash_data(pom_list)
+            self.check_err(self.get_rlhash_or_rlunhash_data, pom_list)
 
         elif condition.is_rllog_command(first):
-            self.get_rllog_data(pom_list)
+            self.check_err(self.get_rllog_data, pom_list)
 
         elif condition.is_rldie_command(first):
-            self.get_rldie_data(pom_list)
+            self.check_err(self.get_rldie_data, pom_list)
 
         elif condition.is_rlget_x_arch_command(first):
-            self.get_rlget_commands_data(pom_list)
+            self.check_err(self.get_rlget_commands_data, pom_list)
 
         elif condition.is_rlgetdistro_command(first):
-            self.get_rlget_commands_data(pom_list)
+            self.check_err(self.get_rlget_commands_data, pom_list)
 
         elif condition.is_rlgetphase_or_test_state_command(first):
-            self.get_rlget_commands_data(pom_list)
+            self.check_err(self.get_rlget_commands_data, pom_list)
+
+        elif condition.is_rllogmetric_command(first):
+            self.check_err(self.get_rllogmetric_data, pom_list)
 
         elif condition.is_rlreport_command(first):
-            self.get_rlreport_data(pom_list)
+            self.check_err(self.get_rlreport_data, pom_list)
 
         elif condition.is_rlwatchdog_command(first):
-            self.get_rlwatchdog_data(pom_list)
+            self.check_err(self.get_rlwatchdog_data, pom_list)
 
         elif condition.is_rlbundlelogs_command(first):
-            self.get_rlbundlelogs_data(pom_list)
+            self.check_err(self.get_rlbundlelogs_data, pom_list)
 
         elif condition.is_rlservicexxx(first):
-            self.get_rlservicexxx_data(pom_list)
+            self.check_err(self.get_rlservicexxx_data, pom_list)
 
-        elif condition.is_sebooleanxxx_command(first):
-            self.get_sebooleanxxx_data(pom_list)
+        elif condition.is_seboolean_on_off_command(first):
+            self.check_err(self.get_seboolean_on_off_data, pom_list)
+
+        elif condition.is_sebooleanrestore_command(first):
+            self.check_err(self.get_sebooleanrestore_data, pom_list)
 
         elif condition.is_rlshowrunningkernel_command(first):
-            self.get_rlshowrunningkernel_data(pom_list)
+            self.check_err(self.get_rlshowrunningkernel_data, pom_list)
 
         elif condition.is_get_or_check_makefile_requires(first):
-            self.get_rlget_or_rlcheck_makefilerequeries_data(pom_list)
+            self.check_err(self.get_rlget_or_rlcheck_makefilerequeries_data, pom_list)
 
-        elif condition.is_rlcleanup_apend_or_prepend_command(first):
-            self.get_rlcleanup_apend_or_prepend_data(pom_list)
+        elif condition.is_checkrequirements(first):
+            self.check_err(self.get_checkrequirements_data, pom_list)
+
+        elif condition.is_rlcleanup_append_or_prepend_command(first):
+            self.check_err(self.get_rlcleanup_append_or_prepend_data, pom_list)
 
         elif condition.is_rlfilesubmit_command(first):
-            self.get_rlfilesubmit_data(pom_list)
+            self.check_err(self.get_rlfilesubmit_data, pom_list)
 
         elif condition.is_rlperftime_runsintime_command(first):
-            self.get_rlperftime_runsintime_data(pom_list)
+            self.check_err(self.get_rlperftime_runsintime_data, pom_list)
 
         elif condition.is_rlperftime_avgfromruns_command(first):
-            self.get_rlperftime_avgfromruns_data(pom_list)
+            self.check_err(self.get_rlperftime_avgfromruns_data, pom_list)
 
         elif condition.is_rlshowpackageversion_command(first):
-            self.get_rlshowpackageversion_data(pom_list)
+            self.check_err(self.get_rlshowpackageversion_data, pom_list)
 
         elif condition.is_rljournalprint_command(first):
-            self.get_rljournalprint_data(pom_list)
+            self.check_err(self.get_rljournalprint_data, pom_list)
 
         elif condition.is_rlimport_command(first):
-            self.get_rlimport_data(pom_list)
+            self.check_err(self.get_rlimport_data, pom_list)
 
         elif condition.is_rlwaitforxxx_command(first):
-            self.get_rlwaitforxxx_data(pom_list, first)
+            self.check_err(self.get_rlwaitforxxx_data, pom_list)
 
         elif condition.is_rlwaitfor_command(first):
-            self.get_rlwaitfor_data(pom_list)
+            self.check_err(self.get_rlwaitfor_data, pom_list)
 
         elif condition.is_virtualxxx_command(first):
-            self.get_rlvirtualx_xxx_data(pom_list)
+            self.check_err(self.get_rlvirtualx_xxx_data, pom_list)
 
         else:
             self.unknown_command(pom_list)
@@ -241,7 +255,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
@@ -250,36 +264,50 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_rlphasestart_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("type", type=str)
+        parser_arg.add_argument("name", type=str, nargs="?")
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
 
     def get_rlphasestartxxx_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("description", type=str, nargs="?")
+        parser_arg.add_argument("name", type=str, nargs="?")
         self.parsed_param_ref, unknown = parser_arg.parse_known_args([pom_param_list[0]])
         # hack for --help message
         rest = ""
         for member in pom_param_list[1:]:
             rest += member + " "
         rest = rest.strip()
-        self.parsed_param_ref.description = rest
+        self.parsed_param_ref.name = rest
 
     def get_rljournalprint_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        command = pom_param_list[0]
+        parser_arg = custom_argparse.ArgumentParser(prog=command)
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("type", type=str, nargs="?")
-        parser_arg.add_argument('--full-journal', dest='full_journal',
+        if command.endswith("Text"):
+            parser_arg.add_argument('--full-journal', dest='full_journal',
                                 action='store_true', default=False)
+        else:
+            parser_arg.add_argument("type", type=str, nargs="?")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlshowpackageversion_data(self, pom_param_list):
@@ -287,7 +315,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("package", type=str, nargs="+")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -297,7 +325,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("-s", type=str, help="sets separator")
         parser_arg.add_argument("path_to_file", type=str)
@@ -309,7 +337,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("package", type=str)
         parser_arg.add_argument("file", type=str, nargs="+")
@@ -320,10 +348,22 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("message", type=str)
         parser_arg.add_argument("file", type=str, nargs="*")
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_rllogmetric_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("name", type=str)
+        parser_arg.add_argument("value", type=float)
+        parser_arg.add_argument("tolerance", type=float, nargs="?")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rllog_data(self, pom_param_list):
@@ -331,21 +371,27 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("message", type=str)
         parser_arg.add_argument("logfile", type=str, nargs="?")
-        parser_arg.add_argument("priority", type=str, nargs="?")
-        parser_arg.add_argument('--prio-label', dest='prio_label',
-                                action='store_true', default=False)
+        command_suffix = pom_param_list[0][len("rllog"):]
+        if not command_suffix:
+            parser_arg.add_argument("priority", type=str, nargs="?")
+            parser_arg.add_argument('--prio-label', dest='prio_label',
+                                    action='store_true', default=False)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+        if command_suffix:
+            self.parsed_param_ref.priority = command_suffix.upper()
+            self.parsed_param_ref.prio_label = True
+
 
     def get_rlshowrunningkernel_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
@@ -354,8 +400,18 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_checkrequirements_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("requirement", type=str, nargs="*")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlget_commands_data(self, pom_param_list):
@@ -363,12 +419,12 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def unknown_command(self, pom_param_list):
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("data", type=str, nargs='?')
         self.parsed_param_ref = parser_arg.parse_args(["UNKNOWN"])
@@ -394,7 +450,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
         parser_arg.add_argument("timeout", type=str)
@@ -407,7 +463,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str)
         parser_arg.add_argument("result", type=str)
@@ -420,7 +476,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('-t', dest='t', action='store_true', default=False)
         parser_arg.add_argument('-l', dest='l', action='store_true', default=False)
@@ -440,7 +496,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -450,20 +506,21 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('n', type=str, nargs='*')
         parser_arg.add_argument("-t", type=int, help="time")
         parser_arg.add_argument("-s", type=str, help="SIGNAL", default="SIGTERM")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def get_rlwaitforxxx_data(self, pom_param_list, command):
+    def get_rlwaitforxxx_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         :param command: command name
         """
-        parser_arg = argparse.ArgumentParser()
+        command = pom_param_list[0]
+        parser_arg = custom_argparse.ArgumentParser(prog=command)
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("-p", type=str, help="PID")
         parser_arg.add_argument("-t", type=str, help="time")
@@ -488,7 +545,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("LIBRARY", type=str, nargs='+')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -498,10 +555,10 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
-        parser_arg.add_argument("time", type=int, nargs='?', default=30)
+        parser_arg.add_argument("time", type=float, nargs='?', default=30)
         parser_arg.add_argument("runs", type=int, nargs='?', default=3)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
@@ -510,31 +567,41 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
         parser_arg.add_argument("count", type=int, nargs='?', default=3)
         parser_arg.add_argument("warmup", type=str, nargs='?', default="warmup")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def get_rlcleanup_apend_or_prepend_data(self, pom_param_list):
+    def get_rlcleanup_append_or_prepend_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("string", type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def get_sebooleanxxx_data(self, pom_param_list):
+    def get_seboolean_on_off_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("boolean", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
+    def get_sebooleanrestore_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("boolean", type=str, nargs='*')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlservicexxx_data(self, pom_param_list):
@@ -542,7 +609,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("service", type=str, nargs='+')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -552,7 +619,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("--namespace", type=str,
                                 help="specified namespace to use")
@@ -563,14 +630,13 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('--clean', dest='clean', action='store_true',
                                 default=False)
         parser_arg.add_argument("--namespace", type=str,
                                 help="specified namespace to use")
         parser_arg.add_argument('file', type=str, nargs='+')
-        parser_arg.add_argument('status', type=str, nargs='?', default="-")
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlhash_or_rlunhash_data(self, pom_param_list):
@@ -578,7 +644,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('--decode', dest='decode', action='store_true',
                                 default=False, help='unhash given string')
@@ -593,7 +659,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('server', type=str, nargs='?')
         parser_arg.add_argument('share', type=str, nargs='?')
@@ -605,7 +671,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('server', type=str)
         parser_arg.add_argument('share', type=str)
@@ -617,7 +683,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('binary', type=str)
         parser_arg.add_argument('package', type=str, nargs='*')
@@ -628,7 +694,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         if len(pom_param_list) == 2 and pom_param_list[1] == "--all":
             parser_arg.add_argument('--all', dest='all', action='store_true',
@@ -649,7 +715,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('type', type=str, nargs='*')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -659,18 +725,18 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('file1', type=str)
         parser_arg.add_argument('file2', type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
-    def get_assert_exits_data(self, pom_param_list):
+    def get_assert_exists_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('file_directory', type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -680,7 +746,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
         parser_arg.add_argument('value1', type=str)
@@ -692,7 +758,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
         parser_arg.add_argument('value', type=str)
@@ -703,7 +769,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -713,7 +779,7 @@ class StatementDataSearcher:
         Parsing data from statement line using set upped argparse module
         :param pom_param_list: code line
         """
-        parser_arg = argparse.ArgumentParser()
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('pattern', type=str)
         parser_arg.add_argument('file', type=str)
@@ -730,3 +796,23 @@ class StatementDataSearcher:
 
     def erase_empty_list_mmebers(self, input_list):
         return list(filter(None, input_list))
+
+    def check_err(self, get_data_method, argument_list):
+        try:
+            get_data_method(argument_list)
+        except argparse.ArgumentError as exc:
+            msg = self.strip_argparse_error_of_usage_info(exc.message, argument_list[0])
+            self.errors.append(common.Error(message=msg))
+
+    def get_errors(self):
+        return self.errors
+
+    @staticmethod
+    def strip_argparse_error_of_usage_info(str, command):
+        """Gets rid of '[-h]' for help, 'argname',
+         prefixes command name and replaces the last newline with ||"""
+        str = str.replace(' [-h]', '').replace(' argname', '')
+        if not str.startswith(command):
+            str = command + ", " + str
+        str = str.rsplit('\n', 1)
+        return ' || '.join(str)

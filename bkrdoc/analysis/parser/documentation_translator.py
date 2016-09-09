@@ -102,7 +102,10 @@ class DocumentationTranslator:
         elif condition.is_rlservicexxx(argname):
             self.set_rlservicexxx_data(argparse_data)
 
-        elif condition.is_sebooleanxxx_command(argname):
+        elif condition.is_seboolean_on_off_command(argname):
+            self.set_sebooleanxxx_data(argparse_data)
+
+        elif condition.is_sebooleanrestore_command(argname):
             self.set_sebooleanxxx_data(argparse_data)
 
         elif condition.is_rlshowrunningkernel_command(argname):
@@ -111,8 +114,8 @@ class DocumentationTranslator:
         elif condition.is_get_or_check_makefile_requires(argname):
             self.set_rlget_or_rlcheck_makefilerequeries_data(argparse_data)
 
-        elif condition.is_rlcleanup_apend_or_prepend_command(argname):
-            self.set_rlcleanup_apend_or_prepend_data(argparse_data)
+        elif condition.is_rlcleanup_append_or_prepend_command(argname):
+            self.set_rlcleanup_append_or_prepend_data(argparse_data)
 
         elif condition.is_rlfilesubmit_command(argname):
             self.set_rlfilesubmit_data(argparse_data)
@@ -479,7 +482,7 @@ class DocumentationTranslator:
         action = ["measures"]
         self.inf_ref = doc_information_representation.DocumentationInformation(argparse_data.argname, topic_obj, action, importance)
 
-    def set_rlcleanup_apend_or_prepend_data(self, argparse_data):
+    def set_rlcleanup_append_or_prepend_data(self, argparse_data):
         """
         Sets DocumentationInformation object to specified BeakerLib command
         :param argparse_data: argparse object
