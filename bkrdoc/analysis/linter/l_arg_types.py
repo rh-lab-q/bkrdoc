@@ -22,6 +22,7 @@ class LinterArgTypes(common.LinterRule):
     OS_TYPE_INVALID = "OS type checked for must be in format >=5.0 where '>=' can be any of >=,>,<=,<,= or nothing"
     HASH_ALGO = "hash algorithm has to be one of: "
     RETVAL = "return value should be an integer within range (0,255)"
+    LIBRARY = "libraries must have 'component/library' format"
 
     # command: (namespace variable name, function to call, message ^)
     commands_to_check = {'rlRun': [('status', 'check_status', 'STATUS_NOT_INT')],
@@ -31,6 +32,7 @@ class LinterArgTypes(common.LinterRule):
                          'rlIsFedora': [('type', 'check_os_type', 'OS_TYPE_INVALID')],
                          'rlHash': [('algorithm', 'check_hash_algo', 'HASH_ALGO')],
                          'rlUnhash': [('algorithm', 'check_hash_algo', 'HASH_ALGO')],
+                         'rlImport': [('library', 'check_library', 'LIBRARY')],
                          'rlWaitForCmd': [('time', 'check_nonnegative', 'TIMEOUT'),
                                           ('pid', 'check_nonnegative', 'PID'),
                                           ('count', 'check_nonnegative', 'COUNT'),
@@ -115,6 +117,12 @@ class LinterArgTypes(common.LinterRule):
                            "{}, {} {} (was `{}`)".format(self.argname, msg, ', '.join(self.valid_hash_algorithms), algo),
                            self.lineno)
 
+    def check_library(self, libs, msg):
+        for lib in libs:
+            if not self.is_library_import_format(lib):
+                self.add_error('3000', 'library',
+                               "{}, {} (was `{}`)".format(self.argname, msg, lib), self.lineno)
+
     def check_nonnegative(self, value, info):
         err_label, msg = info
         if not self.is_nonnegative_int(value):
@@ -133,6 +141,13 @@ class LinterArgTypes(common.LinterRule):
 
     def is_valid_status(self, num):
             return self.can_cast_to_type(num, float) and self.is_within_range(num, 0, 256)
+
+    @staticmethod
+    # checks that library is in X/Y format
+    def is_library_import_format(lib):
+        if lib.startswith("$"):
+            return True
+        return lib.find('/') not in [-1, 0, len(lib)-1] and lib.find('/') == lib.rfind('/')
 
     def is_nonnegative_int(self, val):
         return val is None or (self.can_cast_to_type(val, int) and int(val) >= 0)

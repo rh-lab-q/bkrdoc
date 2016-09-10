@@ -574,7 +574,7 @@ class StatementDataSearcher:
         """
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
-        parser_arg.add_argument("LIBRARY", type=str, nargs='+')
+        parser_arg.add_argument("library", type=str, nargs='+')
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 
     def get_rlperftime_runsintime_data(self, pom_param_list):

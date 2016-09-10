@@ -11,7 +11,7 @@ class LinterSingleRules(common.LinterRule):
     As of now this includes:
         Beakerlib environment must be set at the beginning.
         Journal must be started before any other command.
-        Journal end should be followed by no command (other than journal print).
+        Journal end can only be followed by several allowed commands.
         Deprecated commands.
     """
 
@@ -74,7 +74,7 @@ class LinterSingleRules(common.LinterRule):
         if not self.journal_end_found:
             return
 
-        if not self.is_journal_print_or_end(line):
+        if not self.is_allowed_outside_journal(line):
             self.add_error('2400', 'journal_end', self.JOURNAL_END, line.lineno)
             self.journal_end_found = False
             return
@@ -89,8 +89,10 @@ class LinterSingleRules(common.LinterRule):
         return line.argname == "rlJournalEnd"
 
     @staticmethod
-    def is_journal_print_or_end(line):
-        return line.argname in ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd']
+    def is_allowed_outside_journal(line):
+        allowed_commands = ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd',
+                            'rlReport', 'rlGetTestState']
+        return line.argname in allowed_commands
 
     @staticmethod
     def sets_beaker_env(command):

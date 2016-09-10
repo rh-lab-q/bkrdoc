@@ -6,9 +6,10 @@ Each opening pair command needs a corresponding closing command, which is mostly
 - [E1001][error] rlPhaseStartTest >> rlPhaseEnd
 - [E1002][error] rlFileBackup >> rlFileRestore
 - [E1003][warning] rlVirtualXStart >> rlVirtualXStop
-- [E1004][warning] rlServiceStart >> rlServiceStop
-- [E1005][error] rlSEBooleanOff >> rlSEBooleanRestore
-- [E1005][error] rlSEBooleanOn >> rlSEBooleanRestore
+- [E1004][error] rlServiceStart >> rlServiceRestore
+- [E1005][error] rlServiceStop >> rlServiceRestore
+- [E1006][error] rlSEBooleanOn >> rlSEBooleanRestore
+- [E1007][error] rlSEBooleanOff >> rlSEBooleanRestore
 
 
 ### EC1100: Pair commands -- end before 'before'
@@ -22,8 +23,7 @@ Similarly to begins without ends, an ending without a begin has been found. This
 - [E1201][error] rlPhaseEnd, begins: rlPhaseStart, rlPhaseStartCleanup, rlPhaseStartSetup, rlPhaseStartTest
 - [E1202][error] rlFileRestore, begins: rlFileBackup
 - [E1203][error] rlVirtualXStop, begins: rlVirtualXStart
-- [E1204][error] rlServiceStop, begins: rlServiceStart
-- [E1205][error] rlSEBooleanRestore, begins: rlSEBooleanOff, rlSEBooleanOn
+- [E1204][error] rlSEBooleanRestore, begins: rlSEBooleanOff, rlSEBooleanOn
 
 
 ### EC1500: Within phase functionality
@@ -62,6 +62,7 @@ A number of commands require specific type of arguments. The simple ones (int/fl
 - [E3018][error] rlWaitForX PID not a non-negative integer
 - [E3019][error] rlWaitForCmd count not a non-negative integer
 - [E3020][error] rlWaitForCmd return value not an int within range (0,255)
+- [E3021][warning] rlImport library has to be in X/Y format
 
 
 ### EC4000: Command typos

@@ -140,8 +140,8 @@ class TestPairFunctions(unittest.TestCase):
     def test_list_flags(self):
 
         ns_service_start_a = Namespace(argname='rlServiceStart', service=['a'], lineno=1)
-        ns_service_start_b = Namespace(argname='rlServiceStart', service=['b'], lineno=2)
-        ns_service_stop_a_b = Namespace(argname='rlServiceStop', service=['a', 'b'], lineno=3)
+        ns_service_start_b = Namespace(argname='rlServiceStop', service=['b'], lineno=2)
+        ns_service_stop_a_b = Namespace(argname='rlServiceRestore', service=['a', 'b'], lineno=3)
 
         parse_list = [ns_service_start_a, ns_service_start_b, ns_service_stop_a_b]
         errors = get_func_pair_errors(parse_list)
@@ -307,6 +307,12 @@ class TestArgTypes(unittest.TestCase):
                              err('E3015', 'error',
                                  "{}, `{}` - {}".format(argtypes.argname, '=>2', argtypes.OS_TYPE_INVALID), 0)],
                             argtypes.errors)
+
+    def test_lib_format(self):
+        for str in ["a//b", "/a", "/a/b", "a/", "a/b/"]:
+            self.assertFalse(LArgTypes.is_library_import_format(str), "Failed for: " + str)
+        for str in ["a/b", "abcde/fgh.ase^2"]:
+            self.assertTrue(LArgTypes.is_library_import_format(str), "Failed for: " + str)
 
 
 def analyse_with_rule(self, rule, parse_list, expected_err_list):

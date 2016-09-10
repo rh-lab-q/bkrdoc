@@ -21,7 +21,8 @@ class Catalogue:
         'rlPhaseStartCleanup': 'rlPhaseEnd',
         'rlFileBackup': 'rlFileRestore',
         'rlVirtualXStart': 'rlVirtualXStop',
-        'rlServiceStart': 'rlServiceStop',
+        'rlServiceStart': 'rlServiceRestore',
+        'rlServiceStop': 'rlServiceRestore',
         'rlSEBooleanOn': 'rlSEBooleanRestore',
         'rlSEBooleanOff': 'rlSEBooleanRestore'
     }
@@ -46,9 +47,10 @@ class Catalogue:
                    'rlPhaseStartCleanup': ('E1001', Severity.error),
                    'rlFileBackup': ('E1002', Severity.error),
                    'rlVirtualXStart': ('E1003', Severity.warning),
-                   'rlServiceStart': ('E1004', Severity.warning),
-                   'rlSEBooleanOn': ('E1005', Severity.error),
-                   'rlSEBooleanOff': ('E1005', Severity.error)}),
+                   'rlServiceStart': ('E1004', Severity.error),
+                   'rlServiceStop': ('E1005', Severity.error),
+                   'rlSEBooleanOn': ('E1006', Severity.error),
+                   'rlSEBooleanOff': ('E1007', Severity.error)}),
 
         '1100': Namespace(
             description="Pair commands -- end before 'before'\n"
@@ -67,8 +69,7 @@ class Catalogue:
             value={'rlPhaseEnd': ('E1201', Severity.error),
                    'rlFileRestore': ('E1202', Severity.error),
                    'rlVirtualXStop': ('E1203', Severity.error),
-                   'rlServiceStop': ('E1204', Severity.error),
-                   'rlSEBooleanRestore': ('E1205', Severity.error)}),
+                   'rlSEBooleanRestore': ('E1204', Severity.error)}),
 
         '1500': Namespace(
             description="Within phase functionality\n"
@@ -112,7 +113,8 @@ class Catalogue:
                    'time': ('E3017', Severity.error, "rlWaitForX time not a non-negative integer"),
                    'pid': ('E3018', Severity.error, "rlWaitForX PID not a non-negative integer"),
                    'count': ('E3019', Severity.error, 'rlWaitForCmd count not a non-negative integer'),
-                   'retval': ('E3020', Severity.error, 'rlWaitForCmd return value not an int within range (0,255)')}),
+                   'retval': ('E3020', Severity.error, 'rlWaitForCmd return value not an int within range (0,255)'),
+                   'library': ('E3021', Severity.warning, 'rlImport library has to be in X/Y format')}),
 
         '4000': Namespace(
             description="Command typos\n"

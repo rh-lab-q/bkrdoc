@@ -45,7 +45,8 @@ class LinterPairFunctions(common.LinterRule):
              'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', before=start_phase_names, each=True),
              'rlFileBackup': Match('rlFileBackup', flag_source='namespace'),
              'rlVirtualXStart': Match('rlVirtualXStart', flag_source='name'),
-             'rlServiceStart': Match('rlServiceStart', before=['rlServiceRestore'], flag_source='service'),
+             'rlServiceStart': Match('rlServiceStart', flag_source='service'),
+             'rlServiceStop': Match('rlServiceStop', flag_source='service'),
              'rlSEBooleanOn': Match('rlSEBooleanOn', flag_source='boolean', restores_all=True),
              'rlSEBooleanOff': Match('rlSEBooleanOff', flag_source='boolean', restores_all=True)}
 
