@@ -42,9 +42,10 @@ class LinterWithinPhase(common.LinterRule):
                 del self.log_metric_names[-1]
         else:
             if self.depth_of_nesting == 0 and line.argname in bkrdoc_parser.Parser.beakerlib_commands:
-                self.add_error('1500', 'out_of_phase',
-                               "{} ({})".format(self.OUTSIDE_PHASE, line.argname),
-                               line.lineno)
+                if not self.is_allowed_outside_phase(line):
+                    self.add_error('1500', 'out_of_phase',
+                                   "{} ({})".format(self.OUTSIDE_PHASE, line.argname),
+                                   line.lineno)
 
             if cond.is_rllogmetric_command(line.argname):
                 if line.name in self.get_used_metric_names():
@@ -63,3 +64,11 @@ class LinterWithinPhase(common.LinterRule):
 
     def get_used_metric_names(self):
         return [name for namelist in self.log_metric_names for name in namelist]
+
+    @staticmethod
+    def is_allowed_outside_phase(command):
+        common_ = common.LinterRule
+        cond = conditions_for_commands.ConditionsForCommands()
+        return any([cond.is_journal_start(command),
+                   cond.is_journal_end(command),
+                   common_.is_allowed_outside_journal(command)])

@@ -2,8 +2,7 @@ __author__ = 'Zuzana Baranova'
 
 from bkrdoc.analysis.linter import common
 from bkrdoc.analysis.linter.catalogue import Catalogue
-from bkrdoc.analysis.parser import bkrdoc_parser
-
+from bkrdoc.analysis.parser import bkrdoc_parser, conditions_for_commands
 
 class LinterSingleRules(common.LinterRule):
     """
@@ -74,25 +73,15 @@ class LinterSingleRules(common.LinterRule):
         if not self.journal_end_found:
             return
 
-        if not self.is_allowed_outside_journal(line):
+        if not common.LinterRule.is_allowed_outside_journal(line):
             self.add_error('2400', 'journal_end', self.JOURNAL_END, line.lineno)
             self.journal_end_found = False
             return
 
-
     @staticmethod
     def is_journal_start(line):
-        return line.argname == "rlJournalStart"
-
-    @staticmethod
-    def is_journal_end(line):
-        return line.argname == "rlJournalEnd"
-
-    @staticmethod
-    def is_allowed_outside_journal(line):
-        allowed_commands = ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd',
-                            'rlReport', 'rlGetTestState']
-        return line.argname in allowed_commands
+        cond = conditions_for_commands.ConditionsForCommands()
+        return cond.is_journal_start(line.argname)
 
     @staticmethod
     def sets_beaker_env(command):

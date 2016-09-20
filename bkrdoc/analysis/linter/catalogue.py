@@ -31,7 +31,9 @@ class Catalogue:
         'rlGetArch': ['rlGetPrimaryArch', 'rlGetSecondaryArch'],
         'rlLogLowMetric': ['rlLogMetricLow'],
         'rlLogHighMetric': ['rlLogMetricHigh'],
-        'rlShowPkgVersion': ['rlShowPackageVersion']
+        'rlShowPkgVersion': ['rlShowPackageVersion'],
+        'rlMountAny': ['rlMount'],
+        'rlAnyMounted': ['rlCheckMount']
     }
 
     table = {
@@ -85,8 +87,10 @@ class Catalogue:
             description_function='get_deprecated_alternative',
             value={'rlGetArch': ('E2001', Severity.error),
                    'rlLogLowMetric': ('E2002', Severity.error),
-                   'rlLogHighMetric': ('E2002', Severity.error),
-                   'rlShowPkgVersion': ('E2003', Severity.error)}),
+                   'rlLogHighMetric': ('E2003', Severity.error),
+                   'rlShowPkgVersion': ('E2004', Severity.error),
+                   'rlMountAny': ('E2005', Severity.error),
+                   'rlAnyMounted': ('E2006', Severity.error)}),
 
         '2400': Namespace(
             description="Standalone rules",

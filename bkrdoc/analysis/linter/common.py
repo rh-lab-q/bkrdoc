@@ -60,3 +60,9 @@ class LinterRule(object):
 
     def get_errors(self):
         return self.errors
+
+    @staticmethod
+    def is_allowed_outside_journal(command):
+        allowed_commands = ['rlJournalPrint', 'rlJournalPrintText', 'rlJournalEnd',
+                            'rlReport', 'rlGetTestState']
+        return command in allowed_commands

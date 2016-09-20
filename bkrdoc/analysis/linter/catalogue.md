@@ -36,9 +36,11 @@ Error class uniting problems that are related to phase composition of tests.
 ### EC2000: Deprecated commands
 The following commands are deprecated and should no longer be used:
 - [E2001][error] rlGetArch, use: rlGetPrimaryArch, rlGetSecondaryArch
-- [E2002][error] rlLogHighMetric, use: rlLogMetricHigh
 - [E2002][error] rlLogLowMetric, use: rlLogMetricLow
-- [E2003][error] rlShowPkgVersion, use: rlShowPackageVersion
+- [E2003][error] rlLogHighMetric, use: rlLogMetricHigh
+- [E2004][error] rlShowPkgVersion, use: rlShowPackageVersion
+- [E2005][error] rlMountAny, use: rlMount
+- [E2006][error] rlAnyMounted, use: rlCheckMount
 
 
 ### EC2400: Standalone rules
