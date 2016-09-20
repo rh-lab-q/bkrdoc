@@ -314,6 +314,22 @@ class TestArgTypes(unittest.TestCase):
         for str in ["a/b", "abcde/fgh.ase^2"]:
             self.assertTrue(LArgTypes.is_library_import_format(str), "Failed for: " + str)
 
+    def test_version(self):
+        argtypes = LArgTypes()
+        argtypes.argname = 'rlCmpVersion'
+        for version in ['abcs', 'e458', 'c22.sd-asd1._55', '$NAME', '$al26.0p', '5']:
+            argtypes.check_version(version, argtypes.VERSION)
+        self.assert_empty_(argtypes.errors)
+
+        err_temp = []
+        for version in ['a%', 'a$a', '+q', 'u$', '']:
+            argtypes.check_version(version, argtypes.VERSION)
+            err_temp.append(err('E3022', 'error',
+                                 "{}, {} (was `{}`)".format(argtypes.argname, argtypes.VERSION, version), 0))
+
+        self.assertEqual(len(argtypes.errors), 5)
+        self.list_contains_(err_temp, argtypes.errors)
+
 
 def analyse_with_rule(self, rule, parse_list, expected_err_list):
     rule_ref = rule()

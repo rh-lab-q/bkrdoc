@@ -10,6 +10,8 @@ Each opening pair command needs a corresponding closing command, which is mostly
 - [E1005][error] rlServiceStop >> rlServiceRestore
 - [E1006][error] rlSEBooleanOn >> rlSEBooleanRestore
 - [E1007][error] rlSEBooleanOff >> rlSEBooleanRestore
+- [E1008][error] rlSocketStart >> rlSocketRestore
+- [E1009][error] rlSocketStop >> rlSocketRestore
 
 
 ### EC1100: Pair commands -- end before 'before'
@@ -24,6 +26,7 @@ Similarly to begins without ends, an ending without a begin has been found. This
 - [E1202][error] rlFileRestore, begins: rlFileBackup
 - [E1203][error] rlVirtualXStop, begins: rlVirtualXStart
 - [E1204][error] rlSEBooleanRestore, begins: rlSEBooleanOff, rlSEBooleanOn
+- [E1205][error] rlSocketRestore, begins: rlSocketStart, rlSocketStop
 
 
 ### EC1500: Within phase functionality
@@ -65,6 +68,8 @@ A number of commands require specific type of arguments. The simple ones (int/fl
 - [E3019][error] rlWaitForCmd count not a non-negative integer
 - [E3020][error] rlWaitForCmd return value not an int within range (0,255)
 - [E3021][warning] rlImport library has to be in X/Y format
+- [E3022][error] rlCmp/TestVersion version not composed of alphanum and '.-_'
+- [E3023][error] rlTestVersion invalid operator
 
 
 ### EC4000: Command typos

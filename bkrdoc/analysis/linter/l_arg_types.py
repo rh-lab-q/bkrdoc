@@ -23,6 +23,8 @@ class LinterArgTypes(common.LinterRule):
     HASH_ALGO = "hash algorithm has to be one of: "
     RETVAL = "return value should be an integer within range (0,255)"
     LIBRARY = "libraries must have 'component/library' format"
+    VERSION = "version has to be composed of letters, numbers, dot(.), underscore(_) and dash(-) solely"
+    OPERATOR = "operator has to be one of: "
 
     # command: (namespace variable name, function to call, message ^)
     commands_to_check = {'rlRun': [('status', 'check_status', 'STATUS_NOT_INT')],
@@ -46,13 +48,20 @@ class LinterArgTypes(common.LinterRule):
                                           ('delay', 'check_nonnegative', 'DELAY')],
                          'rlWait': [('signal', 'check_signal', 'SIGNAL'),
                                     ('time', 'check_nonnegative', 'TIMEOUT'),
-                                    ('pids', 'check_pids', 'PID')]}
+                                    ('pids', 'check_pids', 'PID')],
+                         'rlCmpVersion': [('ver1', 'check_version', 'VERSION'),
+                                          ('ver2', 'check_version', 'VERSION')],
+                         'rlTestVersion': [('ver1', 'check_version', 'VERSION'),
+                                           ('ver2', 'check_version', 'VERSION'),
+                                           ('op', 'check_operator', 'OPERATOR')]}
 
     common_signals = ['KILL', 'TERM', 'QUIT', 'INT', 'STOP', 'HUP', 'ILL', 'TRAP',
                       'ABRT', 'BUS', 'FPE', 'USR1', 'USR2', 'SEGV', 'PIPE', 'ALRM',
                       'CHLD', 'CONT', 'TTIN', 'TTOU', 'IO', 'SYS', 'TSTP']
 
     valid_hash_algorithms = ['base64', 'base64_', 'hex']
+
+    version_comparison_operators = ['=', '==', '!=', '<', '<=', '=<', '>', '>=', '=>']
 
     def __init__(self):
         super(LinterArgTypes, self).__init__()
@@ -137,6 +146,21 @@ class LinterArgTypes(common.LinterRule):
         if not self.is_valid_status(retval):
             self.add_error('3000', 'retval',
                            "{}, `{}` - {}".format(self.argname, retval, msg),
+                           self.lineno)
+
+    def check_operator(self, op, msg):
+        if op not in self.version_comparison_operators:
+            self.add_error('3000', 'operator',
+                           "{}, {}{} (was `{}`)".format(self.argname, msg,
+                                                        ', '.join(self.version_comparison_operators), op),
+                           self.lineno)
+
+    def check_version(self, version, msg):
+        result = re.match('[-\w.]+$|([$].+)', version)
+        #result = re.match('[a-z]+', version)
+        if result is None:
+            self.add_error('3000', 'version',
+                           "{}, {} (was `{}`)".format(self.argname, msg, version),
                            self.lineno)
 
     def is_valid_status(self, num):

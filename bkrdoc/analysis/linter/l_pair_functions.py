@@ -47,6 +47,8 @@ class LinterPairFunctions(common.LinterRule):
              'rlVirtualXStart': Match('rlVirtualXStart', flag_source='name'),
              'rlServiceStart': Match('rlServiceStart', flag_source='service'),
              'rlServiceStop': Match('rlServiceStop', flag_source='service'),
+             'rlSocketStart': Match('rlSocketStart', flag_source='socket'),
+             'rlSocketStop': Match('rlSocketStop', flag_source='socket'),
              'rlSEBooleanOn': Match('rlSEBooleanOn', flag_source='boolean', restores_all=True),
              'rlSEBooleanOff': Match('rlSEBooleanOff', flag_source='boolean', restores_all=True)}
 

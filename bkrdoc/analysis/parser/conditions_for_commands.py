@@ -16,6 +16,10 @@ class ConditionsForCommands:
         pom_list = ["rlVirtualXStop", "rlVirtualXStart", "rlVirtualXGetDisplay"]
         return command in pom_list
 
+    def is_rlsocketxxx_command(self, command):
+        pom_list = ["rlSocketStart", "rlSocketStop", "rlSocketRestore"]
+        return command in pom_list
+
     def is_rlwaitfor_command(self, command):
         return command == "rlWait"
 
@@ -95,6 +99,12 @@ class ConditionsForCommands:
 
     def is_rlpass_or_rlfail_command(self, command):
         return command == "rlPass" or command == "rlFail"
+
+    def is_cmp_version(self, command):
+        return command == "rlCmpVersion"
+
+    def is_test_version(self, command):
+        return command == "rlTestVersion"
 
     def is_assert_grep(self, command):
         return command == "rlAssertGrep" or command == "rlAssertNotGrep"

@@ -37,7 +37,8 @@ class Parser(object):
                     "rlGetDistroVariant", "rlGetDistroRelease", "rlGetSecondaryArch", "rlGetPrimaryArch",
                     "rlGetArch", "rlShowPackageVersion", "rlFileSubmit", "rlBundleLogs", "rlDie", "rlPass", "rlFail",
                     "rlLogFatal", "rlLogError", "rlLogWarning", "rlLogInfo", "rlLogDebug", "rlLog",
-                    "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText"]
+                    "rlGetTestState", "rlGetPhaseState", "rlJournalPrint", "rlJournalPrintText",
+                    "rlSocketStart", "rlSocketStop", "rlSocketRestore", "rlCmpVersion", "rlTestVersion"]
 
     start_phase_names = ['rlPhaseStart', 'rlPhaseStartTest', 'rlPhaseStartSetup', 'rlPhaseStartCleanup']
 

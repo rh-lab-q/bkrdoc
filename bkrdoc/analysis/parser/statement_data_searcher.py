@@ -185,6 +185,15 @@ class StatementDataSearcher:
         elif condition.is_virtualxxx_command(first):
             self.check_err(self.get_rlvirtualx_xxx_data, pom_list)
 
+        elif condition.is_rlsocketxxx_command(first):
+            self.check_err(self.get_rlsocketxxx_data, pom_list)
+
+        elif condition.is_cmp_version(first):
+            self.check_err(self.get_cmp_version_data, pom_list)
+
+        elif condition.is_test_version(first):
+            self.check_err(self.get_test_version_data, pom_list)
+
         elif condition.is_deprecated_command(first):
             self.get_deprecated_data(pom_list)
 
@@ -567,6 +576,16 @@ class StatementDataSearcher:
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
         self.parsed_param_ref.remainder = unknown
 
+    def get_rlsocketxxx_data(self, pom_param_list):
+        """
+        Parsing data from statement line using set upped argparse module
+        :param pom_param_list: code line
+        """
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("socket", type=str, nargs='+')
+        self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
+
     def get_rlimport_data(self, pom_param_list):
         """
         Parsing data from statement line using set upped argparse module
@@ -832,6 +851,23 @@ class StatementDataSearcher:
                                 default=False, help='Extended grep')
         parser_arg.add_argument('-p', '-P', dest='out_in', action='store_true',
                                 default=False, help='perl regular expression')
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
+
+    def get_cmp_version_data(self, pom_param_list):
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("ver1", type=str)
+        parser_arg.add_argument("ver2", type=str)
+        self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
+        self.parsed_param_ref.remainder = unknown
+
+    def get_test_version_data(self, pom_param_list):
+        parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
+        parser_arg.add_argument("argname", type=str)
+        parser_arg.add_argument("ver1", type=str)
+        parser_arg.add_argument("op", type=str)
+        parser_arg.add_argument("ver2", type=str)
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
         self.parsed_param_ref.remainder = unknown
 

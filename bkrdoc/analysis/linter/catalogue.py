@@ -24,7 +24,9 @@ class Catalogue:
         'rlServiceStart': 'rlServiceRestore',
         'rlServiceStop': 'rlServiceRestore',
         'rlSEBooleanOn': 'rlSEBooleanRestore',
-        'rlSEBooleanOff': 'rlSEBooleanRestore'
+        'rlSEBooleanOff': 'rlSEBooleanRestore',
+        'rlSocketStart': 'rlSocketRestore',
+        'rlSocketStop': 'rlSocketRestore'
     }
 
     deprecated_commands = {
@@ -52,7 +54,9 @@ class Catalogue:
                    'rlServiceStart': ('E1004', Severity.error),
                    'rlServiceStop': ('E1005', Severity.error),
                    'rlSEBooleanOn': ('E1006', Severity.error),
-                   'rlSEBooleanOff': ('E1007', Severity.error)}),
+                   'rlSEBooleanOff': ('E1007', Severity.error),
+                   'rlSocketStart': ('E1008', Severity.error),
+                   'rlSocketStop': ('E1009', Severity.error)}),
 
         '1100': Namespace(
             description="Pair commands -- end before 'before'\n"
@@ -71,7 +75,8 @@ class Catalogue:
             value={'rlPhaseEnd': ('E1201', Severity.error),
                    'rlFileRestore': ('E1202', Severity.error),
                    'rlVirtualXStop': ('E1203', Severity.error),
-                   'rlSEBooleanRestore': ('E1204', Severity.error)}),
+                   'rlSEBooleanRestore': ('E1204', Severity.error),
+                   'rlSocketRestore': ('E1205', Severity.error)}),
 
         '1500': Namespace(
             description="Within phase functionality\n"
@@ -118,7 +123,9 @@ class Catalogue:
                    'pid': ('E3018', Severity.error, "rlWaitForX PID not a non-negative integer"),
                    'count': ('E3019', Severity.error, 'rlWaitForCmd count not a non-negative integer'),
                    'retval': ('E3020', Severity.error, 'rlWaitForCmd return value not an int within range (0,255)'),
-                   'library': ('E3021', Severity.warning, 'rlImport library has to be in X/Y format')}),
+                   'library': ('E3021', Severity.warning, 'rlImport library has to be in X/Y format'),
+                   'version': ('E3022', Severity.error, 'rlCmp/TestVersion version not composed of alphanum and \'.-_\''),
+                   'operator': ('E3023', Severity.error, "rlTestVersion invalid operator")}),
 
         '4000': Namespace(
             description="Command typos\n"
