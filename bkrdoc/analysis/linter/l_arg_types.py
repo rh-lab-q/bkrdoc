@@ -84,29 +84,25 @@ class LinterArgTypes(common.LinterRule):
         for single_range in [n for n in statuses.split(',')]:
             numbers = single_range.split('-')
             if len(numbers) > 2 or any(not self.is_valid_status(number) for number in numbers):
-                self.add_error('3000', 'rlRun_type',
-                               "{}, {} in `{}`".format(self.argname, msg, single_range),
-                               self.lineno)
+                self.add_error('rlRun_type',
+                               "{}, {} in `{}`".format(self.argname, msg, single_range))
                 return
             if len(numbers) == 2 and self.int_(numbers[0]) > self.int_(numbers[1]):
                 msg2 = "first bound has to be smaller in `{}`".format(single_range)
-                self.add_error('3000', 'rlRun_bounds',
-                               self.argname + ", " + msg2,
-                               self.lineno)
+                self.add_error('rlRun_bounds',
+                               self.argname + ", " + msg2)
 
     def check_signal(self, tested_signal, msg):
         for signal in self.common_signals:
             if tested_signal.upper() in [signal, "SIG"+signal]:
                 return
-        self.add_error('3000', self.argname + "_signal",
-                       "{}, `{}` {}".format(self.argname, tested_signal, msg),
-                       self.lineno)
+        self.add_error(self.argname + "_signal",
+                       "{}, `{}` {}".format(self.argname, tested_signal, msg))
 
     def check_result(self, result, msg):
         if result.upper() not in ['PASS', 'WARN', 'FAIL']:
-            self.add_error('3000', 'rlReport',
-                           "{}, `{}` {}".format(self.argname, result, msg),
-                           self.lineno)
+            self.add_error('rlReport',
+                           "{}, `{}` {}".format(self.argname, result, msg))
 
     def check_os_type(self, types, msg):
         valid_prefixes = ['<=','<','>=','>','','=']
@@ -116,27 +112,25 @@ class LinterArgTypes(common.LinterRule):
 
             if split_string[0] in valid_prefixes and self.can_cast_to_type(numeric_part, float):
                 continue
-            self.add_error('3000', 'rhel_fedora',
-                           "{}, `{}` - {}".format(self.argname, type_, msg),
-                           self.lineno)
+            self.add_error('rhel_fedora',
+                           "{}, `{}` - {}".format(self.argname, type_, msg))
 
     def check_hash_algo(self, algo, msg):
         if algo not in self.valid_hash_algorithms:
-            self.add_error('3000', 'hash_algo',
-                           "{}, {} {} (was `{}`)".format(self.argname, msg, ', '.join(self.valid_hash_algorithms), algo),
-                           self.lineno)
+            self.add_error('hash_algo',
+                           "{}, {} {} (was `{}`)".format(self.argname, msg, ', '.join(self.valid_hash_algorithms), algo))
 
     def check_library(self, libs, msg):
         for lib in libs:
             if not self.is_library_import_format(lib):
-                self.add_error('3000', 'library',
-                               "{}, {} (was `{}`)".format(self.argname, msg, lib), self.lineno)
+                self.add_error('library',
+                               "{}, {} (was `{}`)".format(self.argname, msg, lib))
 
     def check_nonnegative(self, value, info):
         err_label, msg = info
         if not self.is_nonnegative_int(value):
-            self.add_error('3000', err_label,
-                           "{}, `{}` - {}, {}".format(self.argname, value, msg, self.NONNEGATIVE), self.lineno)
+            self.add_error(err_label,
+                           "{}, `{}` - {}, {}".format(self.argname, value, msg, self.NONNEGATIVE))
 
     def check_pids(self, pids, info):
         for pid in pids:
@@ -144,24 +138,21 @@ class LinterArgTypes(common.LinterRule):
 
     def check_retval(self, retval, msg):
         if not self.is_valid_status(retval):
-            self.add_error('3000', 'retval',
-                           "{}, `{}` - {}".format(self.argname, retval, msg),
-                           self.lineno)
+            self.add_error('retval',
+                           "{}, `{}` - {}".format(self.argname, retval, msg))
 
     def check_operator(self, op, msg):
         if op not in self.version_comparison_operators:
-            self.add_error('3000', 'operator',
+            self.add_error('operator',
                            "{}, {}{} (was `{}`)".format(self.argname, msg,
-                                                        ', '.join(self.version_comparison_operators), op),
-                           self.lineno)
+                                                        ', '.join(self.version_comparison_operators), op))
 
     def check_version(self, version, msg):
         result = re.match('[-\w.]+$|([$].+)', version)
         #result = re.match('[a-z]+', version)
         if result is None:
-            self.add_error('3000', 'version',
-                           "{}, {} (was `{}`)".format(self.argname, msg, version),
-                           self.lineno)
+            self.add_error('version',
+                           "{}, {} (was `{}`)".format(self.argname, msg, version))
 
     def is_valid_status(self, num):
             return self.can_cast_to_type(num, float) and self.is_within_range(num, 0, 256)
@@ -191,3 +182,6 @@ class LinterArgTypes(common.LinterRule):
     @staticmethod
     def int_(num):
         return int(float(num))
+
+    def add_error(self, err_label, msg, flag=None):
+        super(LinterArgTypes, self).add_error('3000', err_label, msg, self.lineno, flag)

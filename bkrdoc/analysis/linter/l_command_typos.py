@@ -11,8 +11,8 @@ class LinterCommandTypos(common.LinterRule):
         super(LinterCommandTypos, self).__init__()
 
     def analyse(self, line):
-        def add_err(err_class, err_label):
-            self.add_error(err_class, err_label,
+        def add_err(err_label):
+            self.add_error('4000', err_label,
                            "{} not recognized, perhaps you meant {}?".format(curr_command, command),
                            line.lineno)
 
@@ -22,10 +22,10 @@ class LinterCommandTypos(common.LinterRule):
 
         for command in bkrdoc_parser.Parser.beakerlib_commands:
             if curr_command.upper() == command.upper():
-                add_err('4000', 'letter_case')
+                add_err('letter_case')
                 return
             elif curr_command + "s" == command:
-                add_err('4000', 'end_s')
+                add_err('end_s')
                 return
 
         if curr_command.startswith("rl") and len(curr_command)>2 and curr_command[2].isupper():

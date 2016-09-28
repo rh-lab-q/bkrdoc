@@ -4,14 +4,11 @@ import shlex
 import re
 from bkrdoc.analysis.parser import conditions_for_commands, custom_argparse
 from bkrdoc.analysis.linter import common
-from bkrdoc.analysis.linter.catalogue import Catalogue
-
-catalogue = Catalogue.table
 
 __author__ = 'Jiri_Kulda'
 
 
-class StatementDataSearcher:
+class StatementDataSearcher(common.LinterRule):
     """
     This class is responsible for parsing data from statement lines. This parsing is done by
     setting argparse modules for every BeakerLib command. The setting we can see under
@@ -23,8 +20,8 @@ class StatementDataSearcher:
     minimum_variable_size = 4
 
     def __init__(self):
+        super(StatementDataSearcher, self).__init__()
         self.minimum_variable_size = 4
-        self.errors = []
         self.lineno = 0
 
     def parse_command(self, data_container):
@@ -878,26 +875,16 @@ class StatementDataSearcher:
         return list(filter(None, input_list))
 
     def check_err(self, get_data_method, argument_list):
-        def add_error(err_class, err_label, msg, lineno):
-            try:
-                id, severity = catalogue[err_class].value[err_label]
-            except ValueError:
-                id, severity, _ = catalogue[err_class].value[err_label]
-            self.errors.append(common.Error(id, severity, msg, lineno))
-
         try:
             get_data_method(argument_list)
             if hasattr(self.parsed_param_ref, 'remainder') and self.parsed_param_ref.remainder:
                 msg = "{}, too many arguments (unrecognized args: {})".format(self.parsed_param_ref.argname,
                                                                        self.parsed_param_ref.remainder)
-                add_error('3000', 'too_many_args', msg, self.lineno)
+                self.add_error('3000', 'too_many_args', msg, self.lineno)
         except argparse.ArgumentError as exc:
             msg = self.strip_argparse_error_of_usage_info(exc.message, argument_list[0])
-            add_error('3000', 'parse_err', msg, self.lineno)
+            self.add_error('3000', 'parse_err', msg, self.lineno)
 
-
-    def get_errors(self):
-        return self.errors
 
     @staticmethod
     def strip_argparse_error_of_usage_info(str, command):
