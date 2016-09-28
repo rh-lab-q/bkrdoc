@@ -63,8 +63,7 @@ class Catalogue:
                         "A command can have a `before` specified - a list of commands "
                         "which should not appear before its ending counterpart "
                         "has been encountered.",
-            value={'rlPhaseEnd': ('E1101', Severity.warning, "rlPhaseEnd, before: PhaseStartX"),
-                   'rlServiceStop': ('E1102', Severity.warning, "rlServiceStop, before: rlServiceRestore")}),
+            value={'rlPhaseEnd': ('E1101', Severity.warning, "rlPhaseEnd, before: PhaseStartX")}),
 
         '1200': Namespace(
             description="Pair commands -- end without begin\n"
@@ -76,7 +75,8 @@ class Catalogue:
                    'rlFileRestore': ('E1202', Severity.error),
                    'rlVirtualXStop': ('E1203', Severity.error),
                    'rlSEBooleanRestore': ('E1204', Severity.error),
-                   'rlSocketRestore': ('E1205', Severity.error)}),
+                   'rlSocketRestore': ('E1205', Severity.error),
+                   'rlServiceRestore': ('E1206', Severity.error)}),
 
         '1500': Namespace(
             description="Within phase functionality\n"
@@ -184,5 +184,6 @@ class Catalogue:
                     for line in item:
                         input_file.write(line + '\n')
                     input_file.write('')
+            print("Catalogue.md generated.")
         except IOError:
             sys.stderr.write("ERROR: Failed to write to catalogue.md\n")

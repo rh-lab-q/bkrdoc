@@ -22,8 +22,6 @@ class OutputGenerator(object):
         self.parser_ref = bkrdoc_parser.Parser(args.file_in)
         self.options = self.Options(args)
         self.main_linter.errors += self.options.unrecognized_options
-        if args.catalogue:
-            catalogue.Catalogue().output_as_markdown_file()
 
     def analyse(self):
         try:
@@ -143,7 +141,7 @@ class OutputGenerator(object):
 
 def set_args():
     argp = argparse.ArgumentParser(description='Linter for beakerlib-specific mistakes in beakerlib tests.')
-    argp.add_argument('file_in', type=str, help='input file')
+    argp.add_argument('file_in', type=str, help='input file', nargs='?')
     argp.add_argument('-s', dest='suppress_first', action='store_true', default=False, help='suppress first')
     argp.add_argument('--enable', type=str, dest='enabled', action='append')
     argp.add_argument('--suppress', type=str, dest='suppressed', action='append')
@@ -155,6 +153,14 @@ def set_args():
 # ***************** MAIN ******************
 if __name__ == "__main__":
     args = set_args()
-    gener = OutputGenerator(args)
-    gener.analyse()
-    gener.print_to_stdout()
+
+    if args.catalogue:
+        catalogue.Catalogue().output_as_markdown_file()
+    if args.file_in:
+        gener = OutputGenerator(args)
+        gener.analyse()
+        gener.print_to_stdout()
+    elif not args.catalogue:
+        print("Input file must be specified.\n")
+        sys.argv.append("--help")
+        set_args()

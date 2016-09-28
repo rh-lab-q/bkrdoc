@@ -17,7 +17,6 @@ Each opening pair command needs a corresponding closing command, which is mostly
 ### EC1100: Pair commands -- end before 'before'
 A command can have a `before` specified - a list of commands which should not appear before its ending counterpart has been encountered.
 - [E1101][warning] rlPhaseEnd, before: PhaseStartX
-- [E1102][warning] rlServiceStop, before: rlServiceRestore
 
 
 ### EC1200: Pair commands -- end without begin
@@ -27,6 +26,7 @@ Similarly to begins without ends, an ending without a begin has been found. This
 - [E1203][error] rlVirtualXStop, begins: rlVirtualXStart
 - [E1204][error] rlSEBooleanRestore, begins: rlSEBooleanOff, rlSEBooleanOn
 - [E1205][error] rlSocketRestore, begins: rlSocketStart, rlSocketStop
+- [E1206][error] rlServiceRestore, begins: rlServiceStart, rlServiceStop
 
 
 ### EC1500: Within phase functionality

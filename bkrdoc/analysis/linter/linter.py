@@ -29,7 +29,7 @@ class Linter(object):
     def recursive_analyse(self, line):
         if isinstance(line, argparse.Namespace):
             self.analyse_command(line)
-        elif self.is_type(line, 'for_loop') or self.is_type(line, 'condition'):
+        elif any([self.is_type(line, type_) for type_ in ['for loop', 'condition', 'case']]):
             for statement in line.statement_list:
                 self.recursive_analyse(statement)
         else:
@@ -44,5 +44,8 @@ class Linter(object):
 
     @staticmethod
     def is_container(line):
-        return any([isinstance(line, data_containers.SimpleContainer),
-                    isinstance(line, data_containers.DataContainer)])
+        dc = data_containers
+        return any([isinstance(line, container) for container in [dc.SimpleContainer,
+                                                                  dc.DataContainer,
+                                                                  dc.LoopContainer,
+                                                                  dc.CaseContainer]])

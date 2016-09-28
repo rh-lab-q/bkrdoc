@@ -226,7 +226,7 @@ class TestOptions(unittest.TestCase):
 
     list_contains_ = list_contains
 
-    args = Namespace(suppressed=['E2102', '3000', 'E4523', 'E1102'],
+    args = Namespace(suppressed=['E2102', '3000', 'E4523', 'E1101'],
                      enabled=['warning', 'E4523', 'E3001'],
                      suppress_first=True, catalogue=False,
                      file_in="")
@@ -238,7 +238,7 @@ class TestOptions(unittest.TestCase):
         self.assertFalse(options.enabled[Severity.info])
 
         self.list_contains_(['E3001'], options.enabled_by_id)
-        self.list_contains_(['E3001', 'E1102'], options.suppressed_by_id)
+        self.list_contains_(['E3001', 'E1101'], options.suppressed_by_id)
         self.list_contains_([err('UNK_FLAG', None, "E4523 not recognized, continuing anyway--", 0),
                              err('UNK_FLAG', None, "E2102 not recognized, continuing anyway--", 0)],
                             options.unrecognized_options)
