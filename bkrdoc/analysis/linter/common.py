@@ -32,7 +32,7 @@ class Error(object):
             if self.id == 'UNK_FLAG':
                 return True
             return other.id != 'UNK_FLAG'
-        return self.lineno <= other.lineno
+        return self.lineno < other.lineno
 
 
 class LinterRule(object):
