@@ -121,13 +121,16 @@ class Parser(object):
                     continue
                 data_argparse.lineno = command_line.lineno
                 if conditions.is_rlrun_command(data_argparse.argname):
-                    data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor, data_argparse)
+                    data_argparse = self.search_for_beakerlib_command_in_rlrun(nodevistor,
+                                                                               data_argparse,
+                                                                               command_line.lineno)
                 self.argparse_data_list.append(data_argparse)
         self.errors += data_searcher.get_errors()
 
-    def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse):
+    def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse, lineno=1):
         data_searcher = statement_data_searcher.StatementDataSearcher()
         command_parse = bashlex.parse(rlrun_argparse.command)
+        command_parse[0].lineno = lineno
         nodevisitor.visit(command_parse[0])
         data_searcher.parse_command(nodevisitor.get_parsed_container())
         nodevisitor.erase_parsing_subject_variable()
