@@ -112,6 +112,8 @@ class Parser(object):
                         self.argparse_data_list.append(container)
                     nodevistor.erase_parsing_subject_variable()
                     container.search_data(self, nodevistor)
+                    self.errors += container.get_errors()
+
             else:
                 data_searcher.parsed_param_ref = ""
                 data_searcher.parse_command(nodevistor.get_parsed_container())

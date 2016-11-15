@@ -317,6 +317,7 @@ class SimpleContainer(object):
     command_list = []
     statement_list = []
     _variables = ""
+    errors = []
 
     def add_command(self, command):
         self.command_list.append(command)
@@ -354,18 +355,24 @@ class SimpleContainer(object):
                 command.search_data(parser_ref, nodevisitor)
                 self.statement_list.append(command)
             else:
+                data_searcher.parsed_param_ref = ''
                 data_searcher.parse_command(command)
                 data = data_searcher.parsed_param_ref
-                if conditions.is_rlrun_command(data.argname):
-                    data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
-                data.lineno = data_searcher.lineno
-                self.statement_list.append(data)
+                if data_searcher.parsed_param_ref:
+                    if conditions.is_rlrun_command(data.argname):
+                        data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
+                    data.lineno = data_searcher.lineno
+                    self.statement_list.append(data)
+        self.errors = data_searcher.get_errors()
 
     def container_length(self):
         pass
 
     def unknown_commands_num(self):
         pass
+
+    def get_errors(self):
+        return self.errors
 
 
 class FunctionContainer(SimpleContainer):
