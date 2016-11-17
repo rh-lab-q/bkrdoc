@@ -96,8 +96,9 @@ class LinterArgTypes(common.LinterRule):
         for signal in self.common_signals:
             if tested_signal.upper() in [signal, "SIG"+signal]:
                 return
-        self.add_error(self.argname + "_signal",
-                       "{}, `{}` {}".format(self.argname, tested_signal, msg))
+        if not self.is_nonnegative_int(tested_signal):
+            self.add_error(self.argname + "_signal",
+                           "{}, `{}` {}".format(self.argname, tested_signal, msg))
 
     def check_result(self, result, msg):
         if result.upper() not in ['PASS', 'WARN', 'FAIL']:

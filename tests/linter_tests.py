@@ -279,7 +279,7 @@ class TestArgTypes(unittest.TestCase):
     def test_rlwatchdog_invalid(self):
         argtypes = LArgTypes()
         argtypes.argname = 'rlWatchdog'
-        for signal in ['puppies', '7']:
+        for signal in ['puppies', '7a']:
             argtypes.check_signal(signal, argtypes.SIGNAL)
         self.assertEqual(len(argtypes.errors), 2)
         self.list_contains_([err('E3012', 'info',
