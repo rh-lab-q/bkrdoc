@@ -13,6 +13,8 @@ catalog = catalogue.Catalogue.table
 
 class OutputGenerator(object):
 
+    VERSION = '1.0.0'
+
     NOERRORS = "Static analysis revealed no errors."
     BASHLEX_ERR = "bashlex parse error: cannot continue~\n" \
                   "traceback follows:\n"
@@ -73,6 +75,9 @@ class OutputGenerator(object):
             return '{}: {}'.format(str(err.lineno), result)
         return result
 
+    @staticmethod
+    def print_info():
+        print("bkrlint :: version {}".format(OutputGenerator.VERSION))
 
     class Options(object):
 
@@ -140,7 +145,7 @@ class OutputGenerator(object):
 
 
 def set_args():
-    argp = argparse.ArgumentParser(description='Linter for beakerlib-specific mistakes in beakerlib tests.')
+    argp = argparse.ArgumentParser(description='Linter for BeakerLib-specific mistakes in BeakerLib tests.')
     argp.add_argument('file_in', type=str, help='input file', nargs='?')
     argp.add_argument('-s', dest='suppress_first', action='store_true', default=False, help='suppress first')
     argp.add_argument('--enable', type=str, dest='enabled', action='append')
@@ -154,6 +159,7 @@ def set_args():
 if __name__ == "__main__":
     args = set_args()
 
+    OutputGenerator.print_info()
     if args.catalogue:
         catalogue.Catalogue().output_as_markdown_file()
     if args.file_in:
