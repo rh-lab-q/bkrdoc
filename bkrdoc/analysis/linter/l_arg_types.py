@@ -3,6 +3,7 @@ __author__ = 'Zuzana Baranova'
 import re
 from bkrdoc.analysis.linter import common
 
+basestring = str  # basestring not defined in Py3
 
 class LinterArgTypes(common.LinterRule):
     """Class that checks for specific type errors of beakerlib arguments,
@@ -10,11 +11,18 @@ class LinterArgTypes(common.LinterRule):
     Some are of info type for it is unclear whether the input is invalid for certain."""
 
     # err_label, message
-    NONNEGATIVE = "has to be a non-negative integer"
-    TIMEOUT = 'time', "timeout in seconds"
+    NONNEGATIVE = "has to be a non-negative integer (or float)"
+    TIME = 'time', "timeout in seconds"
+    TIMEOUT = 'timeout', "timeout in seconds"
     PID = 'pid', "PID number"
     COUNT = 'count', "max. number of executions"
-    DELAY = 'delay', 'delay between executions'
+    COUNT_PERF = 'count_perf', "max. number of executions"
+    TIME_PERF = 'time_perf', "time in seconds"
+    RUNS_PERF = 'runs_perf', "number of averaged runs"
+    DELAY = 'delay', "delay between executions"
+    VALUE = 'value', "logmetric value"
+    VALUE_ASSERT = 'value_assert', "value"
+    TOLERANCE = 'tolerance', "logmetric tolerance"
 
     STATUS_NOT_INT = "status must be an enumeration (1,2), a range (2-5) or a combination of the two (of integral type)"
     SIGNAL = "is not recognized as one of the most common signals - make sure it's valid"
@@ -28,32 +36,43 @@ class LinterArgTypes(common.LinterRule):
 
     # command: (namespace variable name, function to call, message ^)
     commands_to_check = {'rlRun': [('status', 'check_status', 'STATUS_NOT_INT')],
-                         'rlWatchdog': [('signal', 'check_signal', 'SIGNAL')],
+                         'rlWatchdog': [('signal', 'check_signal', 'SIGNAL'),
+                                        ('timeout', 'check_nonnegative', 'TIMEOUT')],
                          'rlReport': [('result', 'check_result', 'RESULT')],
                          'rlIsRHEL': [('type', 'check_os_type', 'OS_TYPE_INVALID')],
                          'rlIsFedora': [('type', 'check_os_type', 'OS_TYPE_INVALID')],
                          'rlHash': [('algorithm', 'check_hash_algo', 'HASH_ALGO')],
                          'rlUnhash': [('algorithm', 'check_hash_algo', 'HASH_ALGO')],
                          'rlImport': [('library', 'check_library', 'LIBRARY')],
-                         'rlWaitForCmd': [('time', 'check_nonnegative', 'TIMEOUT'),
+                         'rlWaitForCmd': [('time', 'check_nonnegative', 'TIME'),
                                           ('pid', 'check_nonnegative', 'PID'),
                                           ('count', 'check_nonnegative', 'COUNT'),
                                           ('delay', 'check_nonnegative', 'DELAY'),
                                           ('retval', 'check_retval', 'RETVAL')],
-                         'rlWaitForFile': [('time', 'check_nonnegative', 'TIMEOUT'),
+                         'rlWaitForFile': [('time', 'check_nonnegative', 'TIME'),
                                            ('pid', 'check_nonnegative', 'PID'),
                                            ('delay', 'check_nonnegative', 'DELAY')],
-                         'rlWaitForSocket': [('time', 'check_nonnegative', 'TIMEOUT'),
+                         'rlWaitForSocket': [('time', 'check_nonnegative', 'TIME'),
                                           ('pid', 'check_nonnegative', 'PID'),
                                           ('delay', 'check_nonnegative', 'DELAY')],
                          'rlWait': [('signal', 'check_signal', 'SIGNAL'),
-                                    ('time', 'check_nonnegative', 'TIMEOUT'),
+                                    ('time', 'check_nonnegative', 'TIME'),
                                     ('pids', 'check_pids', 'PID')],
                          'rlCmpVersion': [('ver1', 'check_version', 'VERSION'),
                                           ('ver2', 'check_version', 'VERSION')],
                          'rlTestVersion': [('ver1', 'check_version', 'VERSION'),
                                            ('ver2', 'check_version', 'VERSION'),
-                                           ('op', 'check_operator', 'OPERATOR')]}
+                                           ('op', 'check_operator', 'OPERATOR')],
+                         'rlLogMetricLow': [('value', 'check_nonnegative', 'VALUE'),
+                                            ('tolerance', 'check_nonnegative', 'TOLERANCE')],
+                         'rlLogMetricHigh': [('value', 'check_nonnegative', 'VALUE'),
+                                             ('tolerance', 'check_nonnegative', 'TOLERANCE')],
+                         'rlAssertGreater': [('value1', 'check_nonnegative', 'VALUE_ASSERT'),
+                                             ('value2', 'check_nonnegative', 'VALUE_ASSERT')],
+                         'rlAssertGreaterOrEqual': [('value1', 'check_nonnegative', 'VALUE_ASSERT'),
+                                                    ('value2', 'check_nonnegative', 'VALUE_ASSERT')],
+                         'rlPerfTime_RunsInTime': [()],
+                         'rlPerfTime_AvgFromRuns': [('count', 'check_nonnegative', )]}
 
     common_signals = ['KILL', 'TERM', 'QUIT', 'INT', 'STOP', 'HUP', 'ILL', 'TRAP',
                       'ABRT', 'BUS', 'FPE', 'USR1', 'USR2', 'SEGV', 'PIPE', 'ALRM',
@@ -78,7 +97,8 @@ class LinterArgTypes(common.LinterRule):
             attr = getattr(line, arg)
             func = getattr(self, func)
             msg  = getattr(self, msg)
-            func(attr, msg)
+            if not (isinstance(attr, str) and attr.startswith('$')):
+                func(attr, msg)
 
     def check_status(self, statuses, msg):
         for single_range in [n for n in statuses.split(',')]:
@@ -131,7 +151,7 @@ class LinterArgTypes(common.LinterRule):
         err_label, msg = info
         if not self.is_nonnegative_int(value):
             self.add_error(err_label,
-                           "{}, `{}` - {}, {}".format(self.argname, value, msg, self.NONNEGATIVE))
+                           "{}, `{}` - {} {}".format(self.argname, value, msg, self.NONNEGATIVE))
 
     def check_pids(self, pids, info):
         for pid in pids:
@@ -166,7 +186,7 @@ class LinterArgTypes(common.LinterRule):
         return lib.find('/') not in [-1, 0, len(lib)-1] and lib.find('/') == lib.rfind('/')
 
     def is_nonnegative_int(self, val):
-        return val is None or (self.can_cast_to_type(val, int) and int(val) >= 0)
+        return val is None or (self.can_cast_to_type(val, float) and self.int_(val) >= 0)
 
     @staticmethod
     def can_cast_to_type(argument, type):

@@ -121,11 +121,18 @@ class Catalogue:
                    'hash_algo': ('E3016', Severity.error, "rlHash/rlUnhash invalid hash algorithm"),
                    'time': ('E3017', Severity.error, "rlWaitForX time not a non-negative integer"),
                    'pid': ('E3018', Severity.error, "rlWaitForX PID not a non-negative integer"),
-                   'count': ('E3019', Severity.error, 'rlWaitForCmd count not a non-negative integer'),
-                   'retval': ('E3020', Severity.error, 'rlWaitForCmd return value not an int within range (0,255)'),
-                   'library': ('E3021', Severity.warning, 'rlImport library has to be in X/Y format'),
-                   'version': ('E3022', Severity.error, 'rlCmp/TestVersion version not composed of alphanum and \'.-_\''),
-                   'operator': ('E3023', Severity.error, "rlTestVersion invalid operator")}),
+                   'count': ('E3019', Severity.error, "rlWaitForCmd count not a non-negative integer"),
+                   'value': ('E3020', Severity.error, "rlLogMetric value not a non-negative integer"),
+                   'value_assert': ('E3021', Severity.error, "rlAssertGreater/OrEqual value not a non-negative integer"),
+                   'tolerance': ('E3022', Severity.error, "rlLogMetric tolerance not a non-negative integer"),
+                   'timeout': ('E3023', Severity.error, "rlWatchdog timeout not a non-negative integer"),
+                   'count_perf': ('E3024', Severity.error, "rlPerfTime_Avg count not a non-negative integer"),
+                   'time_perf': ('E3025', Severity.error, "rlPerfTime_Runs time not a non-negative integer"),
+                   'runs_perf': ('E3026', Severity.error, "rlPerfTime_Runs runs not a non-negative integer"),
+                   'retval': ('E3027', Severity.error, "rlWaitForCmd return value not an int within range (0,255)"),
+                   'library': ('E3028', Severity.warning, "rlImport library has to be in X/Y format"),
+                   'version': ('E3029', Severity.error, "rlCmp/TestVersion version not composed of alphanum and \'.-_\'"),
+                   'operator': ('E3030', Severity.error, "rlTestVersion invalid operator")}),
 
         '4000': Namespace(
             description="Command typos\n"

@@ -379,8 +379,8 @@ class StatementDataSearcher(common.LinterRule):
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("name", type=str)
-        parser_arg.add_argument("value", type=float)
-        parser_arg.add_argument("tolerance", type=float, nargs="?")
+        parser_arg.add_argument("value", type=str)
+        parser_arg.add_argument("tolerance", type=str, nargs="?")
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
         self.parsed_param_ref.remainder = unknown
 
@@ -480,7 +480,7 @@ class StatementDataSearcher(common.LinterRule):
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
-        parser_arg.add_argument("timeout", type=float)
+        parser_arg.add_argument("timeout", type=str)
         parser_arg.add_argument("signal", type=str, nargs='?', default="KILL")
         parser_arg.add_argument("callback", type=str, nargs='?')
         parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
@@ -540,7 +540,7 @@ class StatementDataSearcher(common.LinterRule):
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('pids', type=str, nargs='*')
-        parser_arg.add_argument("-t", type=int, help="time", dest='time', default=120)
+        parser_arg.add_argument("-t", type=str, help="time", dest='time', default=120)
         parser_arg.add_argument("-s", type=str, help="SIGNAL", dest='signal', default="SIGTERM")
         self.parsed_param_ref, unknown = parser_arg.parse_known_args(pom_param_list)
         self.parsed_param_ref.remainder = unknown
@@ -556,7 +556,7 @@ class StatementDataSearcher(common.LinterRule):
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("-p", type=str, help="PID", dest='pid')
         parser_arg.add_argument("-t", type=str, help="time", dest='time', default=120)
-        parser_arg.add_argument("-d", type=int, help="delay", dest='delay', default=1)
+        parser_arg.add_argument("-d", type=str, help="delay", dest='delay', default=1)
 
         if conditions_for_commands.ConditionsForCommands().is_rlwaitforcmd_command(command):
             parser_arg.add_argument("command", type=str)
@@ -614,7 +614,7 @@ class StatementDataSearcher(common.LinterRule):
         parser_arg = custom_argparse.ArgumentParser(prog=pom_param_list[0])
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument("command", type=str)
-        parser_arg.add_argument("count", type=int, nargs='?', default=3)
+        parser_arg.add_argument("count", type=str, nargs='?', default=3)
         parser_arg.add_argument("warmup", type=str, nargs='?', default="warmup")
         parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
@@ -804,9 +804,8 @@ class StatementDataSearcher(common.LinterRule):
         parser_arg.add_argument("argname", type=str)
         parser_arg.add_argument('comment', type=str)
 
-        type_ = str if pom_param_list[0].endswith('Equals') else int
-        parser_arg.add_argument('value1', type=type_)
-        parser_arg.add_argument('value2', type=type_)
+        parser_arg.add_argument('value1', type=str)
+        parser_arg.add_argument('value2', type=str)
         parser_arg.add_argument("remainder", nargs=argparse.REMAINDER)
         self.parsed_param_ref = parser_arg.parse_args(pom_param_list)
 

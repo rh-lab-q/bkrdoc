@@ -182,12 +182,6 @@ class TestArgparseParsingErrors(unittest.TestCase):
                     command || "
         self._test_command("get_rlwaitforxxx_data", ['rlWaitForCmd'], message)
 
-    def test_float_error(self):
-        st_data_search = statement_data_searcher.StatementDataSearcher()
-        st_data_search.check_err(st_data_search.get_rllogmetric_data, ['rlLogMetricLow', '0.9', 'notint'])
-        err_msg = "rlLogMetricLow, invalid float value: 'notint'"
-        self.assertEqual([err('E3001', 'error', err_msg, 0)], st_data_search.get_errors())
-
     def test_too_many_args(self):
         st_data_search = statement_data_searcher.StatementDataSearcher()
         st_data_search.check_err(st_data_search.get_rlfilesubmit_data,
@@ -324,12 +318,28 @@ class TestArgTypes(unittest.TestCase):
         err_temp = []
         for version in ['a%', 'a$a', '+q', 'u$', '']:
             argtypes.check_version(version, argtypes.VERSION)
-            err_temp.append(err('E3022', 'error',
+            err_temp.append(err('E3029', 'error',
                                  "{}, {} (was `{}`)".format(argtypes.argname, argtypes.VERSION, version), 0))
-
         self.assertEqual(len(argtypes.errors), 5)
         self.list_contains_(err_temp, argtypes.errors)
 
+    def test_param_expansion(self):
+        argtypes = LArgTypes()
+        argtypes.analyse(Namespace(argname='rlLogMetricLow', name='name', value="$VAL",
+                                   tolerance="$TOL", lineno=1))
+        self.assert_empty_(argtypes.errors)
+
+    def test_metrics_invalid(self):
+        argtypes = LArgTypes()
+        err_temp = []
+        for tol in ["notint", "-3", "2.2.2"]:
+            argtypes.analyse(Namespace(argname='rlLogMetricHigh', name='name', value="$VAL",
+                                       tolerance=tol, lineno=0))
+            err_temp.append(err('E3022', 'error', "{}, `{}` - {} {}".format('rlLogMetricHigh',
+                                                                             tol,
+                                                                             "logmetric tolerance",
+                                                                             argtypes.NONNEGATIVE)))
+        self.list_contains_(err_temp, argtypes.errors)
 
 def analyse_with_rule(self, rule, parse_list, expected_err_list):
     rule_ref = rule()
