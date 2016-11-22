@@ -231,11 +231,12 @@ class NodeVisitor(ast.nodevisitor):
         self._parsing_subject = case_container
 
     def visitfunction(self, n, name, body, parts):
-        # print("function ******************************** NOT IMPLEMENTED")
-        # print("n: " + str(n))
-        # print("Name: " + str(name))
-        # print("Body: " + str(body))
-        # print (parts[4]).list[1].kind
+        def inner_visit(part):
+            self.visit(part)
+            if not self.is_parsing_subject_empty():
+                function.add_command(self.get_parsed_container())
+            self.erase_parsing_subject_variable()
+
         pom_variables = self._variables
         self._variables = copy.deepcopy(self._variables)
         function = data_containers.FunctionContainer(body)
@@ -244,15 +245,19 @@ class NodeVisitor(ast.nodevisitor):
         compound = self.get_compound_from_function(parts)
         if self.is_list_node(compound.list[1]):
             for member in compound.list[1].parts:
-                self.visit(member)
-                # print(self._parsing_subject)
-                if not self.is_parsing_subject_empty():
-                    function.add_command(self.get_parsed_container())
-                self.erase_parsing_subject_variable()
+                inner_visit(member)
+        elif isinstance(compound.list[1].parts, list):
+            if compound.list[1].kind == 'command':
+                inner_visit(compound.list[1])
+            else:
+                sys.stderr.writelines("Function parsing not a command\n")
+        elif compound.list[1].kind == "compound":
+            parts = compound.list[1].list[0].parts
+            for member in parts:
+                inner_visit(member)
         else:
-            self.visit(compound.list[1].parts)
-            function.add_command(self.get_parsed_container())
-            self.erase_parsing_subject_variable()
+            inner_visit(compound.list[1].parts)
+
         function.set_variables(self._variables)
         self._variables = pom_variables
         self._parsing_subject = function
