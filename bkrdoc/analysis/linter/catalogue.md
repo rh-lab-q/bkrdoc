@@ -70,10 +70,13 @@ A number of commands require specific type of arguments. The simple ones (int/fl
 - [E3021][error] rlAssertGreater/OrEqual value not a non-negative integer
 - [E3022][error] rlLogMetric tolerance not a non-negative integer
 - [E3023][error] rlWatchdog timeout not a non-negative integer
-- [E3024][error] rlWaitForCmd return value not an int within range (0,255)
-- [E3025][warning] rlImport library has to be in X/Y format
-- [E3026][error] rlCmp/TestVersion version not composed of alphanum and '.-_'
-- [E3027][error] rlTestVersion invalid operator
+- [E3024][error] rlPerfTime_Avg count not a non-negative integer
+- [E3025][error] rlPerfTime_Runs time not a non-negative integer
+- [E3026][error] rlPerfTime_Runs runs not a non-negative integer
+- [E3027][error] rlWaitForCmd return value not an int within range (0,255)
+- [E3028][warning] rlImport library has to be in X/Y format
+- [E3029][error] rlCmp/TestVersion version not composed of alphanum and '.-_'
+- [E3030][error] rlTestVersion invalid operator
 
 
 ### EC4000: Command typos
