@@ -1,3 +1,53 @@
+The project targets BeakerLib based tests and is composed of two main parts: </br>
+**bkrdoc** - a documentation generator </br>
+**bkrlint** - a static analyser
+
+Both tools are written purely in Python and support Python 2.7 and 3.2 - 3.5.
+
+Note: *this is a development branch that is based on [bashlex](https://github.com/idank/bashlex) and is yet to be deployed*.
+
+## BeakerLib
+**BeakerLib** is a shell-level integration testing library, providing convenience functions which simplify writing, running and analysis of integration and blackbox tests.
+
+https://fedorahosted.org/beakerlib/
+
+## CI Status
+The project is automatically tested by [Travis CI](https://travis-ci.org). Latest build status is: 
+[![Build Status](https://travis-ci.org/rh-lab-q/bkrdoc.svg?branch=bkrdoc_with_bashlex)](https://travis-ci.org/rh-lab-q/bkrdoc)
+
+## Prerequisites
+
+Both tools require *bashlex* for parsing, specifically [our custom *devel* branch](https://github.com/blurrymoi/bashlex/tree/devel).
+The current easiest way to get bashlex is fetching it from github using `git clone https://github.com/blurrymoi/bashlex.git` followed by a `python setup.py install` in the core directory (make sure you are on the *devel* branch when doing so).
+
+## Package contents
+After downloading the bkrdoc project from github, you will see the following directories:
+
+_**bkrdoc/:**_
+Folder containing the bkrdoc generator and the bkrlint linter.
+
+_**bkrdoc/analysis/parser:**_
+Folder with sources of the parser providing a common parsing logic for the two tools
+
+_**bkrdoc/analysis/generator:**_
+Folder with sources for automated documentation generator without documentation markup
+
+_**bkrdoc/markup/:**_
+Folder with sources for automated documentation generator with documentation markup
+
+_**bkrdoc/analysis/linter:**_
+Folder with sources for the static analyser
+
+_**examples/:**_
+This folder contains some **BeakerLib** tests and generated documentations
+
+_**docs/:**_
+Folder contains TODO options and first documentation format.
+
+_**tests/:**_
+Folder containing tests
+
+
 bkrdoc
 ======
 
@@ -5,32 +55,19 @@ This project aims to provide tools for automated documentation generation for Be
 
 ## 1. Introduction
 ### 1.1 What is bkrdoc?
-**bkrdoc** is a documentation generator from tests written using **BeakerLib** library. This generator makes documentation from test code with and also without any documentation markup.
+**bkrdoc** is a documentation generator from tests written using the **BeakerLib** library. This generator makes documentation from test code with and also without any documentation markup.
 
-### 1.2 What it`s good for?
-For fast, brief and reliable documentation creation. It`s good for quick start with unknown **BeakerLib** test. Created documentations provides information about the documentation credibility. Also created documentations shows environmental variables and helps reader to run test script from which was documentation created. 
+### 1.2 What is it good for?
+For fast, brief and reliable documentation creation. It's good for a quick start with an unknown **BeakerLib** test. Created documentation provides information about the documentation credibility. The documentation further shows environmental variables and helps the reader to run test script from which the documentation was created. 
 
-**bkrdoc** is written in pure python.
-
-### 1.3 What is BeakerLib?
-**BeakerLib** is a shell-level integration testing library, providing convenience functions which simplify writing, running and analysis of integration and blackbox tests.
-
-https://fedorahosted.org/beakerlib/
-
-### 1.4 How is bkrdoc licensed?
+### 1.3 How is bkrdoc licensed?
 BSD license. See the LICENSE file in the distribution.
 
-### 1.5 Contact details
+### 1.4 Contact details
 Feel free to send me an email (Kulda12@seznam.cz) for any question you have on **bkrdoc** project.   
 
-## 2. Installing
-
-### 2.1 Prerequisites
-- **bkrdoc** was tested on Python 2.7 and 3.3 versions on Linux. 
-- **bkrdoc** has no external dependencies.
-
-### 2.2 Installation process
-Installation is very simple. You have two choices. First is to download rpm from [bkrdoc](https://pypi.python.org/pypi/bkrdoc) pypi and easily install it. Second choice is to download whole project and after that run setup.py script in bkrdoc folder. For executing setup.py file you need to run this standard `python setup.py install` command. 
+### 2 Installation process
+Installation is very simple. You have two choices. First is to download rpm from [bkrdoc](https://pypi.python.org/pypi/bkrdoc) pypi and easily install it. Second choice is to download the whole project and after that run setup.py script in bkrdoc folder. For executing setup.py file you need to run this standard `python setup.py install` command. 
 
 ## 3. Using
 ### 3.1 Basic usage
@@ -112,7 +149,7 @@ Setup
   check for traceback
 ```
 
-Also markup version supports initial comment as a global whole test comment. This initial comment or block comment must be after shebang(also could be after test description made by beaker-wizard) and must start as usuall with `#@`. You can see little example below:
+Also markup version supports initial comment as a global whole test comment. This initial comment or block comment must be after shebang(also could be after test description made by beaker-wizard) and must start as usual with `#@`. You can see little example below:
 
 ```bash
 #!/usr/bin/env bash
@@ -139,35 +176,3 @@ Keywords: -
 .
 .
 ```
-
-## 4. Package contents
-After downloading bkrdoc project, you will see following files and directories:
-
-_**README.md:**_
-This README file.
-
-_**LICENSE:**_
-File with bkrdoc license.
-
-_**bkrdoc/:**_
-Folder with bkrdoc generator which is creating documentations from **BeakerLib** tests with and without any documentation markup.
-
-_**bkrdoc/analysis/:**_
-Folder with sources for automated documentation generator without documentation markup
-
-_**bkrdoc/markup/:**_
-Folder with sources for automated documentation generator with documentation markup
-
-_**examples/:**_
-This folder contains some **BeakerLib** tests and generated documentations
-
-_**docs/:**_
-Folder contains TODO options and first documentation format.
-
-_**tests/:**_
-Folder contains files for bkrdoc testing
-
-## 5. CI Status
-**bkrdoc** is automatically tested by [Travis CI project](https://travis-ci.org). Latest build status is: 
-[![Build Status](https://travis-ci.org/rh-lab-q/bkrdoc.svg?branch=master)](https://travis-ci.org/rh-lab-q/bkrdoc)
-
