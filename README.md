@@ -141,7 +141,7 @@ rlPhaseStartSetup
   rlRun 'ps aux' 'ps command should not traceback' #@ check for traceback
 rlPhaseEnd
 ```
-will reproduce:
+will produce:
 
 ```
 Setup
@@ -164,7 +164,7 @@ HttpdLogs="/var/log/httpd"
 .
 .
 ```
-will reproduce:
+will produce:
 
 ```bash
 Description: -
@@ -176,3 +176,70 @@ Keywords: -
 .
 .
 ```
+
+bkrlint
+======
+
+Bkrlint is a linter-like tool that serves to identify the most common mistakes in a BeakerLib test. Only the BeakerLib-specific ones are regarded, for mistakes concerning bash see [shellcheck](https://github.com/koalaman/shellcheck).
+
+### License
+Bkrlint is available under the GNU General Public License.
+
+### Contact details
+I welcome e-mails on bkrlint, you can get in touch with me at zuzan (dot) baran (at) gmail (dot) com.
+
+### Installation process
+After you meet the prerequisites, i.e. already have bashlex installed, the next step would be installing the bkrdoc project, as bkrlint
+is provided alongside bkrdoc for now (we plan on separating the two in the future).
+To get bkrdoc, clone the repository, make sure you are on the *bkrdoc_with_bashlex* branch and invoke `setup.py install` in the main bkrdoc directory.
+
+## Usage
+
+### Basic
+
+Once you have bkrdoc installed, bkrlint can be currently run using the main entry point of the static analyser, which is the `output generator`.
+From the core directory, this would mean running
+```
+python bkrdoc\analysis\linter\output_generator.py [file to analyse] [options]
+```
+The file must have a bash extension (\*.sh).
+
+### Options
+A list of all supported mistakes is present in the form of a markdown file and is located at `bkrdoc\analysis\linter\catalogue.md`. <br/>
+Each searched for mistake has a unique ID (prefixed with an `E`) and belongs to a certain error class (prefixed with an `EC`), where error classes unite errors with common traits and are defined by the first two numbers (see below). An error further has a severity attribute. There are 4 possible severities: `error`, `warning`, `info` and `style`. By default, only the errors are output. All of the aforementioned information of a mistake can be deduced from the catalogue.
+
+**The available options are:** <br/>
+* `--catalogue` generates the markdown file in question directly from the catalogue in the source (the actual supported mistakes are used) <br/>
+* `--enable` and `--suppress` allows to enable or suppress a concrete error (using the error ID), severity, or an entire error class (where `EC` is omitted) <br/>
+* `-s` short option signifying "suppress first" <br/>
+
+An example follows: <br/>
+`--suppress=E2101` suppresses all occurrences of error of type `E2101` <br/>
+`--enable=2000` enables the whole `EC2000` error class in output (all deprecated commands; ranging from `2001` to `2099`) <br/>
+`--enable=all` enables all severities and errors <br/>
+`--suppress=info` suppresses all mistakes that are of `info` severity <br/>
+
+The options to enable/suppress errors allow dividing the individual items with a comma: <br/>
+`--suppress=warning,E1000 --enable=2400,style,E3028`
+
+Because argparse is used for parsing the command line options, supplying options is slightly
+atypical in the sense that enabling/suppressing is not performed in the order in which the
+arguments are supplied, but all arguments to the `--enable` option are taken first
+and after enabling all given classes and individual errors, the suppressed arguments are then
+taken into consideration. This order can be reversed by the `-s` short option, meaning
+"suppress first", so that for example `--suppress=all --enable=E1101 -s` can be used.
+
+### Output
+An example bkrlint output is shown below:
+```
+bkrlint :: version 1.0.0
+
+6: rlRun, first bound has to be smaller in `3-0` [E3011]
+6: Journal was not started before a beakerlib command was used. [E2402]
+22: rlPhaseStartTest before matching rlPhaseEnd [E1101]
+23: rlImport, libraries must have 'component/library' format (was `k//`) [E3021]
+```
+The generated output provides all detected mistakes that are enabled, sorted by a line number ascendingly. <br/>
+So, a single line in the output is composed of: <br/>
+`lineno: message [error id]` <br/>
+The error class is not output for better clarity.
