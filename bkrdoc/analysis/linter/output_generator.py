@@ -129,7 +129,7 @@ class OutputGenerator(object):
                         related_list += (CATALOGUE[single_opt].value[key][0] for key in CATALOGUE[single_opt].value)
                     else:
                         msg = '{} not recognized, continuing anyway--'.format(single_opt)
-                        self.unrecognized_options.append(common.Error(id='UNK_FLAG', message=msg))
+                        self.unrecognized_options.append(common.Error(err_id='UNK_FLAG', message=msg))
 
         def get_related_member_list(self, is_enabled):
             if is_enabled:

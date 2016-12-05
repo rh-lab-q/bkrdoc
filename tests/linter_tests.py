@@ -23,7 +23,7 @@ def err(err_id, severity, msg, lineno=0):
 
 
 def filter_outside_phase_errors(err_list):
-    return [error for error in err_list if error.id != 'E1503']
+    return [error for error in err_list if error.err_id != 'E1503']
 
 def get_errors_from_parse_list(parse_list):
     """Uses full linter analysis"""
