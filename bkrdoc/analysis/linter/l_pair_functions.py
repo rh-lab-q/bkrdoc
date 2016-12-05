@@ -91,8 +91,8 @@ class LinterPairFunctions(common.LinterRule):
                 self.currently_unmatched.remove(elem)
                 return
 
-        if line.argname in self.pairs.keys() and (
-                    self.pairs[line.argname].each_needs_match or not self.already_present(line)):
+        if line.argname in self.pairs.keys() \
+                and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
             match = copy.deepcopy(self.pairs[line.argname])
             match.lineno = line.lineno
             match.set_flag(self.get_flag(line, match))

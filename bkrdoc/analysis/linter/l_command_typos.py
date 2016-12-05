@@ -28,7 +28,7 @@ class LinterCommandTypos(common.LinterRule):
                 add_err('end_s')
                 return
 
-        if curr_command.startswith("rl") and len(curr_command)>2 and curr_command[2].isupper():
+        if curr_command.startswith("rl") and len(curr_command) > 2 and curr_command[2].isupper():
             self.add_error('4000', 'rl_command',
                            "{} is not recognized as a beakerlib command".format(curr_command),
                            line.lineno)

@@ -1,14 +1,15 @@
 #!/usr/bin/python
 from __future__ import print_function
-import argparse, bashlex
 import sys
+import argparse
+import bashlex
 from bkrdoc.analysis.parser import bkrdoc_parser
 from bkrdoc.analysis.linter import linter, common, catalogue
 
 __author__ = 'Zuzana Baranova'
 
 Severity = catalogue.Severity
-catalog = catalogue.Catalogue.table
+CATALOGUE = catalogue.Catalogue.table
 
 
 class OutputGenerator(object):
@@ -19,10 +20,10 @@ class OutputGenerator(object):
     BASHLEX_ERR = "bashlex parse error: cannot continue~\n" \
                   "traceback follows:\n"
 
-    def __init__(self, args):
+    def __init__(self, arguments):
         self.main_linter = linter.Linter()
-        self.parser_ref = bkrdoc_parser.Parser(args.file_in)
-        self.options = self.Options(args)
+        self.parser_ref = bkrdoc_parser.Parser(arguments.file_in)
+        self.options = self.Options(arguments)
         self.main_linter.errors += self.options.unrecognized_options
 
     def analyse(self):
@@ -40,14 +41,14 @@ class OutputGenerator(object):
 
         error_was_printed = False
         sorted_err_list = iter(sorted(self.main_linter.errors))
-        for err in sorted_err_list:
-            if err.id != 'UNK_FLAG':
-                if not err.severity or err.severity and self.is_enabled_error(err):
+        for error in sorted_err_list:
+            if error.err_id != 'UNK_FLAG':
+                if not error.severity or error.severity and self.is_enabled_error(error):
                     print("")
-                    print(self.pretty_format(err))
+                    print(self.pretty_format(error))
                     error_was_printed = True
                 break
-            print(self.pretty_format(err))
+            print(self.pretty_format(error))
 
         if not error_was_printed:
             print("")
@@ -59,20 +60,20 @@ class OutputGenerator(object):
             print(self.NOERRORS)
 
     def is_enabled_error(self, error):
-        return (self.is_enabled_severity(error.severity) and error.id not in self.options.suppressed_by_id) \
-               or (not self.is_enabled_severity(error.severity) and error.id in self.options.enabled_by_id)
+        return (self.is_enabled_severity(error.severity) and error.err_id not in self.options.suppressed_by_id) \
+               or (not self.is_enabled_severity(error.severity) and error.err_id in self.options.enabled_by_id)
 
     def is_enabled_severity(self, severity):
         return self.options.enabled[severity]
 
     @staticmethod
-    def pretty_format(err):
-        if err.id and err.id is not 'UNK_FLAG' :
-            result = '{} [{}]'.format(err.message, err.id)
+    def pretty_format(error):
+        if error.err_id and error.err_id is not 'UNK_FLAG':
+            result = '{} [{}]'.format(error.message, error.err_id)
         else:
-            result = err.message
-        if err.lineno != 0:
-            return '{}: {}'.format(str(err.lineno), result)
+            result = error.message
+        if error.lineno != 0:
+            return '{}: {}'.format(str(error.lineno), result)
         return result
 
     @staticmethod
@@ -124,11 +125,11 @@ class OutputGenerator(object):
                         self.enabled[Severity[single_opt]] = set_severity_to
                     elif single_opt in self.known_errors:
                         related_list.append(single_opt)
-                    elif single_opt in catalog.keys():
-                        related_list += (catalog[single_opt].value[key][0] for key in catalog[single_opt].value)
+                    elif single_opt in CATALOGUE.keys():
+                        related_list += (CATALOGUE[single_opt].value[key][0] for key in CATALOGUE[single_opt].value)
                     else:
                         msg = '{} not recognized, continuing anyway--'.format(single_opt)
-                        self.unrecognized_options.append(common.Error(id='UNK_FLAG',message=msg))
+                        self.unrecognized_options.append(common.Error(id='UNK_FLAG', message=msg))
 
         def get_related_member_list(self, is_enabled):
             if is_enabled:
@@ -139,8 +140,8 @@ class OutputGenerator(object):
         @staticmethod
         def get_known_errors():
             known_errs = []
-            for err_class in catalog:
-                known_errs += (catalog[err_class].value[key][0] for key in catalog[err_class].value)
+            for err_class in CATALOGUE:
+                known_errs += (CATALOGUE[err_class].value[key][0] for key in CATALOGUE[err_class].value)
             return known_errs
 
 

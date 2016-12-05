@@ -53,8 +53,8 @@ class LinterArgTypes(common.LinterRule):
                                            ('pid', 'check_nonnegative', 'PID'),
                                            ('delay', 'check_nonnegative', 'DELAY')],
                          'rlWaitForSocket': [('time', 'check_nonnegative', 'TIME'),
-                                          ('pid', 'check_nonnegative', 'PID'),
-                                          ('delay', 'check_nonnegative', 'DELAY')],
+                                             ('pid', 'check_nonnegative', 'PID'),
+                                             ('delay', 'check_nonnegative', 'DELAY')],
                          'rlWait': [('signal', 'check_signal', 'SIGNAL'),
                                     ('time', 'check_nonnegative', 'TIME'),
                                     ('pids', 'check_pids', 'PID')],
@@ -96,7 +96,7 @@ class LinterArgTypes(common.LinterRule):
         for (arg, func, msg) in args_to_check:
             attr = getattr(line, arg)
             func = getattr(self, func)
-            msg  = getattr(self, msg)
+            msg = getattr(self, msg)
             if not (isinstance(attr, str) and attr.startswith('$')):
                 func(attr, msg)
 
@@ -126,9 +126,9 @@ class LinterArgTypes(common.LinterRule):
                            "{}, `{}` {}".format(self.argname, result, msg))
 
     def check_os_type(self, types, msg):
-        valid_prefixes = ['<=','<','>=','>','','=']
+        valid_prefixes = ['<=', '<', '>=', '>', '', '=']
         for type_ in types:
-            split_string = re.split('(\d)', type_, 1)  # split on first number
+            split_string = re.split(r'(\d)', type_, 1)  # split on first number
             numeric_part = ''.join(split_string[1:3])
 
             if split_string[0] in valid_prefixes and self.can_cast_to_type(numeric_part, float):
@@ -169,14 +169,14 @@ class LinterArgTypes(common.LinterRule):
                                                         ', '.join(self.version_comparison_operators), op))
 
     def check_version(self, version, msg):
-        result = re.match('[-\w.]+$|([$].+)', version)
+        result = re.match(r'[-\w.]+$|([$].+)', version)
         #result = re.match('[a-z]+', version)
         if result is None:
             self.add_error('version',
                            "{}, {} (was `{}`)".format(self.argname, msg, version))
 
     def is_valid_status(self, num):
-            return self.can_cast_to_type(num, float) and self.is_within_range(num, 0, 256)
+        return self.can_cast_to_type(num, float) and self.is_within_range(num, 0, 256)
 
     @staticmethod
     # checks that library is in X/Y format
@@ -189,16 +189,16 @@ class LinterArgTypes(common.LinterRule):
         return val is None or (self.can_cast_to_type(val, float) and self.int_(val) >= 0)
 
     @staticmethod
-    def can_cast_to_type(argument, type):
+    def can_cast_to_type(argument, arg_type):
         try:
-            type(argument)
+            arg_type(argument)
         except ValueError:
             return False
         return True
 
-    def is_within_range(self, num, min, max):
+    def is_within_range(self, num, lower_bound, upper_bound):
         num = self.int_(num)
-        return min <= num < max
+        return lower_bound <= num < upper_bound
 
     @staticmethod
     def int_(num):

@@ -86,4 +86,3 @@ class LinterSingleRules(common.LinterRule):
     @staticmethod
     def sets_beaker_env(command):
         return command.argname == 'UNKNOWN' and command.data[0] == '.' and command.data[1].endswith('beakerlib.sh')
-

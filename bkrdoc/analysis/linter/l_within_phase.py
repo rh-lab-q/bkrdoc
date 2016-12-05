@@ -70,5 +70,5 @@ class LinterWithinPhase(common.LinterRule):
         common_ = common.LinterRule
         cond = conditions_for_commands.ConditionsForCommands()
         return any([cond.is_journal_start(command),
-                   cond.is_journal_end(command),
-                   common_.is_allowed_outside_journal(command)])
+                    cond.is_journal_end(command),
+                    common_.is_allowed_outside_journal(command)])

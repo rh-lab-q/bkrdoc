@@ -13,18 +13,17 @@ LArgTypes = l_arg_types.LinterArgTypes
 LWithinPhase = l_within_phase.LinterWithinPhase
 LTypos = l_command_typos.LinterCommandTypos
 Namespace = argparse.Namespace
-Severity  = catalogue.Severity
+Severity = catalogue.Severity
 
 
-def err(id, severity, msg, lineno=0):
+def err(err_id, severity, msg, lineno=0):
     if severity is not None:
         severity = Severity[severity]
-    return common.Error(id, severity, msg, lineno)
+    return common.Error(err_id, severity, msg, lineno)
 
 
 def filter_outside_phase_errors(err_list):
-    return list(filter(lambda x: x.id != 'E1503', err_list))
-
+    return [error for error in err_list if error.id != 'E1503']
 
 def get_errors_from_parse_list(parse_list):
     """Uses full linter analysis"""
@@ -38,8 +37,8 @@ def get_errors_from_parse_list(parse_list):
 
 
 def list_contains(self, sublist, list_):
-        for elem in sublist:
-            unittest.TestCase.assertIn(self, elem, list_, "{} not found".format(elem))
+    for elem in sublist:
+        unittest.TestCase.assertIn(self, elem, list_, "{} not found".format(elem))
 
 
 def assert_empty(self, list_):
@@ -57,7 +56,7 @@ class TestLinterClassInstances(unittest.TestCase):
 class TestStandaloneRules(unittest.TestCase):
 
     list_contains_ = list_contains
-    assert_empty_  = assert_empty
+    assert_empty_ = assert_empty
 
     def test_empty(self):
         errors = get_errors_from_parse_list([])
@@ -303,10 +302,10 @@ class TestArgTypes(unittest.TestCase):
                             argtypes.errors)
 
     def test_lib_format(self):
-        for str in ["a//b", "/a", "/a/b", "a/", "a/b/"]:
-            self.assertFalse(LArgTypes.is_library_import_format(str), "Failed for: " + str)
-        for str in ["a/b", "abcde/fgh.ase^2"]:
-            self.assertTrue(LArgTypes.is_library_import_format(str), "Failed for: " + str)
+        for lib in ["a//b", "/a", "/a/b", "a/", "a/b/"]:
+            self.assertFalse(LArgTypes.is_library_import_format(lib), "Failed for: " + lib)
+        for lib in ["a/b", "abcde/fgh.ase^2"]:
+            self.assertTrue(LArgTypes.is_library_import_format(lib), "Failed for: " + lib)
 
     def test_version(self):
         argtypes = LArgTypes()
@@ -319,7 +318,7 @@ class TestArgTypes(unittest.TestCase):
         for version in ['a%', 'a$a', '+q', 'u$', '']:
             argtypes.check_version(version, argtypes.VERSION)
             err_temp.append(err('E3029', 'error',
-                                 "{}, {} (was `{}`)".format(argtypes.argname, argtypes.VERSION, version), 0))
+                                "{}, {} (was `{}`)".format(argtypes.argname, argtypes.VERSION, version), 0))
         self.assertEqual(len(argtypes.errors), 5)
         self.list_contains_(err_temp, argtypes.errors)
 
@@ -336,9 +335,9 @@ class TestArgTypes(unittest.TestCase):
             argtypes.analyse(Namespace(argname='rlLogMetricHigh', name='name', value="$VAL",
                                        tolerance=tol, lineno=0))
             err_temp.append(err('E3022', 'error', "{}, `{}` - {} {}".format('rlLogMetricHigh',
-                                                                             tol,
-                                                                             "logmetric tolerance",
-                                                                             argtypes.NONNEGATIVE)))
+                                                                            tol,
+                                                                            "logmetric tolerance",
+                                                                            argtypes.NONNEGATIVE)))
         self.list_contains_(err_temp, argtypes.errors)
 
 def analyse_with_rule(self, rule, parse_list, expected_err_list):

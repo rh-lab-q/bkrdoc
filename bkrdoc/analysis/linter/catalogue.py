@@ -1,11 +1,12 @@
 __author__ = 'Zuzana Baranova'
 
 import sys
-from enum import Enum
 from argparse import Namespace
+from enum import Enum
 
 
 class Severity(Enum):
+    """ Severity of an error. """
     error = 1
     warning = 2
     info = 3
@@ -174,10 +175,10 @@ class Catalogue:
             for error_label in table_entry.value:
                 if hasattr(table_entry, 'description_function'):
                     description = getattr(Catalogue, table_entry.description_function)(error_label)
-                    id, severity = table_entry.value[error_label]
+                    err_id, severity = table_entry.value[error_label]
                 else:
-                    id, severity, description = table_entry.value[error_label]
-                msg = "- [{}][{}] {}".format(id, severity.name, description)
+                    err_id, severity, description = table_entry.value[error_label]
+                msg = "- [{}][{}] {}".format(err_id, severity.name, description)
                 error_msgs.append(msg)
             error_msgs.sort()
 
