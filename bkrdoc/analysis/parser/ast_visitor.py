@@ -124,7 +124,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitpattern(self, n, actions, parts):
-        # TODO rewrite it to a condition simmilar container
+        # TODO rewrite it to a condition similar container
         # self.visit(parts.actions)
         case_condition = data_containers.ConditionContainer(n)
         for child in actions:
@@ -246,7 +246,7 @@ class NodeVisitor(ast.nodevisitor):
         if self.is_list_node(compound.list[1]):
             for member in compound.list[1].parts:
                 inner_visit(member)
-        elif isinstance(compound.list[1].parts, list):
+        elif hasattr(compound.list[1], 'parts') and isinstance(compound.list[1].parts, list):
             if compound.list[1].kind == 'command':
                 inner_visit(compound.list[1])
             else:
@@ -286,11 +286,9 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.add_variable(member, value)
 
     def visitreservedword(self, n, word):
-        sys.stderr.writelines("Reserved WORD NOT IMPLEMENTED\n")
-
+        pass
 
     def visitparameter(self, n, value):
-        # print("PARAMETR VISIT")
         if self._variables.is_existing_variable(value):
             pom_member = self._parsing_subject.get_last_member_of_argparse_list()
             pom_member = self._variables.replace_variable_in_string_with_specified_variable(pom_member, value)
@@ -299,14 +297,12 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.set_unknown_variable(value)
 
     def visittilde(self, n, value):
-        sys.stderr.writelines("TILDE NOT IMPLEMENTED\n")
         pass
 
     def visitredirect(self, n, input, type, output, heredoc):
         pass
 
     def visitheredoc(self, n, value):
-        sys.stderr.writelines("HEREDOC NOT IMPLEMENTED\n")
         pass
 
     def visitprocesssubstitution(self, n, command):
