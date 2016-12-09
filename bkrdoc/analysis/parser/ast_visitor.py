@@ -144,15 +144,11 @@ class NodeVisitor(ast.nodevisitor):
                 self._parsing_subject.set_empty_spot_for_cmd_subst_ast_list()
 
     def visitoperator(self, n, op):
-        if not op == "\n":
-            sys.stderr.writelines("visitoperator NOT IMPLEMENTED\n")
-            #print(n)
-            #print(op)
+        pass
 
     def visitlist(self, n, parts):
-        sys.stderr.writelines("visitlist NOT IMPLEMENTED\n")
-        # print(n)
-        # print(parts)
+        # for part in parts
+        #   print part
         pass
 
     def visitpipe(self, n, pipe):
@@ -166,7 +162,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitcompound(self, n, list, redirects):
-        sys.stderr.writelines("VISIT COMPOUND NOT IMPLEMENTED\n")
+        # compounds are visited on a more specific level (if/while/..)
         pass
 
     def visitif(self, node, parts):
@@ -175,6 +171,9 @@ class NodeVisitor(ast.nodevisitor):
         #  print("PARTS: " + str(parts))
         # print(self.get_condition_body_position(parts))
         condition = data_containers.ConditionContainer(parts)
+        self.visit(parts[1]) #condition after 'if'
+        condition.add_command(self.get_parsed_container())
+        self.erase_parsing_subject_variable()
         condition_body = self.get_condition_body_position(parts)
         keys = condition_body.keys()
         # keys need to be sorted to be in right position.
