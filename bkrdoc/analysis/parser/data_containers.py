@@ -255,6 +255,9 @@ class DataContainer(object):
     _argparse_list = []
     _command_substitution_ast_list = [""]
 
+    def __init__(self):
+        self.in_function = False
+
     def set_argparse_list(self, member):
         pass
 
@@ -289,6 +292,7 @@ class CommandContainer(DataContainer):
     _substitution_argparse_list = []
 
     def __init__(self, ast):
+        super(CommandContainer, self).__init__()
         self._command_ast = ast
         self._argparse_list = []
         self._substitution_argparse_list = []
@@ -318,6 +322,9 @@ class SimpleContainer(object):
     statement_list = []
     _variables = ""
     errors = []
+
+    def __init__(self):
+        self.in_function = False
 
     def add_command(self, command):
         self.command_list.append(command)
@@ -380,6 +387,7 @@ class FunctionContainer(SimpleContainer):
     function_name = ""
 
     def __init__(self, ast):
+        super(FunctionContainer, self).__init__()
         self.command_list = []
         self._function_ast = ast
         self.function_name = ""
@@ -420,6 +428,7 @@ class LoopContainer(SimpleContainer):
     argname = "loop"
 
     def __init__(self, ast, name):
+        super(LoopContainer, self).__init__()
         self.argname = name + " " + self.argname
         self._loop_ast = ast
         self.command_list = []
@@ -454,6 +463,7 @@ class ConditionContainer(SimpleContainer):
     argname = "condition"
 
     def __init__(self, ast):
+        super(ConditionContainer, self).__init__()
         self._condition_ast = ast
         self.command_list = []
         self.statement_list = []
@@ -487,6 +497,7 @@ class AssignmentContainer(DataContainer):
     _command_substitution_ast_list = [""]
 
     def __init__(self, ast):
+        super(AssignmentContainer, self).__init__()
         self._assign_ast = ast
         self._command_substitution_ast_list = [""]
         self._argparse_list = []
@@ -512,6 +523,7 @@ class CaseContainer(SimpleContainer):
     argname = "case"
 
     def __init__(self, ast):
+        super(CaseContainer, self).__init__()
         self._case_ast = ast
         self.command_list = []
         self.statement_list = []

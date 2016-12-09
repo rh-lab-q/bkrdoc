@@ -42,7 +42,7 @@ class LinterWithinPhase(common.LinterRule):
                 del self.log_metric_names[-1]
         else:
             if self.depth_of_nesting == 0 and line.argname in bkrdoc_parser.Parser.beakerlib_commands:
-                if not self.is_allowed_outside_phase(line.argname):
+                if not self.is_allowed_outside_phase(line.argname) and not hasattr(line, 'in_function'):
                     self.add_error('1500', 'out_of_phase',
                                    "{} ({})".format(self.OUTSIDE_PHASE, line.argname),
                                    line.lineno)

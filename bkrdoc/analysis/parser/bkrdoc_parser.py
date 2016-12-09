@@ -107,17 +107,19 @@ class Parser(object):
 
         self.errors += data_searcher.get_errors()
 
-    def parse_command(self, data_searcher, nodevisitor, conditions, container):
+    def parse_command(self, data_searcher, nodevisitor, conditions, container, in_function=False):
         if self.is_simple_container_instance(container):
             if self.is_function_container(container):
                 self.test_functions.append(container)
                 for command in container.command_list:
                     nodevisitor._parsing_subject = command
-                    self.parse_command(data_searcher, nodevisitor, conditions, command)
+                    self.parse_command(data_searcher, nodevisitor, conditions, command, in_function=True)
                 nodevisitor.erase_parsing_subject_variable()
             else:
                 if self.is_loop_container(container) or self.is_condition_container(container) or \
                         self.is_case_container(container):
+                    if in_function:
+                        container.in_function = True
                     self.argparse_data_list.append(container)
                 nodevisitor.erase_parsing_subject_variable()
                 container.search_data(self, nodevisitor)
@@ -139,7 +141,11 @@ class Parser(object):
                                                                            container._command_ast.lineno)
                 if data_argparse.command:
                     data_argparse.command.lineno = data_argparse.lineno
+                    if in_function:
+                        data_argparse.in_function = True
                     self.argparse_data_list.append(data_argparse.command)
+            if in_function:
+                data_argparse.in_function = True
             self.argparse_data_list.append(data_argparse)
 
     def search_for_beakerlib_command_in_rlrun(self, nodevisitor, rlrun_argparse, lineno=1):

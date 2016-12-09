@@ -40,16 +40,18 @@ class LinterSingleRules(common.LinterRule):
         self.constraint_check(line, self.is_journal_start, self.JOURNAL_NOT_STARTED, 'journal_start_checked')
 
     def constraint_check(self, line, rule_to_check, error_msg, constraint_met):
-        if error_msg == self.ENV_NOT_SET:
-            catalogue_lookup = 'beaker_env'
-        else:
-            catalogue_lookup = 'journal_beg'
-
+        if hasattr(line, 'in_function'):
+            return
         if getattr(self, constraint_met):
             return
         if rule_to_check(line):
             setattr(self, constraint_met, True)
             return
+
+        if error_msg == self.ENV_NOT_SET:
+            catalogue_lookup = 'beaker_env'
+        else:
+            catalogue_lookup = 'journal_beg'
 
         if line.argname in bkrdoc_parser.Parser.beakerlib_commands:
             self.add_error('2400', catalogue_lookup,
