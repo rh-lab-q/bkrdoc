@@ -61,7 +61,7 @@ This project aims to provide tools for automated documentation generation for Be
 For fast, brief and reliable documentation creation. It's good for a quick start with an unknown **BeakerLib** test. Created documentation provides information about the documentation credibility. The documentation further shows environmental variables and helps the reader to run test script from which the documentation was created. 
 
 ### 1.3 How is bkrdoc licensed?
-BSD license. See the LICENSE file in the distribution.
+GNU GPL v3+
 
 ### 1.4 Contact details
 Feel free to send me an email (Kulda12@seznam.cz) for any question you have on **bkrdoc** project.   
@@ -183,7 +183,7 @@ bkrlint
 Bkrlint is a linter-like tool that serves to identify the most common mistakes in a BeakerLib test. Only the BeakerLib-specific ones are regarded, for mistakes concerning bash see [shellcheck](https://github.com/koalaman/shellcheck).
 
 ### License
-Bkrlint is available under the GNU General Public License.
+Bkrlint is available under the GNU General Public License v3+.
 
 ### Contact details
 I welcome e-mails on bkrlint, you can get in touch with me at zuzan (dot) baran (at) gmail (dot) com.
