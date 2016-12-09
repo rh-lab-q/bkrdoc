@@ -154,7 +154,8 @@ class NodeVisitor(ast.nodevisitor):
     def visitpipe(self, n, pipe):
         # print("VISIT PIIIIIIIIIIIIPE NOT IMPLEMENTED")
         # print("PIPE: " + str(pipe))
-        self._parsing_subject.set_argparse_list(pipe)
+        if self._parsing_subject:
+            self._parsing_subject.set_argparse_list(pipe)
 
     def visitpipeline(self, n, parts):
         # print("VISIT PIIIIIIIIIIIIPEEEEELIIIIIIIIINEEEE NOT IMPLEMENTED")
@@ -236,6 +237,10 @@ class NodeVisitor(ast.nodevisitor):
                 function.add_command(self.get_parsed_container())
             self.erase_parsing_subject_variable()
 
+        def inner_visit_list(parts):
+            for part in parts:
+                inner_visit(part)
+
         pom_variables = self._variables
         self._variables = copy.deepcopy(self._variables)
         function = data_containers.FunctionContainer(body)
@@ -243,17 +248,17 @@ class NodeVisitor(ast.nodevisitor):
 
         compound = self.get_compound_from_function(parts)
         if self.is_list_node(compound.list[1]):
-            for member in compound.list[1].parts:
-                inner_visit(member)
+            inner_visit_list(compound.list[1].parts)
         elif hasattr(compound.list[1], 'parts') and isinstance(compound.list[1].parts, list):
             if compound.list[1].kind == 'command':
                 inner_visit(compound.list[1])
+            elif compound.list[1].kind == 'pipeline':
+                inner_visit_list(compound.list[1].parts)
             else:
                 sys.stderr.writelines("Function parsing not a command\n")
         elif compound.list[1].kind == "compound":
             parts = compound.list[1].list[0].parts
-            for member in parts:
-                inner_visit(member)
+            inner_visit_list(parts)
         else:
             inner_visit(compound.list[1].parts)
 

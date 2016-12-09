@@ -29,7 +29,7 @@ class Linter(object):
     def recursive_analyse(self, line):
         if isinstance(line, argparse.Namespace):
             self.analyse_command(line)
-        elif any([self.is_type(line, type_) for type_ in ['for loop', 'condition', 'case']]):
+        elif any([self.is_type(line, type_) for type_ in ['for loop', 'condition', 'case', 'while loop']]):
             for statement in line.statement_list:
                 if line.in_function:
                     statement.in_function = True
