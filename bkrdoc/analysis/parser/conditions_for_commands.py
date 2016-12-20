@@ -16,6 +16,10 @@ class ConditionsForCommands:
         pom_list = ["rlVirtualXStop", "rlVirtualXStart", "rlVirtualXGetDisplay"]
         return command in pom_list
 
+    def is_rlsocketxxx_command(self, command):
+        pom_list = ["rlSocketStart", "rlSocketStop", "rlSocketRestore"]
+        return command in pom_list
+
     def is_rlwaitfor_command(self, command):
         return command == "rlWait"
 
@@ -88,13 +92,19 @@ class ConditionsForCommands:
     def is_assert_exists(self, command):
         return command == "rlAssertExists" or command == "rlAssertNotExists"
 
-    def is_assert_comparasion(self, command):
+    def is_assert_comparison(self, command):
         pom_list = ["rlAssertEquals", "rlAssertNotEquals", "rlAssertGreater",
                     "rlAssertGreaterOrEqual"]
         return command in pom_list
 
     def is_rlpass_or_rlfail_command(self, command):
         return command == "rlPass" or command == "rlFail"
+
+    def is_cmp_version(self, command):
+        return command == "rlCmpVersion"
+
+    def is_test_version(self, command):
+        return command == "rlTestVersion"
 
     def is_assert_grep(self, command):
         return command == "rlAssertGrep" or command == "rlAssertNotGrep"
@@ -170,8 +180,20 @@ class ConditionsForCommands:
     def is_phase_setup(self, command):
         return command == "rlPhaseStartSetup"
 
+    def is_phase_end(self, command):
+        return command == "rlPhaseEnd"
+
     def is_phase_journal_end(self, command):
         return command in ["rlPhaseEnd", "rlJournalEnd"]
 
     def is_journal_start(self, command):
         return command == "rlJournalStart"
+
+    def is_journal_end(self, command):
+        return command == "rlJournalEnd"
+
+    def is_deprecated_command(self, command):
+        deprecated = ['rlLogLowMetric', 'rlLogHighMetric', 'rlShowPkgVersion',
+                      'rlMountAny', 'rlAnyMounted']
+        return command in deprecated
+

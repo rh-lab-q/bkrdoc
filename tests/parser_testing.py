@@ -112,7 +112,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_first_command(self):
         parser = bkrdoc_parser.Parser("nothing")
         parser.parse_data("rlRun \"rm -r $TmpDir\" 2,3,4,26 \"Removing tmp directory\"")
-        command_argparse = parser.argparse_data_list[0]
+        command_argparse = parser.argparse_data_list[1]
 
         self.assertEqual(command_argparse.argname, "rlRun")
         self.assertEqual(command_argparse.command.data, ["rm", "-r", "$TmpDir"])
@@ -251,7 +251,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_rlRun_command(self):
         parser = bkrdoc_parser.Parser("nothing")
         parser.parse_data("rlRun -l 'rm -r $TmpDir' ")
-        command_argparse = parser.argparse_data_list[0]
+        command_argparse = parser.argparse_data_list[1]
         self.assertEqual(command_argparse.argname, "rlRun")
         self.assertEqual(command_argparse.command.data, ["rm", "-r", "$TmpDir"])
 
@@ -267,7 +267,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_rlRun_rlFileBackup_extend(self):
         parser = bkrdoc_parser.Parser("nothing")
         parser.parse_data("rlRun \"rlFileBackup --clean $HttpdPages $HttpdLogs\" \"1-2\" \"Backing up\"")
-        command_argparse = parser.argparse_data_list[0]
+        command_argparse = parser.argparse_data_list[1]
         self.assertEqual(command_argparse.argname, "rlRun")
 
         sec = documentation_translator.DocumentationTranslator(documentation_generator.DocumentationGenerator())
@@ -283,7 +283,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_rlRun_rlServiceStart_extend(self):
         parser = bkrdoc_parser.Parser("nothing")
         parser.parse_data("rlRun \"rlServiceStart httpd\" ")
-        command_argparse = parser.argparse_data_list[0]
+        command_argparse = parser.argparse_data_list[1]
 
         self.assertEqual(command_argparse.argname, "rlRun")
         #self.assertEqual(mys.parsed_param_ref.command,"rlFileBackup --clean $HttpdPages $HttpdLogs")

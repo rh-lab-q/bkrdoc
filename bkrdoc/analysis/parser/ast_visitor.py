@@ -124,7 +124,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitpattern(self, n, actions, parts):
-        # TODO rewrite it to a condition simmilar container
+        # TODO rewrite it to a condition similar container
         # self.visit(parts.actions)
         case_condition = data_containers.ConditionContainer(n)
         for child in actions:
@@ -144,21 +144,18 @@ class NodeVisitor(ast.nodevisitor):
                 self._parsing_subject.set_empty_spot_for_cmd_subst_ast_list()
 
     def visitoperator(self, n, op):
-        if not op == "\n":
-            sys.stderr.writelines("visitoperator NOT IMPLEMENTED\n")
-            #print(n)
-            #print(op)
+        pass
 
     def visitlist(self, n, parts):
-        sys.stderr.writelines("visitlist NOT IMPLEMENTED\n")
-        # print(n)
-        # print(parts)
+        # for part in parts
+        #   print part
         pass
 
     def visitpipe(self, n, pipe):
         # print("VISIT PIIIIIIIIIIIIPE NOT IMPLEMENTED")
         # print("PIPE: " + str(pipe))
-        self._parsing_subject.set_argparse_list(pipe)
+        if self._parsing_subject:
+            self._parsing_subject.set_argparse_list(pipe)
 
     def visitpipeline(self, n, parts):
         # print("VISIT PIIIIIIIIIIIIPEEEEELIIIIIIIIINEEEE NOT IMPLEMENTED")
@@ -166,7 +163,7 @@ class NodeVisitor(ast.nodevisitor):
         pass
 
     def visitcompound(self, n, list, redirects):
-        sys.stderr.writelines("VISIT COMPOUND NOT IMPLEMENTED\n")
+        # compounds are visited on a more specific level (if/while/..)
         pass
 
     def visitif(self, node, parts):
@@ -175,6 +172,9 @@ class NodeVisitor(ast.nodevisitor):
         #  print("PARTS: " + str(parts))
         # print(self.get_condition_body_position(parts))
         condition = data_containers.ConditionContainer(parts)
+        self.visit(parts[1]) #condition after 'if'
+        condition.add_command(self.get_parsed_container())
+        self.erase_parsing_subject_variable()
         condition_body = self.get_condition_body_position(parts)
         keys = condition_body.keys()
         # keys need to be sorted to be in right position.
@@ -231,26 +231,37 @@ class NodeVisitor(ast.nodevisitor):
         self._parsing_subject = case_container
 
     def visitfunction(self, n, name, body, parts):
-        # print("function ******************************** NOT IMPLEMENTED")
-        # print("n: " + str(n))
-        # print("Name: " + str(name))
-        # print("Body: " + str(body))
-        # print (parts[4]).list[1].kind
+        def inner_visit(part):
+            self.visit(part)
+            if not self.is_parsing_subject_empty():
+                function.add_command(self.get_parsed_container())
+            self.erase_parsing_subject_variable()
+
+        def inner_visit_list(parts):
+            for part in parts:
+                inner_visit(part)
+
         pom_variables = self._variables
         self._variables = copy.deepcopy(self._variables)
         function = data_containers.FunctionContainer(body)
         function.set_function_name(name.word)
-        if self.is_list_node((parts[4]).list[1]):
-            for member in (parts[4]).list[1].parts:
-                self.visit(member)
-                # print(self._parsing_subject)
-                if not self.is_parsing_subject_empty():
-                    function.add_command(self.get_parsed_container())
-                self.erase_parsing_subject_variable()
+
+        compound = self.get_compound_from_function(parts)
+        if self.is_list_node(compound.list[1]):
+            inner_visit_list(compound.list[1].parts)
+        elif hasattr(compound.list[1], 'parts') and isinstance(compound.list[1].parts, list):
+            if compound.list[1].kind == 'command':
+                inner_visit(compound.list[1])
+            elif compound.list[1].kind == 'pipeline':
+                inner_visit_list(compound.list[1].parts)
+            else:
+                sys.stderr.writelines("Function parsing not a command\n")
+        elif compound.list[1].kind == "compound":
+            parts = compound.list[1].list[0].parts
+            inner_visit_list(parts)
         else:
-            self.visit((parts[4]).list[1].parts)
-            function.add_command(self.get_parsed_container())
-            self.erase_parsing_subject_variable()
+            inner_visit(compound.list[1].parts)
+
         function.set_variables(self._variables)
         self._variables = pom_variables
         self._parsing_subject = function
@@ -279,11 +290,9 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.add_variable(member, value)
 
     def visitreservedword(self, n, word):
-        sys.stderr.writelines("Reserved WORD NOT IMPLEMENTED\n")
-
+        pass
 
     def visitparameter(self, n, value):
-        # print("PARAMETR VISIT")
         if self._variables.is_existing_variable(value):
             pom_member = self._parsing_subject.get_last_member_of_argparse_list()
             pom_member = self._variables.replace_variable_in_string_with_specified_variable(pom_member, value)
@@ -292,14 +301,12 @@ class NodeVisitor(ast.nodevisitor):
             self._variables.set_unknown_variable(value)
 
     def visittilde(self, n, value):
-        sys.stderr.writelines("TILDE NOT IMPLEMENTED\n")
         pass
 
     def visitredirect(self, n, input, type, output, heredoc):
         pass
 
     def visitheredoc(self, n, value):
-        sys.stderr.writelines("HEREDOC NOT IMPLEMENTED\n")
         pass
 
     def visitprocesssubstitution(self, n, command):
@@ -420,3 +427,10 @@ class NodeVisitor(ast.nodevisitor):
 
     def get_parsing_subject_ast(self):
         return self._parsing_subject.get_ast()
+
+    @staticmethod
+    def get_compound_from_function(parts):
+        if parts[2].kind == 'compound':
+            return parts[2]
+        else:
+            return parts[4]

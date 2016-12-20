@@ -35,7 +35,7 @@ PACKAGE="bugzilla"
 BZ_HOME_DIR="/var/www/html/bugzilla"
 LOG=""
 RESULT="PASS"
-TESTOUTPUTFILE=""
+TESTOUTPUTFILE="T"
 
 # List of packages to install using yum from the bz3 repo. Eventually we should be able to just do 
 # yum -y install bugzilla-testsuite

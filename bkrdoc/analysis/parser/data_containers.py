@@ -255,6 +255,9 @@ class DataContainer(object):
     _argparse_list = []
     _command_substitution_ast_list = [""]
 
+    def __init__(self):
+        self.in_function = False
+
     def set_argparse_list(self, member):
         pass
 
@@ -289,6 +292,7 @@ class CommandContainer(DataContainer):
     _substitution_argparse_list = []
 
     def __init__(self, ast):
+        super(CommandContainer, self).__init__()
         self._command_ast = ast
         self._argparse_list = []
         self._substitution_argparse_list = []
@@ -317,6 +321,10 @@ class SimpleContainer(object):
     command_list = []
     statement_list = []
     _variables = ""
+    errors = []
+
+    def __init__(self):
+        self.in_function = False
 
     def add_command(self, command):
         self.command_list.append(command)
@@ -354,11 +362,15 @@ class SimpleContainer(object):
                 command.search_data(parser_ref, nodevisitor)
                 self.statement_list.append(command)
             else:
+                data_searcher.parsed_param_ref = ''
                 data_searcher.parse_command(command)
                 data = data_searcher.parsed_param_ref
-                if conditions.is_rlrun_command(data.argname):
-                    data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
-                self.statement_list.append(data)
+                if data_searcher.parsed_param_ref:
+                    if conditions.is_rlrun_command(data.argname):
+                        data = parser_ref.search_for_beakerlib_command_in_rlrun(nodevisitor, data)
+                    data.lineno = data_searcher.lineno
+                    self.statement_list.append(data)
+        self.errors = data_searcher.get_errors()
 
     def container_length(self):
         pass
@@ -366,12 +378,16 @@ class SimpleContainer(object):
     def unknown_commands_num(self):
         pass
 
+    def get_errors(self):
+        return self.errors
+
 
 class FunctionContainer(SimpleContainer):
     _function_ast = ""
     function_name = ""
 
     def __init__(self, ast):
+        super(FunctionContainer, self).__init__()
         self.command_list = []
         self._function_ast = ast
         self.function_name = ""
@@ -412,6 +428,7 @@ class LoopContainer(SimpleContainer):
     argname = "loop"
 
     def __init__(self, ast, name):
+        super(LoopContainer, self).__init__()
         self.argname = name + " " + self.argname
         self._loop_ast = ast
         self.command_list = []
@@ -446,6 +463,7 @@ class ConditionContainer(SimpleContainer):
     argname = "condition"
 
     def __init__(self, ast):
+        super(ConditionContainer, self).__init__()
         self._condition_ast = ast
         self.command_list = []
         self.statement_list = []
@@ -479,6 +497,7 @@ class AssignmentContainer(DataContainer):
     _command_substitution_ast_list = [""]
 
     def __init__(self, ast):
+        super(AssignmentContainer, self).__init__()
         self._assign_ast = ast
         self._command_substitution_ast_list = [""]
         self._argparse_list = []
@@ -504,6 +523,7 @@ class CaseContainer(SimpleContainer):
     argname = "case"
 
     def __init__(self, ast):
+        super(CaseContainer, self).__init__()
         self._case_ast = ast
         self.command_list = []
         self.statement_list = []

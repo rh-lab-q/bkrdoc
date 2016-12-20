@@ -1,7 +1,7 @@
 __author__ = 'Zuzana Baranova'
 
 import copy
-from bkrdoc.analysis.linter import common
+from bkrdoc.analysis.linter import common, catalogue
 from bkrdoc.analysis.parser import bkrdoc_parser
 
 
@@ -19,14 +19,16 @@ class Match(object):
     :param flag: Concrete flag of a command whose pair with matching flag is searched for
     :param restores_all: a flagless Closing command closes everything regardless of flag
     """
-    def __init__(self, func, pair, before=[], each=False, flag_source=None, restores_all=False):
+
+    def __init__(self, func, before=[], each=False, flag_source=None, restores_all=False, lineno=0):
         self.func = func
-        self.pair = pair
+        self.pair = catalogue.Catalogue.pair_ends[func]
         self.before = before
         self.each_needs_match = each
         self.restores_all = restores_all
         self.flag_source = flag_source
         self.flag = None
+        self.lineno = lineno
 
     def set_flag(self, flag):
         self.flag = flag
@@ -37,65 +39,70 @@ class LinterPairFunctions(common.LinterRule):
 
     start_phase_names = bkrdoc_parser.Parser.start_phase_names
 
-    pairs = {'rlPhaseStart': Match('rlPhaseStart', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlPhaseStartTest': Match('rlPhaseStartTest', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlPhaseStartSetup': Match('rlPhaseStartSetup', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', 'rlPhaseEnd', before=start_phase_names, each=True),
-             'rlFileBackup': Match('rlFileBackup', 'rlFileRestore', flag_source='namespace'),
-             'rlVirtualXStart': Match('rlVirtualXStart', 'rlVirtualXStop', flag_source='name'),
-             'rlServiceStart': Match('rlServiceStart', 'rlServiceStop', before=['rlServiceRestore'], flag_source='service'),
-             'rlSEBooleanOn': Match('rlSEBooleanOn', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True),
-             'rlSEBooleanOff': Match('rlSEBooleanOff', 'rlSEBooleanRestore', flag_source='boolean', restores_all=True)}
+    pairs = {'rlPhaseStart': Match('rlPhaseStart', before=start_phase_names, each=True),
+             'rlPhaseStartTest': Match('rlPhaseStartTest', before=start_phase_names, each=True),
+             'rlPhaseStartSetup': Match('rlPhaseStartSetup', before=start_phase_names, each=True),
+             'rlPhaseStartCleanup': Match('rlPhaseStartCleanup', before=start_phase_names, each=True),
+             'rlFileBackup': Match('rlFileBackup', flag_source='namespace'),
+             'rlVirtualXStart': Match('rlVirtualXStart', flag_source='name'),
+             'rlServiceStart': Match('rlServiceStart', flag_source='service'),
+             'rlServiceStop': Match('rlServiceStop', flag_source='service'),
+             'rlSocketStart': Match('rlSocketStart', flag_source='socket'),
+             'rlSocketStop': Match('rlSocketStop', flag_source='socket'),
+             'rlSEBooleanOn': Match('rlSEBooleanOn', flag_source='boolean', restores_all=True),
+             'rlSEBooleanOff': Match('rlSEBooleanOff', flag_source='boolean', restores_all=True)}
 
     currently_unmatched = []
 
-    def __init__(self, parsed_input_list):
+    def __init__(self):
+        super(LinterPairFunctions, self).__init__()
         self.currently_unmatched = []
         self.errors = []
-        self.parsed_input_list = parsed_input_list
 
-    def analyse(self):
+    def analyse(self, line):
 
-        for line in self.parsed_input_list:
-            match = self.get_relevant_match(line.argname)
-            line_flags = self.get_flag(line, match)
-            if isinstance(line_flags, list):
-                if not line_flags:
-                    line_flags = [None]       # analyse commands with empty optional argument lists
-                for flag in line_flags:
-                    setattr(line, match.flag_source, flag)
-                    self.analyse_single_line(line)
-            else:
+        match = self.get_relevant_match(line.argname)
+        line_flags = self.get_flag(line, match)
+        if isinstance(line_flags, list):
+            if not line_flags:
+                line_flags = [None]  # analyse commands with empty optional argument lists
+            for flag in line_flags:
+                setattr(line, match.flag_source, flag)
                 self.analyse_single_line(line)
-
-        for elem in self.currently_unmatched:
-            self.add_error(elem.func + " without a matching " + elem.pair, flag=elem.flag)
+        else:
+            self.analyse_single_line(line)
 
     def analyse_single_line(self, line):
 
         for elem in self.currently_unmatched:
-                if self.is_command_before_end_function(line, elem):
-                    self.add_error(line.argname + " before matching " + elem.pair)
+            if self.is_command_before_end_function(line, elem):
+                self.add_error('1100', elem.pair,
+                               line.argname + " before matching " + elem.pair,
+                               line.lineno)
 
         if self.is_end_function_that_restores_all(line):
             size_before_filter = len(self.currently_unmatched)
             self.currently_unmatched = [x for x in self.currently_unmatched if x.pair != line.argname]
             if size_before_filter > len(self.currently_unmatched):
-                return   # would mess looking for Ends without Begins
+                return  # would mess looking for Ends without Begins
 
         for elem in self.currently_unmatched:
             if self.matches_opposite(line, elem):
                 self.currently_unmatched.remove(elem)
                 return
 
-        if line.argname in self.pairs.keys() and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
+        if line.argname in self.pairs.keys() \
+                and (self.pairs[line.argname].each_needs_match or not self.already_present(line)):
             match = copy.deepcopy(self.pairs[line.argname])
+            match.lineno = line.lineno
             match.set_flag(self.get_flag(line, match))
             self.currently_unmatched.insert(0, match)
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
             flag = self.get_flag(line, self.get_relevant_match(line.argname))
-            self.add_error(line.argname + " without a previous begin", flag=flag)
+            self.add_error('1200', line.argname,
+                           line.argname + " without a previous begin",
+                           line.lineno, flag=flag)
 
     def get_relevant_match(self, command):
         """Fetches the Match instance from 'pairs' map associated with 'command'
@@ -135,3 +142,10 @@ class LinterPairFunctions(common.LinterRule):
             return None
         return getattr(line, elem.flag_source)
 
+    # overriding, have to traverse the whole parsed input list to see what is left
+    def get_errors(self):
+        for elem in self.currently_unmatched:
+            self.add_error('1000', elem.func,
+                           elem.func + " without a matching " + elem.pair,
+                           elem.lineno, flag=elem.flag)
+        return self.errors
