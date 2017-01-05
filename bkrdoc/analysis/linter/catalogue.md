@@ -47,7 +47,7 @@ The following commands are deprecated and should no longer be used:
 
 
 ### EC2400: Standalone rules
-- [E2401][error] beakerlib environment not set
+- [E2401][error] BeakerLib environment not set
 - [E2402][error] journal not started
 - [E2403][warning] journal end followed by a command other than journal print
 

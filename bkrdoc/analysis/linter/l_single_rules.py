@@ -14,8 +14,8 @@ class LinterSingleRules(common.LinterRule):
         Deprecated commands.
     """
 
-    ENV_NOT_SET = "Beakerlib environment was not set before a beakerlib command was used."
-    JOURNAL_NOT_STARTED = "Journal was not started before a beakerlib command was used."
+    ENV_NOT_SET = "BeakerLib environment was not set before a BeakerLib command was used."
+    JOURNAL_NOT_STARTED = "Journal was not started before a BeakerLib command was used."
     JOURNAL_END = "Journal end was followed by a command other than journal print."
 
     def __init__(self):

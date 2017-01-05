@@ -201,7 +201,7 @@ class TestComplexFile(unittest.TestCase):
         RLRUN = "rlRun, too many arguments (unrecognized args: ['-o'])"
         PHASEEND = "rlPhaseEnd without a previous rlPhaseStart"
         FILEBACKUP = "rlFileBackup without a matching rlFileRestore with flag `wut`"
-        JOURNAL = "Journal was not started before a beakerlib command was used."
+        JOURNAL = "Journal was not started before a BeakerLib command was used."
         GETARCH = "rlGetArch command is deprecated, instead use: rlGetPrimaryArch, rlGetSecondaryArch"
 
         gener.analyse()
