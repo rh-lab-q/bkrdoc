@@ -35,7 +35,8 @@ class Match(object):
 
 
 class LinterPairFunctions(common.LinterRule):
-    """Does the logical analysis of matching paired commands."""
+    """Does the logical analysis of matching paired commands.
+    The map of Opening to Closing commands is located in catalogue.py"""
 
     start_phase_names = bkrdoc_parser.Parser.start_phase_names
 
@@ -99,9 +100,11 @@ class LinterPairFunctions(common.LinterRule):
             self.currently_unmatched.insert(0, match)
 
         elif line.argname in [x.pair for x in self.pairs.values()]:
-            flag = self.get_flag(line, self.get_relevant_match(line.argname))
+            match = self.get_relevant_match(line.argname)
+            flag = self.get_flag(line, match)
+            begin = 'rlPhaseStart' if line.argname == 'rlPhaseEnd' else match.func
             self.add_error('1200', line.argname,
-                           line.argname + " without a previous begin",
+                           line.argname + " without a previous " + begin,
                            line.lineno, flag=flag)
 
     def get_relevant_match(self, command):

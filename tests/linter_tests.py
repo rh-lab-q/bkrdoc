@@ -112,7 +112,7 @@ class TestPairFunctions(unittest.TestCase):
     def test_no_begin_present(self):
         parse_list = [self.ns_phase_end]
         errors = get_func_pair_errors(parse_list)
-        self.assertEqual([err('E1201', 'error', "rlPhaseEnd without a previous begin", 2)], errors)
+        self.assertEqual([err('E1201', 'error', "rlPhaseEnd without a previous rlPhaseStart", 2)], errors)
 
     def test_before(self):
         parse_list = [self.ns_phase_start, self.ns_phase_start,
@@ -132,7 +132,7 @@ class TestPairFunctions(unittest.TestCase):
 
         parse_list = [ns_file_backup_a, ns_file_restore]
         errors = get_func_pair_errors(parse_list)
-        self.assertEqual([err('E1202', 'error', "rlFileRestore without a previous begin", 3),
+        self.assertEqual([err('E1202', 'error', "rlFileRestore without a previous rlFileBackup", 3),
                           err('E1002', 'error', "rlFileBackup without a matching rlFileRestore with flag `a`", 1)],
                          errors)
 
@@ -199,7 +199,7 @@ class TestComplexFile(unittest.TestCase):
                                                            suppress_first=False, catalogue=False))
 
         RLRUN = "rlRun, too many arguments (unrecognized args: ['-o'])"
-        PHASEEND = "rlPhaseEnd without a previous begin"
+        PHASEEND = "rlPhaseEnd without a previous rlPhaseStart"
         FILEBACKUP = "rlFileBackup without a matching rlFileRestore with flag `wut`"
         JOURNAL = "Journal was not started before a beakerlib command was used."
         GETARCH = "rlGetArch command is deprecated, instead use: rlGetPrimaryArch, rlGetSecondaryArch"
