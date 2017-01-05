@@ -72,7 +72,7 @@ class Parser(object):
                     self.file_test = input_file.read()
 
             except IOError:
-                sys.stderr.write("ERROR: Fail to open file: " + self.file_name + "\n")
+                sys.stderr.write("ERROR: Failed to open file: " + self.file_name + "\n")
                 sys.exit(1)
 
         else:
