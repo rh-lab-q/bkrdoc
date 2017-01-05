@@ -82,7 +82,7 @@ class TestStandaloneRules(unittest.TestCase):
     def test_journal_not_started(self):
         parse_list = [self.ns_beaker_env, self.ns_rlrun]
         errors = get_errors_from_parse_list(parse_list)
-        self.assertEqual([err('E2402', 'warning', LSingleRules.JOURNAL_NOT_STARTED, 0)], errors)
+        self.assertEqual([err('E2402', 'error', LSingleRules.JOURNAL_NOT_STARTED, 0)], errors)
 
 
 def get_func_pair_errors(parse_list):
@@ -210,7 +210,7 @@ class TestComplexFile(unittest.TestCase):
         expected_errors = [err('E3002', 'warning', RLRUN, 12),
                            err('E1201', 'error', PHASEEND, 35),
                            err('E1002', 'error', FILEBACKUP, 14),
-                           err('E2402', 'warning', JOURNAL, 9),
+                           err('E2402', 'error', JOURNAL, 9),
                            err('E2001', 'error', GETARCH, 17)]
         self.list_contains_(expected_errors, errors)
 

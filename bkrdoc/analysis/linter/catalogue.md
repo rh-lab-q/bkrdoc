@@ -5,7 +5,7 @@ Each opening pair command needs a corresponding closing command, which is mostly
 - [E1001][error] rlPhaseStartSetup >> rlPhaseEnd
 - [E1001][error] rlPhaseStartTest >> rlPhaseEnd
 - [E1002][error] rlFileBackup >> rlFileRestore
-- [E1003][warning] rlVirtualXStart >> rlVirtualXStop
+- [E1003][error] rlVirtualXStart >> rlVirtualXStop
 - [E1004][error] rlServiceStart >> rlServiceRestore
 - [E1005][error] rlServiceStop >> rlServiceRestore
 - [E1006][error] rlSEBooleanOn >> rlSEBooleanRestore
@@ -16,7 +16,7 @@ Each opening pair command needs a corresponding closing command, which is mostly
 
 ### EC1100: Pair commands -- end before 'before'
 A command can have a `before` specified - a list of commands which should not appear before its ending counterpart has been encountered.
-- [E1101][warning] rlPhaseEnd, before: PhaseStartX
+- [E1101][warning] rlPhaseEnd, before: rlPhaseStartX
 
 
 ### EC1200: Pair commands -- end without begin
@@ -48,7 +48,7 @@ The following commands are deprecated and should no longer be used:
 
 ### EC2400: Standalone rules
 - [E2401][error] beakerlib environment not set
-- [E2402][warning] journal not started
+- [E2402][error] journal not started
 - [E2403][warning] journal end followed by a command other than journal print
 
 
@@ -56,7 +56,7 @@ The following commands are deprecated and should no longer be used:
 A number of commands require specific type of arguments. The simple ones (int/float..) are checked at command parsing, while the more complex ones are checked individually. This includes passing unknown options to commands or using one too many arguments.
 - [E3001][error] invalid command argument
 - [E3002][warning] too many arguments / unrecognized options
-- [E3010][error] rlRun status not a float(int)
+- [E3010][error] rlRun status not a float (int)
 - [E3011][error] rlRun range status a-b : a>b
 - [E3012][info] rlWatchdog signal not a common one
 - [E3013][info] rlWait signal not a common one

@@ -51,7 +51,7 @@ class Catalogue:
                    'rlPhaseStartSetup': ('E1001', Severity.error),
                    'rlPhaseStartCleanup': ('E1001', Severity.error),
                    'rlFileBackup': ('E1002', Severity.error),
-                   'rlVirtualXStart': ('E1003', Severity.warning),
+                   'rlVirtualXStart': ('E1003', Severity.error),
                    'rlServiceStart': ('E1004', Severity.error),
                    'rlServiceStop': ('E1005', Severity.error),
                    'rlSEBooleanOn': ('E1006', Severity.error),
@@ -64,7 +64,7 @@ class Catalogue:
                         "A command can have a `before` specified - a list of commands "
                         "which should not appear before its ending counterpart "
                         "has been encountered.",
-            value={'rlPhaseEnd': ('E1101', Severity.warning, "rlPhaseEnd, before: PhaseStartX")}),
+            value={'rlPhaseEnd': ('E1101', Severity.warning, "rlPhaseEnd, before: rlPhaseStartX")}),
 
         '1200': Namespace(
             description="Pair commands -- end without begin\n"
@@ -101,7 +101,7 @@ class Catalogue:
         '2400': Namespace(
             description="Standalone rules",
             value={'beaker_env': ('E2401', Severity.error, "beakerlib environment not set"),
-                   'journal_beg': ('E2402', Severity.warning, "journal not started"),
+                   'journal_beg': ('E2402', Severity.error, "journal not started"),
                    'journal_end': ('E2403', Severity.warning, "journal end followed by a command other than journal print")}),
 
         '3000': Namespace(
@@ -113,7 +113,7 @@ class Catalogue:
                         "using one too many arguments.",
             value={'parse_err': ('E3001', Severity.error, "invalid command argument"),
                    'too_many_args': ('E3002', Severity.warning, "too many arguments / unrecognized options"),
-                   'rlRun_type': ('E3010', Severity.error, "rlRun status not a float(int)"),
+                   'rlRun_type': ('E3010', Severity.error, "rlRun status not a float (int)"),
                    'rlRun_bounds': ('E3011', Severity.error, "rlRun range status a-b : a>b"),
                    'rlWatchdog_signal': ('E3012', Severity.info, "rlWatchdog signal not a common one"),
                    'rlWait_signal': ('E3013', Severity.info, "rlWait signal not a common one"),
