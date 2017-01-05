@@ -31,7 +31,7 @@ class Error(object):
         if self.lineno == other.lineno:
             if self.err_id == 'UNK_FLAG':
                 return True
-            return other.err_id != 'UNK_FLAG'
+            return other.err_id != 'UNK_FLAG' and self.err_id < other.err_id
         return self.lineno < other.lineno
 
 
