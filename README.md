@@ -15,7 +15,7 @@ For fast, brief and reliable documentation creation. It`s good for quick start w
 ### 1.3 What is BeakerLib?
 **BeakerLib** is a shell-level integration testing library, providing convenience functions which simplify writing, running and analysis of integration and blackbox tests.
 
-https://fedorahosted.org/beakerlib/
+https://github.com/beakerlib/beakerlib/wiki/man
 
 ### 1.4 How is bkrdoc licensed?
 BSD license. See the LICENSE file in the distribution.
